@@ -2,6 +2,7 @@ machinePos = {};
 path = [];
 
 REAL_NUMBER_REGEX = "[+-]?[0-9]+(?:[.][0-9]*)?";
+RADIUS_DETECTOR = new RegExp('R(' + REAL_NUMBER_REGEX + ')');
 AXES = ['x', 'y', 'z'];
 AXES_DETECTORS = {};
 $.each(AXES, function (_, axis) {
@@ -35,6 +36,41 @@ function move(parsedMove) {
     }
 }
 
+function parseArc(line) {
+    var targetPos = $.extend(cloneObject(machinePos), detectAxisMove(line));
+
+    var radius = parseFloat(RADIUS_DETECTOR.exec(line)[1]);
+    // I can't do maths, found there : https://github.com/grbl/grbl/blob/master/gcode.c#L430
+    var x = targetPos.x - machinePos.x;
+    var y = targetPos.y - machinePos.y;
+    var h_x2_div_d = 4 * radius * radius - x * x - y * y;
+    h_x2_div_d = -Math.sqrt(h_x2_div_d) / Math.sqrt(x * x + y * y);
+
+    var toCenterX = 0.5 * (x - (y * h_x2_div_d));
+    var toCenterY = 0.5 * (y + (x * h_x2_div_d));
+    var centerX = machinePos.x + toCenterX;
+    var centerY = machinePos.y + toCenterY;
+    var targetCenterX = targetPos.x - centerX;
+    var targetCenterY = targetPos.y - centerY;
+
+    var angularDiff = Math.atan2(-toCenterX * targetCenterY + toCenterY * targetCenterX,
+        -toCenterX * targetCenterX - toCenterY * targetCenterY);
+    var angularStart = Math.atan2(-toCenterY, -toCenterX);
+    for (var i = 0; i <= 10; i++) {
+        var angle = angularStart + angularDiff * i / 10;
+        console.log(angle);
+        var px = centerX + radius * Math.cos(angle);
+        var py = centerY + radius * Math.sin(angle);
+        console.log(px);
+        console.log(py);
+        move({x:px, y:py, z:machinePos.z});
+    }
+    console.log({arc: targetPos});
+    console.log(centerX);
+    console.log(centerY);
+    console.log(angularStart);
+}
+
 function evaluateCode() {
     path = [];
     machinePos = {};
@@ -54,6 +90,8 @@ function evaluateCode() {
             var codeNum = parseFloat(gCode[1]);
             if (codeNum == 0 || codeNum == 1)
                 move(detectAxisMove(gCode[2]));
+            else if (codeNum == 2 || codeNum == 3)
+                parseArc(gCode[2]);
         } else {
             var parsedMove = detectAxisMove(line);
             if (parsedMove)
