@@ -114,10 +114,13 @@
         G2 X0 Y10 Z-15 R10 (yeah spiral !)
         G3 X-10 Y20 R-10 (yeah, long arc !)
         G3 X0 Y10 I10 (center)
-        G91 (incremental position)
-        G1 X10 Z10
+        G91 G1 X10 Z10
         G3 Y10 R5 Z3 (circle in incremental)
         Y10 R5 Z3 (again, testing modal state)
+        G20 G0 X1 (one inch to the right)
+        G3 X-1 R1 (radius in inches)
+        G3 X1 Z0.3 I0.5 J0.5 (I,J in inches)
+        G21 (back to mm)
     </textarea>
     <button onclick="evaluateCode();">Simulate</button>
 </div>

@@ -1,4 +1,4 @@
-machineState = {position: {}, positionMode: absolutePosition, motionMode: moveStraightLine, path: []};
+machineState = {position: {}, distanceMode: absoluteDistance, motionMode: moveStraightLine, unitMode: mmConverter, path: []};
 
 REAL_NUMBER_REGEX = "[+-]?[0-9]+(?:[.][0-9]*)?";
 //partial list for supported stuff only
@@ -9,17 +9,25 @@ $.each(LETTERS, function (_, letter) {
 });
 AXES = ['x', 'y', 'z'];
 
-function absolutePosition(previous, parsedMove) {
+function absoluteDistance(previous, parsedMove) {
     return $.extend(cloneObject(previous), parsedMove);
 }
 
-function incrementPosition(previous, parsedMove) {
+function incremantalDistance(previous, parsedMove) {
     var result = cloneObject(previous);
     $.each(AXES, function (_, axis) {
         if (parsedMove[axis] != null)
             result[axis] += parsedMove[axis];
     });
     return result;
+}
+
+function mmConverter(length) {
+    return length;
+}
+
+function inchesConverter(length) {
+    return length * 25.4;
 }
 
 function moveCWArcMode(line, machineState) {
@@ -31,17 +39,17 @@ function moveCCWArcMode(line, machineState) {
 }
 
 function moveStraightLine(line, machineState) {
-    var parsedMove = detectAxisMove(line);
+    var parsedMove = detectAxisMove(line, machineState.unitMode);
     if (parsedMove)
         move(parsedMove, machineState);
 }
 
-function detectAxisMove(s) {
+function detectAxisMove(s, unitMode) {
     var result = {};
     $.each(AXES, function (_, axis) {
         var parsed = WORD_DETECTORS[axis].exec(s);
         if (parsed)
-            result[axis] = parseFloat(parsed[1]);
+            result[axis] = unitMode(parseFloat(parsed[1]));
     });
     return result;
 }
@@ -51,7 +59,7 @@ function cloneObject(old) {
 }
 
 function move(parsedMove, machineState) {
-    var newPos = machineState.positionMode(machineState.position, parsedMove);
+    var newPos = machineState.distanceMode(machineState.position, parsedMove);
     addPathComponent(newPos, machineState);
 }
 
@@ -70,11 +78,11 @@ function addPathComponent(point, machineState) {
 // 'didn't steal adaptative segmentation, too lazy.
 function parseArc(line, clockwise, machineState) {
     var currentPosition = machineState.position;
-    var targetPos = machineState.positionMode(machineState.position, detectAxisMove(line));
+    var targetPos = machineState.distanceMode(machineState.position, detectAxisMove(line, machineState.unitMode));
     var radiusMatch = WORD_DETECTORS.r.exec(line);
     if (radiusMatch) {
         //radius notation
-        var radius = parseFloat(radiusMatch[1]);
+        var radius = machineState.unitMode(parseFloat(radiusMatch[1]));
         var dx = targetPos.x - currentPosition.x;
         var dy = targetPos.y - currentPosition.y;
         var mightyFactor = 4 * radius * radius - dx * dx - dy * dy;
@@ -90,9 +98,9 @@ function parseArc(line, clockwise, machineState) {
     } else {
         //center notation
         var iMatch = WORD_DETECTORS.i.exec(line);
-        toCenterX = iMatch ? parseFloat(iMatch[1]) : 0;
+        toCenterX = iMatch ? machineState.unitMode(parseFloat(iMatch[1])) : 0;
         var jMatch = WORD_DETECTORS.j.exec(line);
-        toCenterY = jMatch ? parseFloat(jMatch[1]) : 0;
+        toCenterY = jMatch ? machineState.unitMode(parseFloat(jMatch[1])) : 0;
         radius = Math.sqrt(toCenterX * toCenterX + toCenterY * toCenterY);
     }
     var centerX = currentPosition.x + toCenterX;
@@ -116,14 +124,26 @@ function parseArc(line, clockwise, machineState) {
 }
 
 function initializeMachine(machineState) {
-    machineState.positionMode = absolutePosition;
+    machineState.distanceMode = absoluteDistance;
     machineState.position = {};
     $.each(AXES, function (_, axis) {
         machineState.position[axis] = 0;
     });
     machineState.path = [machineState.position];
     machineState.motionMode = moveStraightLine;
+    machineState.unitMode = mmConverter;
 }
+
+GOUPS_TRANSITIONS = {
+    0: {motionMode: moveStraightLine},
+    1: {motionMode: moveStraightLine},
+    2: {motionMode: moveCWArcMode},
+    3: {motionMode: moveCCWArcMode},
+    20: {unitMode: inchesConverter},
+    21: {unitMode: mmConverter},
+    90: {distanceMode: absoluteDistance},
+    91: {distanceMode: incremantalDistance}
+};
 
 function evaluateCode() {
     initializeMachine(machineState);
@@ -137,24 +157,21 @@ function evaluateCode() {
         line = line.replace(/;.*$/, '');
         //drop line number
         line = line.replace(/^N[0-9]+/, '');
-        var gCode = WORD_DETECTORS.g.exec(line);
-        if (gCode) {
-            var codeNum = parseFloat(gCode[1]);
-            if (codeNum == 90)
-                machineState.positionMode = absolutePosition;
-            else if (codeNum == 91)
-                machineState.positionMode = incrementPosition;
-            else if (codeNum == 0 || codeNum == 1)
-                machineState.motionMode = moveStraightLine;
-            else if (codeNum == 2)
-                machineState.motionMode = moveCWArcMode;
-            else if (codeNum == 3)
-                machineState.motionMode = moveCCWArcMode;
-            else {
-                console.log('Did not understand the line, skipping');
-                console.log(originalLine);
+        do {
+            var gCode = WORD_DETECTORS.g.exec(line);
+            if (gCode) {
+                var codeNum = parseFloat(gCode[1]);
+                var transition = GOUPS_TRANSITIONS[codeNum];
+                if (transition != null)
+                    $.extend(machineState, transition);
+                else {
+                    console.log('Did not understand G' + gCode[1] + ', skipping');
+                    console.log(originalLine);
+                }
+                line = line.replace(WORD_DETECTORS.g, '');
             }
-        }
+
+        } while (gCode);
         machineState.motionMode(line, machineState);
     });
     var indexes = [];
