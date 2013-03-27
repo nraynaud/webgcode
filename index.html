@@ -7,9 +7,8 @@
     <script src="http://www.x3dom.org/download/dev/x3dom.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <link rel="stylesheet" href="http://www.x3dom.org/download/dev/x3dom.css">
+    <script src="parser.js"></script>
 </head>
-<script src="parser.js"></script>
-
 <body>
 
 <h1>G-Code Q'n'dirty toolpath simulator</h1>
@@ -18,7 +17,7 @@
     Type your g-code in the right window and see the toolpath on the left.
 </p>
 
-<x3d id="x3d" xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="true" x="0px" y="0px" width="400px"
+<x3d id="x3d" xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="false" x="0px" y="0px" width="400px"
      height="400px"
      altImg="helloX3D-alt.png">
     <Scene id="scene" DEF='scene'>
@@ -49,13 +48,19 @@
     </Scene>
 </x3d>
 <div style="position:relative; float:right; width:400px; height:400px; padding:1px;margin:0;">
-    <textarea id="codebox" type="textarea" style="width: 100%; -webkit-box-sizing: border-box;-moz-box-sizing: border-box; box-sizing: border-box; height:300px;">
-        G00 X20 Y20 Z30
+    <textarea id="codebox" type="textarea"
+              style="width: 100%; -webkit-box-sizing: border-box;-moz-box-sizing: border-box; box-sizing: border-box; height:300px;">
+        G00 X20 Y20 Z20
         G00 X20 Y40
-        G00 X20 Y30 Z40
-        Y30 Z41</textarea>
+        G00 X0 Y10 Z0
+        Y30 Z40</textarea>
     <button onclick="evaluateCode();">Simulate</button>
 </div>
+<script>
+    x3dom.runtime.ready = (function () {
+        evaluateCode();
+        $('#x3d')[0].runtime.showAll();
+    });</script>
 </body>
 </html>
 

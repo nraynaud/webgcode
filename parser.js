@@ -78,5 +78,4 @@ function evaluateCode() {
     lineset.append(coordinates);
     $('#toolpath').remove();
     $('#scene').append($('<Shape id="toolpath"></Shape>').append(lineset));
-    $('#x3d')[0].runtime.showAll();
 }
