@@ -2,18 +2,18 @@ machinePos = {};
 path = [];
 
 REAL_NUMBER_REGEX = "[+-]?[0-9]+(?:[.][0-9]*)?";
-RADIUS_DETECTOR = new RegExp('R(' + REAL_NUMBER_REGEX + ')');
-AXES = ['x', 'y', 'z'];
-AXES_DETECTORS = {};
-$.each(AXES, function (_, axis) {
-    //returns only the rightmost when it appears multiple times on the same line.
-    AXES_DETECTORS[axis] = new RegExp(axis.toUpperCase() + '(' + REAL_NUMBER_REGEX + ')');
+//partial list for supported stuff only
+LETTERS = ['g', 'i', 'j', 'r', 'x', 'y', 'z'];
+WORD_DETECTORS = {};
+$.each(LETTERS, function (_, letter) {
+    WORD_DETECTORS[letter] = new RegExp(letter.toUpperCase() + '(' + REAL_NUMBER_REGEX + ')');
 });
+AXES = ['x', 'y', 'z'];
 
 function detectAxisMove(s) {
     var result = {};
     $.each(AXES, function (_, axis) {
-        var parsed = AXES_DETECTORS[axis].exec(s);
+        var parsed = WORD_DETECTORS[axis].exec(s);
         if (parsed)
             result[axis] = parseFloat(parsed[1]);
     });
@@ -36,22 +36,34 @@ function move(parsedMove) {
     }
 }
 
+// I can't do maths, code stolen there: https://github.com/grbl/grbl/blob/master/gcode.c#L430
+// 'didn't steal adaptative segmentation, too lazy.
 function parseArc(line, clockwise) {
     var targetPos = $.extend(cloneObject(machinePos), detectAxisMove(line));
-    var radius = parseFloat(RADIUS_DETECTOR.exec(line)[1]);
-    // I can't do maths, code stolen there : https://github.com/grbl/grbl/blob/master/gcode.c#L430
-    var x = targetPos.x - machinePos.x;
-    var y = targetPos.y - machinePos.y;
-    var h_x2_div_d = 4 * radius * radius - x * x - y * y;
-    h_x2_div_d = -Math.sqrt(h_x2_div_d) / Math.sqrt(x * x + y * y);
-    if (!clockwise)
-        h_x2_div_d = -h_x2_div_d;
-    if (radius < 0) {
-        h_x2_div_d = -h_x2_div_d;
-        radius = -radius;
+    var radiusMatch = WORD_DETECTORS.r.exec(line);
+    if (radiusMatch) {
+        //radius notation
+        var radius = parseFloat(radiusMatch[1]);
+        var dx = targetPos.x - machinePos.x;
+        var dy = targetPos.y - machinePos.y;
+        var mightyFactor = 4 * radius * radius - dx * dx - dy * dy;
+        mightyFactor = -Math.sqrt(mightyFactor) / Math.sqrt(dx * dx + dy * dy);
+        if (!clockwise)
+            mightyFactor = -mightyFactor;
+        if (radius < 0) {
+            mightyFactor = -mightyFactor;
+            radius = -radius;
+        }
+        var toCenterX = 0.5 * (dx - (dy * mightyFactor));
+        var toCenterY = 0.5 * (dy + (dx * mightyFactor));
+    } else {
+        //center notation
+        var iMatch = WORD_DETECTORS.i.exec(line);
+        toCenterX = iMatch ? parseFloat(iMatch[1]) : 0;
+        var jMatch = WORD_DETECTORS.j.exec(line);
+        toCenterY = jMatch ? parseFloat(jMatch[1]) : 0;
+        radius = Math.sqrt(toCenterX * toCenterX + toCenterY * toCenterY);
     }
-    var toCenterX = 0.5 * (x - (y * h_x2_div_d));
-    var toCenterY = 0.5 * (y + (x * h_x2_div_d));
     var centerX = machinePos.x + toCenterX;
     var centerY = machinePos.y + toCenterY;
     var targetCenterX = targetPos.x - centerX;
@@ -86,17 +98,18 @@ function evaluateCode() {
         var line = originalLine.replace(/[\t ]+/g, '').toUpperCase();
         // drop comments
         line = line.replace(/[(][^)]*[)]/g, '');
+        line = line.replace(/;.*$/, '');
         //drop line number
         line = line.replace(/^N[0-9]+/, '');
-        var gCode = /^G([0-9.]+)(.*)/.exec(line);
+        var gCode = WORD_DETECTORS.g.exec(line);
         if (gCode) {
             var codeNum = parseFloat(gCode[1]);
             if (codeNum == 0 || codeNum == 1)
-                move(detectAxisMove(gCode[2]));
+                move(detectAxisMove(line));
             else if (codeNum == 2)
-                parseArc(gCode[2], true);
+                parseArc(line, true);
             else if (codeNum == 3)
-                parseArc(gCode[2], false);
+                parseArc(line, false);
             else {
                 console.log('Did not understand the line, skipping');
                 console.log(originalLine);
