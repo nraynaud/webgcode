@@ -8,22 +8,47 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <link rel="stylesheet" href="http://www.x3dom.org/download/dev/x3dom.css">
     <script src="parser.js"></script>
+    <style>
+        X3D, x3d {
+            float: right;
+            width: 50%;
+            height: 400px;
+        }
+
+        .editBlock {
+            position: relative;
+            float: left;
+            width: 49%;
+            height: 400px;
+            padding: 1px;
+            margin: 0;
+            text-align: right;
+        }
+
+        .editBlock textarea {
+            width: 100%;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            height: 350px;
+        }
+    </style>
 </head>
 <body>
 
 <h1>G-Code Q'n'dirty toolpath simulator</h1>
 
 <p>
-    Type your g-code in the right window and see the toolpath on the left.<br>
-    The left view is 3D drag to change the point of view (<a href="http://x3dom.org/docs/dev/navigation.html#interactive-camera-movement">full view doc</a>).
+    Paste your g-code in the left window and see the 3D preview of your toolpath on the right.<br>
+    The right pane is interactive, drag it to change the point of view (<a
+        href="http://x3dom.org/docs/dev/navigation.html#interactive-camera-movement">full view doc</a>).
 </p>
+
 <p>
     <a href="https://github.com/nraynaud/webgcode/tree/gh-pages">https://github.com/nraynaud/webgcode/tree/gh-pages</a>
 </p>
 
-<x3d id="x3d" xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="false" x="0px" y="0px" width="400px"
-     height="400px"
-     altImg="helloX3D-alt.png">
+<x3d id="x3d" xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="false" x="0px" y="0px">
     <Scene id="scene" DEF='scene'>
         <Shape id="xaxis">
             <Appearance>
@@ -75,9 +100,8 @@
         </transform>
     </Scene>
 </x3d>
-<div style="position:relative; float:right; width:400px; height:400px; padding:1px;margin:0;">
-    <textarea id="codebox" type="textarea"
-              style="width: 100%; -webkit-box-sizing: border-box;-moz-box-sizing: border-box; box-sizing: border-box; height:300px;">
+<div class="editBlock">
+    <textarea id="codebox">
         G0 Y10 Z-5
         G1 Z-10
         G1 Y20
