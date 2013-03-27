@@ -74,11 +74,17 @@
 <div style="position:relative; float:right; width:400px; height:400px; padding:1px;margin:0;">
     <textarea id="codebox" type="textarea"
               style="width: 100%; -webkit-box-sizing: border-box;-moz-box-sizing: border-box; box-sizing: border-box; height:300px;">
-        G00 X20 Y20 Z20
-        G00 X20 Y40
-        G00 X0 Y10 Z0
-        X10 Y0
-        G02 X0Y10 R10</textarea>
+        G0 Y10 Z-5
+        G1 Z-10
+        G1 Y20
+        G02 X10 Y30 R10
+        G1 X30
+        G2 X40 Y20 R10
+        G1 Y10
+        G2 X30 Y0 R10
+        G1 X10
+        G2 X0 Y10 R10
+    </textarea>
     <button onclick="evaluateCode();">Simulate</button>
 </div>
 <script>
