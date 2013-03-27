@@ -15,6 +15,7 @@ GOUPS_TRANSITIONS = {
     3: {motionMode: moveCCWArcMode},
     20: {unitMode: inchesConverter},
     21: {unitMode: mmConverter},
+    80: {motionMode: noMotion},
     90: {distanceMode: absoluteDistance},
     91: {distanceMode: incremantalDistance}
 };
@@ -52,6 +53,10 @@ function moveStraightLine(line, machineState) {
     var parsedMove = detectAxisMove(line, machineState.unitMode);
     if (parsedMove)
         move(parsedMove, machineState);
+}
+
+function noMotion(line, machineState) {
+    //do nothing
 }
 
 function detectAxisMove(s, unitMode) {
