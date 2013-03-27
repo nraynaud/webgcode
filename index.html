@@ -1,0 +1,61 @@
+<!DOCTYPE html >
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+    <title>g-code simulator</title>
+    <script src="http://www.x3dom.org/download/dev/x3dom.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="http://www.x3dom.org/download/dev/x3dom.css">
+</head>
+<script src="parser.js"></script>
+
+<body>
+
+<h1>G-Code Q'n'dirty toolpath simulator</h1>
+
+<p>
+    Type your g-code and simulate it here.
+</p>
+
+<x3d id="x3d" xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="true" x="0px" y="0px" width="400px"
+     height="400px"
+     altImg="helloX3D-alt.png">
+    <Scene id="scene" DEF='scene'>
+        <Shape id="xaxis">
+            <Appearance>
+                <Material emissiveColor='1 0 0'/>
+            </Appearance>
+            <IndexedLineSet id="lineSet" coordIndex="0 1 -1">
+                <Coordinate id="coordinates" point="0.0 0.0 0.0, 10.0 0.0 0.0"/>
+            </IndexedLineSet>
+        </Shape>
+        <Shape id="yaxis">
+            <Appearance>
+                <Material emissiveColor='0 1 0'/>
+            </Appearance>
+            <IndexedLineSet id="lineSet" coordIndex="0 1 -1">
+                <Coordinate id="coordinates" point="0.0 0.0 0.0, 0.0 10.0 0.0"/>
+            </IndexedLineSet>
+        </Shape>
+        <Shape id="zaxis">
+            <Appearance>
+                <Material emissiveColor='0 0 1'/>
+            </Appearance>
+            <IndexedLineSet id="lineSet" coordIndex="0 1 -1">
+                <Coordinate id="coordinates" point="0.0 0.0 0.0, 0.0 0.0 10.0"/>
+            </IndexedLineSet>
+        </Shape>
+    </Scene>
+</x3d>
+<div style="position:relative; float:right; width:400px; height:400px; padding:1px;margin:0;">
+    <textarea id="codebox" type="textarea" style="width: 100%; -webkit-box-sizing: border-box;-moz-box-sizing: border-box; box-sizing: border-box; height:300px;">
+        G00 X20 Y20 Z30
+        G00 X20 Y40
+        G00 X20 Y30 Z40
+        Y30 Z41</textarea>
+    <button onclick="evaluateCode();">Simulate</button>
+</div>
+</body>
+</html>
+
