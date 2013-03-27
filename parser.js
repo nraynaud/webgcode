@@ -175,14 +175,14 @@ function simulate(path) {
     for (var i = 1; i < path.length; i++) {
         var p0 = path[i - 1];
         var p1 = path[i];
-        var dx = dist('x');
-        var dy = dist('y');
-        var dz = dist('z');
 
         function dist(axis) {
             return Math.abs(p1[axis] - p0[axis]);
         }
 
+        var dx = dist('x');
+        var dy = dist('y');
+        var dz = dist('z');
         var len = Math.sqrt(dx * dx + dy * dy + dz * dz);
         var time = len / speed;
         posData[0].data.push([currentTime, p1['x']]);
