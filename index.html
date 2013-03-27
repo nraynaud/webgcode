@@ -6,6 +6,7 @@
     <title>g-code simulator</title>
     <script src="http://www.x3dom.org/download/dev/x3dom.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="http://www.flotcharts.org/javascript/jquery.flot.min.js"></script>
     <link rel="stylesheet" href="http://www.x3dom.org/download/dev/x3dom.css">
     <script src="parser.js"></script>
     <style>
@@ -31,6 +32,18 @@
             -moz-box-sizing: border-box;
             box-sizing: border-box;
             height: 350px;
+        }
+        #chart1 {
+            position: relative;
+            float: left;
+            width: 49%;
+            height: 200px;
+        }
+        #chart2 {
+            position: relative;
+            float: right;
+            width: 49%;
+            height: 200px;
         }
     </style>
 </head>
@@ -124,10 +137,16 @@
     </textarea>
     <button onclick="evaluateCode();">Simulate</button>
 </div>
+<div id="chart1"></div>
+<div id="chart2"></div>
 <script>
     x3dom.runtime.ready = (function () {
         evaluateCode();
         $('#x3d')[0].runtime.showAll();
+    });
+    $(document).ready(function(){
+
+
     });</script>
 </body>
 </html>

@@ -8,6 +8,16 @@ $.each(LETTERS, function (_, letter) {
     WORD_DETECTORS[letter] = new RegExp(letter.toUpperCase() + '(' + REAL_NUMBER_REGEX + ')');
 });
 AXES = ['x', 'y', 'z'];
+GOUPS_TRANSITIONS = {
+    0: {motionMode: moveStraightLine},
+    1: {motionMode: moveStraightLine},
+    2: {motionMode: moveCWArcMode},
+    3: {motionMode: moveCCWArcMode},
+    20: {unitMode: inchesConverter},
+    21: {unitMode: mmConverter},
+    90: {distanceMode: absoluteDistance},
+    91: {distanceMode: incremantalDistance}
+};
 
 function absoluteDistance(previous, parsedMove) {
     return $.extend(cloneObject(previous), parsedMove);
@@ -66,7 +76,7 @@ function move(parsedMove, machineState) {
 function addPathComponent(point, machineState) {
     var hadMovement = false;
     $.each(AXES, function (_, axis) {
-        hadMovement = hadMovement || point[axis] != machineState.position[axis];
+        hadMovement = hadMovement || Math.abs(point[axis] - machineState.position[axis]) > 0.00001;
     });
     if (hadMovement) {
         machineState.path.push(cloneObject(point));
@@ -134,16 +144,55 @@ function initializeMachine(machineState) {
     machineState.unitMode = mmConverter;
 }
 
-GOUPS_TRANSITIONS = {
-    0: {motionMode: moveStraightLine},
-    1: {motionMode: moveStraightLine},
-    2: {motionMode: moveCWArcMode},
-    3: {motionMode: moveCCWArcMode},
-    20: {unitMode: inchesConverter},
-    21: {unitMode: mmConverter},
-    90: {distanceMode: absoluteDistance},
-    91: {distanceMode: incremantalDistance}
-};
+function displayPath(path) {
+    var indexes = [];
+    var points = [];
+    for (i = 0; i < path.length; i++) {
+        indexes.push(i);
+        var p = path[i];
+        points.push([p.x.toFixed(2), p.y.toFixed(2), p.z.toFixed(2)].join(' '))
+    }
+    indexes.push(-1);
+    var lineset = $('<IndexedLineSet></IndexedLineSet>');
+    var coordinates = $('<Coordinate></Coordinate>');
+    lineset.attr('coordIndex', indexes.join(' '));
+    coordinates.attr('point', points.join(', '));
+    lineset.append(coordinates);
+    $('#toolpath').remove();
+    $('#scene').append($('<Shape id="toolpath"></Shape>').append(lineset));
+}
+
+function simulate(path) {
+    var speed = 1000; //mm.min^-1
+    var posData = [
+        {label: 'x position(mm/min)', color: 'red', data: []},
+        {label: 'y position(mm/min)', color: 'green', data: []},
+        {label: 'z position(mm/min)', color: 'blue', data: []}
+    ];
+    var currentTime = 0;
+    var currentDistance = 0;
+
+    for (var i = 1; i < path.length; i++) {
+        var p0 = path[i - 1];
+        var p1 = path[i];
+        var dx = dist('x');
+        var dy = dist('y');
+        var dz = dist('z');
+
+        function dist(axis) {
+            return Math.abs(p1[axis] - p0[axis]);
+        }
+
+        var len = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        var time = len / speed;
+        posData[0].data.push([currentTime, p1['x']]);
+        posData[1].data.push([currentTime, p1['y']]);
+        posData[2].data.push([currentTime, p1['z']]);
+        currentTime += time;
+        currentDistance += len;
+    }
+    $.plot("#chart1", posData);
+}
 
 function evaluateCode() {
     initializeMachine(machineState);
@@ -174,19 +223,6 @@ function evaluateCode() {
         } while (gCode);
         machineState.motionMode(line, machineState);
     });
-    var indexes = [];
-    var points = [];
-    for (i = 0; i < machineState.path.length; i++) {
-        indexes.push(i);
-        var p = machineState.path[i];
-        points.push([p.x.toFixed(2), p.y.toFixed(2), p.z.toFixed(2)].join(' '))
-    }
-    indexes.push(-1);
-    var lineset = $('<IndexedLineSet></IndexedLineSet>');
-    var coordinates = $('<Coordinate></Coordinate>');
-    lineset.attr('coordIndex', indexes.join(' '));
-    coordinates.attr('point', points.join(', '));
-    lineset.append(coordinates);
-    $('#toolpath').remove();
-    $('#scene').append($('<Shape id="toolpath"></Shape>').append(lineset));
+    displayPath(machineState.path);
+    simulate(machineState.path);
 }
