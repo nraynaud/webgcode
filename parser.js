@@ -1,4 +1,4 @@
-machineState = {position: {}, positionMode: absolutePosition, path: []};
+machineState = {position: {}, positionMode: absolutePosition, motionMode: moveStraightLine, path: []};
 
 REAL_NUMBER_REGEX = "[+-]?[0-9]+(?:[.][0-9]*)?";
 //partial list for supported stuff only
@@ -20,6 +20,20 @@ function incrementPosition(previous, parsedMove) {
             result[axis] += parsedMove[axis];
     });
     return result;
+}
+
+function moveCWArcMode(line, machineState) {
+    parseArc(line, true, machineState);
+}
+
+function moveCCWArcMode(line, machineState) {
+    parseArc(line, false, machineState);
+}
+
+function moveStraightLine(line, machineState) {
+    var parsedMove = detectAxisMove(line);
+    if (parsedMove)
+        move(parsedMove, machineState);
 }
 
 function detectAxisMove(s) {
@@ -108,6 +122,7 @@ function initializeMachine(machineState) {
         machineState.position[axis] = 0;
     });
     machineState.path = [machineState.position];
+    machineState.motionMode = moveStraightLine;
 }
 
 function evaluateCode() {
@@ -130,24 +145,17 @@ function evaluateCode() {
             else if (codeNum == 91)
                 machineState.positionMode = incrementPosition;
             else if (codeNum == 0 || codeNum == 1)
-                move(detectAxisMove(line), machineState);
+                machineState.motionMode = moveStraightLine;
             else if (codeNum == 2)
-                parseArc(line, true, machineState);
+                machineState.motionMode = moveCWArcMode;
             else if (codeNum == 3)
-                parseArc(line, false, machineState);
-            else {
-                console.log('Did not understand the line, skipping');
-                console.log(originalLine);
-            }
-        } else {
-            var parsedMove = detectAxisMove(line);
-            if (parsedMove)
-                move(parsedMove, machineState);
+                machineState.motionMode = moveCCWArcMode;
             else {
                 console.log('Did not understand the line, skipping');
                 console.log(originalLine);
             }
         }
+        machineState.motionMode(line, machineState);
     });
     var indexes = [];
     var points = [];
