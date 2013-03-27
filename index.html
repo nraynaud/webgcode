@@ -14,7 +14,11 @@
 <h1>G-Code Q'n'dirty toolpath simulator</h1>
 
 <p>
-    Type your g-code in the right window and see the toolpath on the left.
+    Type your g-code in the right window and see the toolpath on the left.<br>
+    The left view is 3D drag to change the point of view (<a href="http://x3dom.org/docs/dev/navigation.html#interactive-camera-movement">full view doc</a>).
+</p>
+<p>
+    <a href="https://github.com/nraynaud/webgcode/tree/gh-pages">https://github.com/nraynaud/webgcode/tree/gh-pages</a>
 </p>
 
 <x3d id="x3d" xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="false" x="0px" y="0px" width="400px"
@@ -83,8 +87,8 @@
         G1 Y10
         G2 X30 Y0 R10
         G1 X10
-        G2 X0 Y10 Z-15 R10
-        G3 X-10 Y20 R-10
+        G2 X0 Y10 Z-15 R10 (yeah spiral !)
+        G3 X-10 Y20 R-10 (yeah, long arc !)
     </textarea>
     <button onclick="evaluateCode();">Simulate</button>
 </div>
