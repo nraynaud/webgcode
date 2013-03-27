@@ -1,5 +1,4 @@
-machinePos = {};
-path = [];
+machineState = {position: {}, positionMode: absolutePosition, path: []};
 
 REAL_NUMBER_REGEX = "[+-]?[0-9]+(?:[.][0-9]*)?";
 //partial list for supported stuff only
@@ -9,6 +8,19 @@ $.each(LETTERS, function (_, letter) {
     WORD_DETECTORS[letter] = new RegExp(letter.toUpperCase() + '(' + REAL_NUMBER_REGEX + ')');
 });
 AXES = ['x', 'y', 'z'];
+
+function absolutePosition(previous, parsedMove) {
+    return $.extend(cloneObject(previous), parsedMove);
+}
+
+function incrementPosition(previous, parsedMove) {
+    var result = cloneObject(previous);
+    $.each(AXES, function (_, axis) {
+        if (parsedMove[axis] != null)
+            result[axis] += parsedMove[axis];
+    });
+    return result;
+}
 
 function detectAxisMove(s) {
     var result = {};
@@ -24,28 +36,33 @@ function cloneObject(old) {
     return $.extend({}, old)
 }
 
-function move(parsedMove) {
-    var newPos = $.extend(cloneObject(machinePos), parsedMove);
+function move(parsedMove, machineState) {
+    var newPos = machineState.positionMode(machineState.position, parsedMove);
+    addPathComponent(newPos, machineState);
+}
+
+function addPathComponent(point, machineState) {
     var hadMovement = false;
     $.each(AXES, function (_, axis) {
-        hadMovement = hadMovement || newPos[axis] != machinePos[axis];
+        hadMovement = hadMovement || point[axis] != machineState.position[axis];
     });
     if (hadMovement) {
-        path.push(cloneObject(newPos));
-        machinePos = newPos;
+        machineState.path.push(cloneObject(point));
+        machineState.position = point;
     }
 }
 
 // I can't do maths, code stolen there: https://github.com/grbl/grbl/blob/master/gcode.c#L430
 // 'didn't steal adaptative segmentation, too lazy.
-function parseArc(line, clockwise) {
-    var targetPos = $.extend(cloneObject(machinePos), detectAxisMove(line));
+function parseArc(line, clockwise, machineState) {
+    var currentPosition = machineState.position;
+    var targetPos = machineState.positionMode(machineState.position, detectAxisMove(line));
     var radiusMatch = WORD_DETECTORS.r.exec(line);
     if (radiusMatch) {
         //radius notation
         var radius = parseFloat(radiusMatch[1]);
-        var dx = targetPos.x - machinePos.x;
-        var dy = targetPos.y - machinePos.y;
+        var dx = targetPos.x - currentPosition.x;
+        var dy = targetPos.y - currentPosition.y;
         var mightyFactor = 4 * radius * radius - dx * dx - dy * dy;
         mightyFactor = -Math.sqrt(mightyFactor) / Math.sqrt(dx * dx + dy * dy);
         if (!clockwise)
@@ -64,8 +81,8 @@ function parseArc(line, clockwise) {
         toCenterY = jMatch ? parseFloat(jMatch[1]) : 0;
         radius = Math.sqrt(toCenterX * toCenterX + toCenterY * toCenterY);
     }
-    var centerX = machinePos.x + toCenterX;
-    var centerY = machinePos.y + toCenterY;
+    var centerX = currentPosition.x + toCenterX;
+    var centerY = currentPosition.y + toCenterY;
     var targetCenterX = targetPos.x - centerX;
     var targetCenterY = targetPos.y - centerY;
     var angularDiff = Math.atan2(-toCenterX * targetCenterY + toCenterY * targetCenterX,
@@ -80,17 +97,21 @@ function parseArc(line, clockwise) {
         var angle = angularStart + angularDiff * i / arcSegments;
         var px = centerX + radius * Math.cos(angle);
         var py = centerY + radius * Math.sin(angle);
-        move({x: px, y: py, z: ((machinePos.z * (arcSegments - i) + targetPos.z * i) / arcSegments)});
+        addPathComponent({x: px, y: py, z: ((currentPosition.z * (arcSegments - i) + targetPos.z * i) / arcSegments)}, machineState);
     }
 }
 
-function evaluateCode() {
-    path = [];
-    machinePos = {};
+function initializeMachine(machineState) {
+    machineState.positionMode = absolutePosition;
+    machineState.position = {};
     $.each(AXES, function (_, axis) {
-        machinePos[axis] = 0;
+        machineState.position[axis] = 0;
     });
-    path.push(machinePos);
+    machineState.path = [machineState.position];
+}
+
+function evaluateCode() {
+    initializeMachine(machineState);
     var text = $('#codebox').val();
     var arrayOfLines = text.match(/[^\r\n]+/g);
     $.each(arrayOfLines, function (lineNo, originalLine) {
@@ -104,12 +125,16 @@ function evaluateCode() {
         var gCode = WORD_DETECTORS.g.exec(line);
         if (gCode) {
             var codeNum = parseFloat(gCode[1]);
-            if (codeNum == 0 || codeNum == 1)
-                move(detectAxisMove(line));
+            if (codeNum == 90)
+                machineState.positionMode = absolutePosition;
+            else if (codeNum == 91)
+                machineState.positionMode = incrementPosition;
+            else if (codeNum == 0 || codeNum == 1)
+                move(detectAxisMove(line), machineState);
             else if (codeNum == 2)
-                parseArc(line, true);
+                parseArc(line, true, machineState);
             else if (codeNum == 3)
-                parseArc(line, false);
+                parseArc(line, false, machineState);
             else {
                 console.log('Did not understand the line, skipping');
                 console.log(originalLine);
@@ -117,7 +142,7 @@ function evaluateCode() {
         } else {
             var parsedMove = detectAxisMove(line);
             if (parsedMove)
-                move(parsedMove);
+                move(parsedMove, machineState);
             else {
                 console.log('Did not understand the line, skipping');
                 console.log(originalLine);
@@ -126,9 +151,9 @@ function evaluateCode() {
     });
     var indexes = [];
     var points = [];
-    for (i = 0; i < path.length; i++) {
+    for (i = 0; i < machineState.path.length; i++) {
         indexes.push(i);
-        var p = path[i];
+        var p = machineState.path[i];
         points.push([p.x.toFixed(2), p.y.toFixed(2), p.z.toFixed(2)].join(' '))
     }
     indexes.push(-1);
