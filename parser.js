@@ -1,4 +1,20 @@
-machineState = {position: {}, distanceMode: absoluteDistance, motionMode: moveStraightLine, unitMode: mmConverter, path: []};
+XY_PLANE = {
+    firstCoord: 'x',
+    secondCoord: 'y',
+    lastCoord: 'z'
+};
+YZ_PLANE = {
+    firstCoord: 'y',
+    secondCoord: 'z',
+    lastCoord: 'x'
+};
+
+XZ_PLANE = {
+    firstCoord: 'x',
+    secondCoord: 'z',
+    lastCoord: 'y'
+};
+machineState = {position: {}, distanceMode: absoluteDistance, motionMode: moveStraightLine, unitMode: mmConverter, planeMode: XY_PLANE, path: []};
 
 REAL_NUMBER_REGEX = "[+-]?[0-9]+(?:[.][0-9]*)?";
 //partial list for supported stuff only
@@ -13,12 +29,16 @@ GOUPS_TRANSITIONS = {
     1: {motionMode: moveStraightLine},
     2: {motionMode: moveCWArcMode},
     3: {motionMode: moveCCWArcMode},
+    17: {planeMode: XY_PLANE},
+    18: {planeMode: XZ_PLANE},
+    19: {planeMode: YZ_PLANE},
     20: {unitMode: inchesConverter},
     21: {unitMode: mmConverter},
     80: {motionMode: noMotion},
     90: {distanceMode: absoluteDistance},
     91: {distanceMode: incremantalDistance}
 };
+
 
 function absoluteDistance(previous, parsedMove) {
     return $.extend(cloneObject(previous), parsedMove);
@@ -95,11 +115,12 @@ function parseArc(line, clockwise, machineState) {
     var currentPosition = machineState.position;
     var targetPos = machineState.distanceMode(machineState.position, detectAxisMove(line, machineState.unitMode));
     var radiusMatch = WORD_DETECTORS.r.exec(line);
+    var plane = machineState.planeMode;
     if (radiusMatch) {
         //radius notation
         var radius = machineState.unitMode(parseFloat(radiusMatch[1]));
-        var dx = targetPos.x - currentPosition.x;
-        var dy = targetPos.y - currentPosition.y;
+        var dx = targetPos[plane.firstCoord] - currentPosition[plane.firstCoord];
+        var dy = targetPos[plane.secondCoord] - currentPosition[plane.secondCoord];
         var mightyFactor = 4 * radius * radius - dx * dx - dy * dy;
         mightyFactor = -Math.sqrt(mightyFactor) / Math.sqrt(dx * dx + dy * dy);
         if (!clockwise)
@@ -118,10 +139,10 @@ function parseArc(line, clockwise, machineState) {
         toCenterY = jMatch ? machineState.unitMode(parseFloat(jMatch[1])) : 0;
         radius = Math.sqrt(toCenterX * toCenterX + toCenterY * toCenterY);
     }
-    var centerX = currentPosition.x + toCenterX;
-    var centerY = currentPosition.y + toCenterY;
-    var targetCenterX = targetPos.x - centerX;
-    var targetCenterY = targetPos.y - centerY;
+    var centerX = currentPosition[plane.firstCoord] + toCenterX;
+    var centerY = currentPosition[plane.secondCoord] + toCenterY;
+    var targetCenterX = targetPos[plane.firstCoord] - centerX;
+    var targetCenterY = targetPos[plane.secondCoord] - centerY;
     var angularDiff = Math.atan2(-toCenterX * targetCenterY + toCenterY * targetCenterX,
         -toCenterX * targetCenterX - toCenterY * targetCenterY);
     if (clockwise && angularDiff >= 0)
@@ -134,7 +155,11 @@ function parseArc(line, clockwise, machineState) {
         var angle = angularStart + angularDiff * i / arcSegments;
         var px = centerX + radius * Math.cos(angle);
         var py = centerY + radius * Math.sin(angle);
-        addPathComponent({x: px, y: py, z: ((currentPosition.z * (arcSegments - i) + targetPos.z * i) / arcSegments)}, machineState);
+        var newPoint = {};
+        newPoint[plane.firstCoord] = px;
+        newPoint[plane.secondCoord] = py;
+        newPoint[plane.lastCoord] = ((currentPosition[plane.lastCoord] * (arcSegments - i) + targetPos[plane.lastCoord] * i) / arcSegments)
+        addPathComponent(newPoint, machineState);
     }
 }
 
@@ -147,6 +172,7 @@ function initializeMachine(machineState) {
     machineState.path = [machineState.position];
     machineState.motionMode = moveStraightLine;
     machineState.unitMode = mmConverter;
+    machineState.planeMode = XY_PLANE;
 }
 
 function displayPath(path) {

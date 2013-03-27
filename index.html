@@ -135,6 +135,11 @@
         G3 X1 Z0.3 I0.5 J0.5 (I,J in inches)
         G21 (back to mm)
         G80 X10 (do nothing)
+        G90
+        G0 X30 Y30 Z30
+        G18 (feeling frisky by changing the arc plane to X-Z)
+        G3 Z40 I0 J5
+        G17 (back to X-Y plane)
     </textarea>
     <button onclick="evaluateCode();">Simulate</button>
 </div>
