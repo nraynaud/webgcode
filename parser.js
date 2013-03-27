@@ -58,17 +58,10 @@ function parseArc(line) {
     var angularStart = Math.atan2(-toCenterY, -toCenterX);
     for (var i = 0; i <= 10; i++) {
         var angle = angularStart + angularDiff * i / 10;
-        console.log(angle);
         var px = centerX + radius * Math.cos(angle);
         var py = centerY + radius * Math.sin(angle);
-        console.log(px);
-        console.log(py);
         move({x:px, y:py, z:machinePos.z});
     }
-    console.log({arc: targetPos});
-    console.log(centerX);
-    console.log(centerY);
-    console.log(angularStart);
 }
 
 function evaluateCode() {
