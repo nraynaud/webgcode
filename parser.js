@@ -39,23 +39,29 @@ function move(parsedMove) {
 function parseArc(line, clockwise) {
     var targetPos = $.extend(cloneObject(machinePos), detectAxisMove(line));
     var radius = parseFloat(RADIUS_DETECTOR.exec(line)[1]);
-    // I can't do maths, found there : https://github.com/grbl/grbl/blob/master/gcode.c#L430
+    // I can't do maths, code stolen there : https://github.com/grbl/grbl/blob/master/gcode.c#L430
     var x = targetPos.x - machinePos.x;
     var y = targetPos.y - machinePos.y;
     var h_x2_div_d = 4 * radius * radius - x * x - y * y;
     h_x2_div_d = -Math.sqrt(h_x2_div_d) / Math.sqrt(x * x + y * y);
     if (!clockwise)
         h_x2_div_d = -h_x2_div_d;
-
+    if (radius < 0) {
+        h_x2_div_d = -h_x2_div_d;
+        radius = -radius;
+    }
     var toCenterX = 0.5 * (x - (y * h_x2_div_d));
     var toCenterY = 0.5 * (y + (x * h_x2_div_d));
     var centerX = machinePos.x + toCenterX;
     var centerY = machinePos.y + toCenterY;
     var targetCenterX = targetPos.x - centerX;
     var targetCenterY = targetPos.y - centerY;
-
     var angularDiff = Math.atan2(-toCenterX * targetCenterY + toCenterY * targetCenterX,
         -toCenterX * targetCenterX - toCenterY * targetCenterY);
+    if (clockwise && angularDiff >= 0)
+        angularDiff -= 2 * Math.PI;
+    if (!clockwise && angularDiff <= 0)
+        angularDiff += 2 * Math.PI;
     var angularStart = Math.atan2(-toCenterY, -toCenterX);
     var arcSegments = 20;
     for (var i = 0; i <= arcSegments; i++) {
@@ -104,7 +110,6 @@ function evaluateCode() {
                 console.log(originalLine);
             }
         }
-
     });
     var indexes = [];
     var points = [];
