@@ -14,19 +14,20 @@ XZ_PLANE = {
     secondCoord: 'z',
     lastCoord: 'y'
 };
-machineState = {position: {}, distanceMode: absoluteDistance, motionMode: moveStraightLine, unitMode: mmConverter, planeMode: XY_PLANE, path: []};
+
+TRAVERSE_RATE = 3000;
 
 REAL_NUMBER_REGEX = "[+-]?[0-9]+(?:[.][0-9]*)?";
 //partial list for supported stuff only
-LETTERS = ['g', 'i', 'j', 'r', 'x', 'y', 'z'];
+LETTERS = ['f', 'g', 'i', 'j', 'r', 'x', 'y', 'z'];
 WORD_DETECTORS = {};
 $.each(LETTERS, function (_, letter) {
     WORD_DETECTORS[letter] = new RegExp(letter.toUpperCase() + '(' + REAL_NUMBER_REGEX + ')');
 });
 AXES = ['x', 'y', 'z'];
 GOUPS_TRANSITIONS = {
-    0: {motionMode: moveStraightLine},
-    1: {motionMode: moveStraightLine},
+    0: {motionMode: moveTraverseRate},
+    1: {motionMode: moveFeedrate},
     2: {motionMode: moveCWArcMode},
     3: {motionMode: moveCCWArcMode},
     4: {},//skip, doesn't influence tool path
@@ -73,10 +74,18 @@ function moveCCWArcMode(line, machineState) {
     parseArc(line, false, machineState);
 }
 
-function moveStraightLine(line, machineState) {
+function moveFeedrate(line, machineState) {
+    moveStraightLine(line, machineState, machineState.feedRate);
+}
+
+function moveTraverseRate(line, machineState) {
+    moveStraightLine(line, machineState, TRAVERSE_RATE);
+}
+
+function moveStraightLine(line, machineState, speed) {
     var parsedMove = detectAxisMove(line, machineState.unitMode);
     if (parsedMove)
-        move(parsedMove, machineState);
+        move(parsedMove, machineState, speed);
 }
 
 function noMotion(line, machineState) {
@@ -97,18 +106,18 @@ function cloneObject(old) {
     return $.extend({}, old)
 }
 
-function move(parsedMove, machineState) {
+function move(parsedMove, machineState, speed) {
     var newPos = machineState.distanceMode(machineState.position, parsedMove);
-    addPathComponent(newPos, machineState);
+    addPathComponent(newPos, machineState, speed);
 }
 
-function addPathComponent(point, machineState) {
+function addPathComponent(point, machineState, speed) {
     var hadMovement = false;
     $.each(AXES, function (_, axis) {
         hadMovement = hadMovement || Math.abs(point[axis] - machineState.position[axis]) > 0.00001;
     });
     if (hadMovement) {
-        machineState.path.push(cloneObject(point));
+        machineState.path.push($.extend(cloneObject(point), {speed: speed}));
         machineState.position = point;
     }
 }
@@ -142,21 +151,23 @@ function findCircle(line, unitMode, targetPos, plane, currentPosition, clockwise
 }
 
 // I can't do maths, code stolen there: https://github.com/grbl/grbl/blob/master/gcode.c#L430
-// 'didn't steal adaptative segmentation, too lazy.
 // to keep sanity, think firstCoord is X and secondCoord is Y and the plane transposer will do the changes
 function parseArc(line, clockwise, machineState) {
     var currentPosition = machineState.position;
     var unitMode = machineState.unitMode;
     var targetPos = machineState.distanceMode(machineState.position, detectAxisMove(line, unitMode));
     var plane = machineState.planeMode;
+    var xCoord = plane.firstCoord;
+    var yCoord = plane.secondCoord;
+    var zCoord = plane.lastCoord;
     var circle = findCircle(line, unitMode, targetPos, plane, currentPosition, clockwise);
     var radius = circle.radius;
     var toCenterX = circle.toCenterX;
     var toCenterY = circle.toCenterY;
-    var centerX = currentPosition[plane.firstCoord] + toCenterX;
-    var centerY = currentPosition[plane.secondCoord] + toCenterY;
-    var targetCenterX = targetPos[plane.firstCoord] - centerX;
-    var targetCenterY = targetPos[plane.secondCoord] - centerY;
+    var centerX = currentPosition[ xCoord] + toCenterX;
+    var centerY = currentPosition[ yCoord] + toCenterY;
+    var targetCenterX = targetPos[xCoord] - centerX;
+    var targetCenterY = targetPos[yCoord] - centerY;
     var angularDiff = Math.atan2(-toCenterX * targetCenterY + toCenterY * targetCenterX,
         -toCenterX * targetCenterX - toCenterY * targetCenterY);
     if (clockwise && angularDiff >= 0)
@@ -164,83 +175,36 @@ function parseArc(line, clockwise, machineState) {
     if (!clockwise && angularDiff <= 0)
         angularDiff += 2 * Math.PI;
     var angularStart = Math.atan2(-toCenterY, -toCenterX);
+    // 'didn't steal adaptative segmentation, too lazy.
     var arcSegments = 20;
     for (var i = 0; i <= arcSegments; i++) {
         var angle = angularStart + angularDiff * i / arcSegments;
         var px = centerX + radius * Math.cos(angle);
         var py = centerY + radius * Math.sin(angle);
         var newPoint = {};
-        newPoint[plane.firstCoord] = px;
-        newPoint[plane.secondCoord] = py;
-        newPoint[plane.lastCoord] = ((currentPosition[plane.lastCoord] * (arcSegments - i) + targetPos[plane.lastCoord] * i) / arcSegments)
-        addPathComponent(newPoint, machineState);
+        newPoint[xCoord] = px;
+        newPoint[yCoord] = py;
+        newPoint[ zCoord] = ((currentPosition[zCoord] * (arcSegments - i) + targetPos[zCoord] * i) / arcSegments)
+        addPathComponent(newPoint, machineState, machineState.feedRate);
     }
 }
 
-function initializeMachine(machineState) {
-    machineState.distanceMode = absoluteDistance;
-    machineState.position = {};
+function createMachine() {
+    var machineState = {position: {},
+        distanceMode: absoluteDistance,
+        motionMode: moveTraverseRate,
+        unitMode: mmConverter,
+        planeMode: XY_PLANE,
+        feedRate: 200,
+        path: []};
     $.each(AXES, function (_, axis) {
         machineState.position[axis] = 0;
     });
-    machineState.path = [machineState.position];
-    machineState.motionMode = moveStraightLine;
-    machineState.unitMode = mmConverter;
-    machineState.planeMode = XY_PLANE;
-}
-
-function displayPath(path) {
-    var indexes = [];
-    var points = [];
-    for (i = 0; i < path.length; i++) {
-        indexes.push(i);
-        var p = path[i];
-        points.push([p.x.toFixed(2), p.y.toFixed(2), p.z.toFixed(2)].join(' '))
-    }
-    indexes.push(-1);
-    var lineset = $('<IndexedLineSet></IndexedLineSet>');
-    var coordinates = $('<Coordinate></Coordinate>');
-    lineset.attr('coordIndex', indexes.join(' '));
-    coordinates.attr('point', points.join(', '));
-    lineset.append(coordinates);
-    $('#toolpath').remove();
-    $('#scene').append($('<Shape id="toolpath"></Shape>').append(lineset));
-}
-
-function simulate(path) {
-    var speed = 1000; //mm.min^-1
-    var posData = [
-        {label: 'x position(mm/min)', color: 'red', data: []},
-        {label: 'y position(mm/min)', color: 'green', data: []},
-        {label: 'z position(mm/min)', color: 'blue', data: []}
-    ];
-    var currentTime = 0;
-    var currentDistance = 0;
-
-    for (var i = 1; i < path.length; i++) {
-        var p0 = path[i - 1];
-        var p1 = path[i];
-
-        function dist(axis) {
-            return Math.abs(p1[axis] - p0[axis]);
-        }
-
-        var dx = dist('x');
-        var dy = dist('y');
-        var dz = dist('z');
-        var len = Math.sqrt(dx * dx + dy * dy + dz * dz);
-        var time = len / speed;
-        posData[0].data.push([currentTime, p1['x']]);
-        posData[1].data.push([currentTime, p1['y']]);
-        posData[2].data.push([currentTime, p1['z']]);
-        currentTime += time;
-        currentDistance += len;
-    }
-    $.plot("#chart1", posData);
+    return machineState
 }
 
 function evaluateCode() {
-    initializeMachine(machineState);
+    var machineState = createMachine();
     var text = $('#codebox').val();
     var arrayOfLines = text.match(/[^\r\n]+/g);
     $.each(arrayOfLines, function (lineNo, originalLine) {
@@ -251,6 +215,9 @@ function evaluateCode() {
         line = line.replace(/;.*$/, '');
         //drop line number
         line = line.replace(/^N[0-9]+/, '');
+        var fCode = WORD_DETECTORS.f.exec(line);
+        if (fCode)
+            machineState.feedRate = machineState.unitMode(parseFloat(fCode[1]));
         do {
             var gCode = WORD_DETECTORS.g.exec(line);
             if (gCode) {

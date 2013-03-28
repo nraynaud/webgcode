@@ -8,6 +8,7 @@
     <script src="assets/jquery.min.js"></script>
     <script src="assets/jquery.flot.min.js"></script>
     <link rel="stylesheet" href="assets/x3dom.css">
+    <script src="simulation.js"></script>
     <script src="parser.js"></script>
     <style>
         X3D, x3d {
@@ -36,7 +37,7 @@
         #chart1 {
             position: relative;
             float: left;
-            width: 49%;
+            width: 100%;
             height: 200px;
         }
         #chart2 {
@@ -137,8 +138,10 @@
         G80 X10 (do nothing)
         G90
         G0 X30 Y30 Z30
-        G18 (feeling frisky by changing the arc plane to X-Z)
+        G18 (X-Z plane)
         G3 Z40 I0 J5
+        G19 (Y-Z plane)
+        G3 Z50 I0 J5
         G17 (back to X-Y plane)
     </textarea>
     <button onclick="evaluateCode();">Simulate</button>
