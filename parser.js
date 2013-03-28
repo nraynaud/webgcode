@@ -29,11 +29,15 @@ GOUPS_TRANSITIONS = {
     1: {motionMode: moveStraightLine},
     2: {motionMode: moveCWArcMode},
     3: {motionMode: moveCCWArcMode},
+    4: {},//skip, doesn't influence tool path
     17: {planeMode: XY_PLANE},
     18: {planeMode: XZ_PLANE},
     19: {planeMode: YZ_PLANE},
     20: {unitMode: inchesConverter},
     21: {unitMode: mmConverter},
+    40: {},//skip
+    49: {},//skip
+    54: {},//skip
     80: {motionMode: noMotion},
     90: {distanceMode: absoluteDistance},
     91: {distanceMode: incremantalDistance}
