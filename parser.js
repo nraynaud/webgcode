@@ -113,16 +113,11 @@ function addPathComponent(point, machineState) {
     }
 }
 
-// I can't do maths, code stolen there: https://github.com/grbl/grbl/blob/master/gcode.c#L430
-// 'didn't steal adaptative segmentation, too lazy.
-function parseArc(line, clockwise, machineState) {
-    var currentPosition = machineState.position;
-    var targetPos = machineState.distanceMode(machineState.position, detectAxisMove(line, machineState.unitMode));
+function findCircle(line, unitMode, targetPos, plane, currentPosition, clockwise) {
     var radiusMatch = WORD_DETECTORS.r.exec(line);
-    var plane = machineState.planeMode;
     if (radiusMatch) {
         //radius notation
-        var radius = machineState.unitMode(parseFloat(radiusMatch[1]));
+        var radius = unitMode(parseFloat(radiusMatch[1]));
         var dx = targetPos[plane.firstCoord] - currentPosition[plane.firstCoord];
         var dy = targetPos[plane.secondCoord] - currentPosition[plane.secondCoord];
         var mightyFactor = 4 * radius * radius - dx * dx - dy * dy;
@@ -138,11 +133,26 @@ function parseArc(line, clockwise, machineState) {
     } else {
         //center notation
         var iMatch = WORD_DETECTORS.i.exec(line);
-        toCenterX = iMatch ? machineState.unitMode(parseFloat(iMatch[1])) : 0;
+        toCenterX = iMatch ? unitMode(parseFloat(iMatch[1])) : 0;
         var jMatch = WORD_DETECTORS.j.exec(line);
-        toCenterY = jMatch ? machineState.unitMode(parseFloat(jMatch[1])) : 0;
+        toCenterY = jMatch ? unitMode(parseFloat(jMatch[1])) : 0;
         radius = Math.sqrt(toCenterX * toCenterX + toCenterY * toCenterY);
     }
+    return {radius: radius, toCenterX: toCenterX, toCenterY: toCenterY};
+}
+
+// I can't do maths, code stolen there: https://github.com/grbl/grbl/blob/master/gcode.c#L430
+// 'didn't steal adaptative segmentation, too lazy.
+// to keep sanity, think firstCoord is X and secondCoord is Y and the plane transposer will do the changes
+function parseArc(line, clockwise, machineState) {
+    var currentPosition = machineState.position;
+    var unitMode = machineState.unitMode;
+    var targetPos = machineState.distanceMode(machineState.position, detectAxisMove(line, unitMode));
+    var plane = machineState.planeMode;
+    var circle = findCircle(line, unitMode, targetPos, plane, currentPosition, clockwise);
+    var radius = circle.radius;
+    var toCenterX = circle.toCenterX;
+    var toCenterY = circle.toCenterY;
     var centerX = currentPosition[plane.firstCoord] + toCenterX;
     var centerY = currentPosition[plane.secondCoord] + toCenterY;
     var targetCenterX = targetPos[plane.firstCoord] - centerX;
