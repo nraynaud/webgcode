@@ -236,6 +236,6 @@ function evaluateCode() {
         } while (gCode);
         machineState.motionMode(line, machineState);
     });
-    displayPath(machineState.path);
-    simulate(machineState.path);
+    var simulatedPath = simulate(machineState.path);
+    displayPath(simulatedPath);
 }
