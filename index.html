@@ -34,12 +34,14 @@
             box-sizing: border-box;
             height: 350px;
         }
+
         #chart1 {
             position: relative;
             float: left;
             width: 100%;
             height: 200px;
         }
+
         #chart2 {
             position: relative;
             float: right;
@@ -144,6 +146,7 @@
         G3 Z50 I0 J5
         G17 (back to X-Y plane)
     </textarea>
+    <button onclick="corners();">test</button>
     <button onclick="evaluateCode();">Simulate</button>
 </div>
 <div id="chart1"></div>
@@ -153,10 +156,17 @@
         evaluateCode();
         $('#x3d')[0].runtime.showAll();
     });
-    $(document).ready(function(){
+    $(document).ready(function () {
 
 
     });</script>
+<script>
+    function corners() {
+        var str = "G1 X10 Y10 F500\n";
+        $('#codebox').val(str);
+        evaluateCode();
+    }
+</script>
 </body>
 </html>
 

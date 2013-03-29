@@ -16,9 +16,26 @@ function displayPath(path) {
     $('#scene').append($('<Shape id="toolpath"></Shape>').append(lineset));
 }
 
+function timeForX(speed, acceleration, length, x) {
+    var accelerationLength = speed * speed / (2 * acceleration); //mm
+    if (length > 2 * accelerationLength) {
+        var accelerationDuration = speed / acceleration;
+        var constantSpeedDuration = (length - 2 * accelerationLength) / speed;
+        if (x <= accelerationLength) {
+            return Math.sqrt(2 * x / acceleration);
+        } else if (x <= length - accelerationLength) {
+            return accelerationDuration + (x - accelerationLength) / speed;
+        } else
+            return 2 * accelerationDuration + constantSpeedDuration - Math.sqrt(2 * (length - x) / acceleration)
+    } else if (x <= length / 2)
+        return Math.sqrt(2 * x / acceleration);
+    else
+        return 2 * Math.sqrt(length / acceleration) - Math.sqrt(2 * (length - x) / acceleration);
+}
+
 function simulate(path) {
     var simulatedPath = [];
-    var acceleration = 200; //mm.s^-2
+    var acceleration = 10; //mm.s^-2
 
     var posData = [
         {label: 'x position(mm/s)', color: 'red', data: []},
@@ -53,21 +70,24 @@ function simulate(path) {
         var dy = dist('y');
         var dz = dist('z');
         var len = Math.sqrt(dx * dx + dy * dy + dz * dz);
-        var time;
-        if (len < 2 * accelerationLength) {
-            // computes for len/2 then double (acceleration then deceleration)
-            time = 2 * Math.sqrt(len / acceleration);
-            currentTime += time
-        } else {
-            var constantSpeedDuration = (len - 2 * accelerationLength) / speed;
-            var accelerationRatio = accelerationLength / len;
-            currentTime += accelerationDuration;
-            //just show end of acceleration and begining of braking
-            pushPoint(p0['x'] + accelerationRatio * dx, p0['y'] + accelerationRatio * dy, p0['z'] + accelerationRatio * dz);
-            currentTime += constantSpeedDuration;
-            pushPoint(p1['x'] - accelerationRatio * dx, p1['y'] - accelerationRatio * dy, p1['z'] - accelerationRatio * dz);
-            currentTime += accelerationDuration;
+
+        function pushPointAtRatio(ratio) {
+            pushPoint(p0['x'] + ratio * dx, p0['y'] + ratio * dy, p0['z'] + ratio * dz);
         }
+
+        var segments = 20;
+        var constantSpeedDuration = (len - 2 * accelerationLength) / speed;
+        var accelerationRatio = accelerationLength / len;
+        var startTime = currentTime;
+        for (var j = 0; j < segments; j++) {
+            var ratio = j / segments;
+            var date = timeForX(speed, acceleration, len, ratio * len);
+            if (date) {
+                currentTime = startTime + date;
+                pushPointAtRatio(ratio);
+            }
+        }
+        currentTime = startTime + 2 * accelerationDuration + constantSpeedDuration;
         pushPoint(p1['x'], p1['y'], p1['z']);
         currentDistance += len;
     }
