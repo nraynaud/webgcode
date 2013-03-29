@@ -35,7 +35,7 @@ function timeForX(speed, acceleration, length, x) {
 
 function simulate(path) {
     var simulatedPath = [];
-    var acceleration = 10; //mm.s^-2
+    var acceleration = 200; //mm.s^-2
 
     var posData = [
         {label: 'x position(mm/s)', color: 'red', data: []},
