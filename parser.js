@@ -200,6 +200,7 @@ function createMachine() {
     $.each(AXES, function (_, axis) {
         machineState.position[axis] = 0;
     });
+    machineState.path.push(machineState.position);
     return machineState
 }
 

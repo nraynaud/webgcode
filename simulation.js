@@ -17,10 +17,8 @@ function displayPath(path) {
 }
 
 function simulate(path) {
-    var speed = 3000 / 60; //mm.s^-1
     var acceleration = 200; //mm.s^-2
-    var accelerationLength = speed * speed / (2 * acceleration); //mm
-    var accelerationDuration = speed / acceleration;
+
     var posData = [
         {label: 'x position(mm/s)', color: 'red', data: []},
         {label: 'y position(mm/s)', color: 'green', data: []},
@@ -28,10 +26,16 @@ function simulate(path) {
     ];
     var currentTime = 0;
     var currentDistance = 0;
-
+    posData[0].data.push([currentTime, path[0]['x']]);
+    posData[1].data.push([currentTime, path[0]['y']]);
+    posData[2].data.push([currentTime, path[0]['z']]);
     for (var i = 1; i < path.length; i++) {
         var p0 = path[i - 1];
         var p1 = path[i];
+
+        var speed = p1.speed / 60; //mm.min^-1 -> mm.s^-1
+        var accelerationLength = speed * speed / (2 * acceleration); //mm
+        var accelerationDuration = speed / acceleration;
 
         function dist(axis) {
             return Math.abs(p1[axis] - p0[axis]);
@@ -45,14 +49,26 @@ function simulate(path) {
         if (len < 2 * accelerationLength) {
             // computes for len/2 then double (acceleration then deceleration)
             time = 2 * Math.sqrt(len / acceleration);
+            currentTime += time
+            posData[0].data.push([currentTime, p1['x']]);
+            posData[1].data.push([currentTime, p1['y']]);
+            posData[2].data.push([currentTime, p1['z']]);
         } else {
-            time = 2 * accelerationDuration + (len - 2 * accelerationLength) / speed;
+            var constantSpeedDuration = (len - 2 * accelerationLength) / speed;
+            var accelerationRatio = accelerationLength/len;
+            currentTime += accelerationDuration;
+            posData[0].data.push([currentTime, p0['x'] + accelerationRatio * dx]);
+            posData[1].data.push([currentTime, p0['y'] + accelerationRatio * dy]);
+            posData[2].data.push([currentTime, p0['z'] + accelerationRatio * dz]);
+            currentTime += constantSpeedDuration;
+            posData[0].data.push([currentTime, p1['x'] - accelerationRatio * dx]);
+            posData[1].data.push([currentTime, p1['y'] - accelerationRatio * dy]);
+            posData[2].data.push([currentTime, p1['z'] - accelerationRatio * dz]);
+            currentTime += accelerationDuration;
+            posData[0].data.push([currentTime, p1['x']]);
+            posData[1].data.push([currentTime, p1['y']]);
+            posData[2].data.push([currentTime, p1['z']]);
         }
-
-        posData[0].data.push([currentTime, p1['x']]);
-        posData[1].data.push([currentTime, p1['y']]);
-        posData[2].data.push([currentTime, p1['z']]);
-        currentTime += time;
         currentDistance += len;
     }
     $.plot("#chart1", posData);
