@@ -76,18 +76,13 @@ function simulate(path) {
         }
 
         var segments = 20;
-        var constantSpeedDuration = (len - 2 * accelerationLength) / speed;
-        var accelerationRatio = accelerationLength / len;
         var startTime = currentTime;
         for (var j = 0; j < segments; j++) {
             var ratio = j / segments;
-            var date = timeForX(speed, acceleration, len, ratio * len);
-            if (date) {
-                currentTime = startTime + date;
-                pushPointAtRatio(ratio);
-            }
+            currentTime = startTime + timeForX(speed, acceleration, len, ratio * len);
+            pushPointAtRatio(ratio);
         }
-        currentTime = startTime + 2 * accelerationDuration + constantSpeedDuration;
+        currentTime = startTime + timeForX(speed, acceleration, len, len);
         pushPoint(p1['x'], p1['y'], p1['z']);
         currentDistance += len;
     }
