@@ -50,13 +50,11 @@ function simulate(path) {
             // computes for len/2 then double (acceleration then deceleration)
             time = 2 * Math.sqrt(len / acceleration);
             currentTime += time
-            posData[0].data.push([currentTime, p1['x']]);
-            posData[1].data.push([currentTime, p1['y']]);
-            posData[2].data.push([currentTime, p1['z']]);
         } else {
             var constantSpeedDuration = (len - 2 * accelerationLength) / speed;
             var accelerationRatio = accelerationLength/len;
             currentTime += accelerationDuration;
+            //just show end of acceleration and begining of braking
             posData[0].data.push([currentTime, p0['x'] + accelerationRatio * dx]);
             posData[1].data.push([currentTime, p0['y'] + accelerationRatio * dy]);
             posData[2].data.push([currentTime, p0['z'] + accelerationRatio * dz]);
@@ -65,10 +63,10 @@ function simulate(path) {
             posData[1].data.push([currentTime, p1['y'] - accelerationRatio * dy]);
             posData[2].data.push([currentTime, p1['z'] - accelerationRatio * dz]);
             currentTime += accelerationDuration;
-            posData[0].data.push([currentTime, p1['x']]);
-            posData[1].data.push([currentTime, p1['y']]);
-            posData[2].data.push([currentTime, p1['z']]);
         }
+        posData[0].data.push([currentTime, p1['x']]);
+        posData[1].data.push([currentTime, p1['y']]);
+        posData[2].data.push([currentTime, p1['z']]);
         currentDistance += len;
     }
     $.plot("#chart1", posData);
