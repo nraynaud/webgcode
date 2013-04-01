@@ -21,11 +21,11 @@ function timeForX(speed, acceleration, length, x) {
     if (length > 2 * accelerationLength) {
         var accelerationDuration = speed / acceleration;
         var constantSpeedDuration = (length - 2 * accelerationLength) / speed;
-        if (x <= accelerationLength) {
+        if (x <= accelerationLength)
             return Math.sqrt(2 * x / acceleration);
-        } else if (x <= length - accelerationLength) {
+        else if (x <= length - accelerationLength)
             return accelerationDuration + (x - accelerationLength) / speed;
-        } else
+        else
             return 2 * accelerationDuration + constantSpeedDuration - Math.sqrt(2 * (length - x) / acceleration)
     } else if (x <= length / 2)
         return Math.sqrt(2 * x / acceleration);
@@ -59,9 +59,8 @@ function simulate(path) {
         var p1 = path[i];
 
         var speed = p1.speed / 60; //mm.min^-1 -> mm.s^-1
-        var accelerationLength = speed * speed / (2 * acceleration); //mm
         var accelerationDuration = speed / acceleration;
-
+        console.log(accelerationDuration);
         function dist(axis) {
             return p1[axis] - p0[axis];
         }
@@ -75,7 +74,7 @@ function simulate(path) {
             pushPoint(p0['x'] + ratio * dx, p0['y'] + ratio * dy, p0['z'] + ratio * dz);
         }
 
-        var segments = 20;
+        var segments = 30;
         var startTime = currentTime;
         for (var j = 0; j < segments; j++) {
             var ratio = j / segments;

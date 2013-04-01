@@ -39,6 +39,9 @@ GOUPS_TRANSITIONS = {
     40: {},//skip
     49: {},//skip
     54: {},//skip
+    61: {pathControl: 61},
+    61.1: {pathControl: 61.1}, //skip
+    64: {pathControl: 64}, //skip
     80: {motionMode: noMotion},
     90: {distanceMode: absoluteDistance},
     91: {distanceMode: incremantalDistance}
@@ -196,6 +199,7 @@ function createMachine() {
         unitMode: mmConverter,
         planeMode: XY_PLANE,
         feedRate: 200,
+        pathControl: 61,
         path: []};
     $.each(AXES, function (_, axis) {
         machineState.position[axis] = 0;
