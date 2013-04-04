@@ -53,13 +53,13 @@ function simulate(path) {
         simulatedPath.push({x: x, y: y, z: z});
     }
 
-    pushPoint(path[0]['x'], path[0]['y'], path[0]['z']);
-    for (var i = 1; i < path.length; i++) {
-        var p0 = path[i - 1];
-        var p1 = path[i];
+    function simulateLine(line) {
+        var p0 = line.from;
+        var p1 = line.to;
 
         var speed = p1.speed / 60; //mm.min^-1 -> mm.s^-1
         var accelerationDuration = speed / acceleration;
+
         function dist(axis) {
             return p1[axis] - p0[axis];
         }
@@ -83,6 +83,30 @@ function simulate(path) {
         currentTime = startTime + timeForX(speed, acceleration, len, len);
         pushPoint(p1['x'], p1['y'], p1['z']);
         currentDistance += len;
+    }
+
+    function simulateArc(arc) {
+        // 'didn't steal adaptative segmentation, too lazy.
+        var arcSegments = 20;
+        var currentPoint = arc.from;
+        for (var i = 0; i <= arcSegments; i++) {
+            var angle = arc.fromAngle + arc.angularDistance * i / arcSegments;
+            var newPoint = {};
+            newPoint[arc.plane.firstCoord] = arc.center.first + arc.radius * Math.cos(angle);
+            newPoint[arc.plane.secondCoord] = arc.center.second + arc.radius * Math.sin(angle);
+            newPoint[arc.plane.lastCoord] = ((arc.from[arc.plane.lastCoord] * (arcSegments - i) + arc.to[arc.plane.lastCoord] * i) / arcSegments)
+            var line = {from: currentPoint, to: newPoint, speed: arc.speed};
+            simulateLine(line);
+            currentPoint = newPoint;
+        }
+    }
+
+    pushPoint(path[0]['x'], path[0]['y'], path[0]['z']);
+    for (var i = 1; i < path.length; i++) {
+        if (path[i].type == 'line')
+            simulateLine(path[i]);
+        if (path[i].type == 'arc')
+            simulateArc(path[i]);
     }
     $.plot("#chart1", posData);
     return simulatedPath;

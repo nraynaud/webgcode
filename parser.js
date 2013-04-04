@@ -44,7 +44,7 @@ GOUPS_TRANSITIONS = {
     64: {pathControl: 64},
     80: {motionMode: noMotion},
     90: {distanceMode: absoluteDistance},
-    91: {distanceMode: incremantalDistance}
+    91: {distanceMode: incrementalDistance}
 };
 
 
@@ -52,7 +52,7 @@ function absoluteDistance(previous, parsedMove) {
     return $.extend(cloneObject(previous), parsedMove);
 }
 
-function incremantalDistance(previous, parsedMove) {
+function incrementalDistance(previous, parsedMove) {
     var result = cloneObject(previous);
     $.each(AXES, function (_, axis) {
         if (parsedMove[axis] != null)
@@ -102,7 +102,7 @@ function detectAxisMove(s, unitMode) {
         if (parsed)
             result[axis] = unitMode(parseFloat(parsed[1]));
     });
-    return result;
+    return Object.keys(result).length ? result : null;
 }
 
 function cloneObject(old) {
@@ -120,7 +120,7 @@ function addPathComponent(point, machineState, speed) {
         hadMovement = hadMovement || Math.abs(point[axis] - machineState.position[axis]) > 0.00001;
     });
     if (hadMovement) {
-        machineState.path.push($.extend(cloneObject(point), {speed: speed}));
+        machineState.path.push({type: 'line', from: cloneObject(machineState.position), to: cloneObject(point), speed: speed});
         machineState.position = point;
     }
 }
@@ -157,6 +157,9 @@ function findCircle(line, unitMode, targetPos, plane, currentPosition, clockwise
 // I can't do maths, code stolen there: https://github.com/grbl/grbl/blob/master/gcode.c#L430
 // to keep sanity, think firstCoord is X and secondCoord is Y and the plane transposer will do the changes
 function parseArc(line, clockwise, machineState) {
+    var parsedMove = detectAxisMove(line, machineState.unitMode);
+    if (!parsedMove)
+        return;
     var currentPosition = machineState.position;
     var unitMode = machineState.unitMode;
     var targetPos = machineState.distanceMode(machineState.position, detectAxisMove(line, unitMode));
@@ -179,16 +182,17 @@ function parseArc(line, clockwise, machineState) {
     if (!clockwise && angularDiff <= 0)
         angularDiff += 2 * Math.PI;
     var angularStart = Math.atan2(-toCenterY, -toCenterX);
-    // 'didn't steal adaptative segmentation, too lazy.
-    var arcSegments = 20;
-    for (var i = 0; i <= arcSegments; i++) {
-        var angle = angularStart + angularDiff * i / arcSegments;
-        var newPoint = {};
-        newPoint[xCoord] = centerX + radius * Math.cos(angle);
-        newPoint[yCoord] = centerY + radius * Math.sin(angle);
-        newPoint[zCoord] = ((currentPosition[zCoord] * (arcSegments - i) + targetPos[zCoord] * i) / arcSegments)
-        addPathComponent(newPoint, machineState, machineState.feedRate);
-    }
+    machineState.path.push({
+        type: 'arc',
+        from: currentPosition,
+        to: targetPos,
+        plane: plane,
+        center: {first: centerX, second: centerY},
+        fromAngle: angularStart,
+        angularDistance: angularDiff,
+        radius: radius,
+        speed: machineState.feedRate});
+    machineState.position = targetPos;
 }
 
 function createMachine() {
