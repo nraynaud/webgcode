@@ -60,7 +60,6 @@ function simulate(path) {
 
         var speed = p1.speed / 60; //mm.min^-1 -> mm.s^-1
         var accelerationDuration = speed / acceleration;
-        console.log(accelerationDuration);
         function dist(axis) {
             return p1[axis] - p0[axis];
         }

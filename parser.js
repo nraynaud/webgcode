@@ -40,8 +40,8 @@ GOUPS_TRANSITIONS = {
     49: {},//skip
     54: {},//skip
     61: {pathControl: 61},
-    61.1: {pathControl: 61.1}, //skip
-    64: {pathControl: 64}, //skip
+    61.1: {pathControl: 61.1},
+    64: {pathControl: 64},
     80: {motionMode: noMotion},
     90: {distanceMode: absoluteDistance},
     91: {distanceMode: incremantalDistance}
@@ -126,10 +126,11 @@ function addPathComponent(point, machineState, speed) {
 }
 
 function findCircle(line, unitMode, targetPos, plane, currentPosition, clockwise) {
+    var radius, toCenterX, toCenterY;
     var radiusMatch = WORD_DETECTORS.r.exec(line);
     if (radiusMatch) {
         //radius notation
-        var radius = unitMode(parseFloat(radiusMatch[1]));
+        radius = unitMode(parseFloat(radiusMatch[1]));
         var dx = targetPos[plane.firstCoord] - currentPosition[plane.firstCoord];
         var dy = targetPos[plane.secondCoord] - currentPosition[plane.secondCoord];
         var mightyFactor = 4 * radius * radius - dx * dx - dy * dy;
@@ -140,13 +141,13 @@ function findCircle(line, unitMode, targetPos, plane, currentPosition, clockwise
             mightyFactor = -mightyFactor;
             radius = -radius;
         }
-        var toCenterX = 0.5 * (dx - (dy * mightyFactor));
-        var toCenterY = 0.5 * (dy + (dx * mightyFactor));
+        toCenterX = 0.5 * (dx - (dy * mightyFactor));
+        toCenterY = 0.5 * (dy + (dx * mightyFactor));
     } else {
         //center notation
         var iMatch = WORD_DETECTORS.i.exec(line);
-        toCenterX = iMatch ? unitMode(parseFloat(iMatch[1])) : 0;
         var jMatch = WORD_DETECTORS.j.exec(line);
+        toCenterX = iMatch ? unitMode(parseFloat(iMatch[1])) : 0;
         toCenterY = jMatch ? unitMode(parseFloat(jMatch[1])) : 0;
         radius = Math.sqrt(toCenterX * toCenterX + toCenterY * toCenterY);
     }
@@ -167,8 +168,8 @@ function parseArc(line, clockwise, machineState) {
     var radius = circle.radius;
     var toCenterX = circle.toCenterX;
     var toCenterY = circle.toCenterY;
-    var centerX = currentPosition[ xCoord] + toCenterX;
-    var centerY = currentPosition[ yCoord] + toCenterY;
+    var centerX = currentPosition[xCoord] + toCenterX;
+    var centerY = currentPosition[yCoord] + toCenterY;
     var targetCenterX = targetPos[xCoord] - centerX;
     var targetCenterY = targetPos[yCoord] - centerY;
     var angularDiff = Math.atan2(-toCenterX * targetCenterY + toCenterY * targetCenterX,
@@ -182,12 +183,10 @@ function parseArc(line, clockwise, machineState) {
     var arcSegments = 20;
     for (var i = 0; i <= arcSegments; i++) {
         var angle = angularStart + angularDiff * i / arcSegments;
-        var px = centerX + radius * Math.cos(angle);
-        var py = centerY + radius * Math.sin(angle);
         var newPoint = {};
-        newPoint[xCoord] = px;
-        newPoint[yCoord] = py;
-        newPoint[ zCoord] = ((currentPosition[zCoord] * (arcSegments - i) + targetPos[zCoord] * i) / arcSegments)
+        newPoint[xCoord] = centerX + radius * Math.cos(angle);
+        newPoint[yCoord] = centerY + radius * Math.sin(angle);
+        newPoint[zCoord] = ((currentPosition[zCoord] * (arcSegments - i) + targetPos[zCoord] * i) / arcSegments)
         addPathComponent(newPoint, machineState, machineState.feedRate);
     }
 }
@@ -205,7 +204,7 @@ function createMachine() {
         machineState.position[axis] = 0;
     });
     machineState.path.push(machineState.position);
-    return machineState
+    return machineState;
 }
 
 function evaluateCode() {
