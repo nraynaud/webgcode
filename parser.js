@@ -105,6 +105,15 @@ function detectAxisMove(s, unitMode) {
     return Object.keys(result).length ? result : null;
 }
 
+//variadic, just pass x,y,z ...
+function length() {
+    var squaredSum = 0;
+    $.each(arguments, function (_, coord) {
+        squaredSum += coord * coord;
+    });
+    return Math.sqrt(squaredSum);
+}
+
 function cloneObject(old) {
     return $.extend({}, old)
 }
@@ -134,7 +143,7 @@ function findCircle(line, unitMode, targetPos, plane, currentPosition, clockwise
         var dx = targetPos[plane.firstCoord] - currentPosition[plane.firstCoord];
         var dy = targetPos[plane.secondCoord] - currentPosition[plane.secondCoord];
         var mightyFactor = 4 * radius * radius - dx * dx - dy * dy;
-        mightyFactor = -Math.sqrt(mightyFactor) / Math.sqrt(dx * dx + dy * dy);
+        mightyFactor = -Math.sqrt(mightyFactor) / length(dx, dy);
         if (!clockwise)
             mightyFactor = -mightyFactor;
         if (radius < 0) {
@@ -149,7 +158,7 @@ function findCircle(line, unitMode, targetPos, plane, currentPosition, clockwise
         var jMatch = WORD_DETECTORS.j.exec(line);
         toCenterX = iMatch ? unitMode(parseFloat(iMatch[1])) : 0;
         toCenterY = jMatch ? unitMode(parseFloat(jMatch[1])) : 0;
-        radius = Math.sqrt(toCenterX * toCenterX + toCenterY * toCenterY);
+        radius = length(toCenterX, toCenterY);
     }
     return {radius: radius, toCenterX: toCenterX, toCenterY: toCenterY};
 }
