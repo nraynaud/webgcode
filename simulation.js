@@ -140,7 +140,7 @@ function simulate(path) {
         var p0 = line.from;
         var p1 = line.to;
 
-        var speed = p1.speed / 60; //mm.min^-1 -> mm.s^-1
+        var speed = line.feedRate / 60; //mm.min^-1 -> mm.s^-1
 
         function dist(axis) {
             return p1[axis] - p0[axis];
@@ -170,7 +170,7 @@ function simulate(path) {
     function simulateArc(arc) {
         // 'didn't steal adaptative segmentation, too lazy.
         var arcSegments = 30;
-        var speed = arc.speed / 60;
+        var speed = arc.feedRate / 60;
         var currentPoint = arc.from;
         var lastCoord = arc.plane.lastCoord;
         var lastCoordDistance = arc.to[lastCoord] - arc.from[lastCoord];
@@ -216,7 +216,6 @@ function simulate(path) {
         if (path[i].type == 'arc')
             simulateArc(path[i]);
     }
-    console.log(simulatedPath);
     speedData[0].data.unshift([0, 0]);
     speedData[1].data.unshift([0, 0]);
     speedData[2].data.unshift([0, 0]);

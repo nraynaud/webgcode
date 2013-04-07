@@ -1,3 +1,10 @@
+// general unit policy:
+// lengths in mm
+// feedrate in mm/min
+// speed in mm/s
+// angles in radians
+
+
 XY_PLANE = {
     firstCoord: 'x',
     secondCoord: 'y',
@@ -129,7 +136,7 @@ function addPathComponent(point, machineState, speed) {
         hadMovement = hadMovement || Math.abs(point[axis] - machineState.position[axis]) > 0.00001;
     });
     if (hadMovement) {
-        machineState.path.push({type: 'line', from: cloneObject(machineState.position), to: cloneObject(point), speed: speed});
+        machineState.path.push({type: 'line', from: cloneObject(machineState.position), to: cloneObject(point), feedRate: speed});
         machineState.position = point;
     }
 }
@@ -200,7 +207,7 @@ function parseArc(line, clockwise, machineState) {
         fromAngle: angularStart,
         angularDistance: angularDiff,
         radius: radius,
-        speed: machineState.feedRate});
+        feedRate: machineState.feedRate});
     machineState.position = targetPos;
 }
 
