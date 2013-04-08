@@ -146,7 +146,13 @@
 <div class="chart" id="chart2"></div>
 <div class="chart" id="chart3"></div>
 <script>
+    function getURLParameter(name) {
+        return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null;
+    }
     x3dom.runtime.ready = (function () {
+        var code = getURLParameter('code');
+        if (code !== null)
+            $('#codebox').val(code);
         evaluateCode();
         $('#x3d')[0].runtime.showAll();
     });

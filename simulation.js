@@ -155,7 +155,7 @@ function simulate(path) {
             pushPoint(p0['x'] + ratio * dx, p0['y'] + ratio * dy, p0['z'] + ratio * dz);
         }
 
-        var segments = 30;
+        var segments = 100;
         var startTime = currentTime;
         for (var j = 1; j < segments; j++) {
             var ratio = j / segments;
@@ -169,7 +169,7 @@ function simulate(path) {
 
     function simulateArc(arc) {
         // 'didn't steal adaptative segmentation, too lazy.
-        var arcSegments = 30;
+        var arcSegments = 100;
         var speed = arc.feedRate / 60;
         var currentPoint = arc.from;
         var lastCoord = arc.plane.lastCoord;
