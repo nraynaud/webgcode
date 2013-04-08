@@ -65,36 +65,36 @@ function simulate(path) {
     var acceleration = 200; //mm.s^-2
 
     var posData = [
-        {label: 'x position(s->mm)', color: 'red', data: []},
-        {label: 'y position(s->mm)', color: 'green', data: []},
-        {label: 'z position(s->mm)', color: 'blue', data: []}
+        {label: 'x position(s->mm)', shadowSize: 0, color: 'red', data: []},
+        {label: 'y position(s->mm)', shadowSize: 0, color: 'green', data: []},
+        {label: 'z position(s->mm)', shadowSize: 0, color: 'blue', data: []}
     ];
 
     var speedData = [
-        {label: 'x speed(s->mm/s)', color: 'red', data: [
+        {label: 'x speed(s->mm/s)', shadowSize: 0, color: 'red', data: [
             [0, 0]
         ]},
-        {label: 'y speed(s->mm/s)', color: 'green', data: [
+        {label: 'y speed(s->mm/s)', shadowSize: 0, color: 'green', data: [
             [0, 0]
         ]},
-        {label: 'z speed(s->mm/s)', color: 'blue', data: [
+        {label: 'z speed(s->mm/s)', shadowSize: 0, color: 'blue', data: [
             [0, 0]
         ]},
-        {label: 'speed(s->mm/s)', color: 'black', data: [
+        {label: '|speed|(s->mm/s)', shadowSize: 0, color: 'rgba(0, 0, 0, 0.4)', data: [
             [0, 0]
         ]},
     ];
     var accelerationData = [
-        {label: 'x acc(s->mm/s^2)', color: 'red', data: [
+        {label: 'x acc(s->mm/s^2)', shadowSize: 0, color: 'red', data: [
             [0, 0]
         ]},
-        {label: 'y acc(s->mm/s^2)', color: 'green', data: [
+        {label: 'y acc(s->mm/s^2)', shadowSize: 0, color: 'green', data: [
             [0, 0]
         ]},
-        {label: 'z acc(s->mm/s^2)', color: 'blue', data: [
+        {label: 'z acc(s->mm/s^2)', shadowSize: 0, color: 'blue', data: [
             [0, 0]
         ]},
-        {label: 'acceleration(s->mm/s^2)', color: 'black', data: [
+        {label: '|acceleration|(s->mm/s^2)', shadowSize: 0, color: 'rgba(0, 0, 0, 0.4)', data: [
             [0, 0]
         ]}
     ];
@@ -169,7 +169,7 @@ function simulate(path) {
 
     function simulateArc(arc) {
         // 'didn't steal adaptative segmentation, too lazy.
-        var arcSegments = 100;
+        var arcSegments = 10000;
         var speed = arc.feedRate / 60;
         var currentPoint = arc.from;
         var lastCoord = arc.plane.lastCoord;
@@ -186,7 +186,7 @@ function simulate(path) {
             var newPoint = {};
             newPoint[arc.plane.firstCoord] = arc.center.first + arc.radius * Math.cos(angle);
             newPoint[arc.plane.secondCoord] = arc.center.second + arc.radius * Math.sin(angle);
-            newPoint[lastCoord] = ((arc.from[lastCoord] * (arcSegments - i) + arc.to[lastCoord] * i) / arcSegments)
+            newPoint[lastCoord] = (arc.from[lastCoord] * (1 - ratio) + arc.to[lastCoord] * ratio);
             pushPoint(newPoint['x'], newPoint['y'], newPoint['z']);
         }
 
@@ -216,14 +216,7 @@ function simulate(path) {
         if (path[i].type == 'arc')
             simulateArc(path[i]);
     }
-    speedData[0].data.unshift([0, 0]);
-    speedData[1].data.unshift([0, 0]);
-    speedData[2].data.unshift([0, 0]);
-    speedData[3].data.unshift([0, 0]);
-    accelerationData[0].data.unshift([0, 0]);
-    accelerationData[1].data.unshift([0, 0]);
-    accelerationData[2].data.unshift([0, 0]);
-    accelerationData[3].data.unshift([0, 0]);
+    console.log('z', posData[2].data);
     $.plot("#chart1", posData);
     $.plot("#chart2", speedData);
     $.plot("#chart3", accelerationData);
