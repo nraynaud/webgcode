@@ -114,6 +114,16 @@ function simulate(path) {
         }
     }
 
+    function discretize(pushPointFunction, speed, acceleration, len) {
+        var segments = 1000;
+        var startTime = currentTime;
+        for (var j = 1; j <= segments; j++) {
+            var ratio = j / segments;
+            currentTime = startTime + timeForX(speed, acceleration, len, ratio * len);
+            pushPointFunction(ratio);
+        }
+    }
+
     function simulateLine(line) {
         var p0 = line.from;
         var p1 = line.to;
@@ -133,61 +143,38 @@ function simulate(path) {
             pushPoint(p0['x'] + ratio * dx, p0['y'] + ratio * dy, p0['z'] + ratio * dz);
         }
 
-        var segments = 1000;
-        var startTime = currentTime;
-        for (var j = 1; j < segments; j++) {
-            var ratio = j / segments;
-            currentTime = startTime + timeForX(speed, acceleration, len, ratio * len);
-            pushPointAtRatio(ratio);
-        }
-        currentTime = startTime + timeForX(speed, acceleration, len, len);
-        pushPoint(p1['x'], p1['y'], p1['z']);
+        discretize(pushPointAtRatio, speed, acceleration, len);
         currentDistance += len;
     }
 
     function simulateArc(arc) {
-        // 'didn't steal adaptative segmentation, too lazy.
-        var arcSegments = 1000;
         var speed = arc.feedRate / 60;
-        var currentPoint = arc.from;
         var lastCoord = arc.plane.lastCoord;
         var lastCoordDistance = arc.to[lastCoord] - arc.from[lastCoord];
-        var planarArcLength = arc.angularDistance * arc.radius;
+        var radius = arc.radius;
+        var planarArcLength = arc.angularDistance * radius;
         var arcLength = length(planarArcLength, lastCoordDistance);
-        //max speed allowed without radial acceleration being > to max acceleration
-        var maxSpeed = Math.sqrt(arc.radius * acceleration - lastCoordDistance * lastCoordDistance);
-        var maxTangentialAcceleration = Math.sqrt(acceleration * acceleration - Math.pow(speed * speed / arc.radius, 2));
-        var accelerationAngularLength = speed * speed / (2 * arc.radius * maxTangentialAcceleration);
 
         function pushPointAtRatio(ratio) {
             var angle = arc.fromAngle + arc.angularDistance * ratio;
             var newPoint = {};
-            newPoint[arc.plane.firstCoord] = arc.center.first + arc.radius * Math.cos(angle);
-            newPoint[arc.plane.secondCoord] = arc.center.second + arc.radius * Math.sin(angle);
+            newPoint[arc.plane.firstCoord] = arc.center.first + radius * Math.cos(angle);
+            newPoint[arc.plane.secondCoord] = arc.center.second + radius * Math.sin(angle);
             newPoint[lastCoord] = (arc.from[lastCoord] * (1 - ratio) + arc.to[lastCoord] * ratio);
             pushPoint(newPoint['x'], newPoint['y'], newPoint['z']);
         }
 
-        var startTime = currentTime;
-        var maxRadialAcceleration = Math.pow(speed, 2) / arc.radius;
-        if (maxRadialAcceleration > acceleration) {
-            //constant speed would already create a too big radial acceleration, reducing speed.
-            var dampingFactor = 0.8;
-            var oldSpeed = speed;
-            speed = Math.sqrt(acceleration * dampingFactor * arc.radius);
-            maxRadialAcceleration = Math.pow(speed, 2) / arc.radius;
-            console.log("damping speed", oldSpeed, '->', speed, maxRadialAcceleration);
-        }
-        var radius = arc.radius;
-        var len = Math.abs(arc.angularDistance) * radius;
         var maxRadialAcceleration = Math.pow(speed, 2) / radius;
-        var maxTangentialAcceleration = Math.sqrt(Math.pow(acceleration, 2) - Math.pow(maxRadialAcceleration, 2));
-        for (var j = 1; j <= arcSegments; j++) {
-            var ratio = j / arcSegments;
-            var position = Math.abs(arc.angularDistance) * ratio * radius;
-            currentTime = startTime + timeForX(speed, maxTangentialAcceleration, len, position);
-            pushPointAtRatio(ratio);
+        var reductionFactor = 0.8;
+        if (maxRadialAcceleration > acceleration * reductionFactor) {
+            //constant speed would already create a too big radial acceleration, reducing speed.
+            var oldSpeed = speed;
+            speed = Math.sqrt(acceleration * reductionFactor * radius);
+            maxRadialAcceleration = Math.pow(speed, 2) / radius;
+            console.log("reducing speed in arc", oldSpeed, '->', speed);
         }
+        var maxTangentialAcceleration = Math.sqrt(Math.pow(acceleration, 2) - Math.pow(maxRadialAcceleration, 2));
+        discretize(pushPointAtRatio, speed, maxTangentialAcceleration, arcLength);
     }
 
     pushPoint(path[0]['x'], path[0]['y'], path[0]['z']);
@@ -199,7 +186,7 @@ function simulate(path) {
     }
     console.log('z', posData[2].data);
     var chart1 = $.plot("#chart1", posData);
-    $.plot("#chart2", speedData, {xaxis:{max: chart1.getAxes().xaxis.max}});
-    $.plot("#chart3", accelerationData, {xaxis:{max: chart1.getAxes().xaxis.max}});
+    $.plot("#chart2", speedData, {xaxis: {max: chart1.getAxes().xaxis.max}});
+    $.plot("#chart3", accelerationData, {xaxis: {max: chart1.getAxes().xaxis.max}});
     return simulatedPath;
 }
