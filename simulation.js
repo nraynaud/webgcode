@@ -18,46 +18,23 @@ function displayPath(path) {
 
 function timeForX(speed, acceleration, length, x) {
     var accelerationLength = speed * speed / (2 * acceleration); //mm
+    function accelerationEq(x) {
+        return Math.sqrt(2 * x / acceleration);
+    }
+
     if (length > 2 * accelerationLength) {
         var accelerationDuration = speed / acceleration;
         var constantSpeedDuration = (length - 2 * accelerationLength) / speed;
         if (x <= accelerationLength)
-            return Math.sqrt(2 * x / acceleration);
+            return accelerationEq(x);
         else if (x <= length - accelerationLength)
             return accelerationDuration + (x - accelerationLength) / speed;
         else
-            return 2 * accelerationDuration + constantSpeedDuration - Math.sqrt(2 * (length - x) / acceleration)
+            return 2 * accelerationDuration + constantSpeedDuration - accelerationEq(length - x);
     } else if (x <= length / 2)
-        return Math.sqrt(2 * x / acceleration);
+        return accelerationEq(x);
     else
-        return 2 * Math.sqrt(length / acceleration) - Math.sqrt(2 * (length - x) / acceleration);
-}
-
-function timeForAngle(speed, radius, acceleration, length, angle) {
-    var angularSpeed = speed / radius;
-    var maxRadialAcceleration = Math.pow(speed, 2) / radius;
-    var maxTangentialAcceleration = Math.sqrt(Math.pow(acceleration, 2) - Math.pow(maxRadialAcceleration, 2));
-    var accelerationAngularLength = speed * speed / (2 * radius * maxTangentialAcceleration);
-    var accelerationDuration = speed / maxTangentialAcceleration;
-    var constantSpeedDuration = (length - 2 * accelerationAngularLength) / angularSpeed;
-
-    function accelerationEq(angle) {
-        return Math.sqrt(2 * angle * radius / maxTangentialAcceleration);
-    }
-
-    if (length > 2 * accelerationAngularLength) {
-        if (angle < accelerationAngularLength) {
-            return accelerationEq(angle);
-        }
-        else if (angle < length - accelerationAngularLength) {
-            return accelerationDuration + (angle - accelerationAngularLength) / angularSpeed;
-        } else {
-            return 2 * accelerationDuration + constantSpeedDuration - accelerationEq(length - angle);
-        }
-    } else if (angle <= length / 2)
-        return accelerationEq(angle);
-    else
-        return 2 * Math.sqrt(length / maxTangentialAcceleration / radius) - accelerationEq(length - angle);
+        return 2 * Math.sqrt(length / acceleration) - accelerationEq(length - x);
 }
 
 function simulate(path) {
@@ -111,7 +88,7 @@ function simulate(path) {
         if (previous >= 0) {
             var previousDate = posData[0].data[previous][0];
             var dt = currentTime - previousDate;
-            var speedDate = previousDate + dt / 2;
+            var speedDate = (currentTime + previousDate) / 2;
             var dx = x - posData[0].data[previous][1];
             var dy = y - posData[1].data[previous][1];
             var dz = z - posData[2].data[previous][1];
@@ -128,10 +105,11 @@ function simulate(path) {
                 var pDSx = sx - speedData[0].data[previous - 1][1];
                 var pDSy = sy - speedData[1].data[previous - 1][1];
                 var pDSz = sz - speedData[2].data[previous - 1][1];
-                accelerationData[0].data.push([previousDate, pDSx / (speedDate - previousSpeedDate)]);
-                accelerationData[1].data.push([previousDate, pDSy / (speedDate - previousSpeedDate)]);
-                accelerationData[2].data.push([previousDate, pDSz / (speedDate - previousSpeedDate)]);
-                accelerationData[3].data.push([previousDate, length(pDSx, pDSy, pDSz) / (speedDate - previousSpeedDate)]);
+                var accelerationDate = (previousSpeedDate + speedDate) / 2;
+                accelerationData[0].data.push([accelerationDate, pDSx / (speedDate - previousSpeedDate)]);
+                accelerationData[1].data.push([accelerationDate, pDSy / (speedDate - previousSpeedDate)]);
+                accelerationData[2].data.push([accelerationDate, pDSz / (speedDate - previousSpeedDate)]);
+                accelerationData[3].data.push([accelerationDate, length(pDSx, pDSy, pDSz) / (speedDate - previousSpeedDate)]);
             }
         }
     }
@@ -155,7 +133,7 @@ function simulate(path) {
             pushPoint(p0['x'] + ratio * dx, p0['y'] + ratio * dy, p0['z'] + ratio * dz);
         }
 
-        var segments = 100;
+        var segments = 1000;
         var startTime = currentTime;
         for (var j = 1; j < segments; j++) {
             var ratio = j / segments;
@@ -169,7 +147,7 @@ function simulate(path) {
 
     function simulateArc(arc) {
         // 'didn't steal adaptative segmentation, too lazy.
-        var arcSegments = 10000;
+        var arcSegments = 1000;
         var speed = arc.feedRate / 60;
         var currentPoint = arc.from;
         var lastCoord = arc.plane.lastCoord;
@@ -200,11 +178,14 @@ function simulate(path) {
             maxRadialAcceleration = Math.pow(speed, 2) / arc.radius;
             console.log("damping speed", oldSpeed, '->', speed, maxRadialAcceleration);
         }
+        var radius = arc.radius;
+        var len = Math.abs(arc.angularDistance) * radius;
+        var maxRadialAcceleration = Math.pow(speed, 2) / radius;
+        var maxTangentialAcceleration = Math.sqrt(Math.pow(acceleration, 2) - Math.pow(maxRadialAcceleration, 2));
         for (var j = 1; j <= arcSegments; j++) {
             var ratio = j / arcSegments;
-            var angle = Math.abs(arc.angularDistance) * ratio;
-            var timeForAngle2 = timeForAngle(speed, arc.radius, acceleration, Math.abs(arc.angularDistance), angle);
-            currentTime = startTime + timeForAngle2;
+            var position = Math.abs(arc.angularDistance) * ratio * radius;
+            currentTime = startTime + timeForX(speed, maxTangentialAcceleration, len, position);
             pushPointAtRatio(ratio);
         }
     }
@@ -217,8 +198,8 @@ function simulate(path) {
             simulateArc(path[i]);
     }
     console.log('z', posData[2].data);
-    $.plot("#chart1", posData);
-    $.plot("#chart2", speedData);
-    $.plot("#chart3", accelerationData);
+    var chart1 = $.plot("#chart1", posData);
+    $.plot("#chart2", speedData, {xaxis:{max: chart1.getAxes().xaxis.max}});
+    $.plot("#chart3", accelerationData, {xaxis:{max: chart1.getAxes().xaxis.max}});
     return simulatedPath;
 }
