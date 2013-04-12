@@ -30,29 +30,23 @@ function accelerationLength(initialSpeed, finalSpeed, acceleration) {
     return Math.abs(accelerationLength(0, finalSpeed, acceleration) - accelerationLength(0, initialSpeed, acceleration));
 }
 
-function timeForX(speed, acceleration, length, x, entrySpeed, initialAccelerationLength, finalAccelerationLength, initialAccelerationDuration, finalAccelerationDuration, constantSpeedDuration) {
+function timeForXTrapezoidal(speed, acceleration, length, x, entrySpeed, exitSpeed, initialAccelerationLength, finalAccelerationLength, initialAccelerationDuration, finalAccelerationDuration, constantSpeedDuration) {
     function accelerationEq(x) {
         return Math.sqrt(2 * x / acceleration);
     }
 
-    if (length > initialAccelerationLength + finalAccelerationLength) {
-        if (x <= initialAccelerationLength) {
-            var nx1 = accelerationLength(0, entrySpeed, acceleration) + x;
-            return accelerationEq(nx1) - (entrySpeed / acceleration);
-        }
-        else if (x <= length - finalAccelerationLength)
-            return initialAccelerationDuration + (x - initialAccelerationLength) / speed;
-        else {
-            if (x === length)
-                return initialAccelerationDuration + constantSpeedDuration + finalAccelerationDuration;
-            var nx = x - (length - finalAccelerationLength);
-            var x2 = accelerationLength(0, speed, acceleration);
-            return initialAccelerationDuration + constantSpeedDuration + accelerationEq(x2) - accelerationEq(x2 - nx);
-        }
-    } else if (x <= length / 2)
-        return accelerationEq(x);
-    else
-        return 2 * Math.sqrt(length / acceleration) - accelerationEq(length - x);
+    if (x <= initialAccelerationLength) {
+        var nx1 = accelerationLength(0, entrySpeed, acceleration) + x;
+        return accelerationEq(nx1) - (entrySpeed / acceleration);
+    } else if (x <= length - finalAccelerationLength)
+        return initialAccelerationDuration + (x - initialAccelerationLength) / speed;
+    else {
+        if (x === length)
+            return initialAccelerationDuration + constantSpeedDuration + finalAccelerationDuration;
+        var nx = x - (length - finalAccelerationLength);
+        var x2 = accelerationLength(0, speed, acceleration);
+        return initialAccelerationDuration + constantSpeedDuration + accelerationEq(x2) - accelerationEq(x2 - nx);
+    }
 }
 
 function arcClampedSpeed(radius, speed, acceleration) {
@@ -81,8 +75,7 @@ function getArcSpeedDirection(arc, angle) {
     return {x: -direction * ry / len, y: direction * rx / len, z: dz / len};
 }
 
-function simulate(path) {
-    var simulatedPath = [];
+function simulate2(path, pushPoint) {
     var acceleration = 200; //mm.s^-2
     for (var i = 0; i < path.length; i++) {
         var component = path[i];
@@ -105,6 +98,111 @@ function simulate(path) {
             console.log('unknown', component);
     }
 
+    var currentTime = 0;
+
+    function discretize(pushPointFunction, targetSpeed, acceleration, len, entrySpeed, nextSegmentSpeed) {
+        if (nextSegmentSpeed > targetSpeed)
+            nextSegmentSpeed = targetSpeed;
+
+
+        var maxSpeedChange = Math.sqrt(2 * acceleration * len);
+        if (Math.abs(nextSegmentSpeed - entrySpeed) > maxSpeedChange)
+            nextSegmentSpeed = entrySpeed + maxSpeedChange * (entrySpeed > nextSegmentSpeed ? -1 : 1);
+
+        // if we where to accelerate as much as possible and brake, where should we start braking ?
+        var accelerateDecelerateLength = (len * acceleration - Math.abs(entrySpeed - nextSegmentSpeed)) / (2 * acceleration);
+        var accelerateDecelerateMaxSpeed = Math.sqrt(2 * acceleration * accelerateDecelerateLength);
+        if (accelerateDecelerateMaxSpeed < targetSpeed) {
+            console.log('max speed', targetSpeed, '->', accelerateDecelerateMaxSpeed);
+            targetSpeed = accelerateDecelerateMaxSpeed;
+        }
+        if (nextSegmentSpeed > targetSpeed)
+            nextSegmentSpeed = targetSpeed;
+        var segments = 1000;
+        var startTime = currentTime;
+        var deltaSpeed = targetSpeed - entrySpeed;
+        var initialAccelerationLength = accelerationLength(entrySpeed, targetSpeed, acceleration);
+        var initialAccelerationDuration = Math.abs(deltaSpeed / acceleration);
+        var finalAccelerationLength = accelerationLength(targetSpeed, nextSegmentSpeed, acceleration);
+        var finalAccelerationDuration = (targetSpeed - nextSegmentSpeed) / acceleration;
+        var constantSpeedDuration = (len - initialAccelerationLength - finalAccelerationLength) / targetSpeed;
+        for (var j = 1; j <= segments; j++) {
+            var ratio = j / segments;
+            var time = timeForXTrapezoidal(targetSpeed, acceleration, len, ratio * len, entrySpeed, nextSegmentSpeed,
+                initialAccelerationLength, finalAccelerationLength, initialAccelerationDuration, finalAccelerationDuration, constantSpeedDuration);
+            currentTime = startTime + time;
+            pushPointFunction(ratio);
+        }
+        return nextSegmentSpeed;
+    }
+
+    function simulateLine(line, entrySpeed, nextSegmentSpeed) {
+        var p0 = line.from;
+        var p1 = line.to;
+
+        var speed = line.feedRate / 60; //mm.min^-1 -> mm.s^-1
+
+        function dist(axis) {
+            return p1[axis] - p0[axis];
+        }
+
+        var dx = dist('x');
+        var dy = dist('y');
+        var dz = dist('z');
+        var len = length(dx, dy, dz);
+
+        function pushPointAtRatio(ratio) {
+            pushPoint(p0['x'] + ratio * dx, p0['y'] + ratio * dy, p0['z'] + ratio * dz, currentTime);
+        }
+
+        if (nextSegmentSpeed > speed)
+            nextSegmentSpeed = speed;
+        return discretize(pushPointAtRatio, speed, acceleration, len, entrySpeed, nextSegmentSpeed);
+    }
+
+    function simulateArc(arc, entrySpeed, nextSegmentSpeed) {
+        var speed = arc.feedRate / 60;
+        var lastCoord = arc.plane.lastCoord;
+        var lastCoordDistance = arc.to[lastCoord] - arc.from[lastCoord];
+        var radius = arc.radius;
+        var planarArcLength = arc.angularDistance * radius;
+        var arcLength = length(planarArcLength, lastCoordDistance);
+
+        function pushPointAtRatio(ratio) {
+            var angle = arc.fromAngle + arc.angularDistance * ratio;
+            var newPoint = {};
+            newPoint[arc.plane.firstCoord] = arc.center.first + radius * Math.cos(angle);
+            newPoint[arc.plane.secondCoord] = arc.center.second + radius * Math.sin(angle);
+            newPoint[lastCoord] = (arc.from[lastCoord] * (1 - ratio) + arc.to[lastCoord] * ratio);
+            pushPoint(newPoint['x'], newPoint['y'], newPoint['z'], currentTime);
+        }
+
+        var clamped = arcClampedSpeed(radius, speed, acceleration);
+        if (clamped.speed != speed)
+            console.log("reducing speed in arc", speed, '->', clamped.speed);
+        if (nextSegmentSpeed > clamped.speed)
+            nextSegmentSpeed = clamped.speed;
+        return discretize(pushPointAtRatio, clamped.speed, clamped.acceleration, arcLength, entrySpeed, nextSegmentSpeed);
+    }
+
+    pushPoint(0, 0, 0, 0);
+    var previousSegmentSpeed = 0;
+    for (var i = 0; i < path.length; i++) {
+        var nextSegmentSpeed = 0;
+        if (i < path.length - 1)
+            if (areEqualVectors(path[i].exitDirection, path[i + 1].entryDirection))
+                nextSegmentSpeed = path[i + 1].idealEntrySpeed;
+
+        if (path[i].type == 'line')
+            previousSegmentSpeed = simulateLine(path[i], previousSegmentSpeed, nextSegmentSpeed);
+        if (path[i].type == 'arc')
+            previousSegmentSpeed = simulateArc(path[i], previousSegmentSpeed, nextSegmentSpeed);
+    }
+}
+
+function simulate(path) {
+
+    var simulatedPath = [];
     var posData = [
         {label: 'x position(s->mm)', shadowSize: 0, color: 'red', data: []},
         {label: 'y position(s->mm)', shadowSize: 0, color: 'green', data: []},
@@ -140,19 +238,16 @@ function simulate(path) {
         ]}
     ];
 
-    var currentTime = 0;
-    var currentDistance = 0;
-
-    function pushPoint(x, y, z) {
-        posData[0].data.push([currentTime, x]);
-        posData[1].data.push([currentTime, y]);
-        posData[2].data.push([currentTime, z]);
+    function pushPoint(x, y, z, t) {
+        posData[0].data.push([t, x]);
+        posData[1].data.push([t, y]);
+        posData[2].data.push([t, z]);
         simulatedPath.push({x: x, y: y, z: z});
         var previous = posData[0].data.length - 2;
         if (previous >= 0) {
             var previousDate = posData[0].data[previous][0];
-            var dt = currentTime - previousDate;
-            var speedDate = (currentTime + previousDate) / 2;
+            var dt = t - previousDate;
+            var speedDate = (t + previousDate) / 2;
             var dx = x - posData[0].data[previous][1];
             var dy = y - posData[1].data[previous][1];
             var dz = z - posData[2].data[previous][1];
@@ -177,85 +272,8 @@ function simulate(path) {
         }
     }
 
-    function discretize(pushPointFunction, targetSpeed, acceleration, len, entrySpeed, nextSegmentSpeed) {
-        var segments = 1000;
-        var startTime = currentTime;
-        var deltaSpeed = targetSpeed - entrySpeed;
-        var initialAccelerationLength = accelerationLength(entrySpeed, targetSpeed, acceleration);
-        var initialAccelerationDuration = Math.abs(deltaSpeed / acceleration);
-        var finalAccelerationLength = accelerationLength(targetSpeed, nextSegmentSpeed, acceleration);
-        var finalAccelerationDuration = (targetSpeed - nextSegmentSpeed) / acceleration;
-        var constantSpeedDuration = (len - initialAccelerationLength - finalAccelerationLength) / targetSpeed;
-        for (var j = 1; j <= segments; j++) {
-            var ratio = j / segments;
-            var time = timeForX(targetSpeed, acceleration, len, ratio * len, entrySpeed,
-                initialAccelerationLength, finalAccelerationLength, initialAccelerationDuration, finalAccelerationDuration, constantSpeedDuration);
-            currentTime = startTime + time;
-            pushPointFunction(ratio);
-        }
-    }
+    simulate2(path, pushPoint);
 
-    function simulateLine(line, entrySpeed, nextSegmentSpeed) {
-        var p0 = line.from;
-        var p1 = line.to;
-
-        var speed = line.feedRate / 60; //mm.min^-1 -> mm.s^-1
-
-        function dist(axis) {
-            return p1[axis] - p0[axis];
-        }
-
-        var dx = dist('x');
-        var dy = dist('y');
-        var dz = dist('z');
-        var len = length(dx, dy, dz);
-
-        function pushPointAtRatio(ratio) {
-            pushPoint(p0['x'] + ratio * dx, p0['y'] + ratio * dy, p0['z'] + ratio * dz);
-        }
-
-        discretize(pushPointAtRatio, speed, acceleration, len, entrySpeed, nextSegmentSpeed);
-        currentDistance += len;
-        return 0;
-    }
-
-    function simulateArc(arc, entrySpeed, nextSegmentSpeed) {
-        var speed = arc.feedRate / 60;
-        var lastCoord = arc.plane.lastCoord;
-        var lastCoordDistance = arc.to[lastCoord] - arc.from[lastCoord];
-        var radius = arc.radius;
-        var planarArcLength = arc.angularDistance * radius;
-        var arcLength = length(planarArcLength, lastCoordDistance);
-
-        function pushPointAtRatio(ratio) {
-            var angle = arc.fromAngle + arc.angularDistance * ratio;
-            var newPoint = {};
-            newPoint[arc.plane.firstCoord] = arc.center.first + radius * Math.cos(angle);
-            newPoint[arc.plane.secondCoord] = arc.center.second + radius * Math.sin(angle);
-            newPoint[lastCoord] = (arc.from[lastCoord] * (1 - ratio) + arc.to[lastCoord] * ratio);
-            pushPoint(newPoint['x'], newPoint['y'], newPoint['z']);
-        }
-
-        var clamped = arcClampedSpeed(radius, speed, acceleration);
-        if (clamped.speed != speed)
-            console.log("reducing speed in arc", speed, '->', clamped.speed);
-        discretize(pushPointAtRatio, clamped.speed, clamped.acceleration, arcLength, entrySpeed, nextSegmentSpeed);
-        return nextSegmentSpeed;
-    }
-
-    pushPoint(0, 0, 0);
-    var previousSegmentSpeed = 0;
-    for (var i = 0; i < path.length; i++) {
-        var nextSegmentSpeed = 0;
-        if (i < path.length - 1)
-            if (areEqualVectors(path[i].exitDirection, path[i + 1].entryDirection))
-                nextSegmentSpeed = path[i + 1].idealEntrySpeed;
-
-        if (path[i].type == 'line')
-            previousSegmentSpeed = simulateLine(path[i], previousSegmentSpeed, nextSegmentSpeed);
-        if (path[i].type == 'arc')
-            previousSegmentSpeed = simulateArc(path[i], previousSegmentSpeed, nextSegmentSpeed);
-    }
     console.log("path", path);
     var chart1 = $.plot("#chart1", posData);
     $.plot("#chart2", speedData, {xaxis: {max: chart1.getAxes().xaxis.max}});
