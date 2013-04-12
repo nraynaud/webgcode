@@ -84,7 +84,7 @@ function getArcSpeedDirection(arc, angle) {
 function simulate(path) {
     var simulatedPath = [];
     var acceleration = 200; //mm.s^-2
-    for (var i = 1; i < path.length; i++) {
+    for (var i = 0; i < path.length; i++) {
         var component = path[i];
         if (component.type == 'line') {
             var dx = component.to.x - component.from.x;
@@ -243,9 +243,9 @@ function simulate(path) {
         return nextSegmentSpeed;
     }
 
-    pushPoint(path[0]['x'], path[0]['y'], path[0]['z']);
+    pushPoint(0, 0, 0);
     var previousSegmentSpeed = 0;
-    for (var i = 1; i < path.length; i++) {
+    for (var i = 0; i < path.length; i++) {
         var nextSegmentSpeed = 0;
         if (i < path.length - 1)
             if (areEqualVectors(path[i].exitDirection, path[i + 1].entryDirection))

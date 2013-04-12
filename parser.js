@@ -33,7 +33,7 @@ $.each(LETTERS, function (_, letter) {
     WORD_DETECTORS[letter] = new RegExp(letter.toUpperCase() + '(' + REAL_NUMBER_REGEX + ')');
 });
 var AXES = ['x', 'y', 'z'];
-var GOUPS_TRANSITIONS = {
+var GROUPS_TRANSITIONS = {
     0: {motionMode: moveTraverseRate},
     1: {motionMode: moveFeedrate},
     2: {motionMode: moveCWArcMode},
@@ -223,13 +223,11 @@ function createMachine() {
     $.each(AXES, function (_, axis) {
         machineState.position[axis] = 0;
     });
-    machineState.path.push(machineState.position);
     return machineState;
 }
 
-function evaluateCode() {
+function evaluate(text) {
     var machineState = createMachine();
-    var text = $('#codebox').val();
     var arrayOfLines = text.match(/[^\r\n]+/g);
     $.each(arrayOfLines, function (lineNo, originalLine) {
         //drop spaces, go uppercase
@@ -246,7 +244,7 @@ function evaluateCode() {
             var gCode = WORD_DETECTORS.g.exec(line);
             if (gCode) {
                 var codeNum = parseFloat(gCode[1]);
-                var transition = GOUPS_TRANSITIONS[codeNum];
+                var transition = GROUPS_TRANSITIONS[codeNum];
                 if (transition != null)
                     $.extend(machineState, transition);
                 else {
@@ -259,6 +257,11 @@ function evaluateCode() {
         } while (gCode);
         machineState.motionMode(line, machineState);
     });
-    var simulatedPath = simulate(machineState.path);
+    return machineState.path;
+}
+
+function evaluateCode() {
+    var text = $('#codebox').val();
+    var simulatedPath = simulate(evaluate(text));
     displayPath(simulatedPath, '0 0 0', 'toolpath');
 }
