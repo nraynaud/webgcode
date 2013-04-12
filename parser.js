@@ -1,3 +1,4 @@
+"use strict";
 // general unit policy:
 // lengths in mm
 // feedrate in mm/min
@@ -5,34 +6,34 @@
 // angles in radians
 
 
-XY_PLANE = {
+var XY_PLANE = {
     firstCoord: 'x',
     secondCoord: 'y',
     lastCoord: 'z'
 };
-YZ_PLANE = {
+var YZ_PLANE = {
     firstCoord: 'y',
     secondCoord: 'z',
     lastCoord: 'x'
 };
 
-XZ_PLANE = {
+var XZ_PLANE = {
     firstCoord: 'x',
     secondCoord: 'z',
     lastCoord: 'y'
 };
 
-TRAVERSE_RATE = 3000;
+var TRAVERSE_RATE = 3000;
 
-REAL_NUMBER_REGEX = "[+-]?[0-9]+(?:[.][0-9]*)?";
+var REAL_NUMBER_REGEX = "[+-]?[0-9]+(?:[.][0-9]*)?";
 //partial list for supported stuff only
-LETTERS = ['f', 'g', 'i', 'j', 'r', 'x', 'y', 'z'];
-WORD_DETECTORS = {};
+var LETTERS = ['f', 'g', 'i', 'j', 'r', 'x', 'y', 'z'];
+var WORD_DETECTORS = {};
 $.each(LETTERS, function (_, letter) {
     WORD_DETECTORS[letter] = new RegExp(letter.toUpperCase() + '(' + REAL_NUMBER_REGEX + ')');
 });
-AXES = ['x', 'y', 'z'];
-GOUPS_TRANSITIONS = {
+var AXES = ['x', 'y', 'z'];
+var GOUPS_TRANSITIONS = {
     0: {motionMode: moveTraverseRate},
     1: {motionMode: moveFeedrate},
     2: {motionMode: moveCWArcMode},
@@ -122,7 +123,7 @@ function length() {
 }
 
 function cloneObject(old) {
-    return $.extend({}, old)
+    return $.extend({}, old);
 }
 
 function move(parsedMove, machineState, speed) {
@@ -182,7 +183,6 @@ function parseArc(line, clockwise, machineState) {
     var plane = machineState.planeMode;
     var xCoord = plane.firstCoord;
     var yCoord = plane.secondCoord;
-    var zCoord = plane.lastCoord;
     var circle = findCircle(line, unitMode, targetPos, plane, currentPosition, clockwise);
     var radius = circle.radius;
     var toCenterX = circle.toCenterX;
@@ -260,5 +260,5 @@ function evaluateCode() {
         machineState.motionMode(line, machineState);
     });
     var simulatedPath = simulate(machineState.path);
-    displayPath(simulatedPath);
+    displayPath(simulatedPath, '0 0 0', 'toolpath');
 }
