@@ -9,6 +9,16 @@ test("G0 evaluation", function () {
         to: {x: 10, y: 0, z: 0},
         type: "line"}, '"' + code + '" second component check');
 });
+test("G1 evaluation", function () {
+    var code = 'G1 X10';
+    var result = evaluate(code);
+    equal(result.length, 1, '"' + code + '" code length');
+    deepEqual(result[0], {
+        feedRate: 200,
+        from: {x: 0, y: 0, z: 0},
+        to: {x: 10, y: 0, z: 0},
+        type: "line"}, '"' + code + '" second component check');
+});
 test("G2 evaluation", function () {
     var code = 'G2 X10 Y0 Z0 I5 J0 F200';
     var result = evaluate(code);
