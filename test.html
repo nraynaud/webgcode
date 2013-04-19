@@ -16,6 +16,7 @@
 <div id="qunit"></div>
 <div id="qunit-fixture"></div>
 <h1>Testing random speed planning</h1>
+
 <div class="chart" id="chart1"></div>
 <script src="assets/qunit.js"></script>
 <script src="assets/jquery.min.js"></script>
@@ -24,7 +25,7 @@
 <script src="parser.js"></script>
 <script src="tests.js"></script>
 <script>
-    function planSpeed(speedSegments, acceleration) {
+    function limitSpeed(speedSegments, acceleration) {
         for (var i = 0; i < speedSegments.length; i++) {
             var segment = speedSegments[i];
             var speed = segment.speed;
@@ -37,6 +38,42 @@
             var accelerationLength = previousSpeed * previousSpeed / (2 * acceleration);
             var maxSpeed = Math.sqrt(2 * acceleration * (accelerationLength + segment.length));
             segment.speed = Math.min(speed, maxSpeed);
+        }
+    }
+
+    function planSpeed(speedSegments, acceleration) {
+        limitSpeed(data, acceleration);
+        data.reverse();
+        limitSpeed(data, acceleration);
+        data.reverse();
+        for (var i = 0; i < data.length; i++) {
+            var nextSpeed = (i < data.length - 1 ? data[i + 1].speed : 0);
+            var previousSpeed = (i >= 1 ? data[i - 1].speed : 0);
+            var segmentLength = 0;
+            if (nextSpeed < data[i].speed || previousSpeed < data[i].speed) {
+                var accelerationLength = previousSpeed * previousSpeed / (2 * acceleration);
+                var deccelerationLength = nextSpeed * nextSpeed / (2 * acceleration);
+
+                function accelerate(x) {
+                    return Math.sqrt(2 * acceleration * (accelerationLength + x));
+                }
+
+                function deccelerate(x) {
+                    return Math.sqrt(2 * acceleration * (deccelerationLength + data[i].length - x));
+                }
+                var meetingPoint = (deccelerationLength + data[i].length - accelerationLength) / 2;
+                var maxAccelerationPoint = (Math.pow(data[i].speed, 2) - 2 * acceleration * accelerationLength) / (2 * acceleration);
+                var maxDeccelerationPoint = (2 * acceleration * (deccelerationLength + data[i].length) - Math.pow(data[i].speed, 2)) / (2 * acceleration);
+                if (meetingPoint >= 0 && meetingPoint <= data[i].length && accelerate(meetingPoint) < data[i].speed) {
+                    data[i].stopAccelerationPoint = meetingPoint;
+                    data[i].stopDeccelerationPoint = meetingPoint;
+                } else {
+                    if (maxAccelerationPoint >= 0 && maxAccelerationPoint < data[i].length)
+                        data[i].stopAccelerationPoint = maxAccelerationPoint;
+                    if (maxDeccelerationPoint >= 0 && maxDeccelerationPoint < data[i].length)
+                        data[i].stopDeccelerationPoint = maxDeccelerationPoint;
+                }
+            }
         }
     }
 
@@ -81,11 +118,7 @@
         plotData[0].data.push([l, data[i].speed]);
     }
     planSpeed(data, acceleration);
-    l = 0;
     var steps = 100;
-    data.reverse();
-    planSpeed(data, acceleration);
-    data.reverse();
     l = 0;
     for (i = 0; i < data.length; i++) {
         var nextSpeed = (i < data.length - 1 ? data[i + 1].speed : 0);
@@ -103,17 +136,13 @@
                 return Math.sqrt(2 * acceleration * (deccelerationLength + data[i].length - x));
             }
 
-            var meetingPoint = (deccelerationLength + data[i].length - accelerationLength) / 2;
-            var maxAccelerationPoint = (Math.pow(data[i].speed, 2) - 2 * acceleration * accelerationLength) / (2 * acceleration);
-            var maxDeccelerationPoint = (2 * acceleration * (deccelerationLength+ data[i].length) - Math.pow(data[i].speed, 2)) / (2 * acceleration);
-            if (meetingPoint >= 0 && meetingPoint <= data[i].length && accelerate(meetingPoint) < data[i].speed) {
-                plotData[2].data.push([l + meetingPoint, accelerate(meetingPoint)]);
-            } else {
-                if (maxAccelerationPoint >= 0 && maxAccelerationPoint < data[i].length) {
-                    plotData[3].data.push([l + maxAccelerationPoint, data[i].speed]);
-                }
-                if (maxDeccelerationPoint>= 0 && maxDeccelerationPoint < data[i].length)
-                    plotData[4].data.push([l + maxDeccelerationPoint, data[i].speed]);
+            if (data[i].stopAccelerationPoint && data[i].stopAccelerationPoint == data[i].stopDeccelerationPoint)
+                plotData[2].data.push([l + data[i].stopAccelerationPoint, accelerate(data[i].stopAccelerationPoint)]);
+            else {
+                if (data[i].stopAccelerationPoint)
+                    plotData[3].data.push([l + data[i].stopAccelerationPoint, accelerate(data[i].stopAccelerationPoint)]);
+                if (data[i].stopDeccelerationPoint)
+                    plotData[4].data.push([l + data[i].stopDeccelerationPoint, deccelerate(data[i].stopDeccelerationPoint)]);
             }
 
             for (var j = 0; j <= steps; j++) {
