@@ -3,21 +3,33 @@
 var COMPONENT_TYPES = {
     line: {
         length: function (line) {
-            var p0 = line.from;
-            var p1 = line.to;
-
             function dist(axis) {
-                return p1[axis] - p0[axis];
+                return line.to[axis] - line.from[axis];
             }
 
-            var dx = dist('x');
-            var dy = dist('y');
-            var dz = dist('z');
-            return length(dx, dy, dz);
+            return length(dist('x'), dist('y'), dist('z'));
         },
         speed: function (line, acceleration) {
             return {speed: line.feedRate / 60, acceleration: acceleration};
-        }},
+        },
+        entryDirection: function (line) {
+            var dx = line.to.x - line.from.x;
+            var dy = line.to.y - line.from.y;
+            var dz = line.to.z - line.from.z;
+            var len = length(dx, dy, dz);
+            return {x: dx / len, y: dy / len, z: dz / len};
+        },
+        exitDirection: function (line) {
+            return COMPONENT_TYPES.line.entryDirection(line);
+        },
+        pointAtRatio: function (line, ratio) {
+            function scaled(axis) {
+                return line.from[axis] + ratio * (line.to[axis] - line.from[axis]);
+            }
+
+            return [scaled('x'), scaled('y'), scaled('z')];
+        }
+    },
     arc: {
         length: function (arc) {
             var lastCoord = arc.plane.lastCoord;
@@ -28,6 +40,22 @@ var COMPONENT_TYPES = {
         },
         speed: function (arc, acceleration) {
             return arcClampedSpeed(arc.radius, arc.feedRate / 60, acceleration);
+        },
+        entryDirection: function (arc) {
+            return getArcSpeedDirection(arc, 0);
+        },
+        exitDirection: function (arc) {
+            return getArcSpeedDirection(arc, arc.angularDistance);
+        },
+        pointAtRatio: function (arc, ratio) {
+            var lastCoord = arc.plane.lastCoord;
+            var radius = arc.radius;
+            var angle = arc.fromAngle + arc.angularDistance * ratio;
+            var newPoint = {};
+            newPoint[arc.plane.firstCoord] = arc.center.first + radius * Math.cos(angle);
+            newPoint[arc.plane.secondCoord] = arc.center.second + radius * Math.sin(angle);
+            newPoint[lastCoord] = (arc.from[lastCoord] * (1 - ratio) + arc.to[lastCoord] * ratio);
+            return [newPoint.x, newPoint.y, newPoint.z];
         }
     }
 };
@@ -99,7 +127,7 @@ function limitSpeed(speedSegments, direction) {
 function planSpeed(data) {
     limitSpeed(data, 'acceleration');
     data.reverse();
-    limitSpeed(data, 'decceleration');
+    limitSpeed(data, 'deceleration');
     data.reverse();
     for (var i = 0; i < data.length; i++) {
         var nextSquaredSpeed = (i < data.length - 1 ? data[i + 1].squaredSpeed : 0);
@@ -108,28 +136,28 @@ function planSpeed(data) {
         segment.fragments = [];
         var acceleration = segment.maxAcceleration;
         var accelerationLength = segment.acceleration.length;
-        var deccelerationLength = segment.decceleration.length;
-        var meetingPoint = (deccelerationLength + segment.length - accelerationLength) / 2;
+        var decelerationLength = segment.deceleration.length;
+        var meetingPoint = (decelerationLength + segment.length - accelerationLength) / 2;
         var meetingSquaredSpeed = 2 * acceleration * (accelerationLength + meetingPoint);
         var endAccelerationPoint = (segment.squaredSpeed - 2 * acceleration * accelerationLength) / (2 * acceleration);
-        var startDeccelerationPoint = (2 * acceleration * (deccelerationLength + segment.length) - segment.squaredSpeed) / (2 * acceleration);
+        var startDecelerationPoint = (2 * acceleration * (decelerationLength + segment.length) - segment.squaredSpeed) / (2 * acceleration);
         var maxSquaredSpeed = segment.squaredSpeed;
         if (meetingPoint >= 0 && meetingPoint <= segment.length && meetingSquaredSpeed <= segment.squaredSpeed) {
             maxSquaredSpeed = meetingSquaredSpeed;
             endAccelerationPoint = meetingPoint;
-            startDeccelerationPoint = meetingPoint;
+            startDecelerationPoint = meetingPoint;
             segment.squaredSpeed = meetingSquaredSpeed;
         }
         var hasAcceleration = endAccelerationPoint > 0 && endAccelerationPoint <= segment.length;
-        var hasDecceleration = startDeccelerationPoint >= 0 && startDeccelerationPoint < segment.length;
+        var hasDeceleration = startDecelerationPoint >= 0 && startDecelerationPoint < segment.length;
         if (hasAcceleration)
             segment.fragments.push({type: 'acceleration', segment: segment, fromSqSpeed: previousSquaredSpeed, toSqSpeed: maxSquaredSpeed, startX: 0, stopX: endAccelerationPoint});
         var constantSpeedStart = hasAcceleration ? endAccelerationPoint : 0;
-        var constantSpeedStop = hasDecceleration ? startDeccelerationPoint : segment.length;
+        var constantSpeedStop = hasDeceleration ? startDecelerationPoint : segment.length;
         if (constantSpeedStart != constantSpeedStop)
             segment.fragments.push({type: 'constant', segment: segment, speed: maxSquaredSpeed, startX: constantSpeedStart, stopX: constantSpeedStop});
-        if (hasDecceleration)
-            segment.fragments.push({type: 'decceleration', segment: segment, fromSqSpeed: maxSquaredSpeed, toSqSpeed: nextSquaredSpeed, startX: startDeccelerationPoint, stopX: segment.length});
+        if (hasDeceleration)
+            segment.fragments.push({type: 'deceleration', segment: segment, fromSqSpeed: maxSquaredSpeed, toSqSpeed: nextSquaredSpeed, startX: startDecelerationPoint, stopX: segment.length});
         segment.duration = 0;
         $.each(segment.fragments, function (_, fragment) {
             fragment.length = fragment.stopX - fragment.startX;
@@ -147,8 +175,8 @@ function dataForRatio(segment, ratio) {
             time: Math.sqrt(x2 / acceleration) - Math.sqrt(fragment.fromSqSpeed) / acceleration};
     }
 
-    function deccelerateFragment(fragment, ratio, acceleration) {
-        var x2 = 2 * (fragment.segment.decceleration.length + fragment.length * (1 - ratio));
+    function decelerateFragment(fragment, ratio, acceleration) {
+        var x2 = 2 * (fragment.segment.deceleration.length + fragment.length * (1 - ratio));
         return {speed: Math.sqrt(acceleration * x2),
             time: Math.sqrt(fragment.toSqSpeed) / acceleration + fragment.duration - Math.sqrt(x2 / acceleration)};
     }
@@ -157,7 +185,7 @@ function dataForRatio(segment, ratio) {
         return {speed: Math.sqrt(fragment.speed), time: fragment.duration * ratio};
     }
 
-    var equations = {acceleration: accelerateFragment, decceleration: deccelerateFragment, constant: runFragment};
+    var equations = {acceleration: accelerateFragment, deceleration: decelerateFragment, constant: runFragment};
     var x = segment.length * ratio;
     var timeOffset = 0;
     var xOffset = 0;
@@ -178,14 +206,14 @@ function groupConnectedComponents(path, acceleration) {
     var lastExitDirection = {x: 0, y: 0, z: 0};
     for (var i = 0; i < path.length; i++) {
         var component = path[i];
-        if (areEqualVectors(lastExitDirection, component.entryDirection)) {
+        var trait = COMPONENT_TYPES[component.type];
+        if (areEqualVectors(lastExitDirection, trait.entryDirection(component))) {
             currentGroup.push(component);
         } else {
             currentGroup = [component];
             groups.push(currentGroup);
         }
-        lastExitDirection = component.exitDirection;
-        var trait = COMPONENT_TYPES[component.type];
+        lastExitDirection = trait.exitDirection(component);
         component.length = trait.length(component);
         var speedData = trait.speed(component, acceleration);
         component.squaredSpeed = Math.pow(speedData.speed, 2);
@@ -196,84 +224,39 @@ function groupConnectedComponents(path, acceleration) {
 
 function simulate2(path, pushPoint) {
     var acceleration = 200; //mm.s^-2
-    for (var i = 0; i < path.length; i++) {
-        var component = path[i];
-        if (component.type == 'line') {
-            var dx = component.to.x - component.from.x;
-            var dy = component.to.y - component.from.y;
-            var dz = component.to.z - component.from.z;
-            var len = length(dx, dy, dz);
-            var direction = {x: dx / len, y: dy / len, z: dz / len};
-            component.entryDirection = direction;
-            component.exitDirection = direction;
-            component.idealEntrySpeed = component.feedRate / 60;
-        } else if (component.type == 'arc') {
-            var entry = getArcSpeedDirection(component, 0);
-            var exit = getArcSpeedDirection(component, component.angularDistance);
-            component.entryDirection = entry;
-            component.exitDirection = exit;
-            component.idealEntrySpeed = arcClampedSpeed(component.radius, component.feedRate / 60, acceleration).speed;
-        } else
-            console.log('unknown', component);
-    }
+    var i;
     var groups = groupConnectedComponents(path, acceleration);
-    for (i = 0; i < groups.length; i++)
-        planSpeed(groups[i]);
-    var currentTime = 0;
 
-    function discretize2(pushPointFunction, segment) {
+    var currentTime = 0;
+    var lastPosition;
+
+    function discretize(segment) {
         var steps = 300;
         var startTime = currentTime;
         for (var j = 1; j <= steps; j++) {
             var ratio = j / steps;
             var data = dataForRatio(segment, ratio);
             currentTime = startTime + data.time;
-            pushPointFunction(ratio);
+            internalPushPoint.apply(null, COMPONENT_TYPES[segment.type].pointAtRatio(segment, ratio));
         }
     }
 
-    function simulateLine(line) {
-        var p0 = line.from;
-        var p1 = line.to;
-
-        function dist(axis) {
-            return p1[axis] - p0[axis];
-        }
-
-        var dx = dist('x');
-        var dy = dist('y');
-        var dz = dist('z');
-
-        function pushPointAtRatio(ratio) {
-            pushPoint(p0['x'] + ratio * dx, p0['y'] + ratio * dy, p0['z'] + ratio * dz, currentTime);
-        }
-
-        return discretize2(pushPointAtRatio, line);
+    function internalPushPoint(x, y, z) {
+        lastPosition = [x, y, z];
+        pushPoint(x, y, z, currentTime);
     }
 
-    function simulateArc(arc) {
-        var lastCoord = arc.plane.lastCoord;
-        var radius = arc.radius;
-
-        function pushPointAtRatio(ratio) {
-            var angle = arc.fromAngle + arc.angularDistance * ratio;
-            var newPoint = {};
-            newPoint[arc.plane.firstCoord] = arc.center.first + radius * Math.cos(angle);
-            newPoint[arc.plane.secondCoord] = arc.center.second + radius * Math.sin(angle);
-            newPoint[lastCoord] = (arc.from[lastCoord] * (1 - ratio) + arc.to[lastCoord] * ratio);
-            pushPoint(newPoint['x'], newPoint['y'], newPoint['z'], currentTime);
+    internalPushPoint(0, 0, 0);
+    $.each(groups, function (_, group) {
+        planSpeed(group);
+        $.each(group, function (_, segment) {
+            discretize(segment);
+        });
+        for (i = 0; i < 10; i++) {
+            currentTime += 0.001;
+            internalPushPoint.apply(null, lastPosition);
         }
-
-        return discretize2(pushPointAtRatio, arc);
-    }
-
-    pushPoint(0, 0, 0, 0);
-    for (i = 0; i < path.length; i++) {
-        if (path[i].type == 'line')
-            simulateLine(path[i]);
-        if (path[i].type == 'arc')
-            simulateArc(path[i]);
-    }
+    });
 }
 
 function simulate(path) {

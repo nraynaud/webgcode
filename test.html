@@ -95,12 +95,12 @@
             positionData[0].data.push([st + point.time, x]);
         }
         $.each(segment.fragments, function (_, fragment) {
-            if (fragment.type == 'acceleration' || fragment.type == 'decceleration') {
+            if (fragment.type == 'acceleration' || fragment.type == 'deceleration') {
                 if (fragment.type == 'acceleration') {
                     speedData[3].data.push([position + fragment.stopX, Math.sqrt(fragment.toSqSpeed)]);
                     positionData[2].data.push([t + fragment.duration, position + fragment.stopX]);
                 }
-                if (fragment.type == 'decceleration') {
+                if (fragment.type == 'deceleration') {
                     speedData[4].data.push([position + fragment.startX, Math.sqrt(fragment.fromSqSpeed)]);
                     positionData[3].data.push([t, position + fragment.startX]);
                 }
