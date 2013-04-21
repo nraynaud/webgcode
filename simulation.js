@@ -155,13 +155,13 @@ function planSpeed(data) {
         var constantSpeedStart = hasAcceleration ? endAccelerationPoint : 0;
         var constantSpeedStop = hasDeceleration ? startDecelerationPoint : segment.length;
         if (constantSpeedStart != constantSpeedStop)
-            segment.fragments.push({type: 'constant', segment: segment, speed: maxSquaredSpeed, startX: constantSpeedStart, stopX: constantSpeedStop});
+            segment.fragments.push({type: 'constant', segment: segment, squaredSpeed: maxSquaredSpeed, startX: constantSpeedStart, stopX: constantSpeedStop});
         if (hasDeceleration)
             segment.fragments.push({type: 'deceleration', segment: segment, fromSqSpeed: maxSquaredSpeed, toSqSpeed: nextSquaredSpeed, startX: startDecelerationPoint, stopX: segment.length});
         segment.duration = 0;
         $.each(segment.fragments, function (_, fragment) {
             fragment.length = fragment.stopX - fragment.startX;
-            fragment.duration = fragment.type == 'constant' ? fragment.length / Math.sqrt(fragment.speed) : Math.abs(Math.sqrt(fragment.fromSqSpeed) - Math.sqrt(fragment.toSqSpeed)) / acceleration;
+            fragment.duration = fragment.type == 'constant' ? fragment.length / Math.sqrt(fragment.squaredSpeed) : Math.abs(Math.sqrt(fragment.fromSqSpeed) - Math.sqrt(fragment.toSqSpeed)) / acceleration;
             segment.duration += fragment.duration;
         });
     }
@@ -182,7 +182,7 @@ function dataForRatio(segment, ratio) {
     }
 
     function runFragment(fragment, ratio, acceleration) {
-        return {speed: Math.sqrt(fragment.speed), time: fragment.duration * ratio};
+        return {speed: Math.sqrt(fragment.squaredSpeed), time: fragment.duration * ratio};
     }
 
     var equations = {acceleration: accelerateFragment, deceleration: decelerateFragment, constant: runFragment};

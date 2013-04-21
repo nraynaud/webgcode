@@ -30,30 +30,9 @@
 <script src="parser.js"></script>
 <script src="tests.js"></script>
 <script>
-
-    var rawData = [
-        [2, 2],
-        [3, 1],
-        [5, 2],
-        [4, 2],
-        [2, 4],
-        [4, 1],
-        [5, 1, 20],
-        [6, 2],
-        [5, 2],
-        [6, 2],
-        [5, 1],
-        [6, 1],
-        [4, 3],
-        [6, 3],
-        [5, 2]
-    ];
-    /*    rawData = [
-     [1, 1]
-     ];*/
-        rawData = [];
-     for (i = 0; i < 20; i++)
-     rawData.push([Math.random() * 10, Math.random() * 10]);
+    rawData = [];
+    for (i = 0; i < 20; i++)
+        rawData.push([Math.random() * 10, Math.random() * 10]);
 
     var acceleration = 4;
     data = [];
@@ -89,7 +68,7 @@
     for (i = 0; i < data.length; i++) {
         var segment = data[i];
         for (var r = 0; r <= steps; r++) {
-            var point = dataForRatio(segment, r / steps, acceleration);
+            var point = dataForRatio(segment, r / steps);
             var x = (position + segment.length * r / steps);
             speedData[1].data.push([x, point.speed]);
             positionData[0].data.push([st + point.time, x]);
