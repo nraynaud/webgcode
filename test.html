@@ -57,30 +57,30 @@
             var deccelerationLength = segment.decceleration.length;
             var meetingPoint = (deccelerationLength + segment.length - accelerationLength) / 2;
             var meetingSquaredSpeed = 2 * acceleration * (accelerationLength + meetingPoint);
-            var maxAccelerationPoint = (segment.squaredSpeed - 2 * acceleration * accelerationLength) / (2 * acceleration);
-            var maxDeccelerationPoint = (2 * acceleration * (deccelerationLength + segment.length) - segment.squaredSpeed) / (2 * acceleration);
+            var endAccelerationPoint = (segment.squaredSpeed - 2 * acceleration * accelerationLength) / (2 * acceleration);
+            var startDeccelerationPoint = (2 * acceleration * (deccelerationLength + segment.length) - segment.squaredSpeed) / (2 * acceleration);
             var maxSquaredSpeed = segment.squaredSpeed;
             if (meetingPoint >= 0 && meetingPoint <= segment.length && meetingSquaredSpeed <= segment.squaredSpeed) {
                 maxSquaredSpeed = meetingSquaredSpeed;
-                maxAccelerationPoint = meetingPoint;
-                maxDeccelerationPoint = meetingPoint;
+                endAccelerationPoint = meetingPoint;
+                startDeccelerationPoint = meetingPoint;
                 segment.squaredSpeed = meetingSquaredSpeed;
             }
-            var hasAcceleration = maxAccelerationPoint > 0 && maxAccelerationPoint <= segment.length;
-            var hasDecceleration = maxDeccelerationPoint >= 0 && maxDeccelerationPoint < segment.length;
+            var hasAcceleration = endAccelerationPoint > 0 && endAccelerationPoint <= segment.length;
+            var hasDecceleration = startDeccelerationPoint >= 0 && startDeccelerationPoint < segment.length;
             if (hasAcceleration)
-                segment.fragments.push({type: 'acceleration', segment: segment, fromSpeed: previousSquaredSpeed, toSpeed: maxSquaredSpeed, startX: 0, stopX: maxAccelerationPoint});
-            var constantSpeedStart = hasAcceleration ? maxAccelerationPoint : 0;
-            var constantSpeedStop = hasDecceleration ? maxDeccelerationPoint : segment.length;
+                segment.fragments.push({type: 'acceleration', segment: segment, fromSqSpeed: previousSquaredSpeed, toSqSpeed: maxSquaredSpeed, startX: 0, stopX: endAccelerationPoint});
+            var constantSpeedStart = hasAcceleration ? endAccelerationPoint : 0;
+            var constantSpeedStop = hasDecceleration ? startDeccelerationPoint : segment.length;
             if (constantSpeedStart != constantSpeedStop)
                 segment.fragments.push({type: 'constant', segment: segment, speed: maxSquaredSpeed, startX: constantSpeedStart, stopX: constantSpeedStop});
             if (hasDecceleration)
-                segment.fragments.push({type: 'decceleration', segment: segment, fromSpeed: maxSquaredSpeed, toSpeed: nextSquaredSpeed, startX: maxDeccelerationPoint, stopX: segment.length});
+                segment.fragments.push({type: 'decceleration', segment: segment, fromSqSpeed: maxSquaredSpeed, toSqSpeed: nextSquaredSpeed, startX: startDeccelerationPoint, stopX: segment.length});
             $.each(segment.fragments, function (_, fragment) {
                 fragment.length = fragment.stopX - fragment.startX;
-                fragment.duration = fragment.type == 'constant' ? fragment.length / Math.sqrt(fragment.speed) : Math.abs(Math.sqrt(fragment.fromSpeed) - Math.sqrt(fragment.toSpeed)) / acceleration;
+                fragment.duration = fragment.type == 'constant' ? fragment.length / Math.sqrt(fragment.speed) : Math.abs(Math.sqrt(fragment.fromSqSpeed) - Math.sqrt(fragment.toSqSpeed)) / acceleration;
             });
-            console.log("segment", segment);
+            console.log("segment " + i, segment);
         }
     }
 
@@ -111,7 +111,7 @@
     var acceleration = 4;
     data = [];
     for (i = 0; i < rawData.length; i++)
-        data.push({length: rawData[i][1], speed: rawData[i][0], squaredSpeed: rawData[i][0] * rawData[i][0], originalSpeed: rawData[i][0]});
+        data.push({length: rawData[i][1], squaredSpeed: rawData[i][0] * rawData[i][0], originalSpeed: rawData[i][0]});
     var i;
     var speedData = [
         {label: 'reference speed(mm->mm/s)', points: {show: true, radius: 1, fill: false, symbol: "circle"}, lines: {show: true}, shadowSize: 0, color: 'red', data: []},
@@ -129,47 +129,40 @@
         {points: {show: true, radius: 1, fill: false, symbol: "circle"}, lines: {show: false}, shadowSize: 0, color: 'red', data: []}
     ];
     planSpeed(data, acceleration);
-    var steps = 100;
     speedData[1].data.push([0, 0]);
-    var position = 0;
     positionData[0].data.push([0, 0]);
     positionData[4].data.push([0, 0]);
-    function speedForAccelerationFragment(fragment, ratio) {
-        var accelerationLength = fragment.segment.acceleration.length;
-        return Math.sqrt(2 * acceleration * (accelerationLength + fragment.startX + fragment.length * ratio));
+    function accelerateFragment(fragment, ratio, acceleration) {
+        var x2 = 2 * (fragment.segment.acceleration.length + fragment.length * ratio);
+        return {speed: Math.sqrt(acceleration * x2),
+            time: Math.sqrt(x2 / acceleration) - Math.sqrt(fragment.fromSqSpeed) / acceleration};
     }
-    function speedForDeccelerationFragment(fragment, ratio) {
-        var deccelerationLength = fragment.segment.decceleration.length;
-        return Math.sqrt(2 * acceleration * (deccelerationLength + fragment.length * (1 - ratio)));
+    function deccelerateFragment(fragment, ratio, acceleration) {
+        var x2 = 2 * (fragment.segment.decceleration.length + fragment.length * (1 - ratio));
+        return {speed: Math.sqrt(acceleration * x2),
+            time: Math.sqrt(fragment.toSqSpeed) / acceleration + fragment.duration - Math.sqrt(x2 / acceleration)};
     }
-    function timeForAccelerationFragment(fragment, ratio) {
-        var accelerationLength = fragment.segment.acceleration.length;
-        return Math.sqrt(2 * (accelerationLength + fragment.length * ratio) / acceleration) - Math.sqrt(fragment.fromSpeed) / acceleration;
-    }
-    function timeForDeccelerationFragment(fragment, ratio) {
-        var deccelerationLength = fragment.segment.decceleration.length;
-        return Math.sqrt(fragment.toSpeed) / acceleration + fragment.duration - Math.sqrt(2 * (deccelerationLength + fragment.length * (1 - ratio)) / acceleration);
-    }
+    var equations = {acceleration: accelerateFragment, decceleration: deccelerateFragment};
     var t = 0;
+    var steps = 100;
+    var position = 0;
     for (i = 0; i < data.length; i++) {
         var segment = data[i];
         var startX = position;
         $.each(segment.fragments, function (_, fragment) {
             if (fragment.type == 'acceleration' || fragment.type == 'decceleration') {
+                for (var r = 0; r <= steps; r++) {
+                    var point = equations[fragment.type](fragment, r / steps, acceleration);
+                    var x = (position + fragment.startX + fragment.length * r / steps);
+                    speedData[1].data.push([ x, point.speed]);
+                    positionData[0].data.push([t + point.time, x]);
+                }
                 if (fragment.type == 'acceleration') {
-                    for (var r = 0; r <= steps; r++) {
-                        speedData[1].data.push([position + fragment.stopX * r / steps, speedForAccelerationFragment(fragment, r / steps)]);
-                        positionData[0].data.push([t + timeForAccelerationFragment(fragment, r / steps), position + fragment.startX + fragment.length * r / steps]);
-                    }
-                    speedData[3].data.push([position + fragment.stopX, Math.sqrt(fragment.toSpeed)]);
+                    speedData[3].data.push([position + fragment.stopX, Math.sqrt(fragment.toSqSpeed)]);
                     positionData[2].data.push([t + fragment.duration, startX + fragment.stopX]);
                 }
                 if (fragment.type == 'decceleration') {
-                    for (r = 0; r <= steps; r++) {
-                        speedData[1].data.push([position + fragment.startX + fragment.length * r / steps, speedForDeccelerationFragment(fragment, r / steps)]);
-                        positionData[0].data.push([t + timeForDeccelerationFragment(fragment, r / steps), position + fragment.startX + fragment.length * r / steps]);
-                    }
-                    speedData[4].data.push([position + fragment.startX, Math.sqrt(fragment.fromSpeed)]);
+                    speedData[4].data.push([position + fragment.startX, Math.sqrt(fragment.fromSqSpeed)]);
                     positionData[3].data.push([t, startX + fragment.startX]);
                 }
             } else
