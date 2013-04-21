@@ -30,59 +30,6 @@
 <script src="parser.js"></script>
 <script src="tests.js"></script>
 <script>
-    function limitSpeed(speedSegments, acceleration, direction) {
-        for (var i = 0; i < speedSegments.length; i++) {
-            var segment = speedSegments[i];
-            var previousSquaredSpeed = 0;
-            if (i > 0)
-                previousSquaredSpeed = speedSegments[i - 1].squaredSpeed;
-            var accelerationLength = previousSquaredSpeed / (2 * acceleration);
-            var maxSquaredSpeed = 2 * acceleration * (accelerationLength + segment.length);
-            segment.squaredSpeed = Math.min(segment.squaredSpeed, maxSquaredSpeed);
-            segment[direction] = {length: previousSquaredSpeed / (2 * acceleration)};
-        }
-    }
-
-    function planSpeed(data, acceleration) {
-        limitSpeed(data, acceleration, 'acceleration');
-        data.reverse();
-        limitSpeed(data, acceleration, 'decceleration');
-        data.reverse();
-        for (var i = 0; i < data.length; i++) {
-            var nextSquaredSpeed = (i < data.length - 1 ? data[i + 1].squaredSpeed : 0);
-            var previousSquaredSpeed = (i >= 1 ? data[i - 1].squaredSpeed : 0);
-            var segment = data[i];
-            segment.fragments = [];
-            var accelerationLength = segment.acceleration.length;
-            var deccelerationLength = segment.decceleration.length;
-            var meetingPoint = (deccelerationLength + segment.length - accelerationLength) / 2;
-            var meetingSquaredSpeed = 2 * acceleration * (accelerationLength + meetingPoint);
-            var endAccelerationPoint = (segment.squaredSpeed - 2 * acceleration * accelerationLength) / (2 * acceleration);
-            var startDeccelerationPoint = (2 * acceleration * (deccelerationLength + segment.length) - segment.squaredSpeed) / (2 * acceleration);
-            var maxSquaredSpeed = segment.squaredSpeed;
-            if (meetingPoint >= 0 && meetingPoint <= segment.length && meetingSquaredSpeed <= segment.squaredSpeed) {
-                maxSquaredSpeed = meetingSquaredSpeed;
-                endAccelerationPoint = meetingPoint;
-                startDeccelerationPoint = meetingPoint;
-                segment.squaredSpeed = meetingSquaredSpeed;
-            }
-            var hasAcceleration = endAccelerationPoint > 0 && endAccelerationPoint <= segment.length;
-            var hasDecceleration = startDeccelerationPoint >= 0 && startDeccelerationPoint < segment.length;
-            if (hasAcceleration)
-                segment.fragments.push({type: 'acceleration', segment: segment, fromSqSpeed: previousSquaredSpeed, toSqSpeed: maxSquaredSpeed, startX: 0, stopX: endAccelerationPoint});
-            var constantSpeedStart = hasAcceleration ? endAccelerationPoint : 0;
-            var constantSpeedStop = hasDecceleration ? startDeccelerationPoint : segment.length;
-            if (constantSpeedStart != constantSpeedStop)
-                segment.fragments.push({type: 'constant', segment: segment, speed: maxSquaredSpeed, startX: constantSpeedStart, stopX: constantSpeedStop});
-            if (hasDecceleration)
-                segment.fragments.push({type: 'decceleration', segment: segment, fromSqSpeed: maxSquaredSpeed, toSqSpeed: nextSquaredSpeed, startX: startDeccelerationPoint, stopX: segment.length});
-            $.each(segment.fragments, function (_, fragment) {
-                fragment.length = fragment.stopX - fragment.startX;
-                fragment.duration = fragment.type == 'constant' ? fragment.length / Math.sqrt(fragment.speed) : Math.abs(Math.sqrt(fragment.fromSqSpeed) - Math.sqrt(fragment.toSqSpeed)) / acceleration;
-            });
-            console.log("segment " + i, segment);
-        }
-    }
 
     var rawData = [
         [2, 2],
@@ -91,7 +38,7 @@
         [4, 2],
         [2, 4],
         [4, 1],
-        [5, 1],
+        [5, 1, 20],
         [6, 2],
         [5, 2],
         [6, 2],
@@ -101,17 +48,19 @@
         [6, 3],
         [5, 2]
     ];
-    rawData = [
-        [1, 1]
-    ];
-    rawData = [];
-    for (i = 0; i < 20; i++)
-        rawData.push([Math.random() * 10, Math.random() * 10]);
+    /*    rawData = [
+     [1, 1]
+     ];*/
+        rawData = [];
+     for (i = 0; i < 20; i++)
+     rawData.push([Math.random() * 10, Math.random() * 10]);
 
     var acceleration = 4;
     data = [];
-    for (i = 0; i < rawData.length; i++)
-        data.push({length: rawData[i][1], squaredSpeed: rawData[i][0] * rawData[i][0], originalSpeed: rawData[i][0]});
+    for (i = 0; i < rawData.length; i++) {
+        var dataAcceleration = rawData[i].length > 2 ? rawData[i][2] : acceleration;
+        data.push({length: rawData[i][1], maxAcceleration: dataAcceleration, squaredSpeed: rawData[i][0] * rawData[i][0], originalSpeed: rawData[i][0]});
+    }
     var i;
     var speedData = [
         {label: 'reference speed(mm->mm/s)', points: {show: true, radius: 1, fill: false, symbol: "circle"}, lines: {show: true}, shadowSize: 0, color: 'red', data: []},
@@ -128,34 +77,25 @@
         {points: {show: true, radius: 5, fill: false, symbol: "circle"}, color: 'rgba(255, 127, 80, 0.5)', lines: {show: false}, data: []},
         {points: {show: true, radius: 1, fill: false, symbol: "circle"}, lines: {show: false}, shadowSize: 0, color: 'red', data: []}
     ];
-    planSpeed(data, acceleration);
+    planSpeed(data);
     speedData[1].data.push([0, 0]);
     positionData[0].data.push([0, 0]);
     positionData[4].data.push([0, 0]);
-    function accelerateFragment(fragment, ratio, acceleration) {
-        var x2 = 2 * (fragment.segment.acceleration.length + fragment.length * ratio);
-        return {speed: Math.sqrt(acceleration * x2),
-            time: Math.sqrt(x2 / acceleration) - Math.sqrt(fragment.fromSqSpeed) / acceleration};
-    }
-    function deccelerateFragment(fragment, ratio, acceleration) {
-        var x2 = 2 * (fragment.segment.decceleration.length + fragment.length * (1 - ratio));
-        return {speed: Math.sqrt(acceleration * x2),
-            time: Math.sqrt(fragment.toSqSpeed) / acceleration + fragment.duration - Math.sqrt(x2 / acceleration)};
-    }
-    var equations = {acceleration: accelerateFragment, decceleration: deccelerateFragment};
+
     var steps = 100;
     var t = 0;
+    var st = 0;
     var position = 0;
     for (i = 0; i < data.length; i++) {
         var segment = data[i];
+        for (var r = 0; r <= steps; r++) {
+            var point = dataForRatio(segment, r / steps, acceleration);
+            var x = (position + segment.length * r / steps);
+            speedData[1].data.push([x, point.speed]);
+            positionData[0].data.push([st + point.time, x]);
+        }
         $.each(segment.fragments, function (_, fragment) {
             if (fragment.type == 'acceleration' || fragment.type == 'decceleration') {
-                for (var r = 0; r <= steps; r++) {
-                    var point = equations[fragment.type](fragment, r / steps, acceleration);
-                    var x = (position + fragment.startX + fragment.length * r / steps);
-                    speedData[1].data.push([ x, point.speed]);
-                    positionData[0].data.push([t + point.time, x]);
-                }
                 if (fragment.type == 'acceleration') {
                     speedData[3].data.push([position + fragment.stopX, Math.sqrt(fragment.toSqSpeed)]);
                     positionData[2].data.push([t + fragment.duration, position + fragment.stopX]);
@@ -164,8 +104,7 @@
                     speedData[4].data.push([position + fragment.startX, Math.sqrt(fragment.fromSqSpeed)]);
                     positionData[3].data.push([t, position + fragment.startX]);
                 }
-            } else
-                speedData[1].data.push([position + fragment.stopX, Math.sqrt(fragment.speed)]);
+            }
             t += fragment.duration;
         });
         speedData[0].data.push([position, segment.originalSpeed]);
@@ -173,7 +112,8 @@
         position += segment.length;
         speedData[0].data.push([position, segment.originalSpeed]);
         speedData[5].data.push([position, Math.sqrt(segment.squaredSpeed)]);
-        positionData[4].data.push([t, position]);
+        st += segment.duration;
+        positionData[4].data.push([st, position]);
     }
     var chart1 = $.plot("#chart1", speedData);
     var chart2 = $.plot("#chart2", positionData);

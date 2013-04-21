@@ -1,5 +1,37 @@
 "use strict";
 
+var COMPONENT_TYPES = {
+    line: {
+        length: function (line) {
+            var p0 = line.from;
+            var p1 = line.to;
+
+            function dist(axis) {
+                return p1[axis] - p0[axis];
+            }
+
+            var dx = dist('x');
+            var dy = dist('y');
+            var dz = dist('z');
+            return length(dx, dy, dz);
+        },
+        speed: function (line, acceleration) {
+            return {speed: line.feedRate / 60, acceleration: acceleration};
+        }},
+    arc: {
+        length: function (arc) {
+            var lastCoord = arc.plane.lastCoord;
+            var lastCoordDistance = arc.to[lastCoord] - arc.from[lastCoord];
+            var radius = arc.radius;
+            var planarArcLength = arc.angularDistance * radius;
+            return length(planarArcLength, lastCoordDistance);
+        },
+        speed: function (arc, acceleration) {
+            return arcClampedSpeed(arc.radius, arc.feedRate / 60, acceleration);
+        }
+    }
+};
+
 function displayPath(path, color, id) {
     var indexes = [];
     var points = [];
@@ -22,31 +54,6 @@ function displayPath(path, color, id) {
 
 function displayVector(origin, vector, color, id) {
     displayPath([origin, {x: origin.x + vector.x, y: origin.y + vector.y, z: origin.z + vector.z}], color, id);
-}
-
-function accelerationLength(initialSpeed, finalSpeed, acceleration) {
-    if (initialSpeed == 0)
-        return finalSpeed * finalSpeed / (2 * acceleration);
-    return Math.abs(accelerationLength(0, finalSpeed, acceleration) - accelerationLength(0, initialSpeed, acceleration));
-}
-
-function timeForXTrapezoidal(speed, acceleration, length, x, entrySpeed, exitSpeed, initialAccelerationLength, finalAccelerationLength, initialAccelerationDuration, finalAccelerationDuration, constantSpeedDuration) {
-    function accelerationEq(x) {
-        return Math.sqrt(2 * x / acceleration);
-    }
-
-    if (x <= initialAccelerationLength) {
-        var nx1 = accelerationLength(0, entrySpeed, acceleration) + x;
-        return accelerationEq(nx1) - (entrySpeed / acceleration);
-    } else if (x <= length - finalAccelerationLength)
-        return initialAccelerationDuration + (x - initialAccelerationLength) / speed;
-    else {
-        if (x === length)
-            return initialAccelerationDuration + constantSpeedDuration + finalAccelerationDuration;
-        var nx = x - (length - finalAccelerationLength);
-        var x2 = accelerationLength(0, speed, acceleration);
-        return initialAccelerationDuration + constantSpeedDuration + accelerationEq(x2) - accelerationEq(x2 - nx);
-    }
 }
 
 function arcClampedSpeed(radius, speed, acceleration) {
@@ -75,6 +82,118 @@ function getArcSpeedDirection(arc, angle) {
     return {x: -direction * ry / len, y: direction * rx / len, z: dz / len};
 }
 
+function limitSpeed(speedSegments, direction) {
+    for (var i = 0; i < speedSegments.length; i++) {
+        var segment = speedSegments[i];
+        var acceleration = segment.maxAcceleration;
+        var previousSquaredSpeed = 0;
+        if (i > 0)
+            previousSquaredSpeed = speedSegments[i - 1].squaredSpeed;
+        var accelerationLength = previousSquaredSpeed / (2 * acceleration);
+        var maxSquaredSpeed = 2 * acceleration * (accelerationLength + segment.length);
+        segment.squaredSpeed = Math.min(segment.squaredSpeed, maxSquaredSpeed);
+        segment[direction] = {length: previousSquaredSpeed / (2 * acceleration)};
+    }
+}
+
+function planSpeed(data) {
+    limitSpeed(data, 'acceleration');
+    data.reverse();
+    limitSpeed(data, 'decceleration');
+    data.reverse();
+    for (var i = 0; i < data.length; i++) {
+        var nextSquaredSpeed = (i < data.length - 1 ? data[i + 1].squaredSpeed : 0);
+        var previousSquaredSpeed = (i >= 1 ? data[i - 1].squaredSpeed : 0);
+        var segment = data[i];
+        segment.fragments = [];
+        var acceleration = segment.maxAcceleration;
+        var accelerationLength = segment.acceleration.length;
+        var deccelerationLength = segment.decceleration.length;
+        var meetingPoint = (deccelerationLength + segment.length - accelerationLength) / 2;
+        var meetingSquaredSpeed = 2 * acceleration * (accelerationLength + meetingPoint);
+        var endAccelerationPoint = (segment.squaredSpeed - 2 * acceleration * accelerationLength) / (2 * acceleration);
+        var startDeccelerationPoint = (2 * acceleration * (deccelerationLength + segment.length) - segment.squaredSpeed) / (2 * acceleration);
+        var maxSquaredSpeed = segment.squaredSpeed;
+        if (meetingPoint >= 0 && meetingPoint <= segment.length && meetingSquaredSpeed <= segment.squaredSpeed) {
+            maxSquaredSpeed = meetingSquaredSpeed;
+            endAccelerationPoint = meetingPoint;
+            startDeccelerationPoint = meetingPoint;
+            segment.squaredSpeed = meetingSquaredSpeed;
+        }
+        var hasAcceleration = endAccelerationPoint > 0 && endAccelerationPoint <= segment.length;
+        var hasDecceleration = startDeccelerationPoint >= 0 && startDeccelerationPoint < segment.length;
+        if (hasAcceleration)
+            segment.fragments.push({type: 'acceleration', segment: segment, fromSqSpeed: previousSquaredSpeed, toSqSpeed: maxSquaredSpeed, startX: 0, stopX: endAccelerationPoint});
+        var constantSpeedStart = hasAcceleration ? endAccelerationPoint : 0;
+        var constantSpeedStop = hasDecceleration ? startDeccelerationPoint : segment.length;
+        if (constantSpeedStart != constantSpeedStop)
+            segment.fragments.push({type: 'constant', segment: segment, speed: maxSquaredSpeed, startX: constantSpeedStart, stopX: constantSpeedStop});
+        if (hasDecceleration)
+            segment.fragments.push({type: 'decceleration', segment: segment, fromSqSpeed: maxSquaredSpeed, toSqSpeed: nextSquaredSpeed, startX: startDeccelerationPoint, stopX: segment.length});
+        segment.duration = 0;
+        $.each(segment.fragments, function (_, fragment) {
+            fragment.length = fragment.stopX - fragment.startX;
+            fragment.duration = fragment.type == 'constant' ? fragment.length / Math.sqrt(fragment.speed) : Math.abs(Math.sqrt(fragment.fromSqSpeed) - Math.sqrt(fragment.toSqSpeed)) / acceleration;
+            segment.duration += fragment.duration;
+        });
+    }
+}
+function dataForRatio(segment, ratio) {
+    var acceleration = segment.maxAcceleration;
+
+    function accelerateFragment(fragment, ratio, acceleration) {
+        var x2 = 2 * (fragment.segment.acceleration.length + fragment.length * ratio);
+        return {speed: Math.sqrt(acceleration * x2),
+            time: Math.sqrt(x2 / acceleration) - Math.sqrt(fragment.fromSqSpeed) / acceleration};
+    }
+
+    function deccelerateFragment(fragment, ratio, acceleration) {
+        var x2 = 2 * (fragment.segment.decceleration.length + fragment.length * (1 - ratio));
+        return {speed: Math.sqrt(acceleration * x2),
+            time: Math.sqrt(fragment.toSqSpeed) / acceleration + fragment.duration - Math.sqrt(x2 / acceleration)};
+    }
+
+    function runFragment(fragment, ratio, acceleration) {
+        return {speed: Math.sqrt(fragment.speed), time: fragment.duration * ratio};
+    }
+
+    var equations = {acceleration: accelerateFragment, decceleration: deccelerateFragment, constant: runFragment};
+    var x = segment.length * ratio;
+    var timeOffset = 0;
+    var xOffset = 0;
+    var fragmentIndex = 0;
+    var fragment = segment.fragments[fragmentIndex];
+    while (fragment.stopX < x) {
+        timeOffset += fragment.duration;
+        xOffset += fragment.length;
+        fragmentIndex++;
+        fragment = segment.fragments[fragmentIndex];
+    }
+    var result = equations[fragment.type](fragment, (x - xOffset) / fragment.length, acceleration);
+    return {speed: result.speed, time: timeOffset + result.time};
+}
+function groupConnectedComponents(path, acceleration) {
+    var groups = [];
+    var currentGroup = null;
+    var lastExitDirection = {x: 0, y: 0, z: 0};
+    for (var i = 0; i < path.length; i++) {
+        var component = path[i];
+        if (areEqualVectors(lastExitDirection, component.entryDirection)) {
+            currentGroup.push(component);
+        } else {
+            currentGroup = [component];
+            groups.push(currentGroup);
+        }
+        lastExitDirection = component.exitDirection;
+        var trait = COMPONENT_TYPES[component.type];
+        component.length = trait.length(component);
+        var speedData = trait.speed(component, acceleration);
+        component.squaredSpeed = Math.pow(speedData.speed, 2);
+        component.maxAcceleration = speedData.acceleration;
+    }
+    return groups;
+}
+
 function simulate2(path, pushPoint) {
     var acceleration = 200; //mm.s^-2
     for (var i = 0; i < path.length; i++) {
@@ -97,50 +216,25 @@ function simulate2(path, pushPoint) {
         } else
             console.log('unknown', component);
     }
-
+    var groups = groupConnectedComponents(path, acceleration);
+    for (i = 0; i < groups.length; i++)
+        planSpeed(groups[i]);
     var currentTime = 0;
 
-    function discretize(pushPointFunction, targetSpeed, acceleration, len, entrySpeed, nextSegmentSpeed) {
-        if (nextSegmentSpeed > targetSpeed)
-            nextSegmentSpeed = targetSpeed;
-
-
-        var maxSpeedChange = Math.sqrt(2 * acceleration * len);
-        if (Math.abs(nextSegmentSpeed - entrySpeed) > maxSpeedChange)
-            nextSegmentSpeed = entrySpeed + maxSpeedChange * (entrySpeed > nextSegmentSpeed ? -1 : 1);
-
-        // if we where to accelerate as much as possible and brake, where should we start braking ?
-        var accelerateDecelerateLength = (len * acceleration - Math.abs(entrySpeed - nextSegmentSpeed)) / (2 * acceleration);
-        var accelerateDecelerateMaxSpeed = Math.sqrt(2 * acceleration * accelerateDecelerateLength);
-        if (accelerateDecelerateMaxSpeed < targetSpeed) {
-            console.log('max speed', targetSpeed, '->', accelerateDecelerateMaxSpeed);
-            targetSpeed = accelerateDecelerateMaxSpeed;
-        }
-        if (nextSegmentSpeed > targetSpeed)
-            nextSegmentSpeed = targetSpeed;
-        var segments = 1000;
+    function discretize2(pushPointFunction, segment) {
+        var steps = 300;
         var startTime = currentTime;
-        var deltaSpeed = targetSpeed - entrySpeed;
-        var initialAccelerationLength = accelerationLength(entrySpeed, targetSpeed, acceleration);
-        var initialAccelerationDuration = Math.abs(deltaSpeed / acceleration);
-        var finalAccelerationLength = accelerationLength(targetSpeed, nextSegmentSpeed, acceleration);
-        var finalAccelerationDuration = (targetSpeed - nextSegmentSpeed) / acceleration;
-        var constantSpeedDuration = (len - initialAccelerationLength - finalAccelerationLength) / targetSpeed;
-        for (var j = 1; j <= segments; j++) {
-            var ratio = j / segments;
-            var time = timeForXTrapezoidal(targetSpeed, acceleration, len, ratio * len, entrySpeed, nextSegmentSpeed,
-                initialAccelerationLength, finalAccelerationLength, initialAccelerationDuration, finalAccelerationDuration, constantSpeedDuration);
-            currentTime = startTime + time;
+        for (var j = 1; j <= steps; j++) {
+            var ratio = j / steps;
+            var data = dataForRatio(segment, ratio);
+            currentTime = startTime + data.time;
             pushPointFunction(ratio);
         }
-        return nextSegmentSpeed;
     }
 
-    function simulateLine(line, entrySpeed, nextSegmentSpeed) {
+    function simulateLine(line) {
         var p0 = line.from;
         var p1 = line.to;
-
-        var speed = line.feedRate / 60; //mm.min^-1 -> mm.s^-1
 
         function dist(axis) {
             return p1[axis] - p0[axis];
@@ -149,24 +243,17 @@ function simulate2(path, pushPoint) {
         var dx = dist('x');
         var dy = dist('y');
         var dz = dist('z');
-        var len = length(dx, dy, dz);
 
         function pushPointAtRatio(ratio) {
             pushPoint(p0['x'] + ratio * dx, p0['y'] + ratio * dy, p0['z'] + ratio * dz, currentTime);
         }
 
-        if (nextSegmentSpeed > speed)
-            nextSegmentSpeed = speed;
-        return discretize(pushPointAtRatio, speed, acceleration, len, entrySpeed, nextSegmentSpeed);
+        return discretize2(pushPointAtRatio, line);
     }
 
-    function simulateArc(arc, entrySpeed, nextSegmentSpeed) {
-        var speed = arc.feedRate / 60;
+    function simulateArc(arc) {
         var lastCoord = arc.plane.lastCoord;
-        var lastCoordDistance = arc.to[lastCoord] - arc.from[lastCoord];
         var radius = arc.radius;
-        var planarArcLength = arc.angularDistance * radius;
-        var arcLength = length(planarArcLength, lastCoordDistance);
 
         function pushPointAtRatio(ratio) {
             var angle = arc.fromAngle + arc.angularDistance * ratio;
@@ -177,26 +264,15 @@ function simulate2(path, pushPoint) {
             pushPoint(newPoint['x'], newPoint['y'], newPoint['z'], currentTime);
         }
 
-        var clamped = arcClampedSpeed(radius, speed, acceleration);
-        if (clamped.speed != speed)
-            console.log("reducing speed in arc", speed, '->', clamped.speed);
-        if (nextSegmentSpeed > clamped.speed)
-            nextSegmentSpeed = clamped.speed;
-        return discretize(pushPointAtRatio, clamped.speed, clamped.acceleration, arcLength, entrySpeed, nextSegmentSpeed);
+        return discretize2(pushPointAtRatio, arc);
     }
 
     pushPoint(0, 0, 0, 0);
-    var previousSegmentSpeed = 0;
-    for (var i = 0; i < path.length; i++) {
-        var nextSegmentSpeed = 0;
-        if (i < path.length - 1)
-            if (areEqualVectors(path[i].exitDirection, path[i + 1].entryDirection))
-                nextSegmentSpeed = path[i + 1].idealEntrySpeed;
-
+    for (i = 0; i < path.length; i++) {
         if (path[i].type == 'line')
-            previousSegmentSpeed = simulateLine(path[i], previousSegmentSpeed, nextSegmentSpeed);
+            simulateLine(path[i]);
         if (path[i].type == 'arc')
-            previousSegmentSpeed = simulateArc(path[i], previousSegmentSpeed, nextSegmentSpeed);
+            simulateArc(path[i]);
     }
 }
 
