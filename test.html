@@ -143,12 +143,11 @@
             time: Math.sqrt(fragment.toSqSpeed) / acceleration + fragment.duration - Math.sqrt(x2 / acceleration)};
     }
     var equations = {acceleration: accelerateFragment, decceleration: deccelerateFragment};
-    var t = 0;
     var steps = 100;
+    var t = 0;
     var position = 0;
     for (i = 0; i < data.length; i++) {
         var segment = data[i];
-        var startX = position;
         $.each(segment.fragments, function (_, fragment) {
             if (fragment.type == 'acceleration' || fragment.type == 'decceleration') {
                 for (var r = 0; r <= steps; r++) {
@@ -159,11 +158,11 @@
                 }
                 if (fragment.type == 'acceleration') {
                     speedData[3].data.push([position + fragment.stopX, Math.sqrt(fragment.toSqSpeed)]);
-                    positionData[2].data.push([t + fragment.duration, startX + fragment.stopX]);
+                    positionData[2].data.push([t + fragment.duration, position + fragment.stopX]);
                 }
                 if (fragment.type == 'decceleration') {
                     speedData[4].data.push([position + fragment.startX, Math.sqrt(fragment.fromSqSpeed)]);
-                    positionData[3].data.push([t, startX + fragment.startX]);
+                    positionData[3].data.push([t, position + fragment.startX]);
                 }
             } else
                 speedData[1].data.push([position + fragment.stopX, Math.sqrt(fragment.speed)]);
