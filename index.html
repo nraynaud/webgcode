@@ -139,7 +139,6 @@
         G3 Z50 I0 J5
         G17 (back to X-Y plane)
     </textarea>
-    <button onclick="corners();">test</button>
     <button onclick="evaluateCode();">Simulate</button>
 </div>
 <div class="chart" id="chart1"></div>
@@ -156,17 +155,8 @@
         evaluateCode();
         $('#x3d')[0].runtime.showAll();
     });
-    $(document).ready(function () {
-
-
-    });</script>
-<script>
-    function corners() {
-        var str = "G2 X10 Y0 I5 J0 F300";
-        $('#codebox').val(str);
-        evaluateCode();
-    }
 </script>
+
 </body>
 </html>
 
