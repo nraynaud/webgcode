@@ -74,7 +74,7 @@ function displayPath(path, color, id) {
     lineset.attr('coordIndex', indexes.join(' '));
     coordinates.attr('point', points.join(', '));
     lineset.append(coordinates);
-    $('#toolpath').remove();
+    $('#' + id).remove();
     $('#scene').append($('<Shape id="' + id + '"></Shape>')
         .append("<Appearance><Material emissiveColor='" + color + "'/></Appearance>")
         .append(lineset));

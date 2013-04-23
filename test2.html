@@ -18,7 +18,6 @@
         }
 
         X3D, x3d {
-            float: right;
             width: 500px;
             height: 1000px;
         }
@@ -108,7 +107,26 @@
             from: {x: 0, y: 0, z: 0},
             to: {x: -10.2, y: -3.1, z: -4},
             type: "line"};
-        var stepSize = 1 / 640;
+        var testArc = {
+            angularDistance: -Math.PI,
+            center: {
+                first: 0,
+                second: 0
+            },
+            feedRate: 200,
+            from: { x: 0, y: 0, z: 0
+            },
+            fromAngle: -Math.PI / 2,
+            plane: {
+                firstCoord: "x",
+                lastCoord: "z",
+                secondCoord: "y"
+            },
+            radius: 5,
+            to: {x: 10, y: 0, z: 10},
+            type: "arc"
+        };
+        var stepSize = 0.1;
 
         function rasterizeLine(line, stepSize) {
             function unaryOp(input, op) {
@@ -127,14 +145,11 @@
                 return result;
             }
 
-            var startPoint = unaryOp(line.from, function (val) {
-                return Math.round(val / stepSize) * stepSize;
-            });
-
             function clampToGrid(val) {
                 return Math.round(val / stepSize) * stepSize;
             }
 
+            var startPoint = unaryOp(line.from, clampToGrid);
             var endPoint = unaryOp(line.to, clampToGrid);
             var dv = binaryOp(line.to, line.from, function (i1, i2) {
                 return i1 - i2;
@@ -143,23 +158,46 @@
             var path = [];
             var increment = dv[a] >= 0 ? stepSize : -stepSize;
             var steps = (endPoint[a] - startPoint[a]) / increment;
+            var previousPoint = null;
             for (var i = 0, l = startPoint[a]; i <= steps; i++, l = i * increment) {
-                // could be negative, because of rounding
-                var ratio = (l - line.from[a]) / dv[a];
+                var ratio = i / steps;
                 var point = binaryOp(line.from, dv, function (from, d) {
                     return clampToGrid(from + d * ratio);
                 });
-                //corresponding ratio for speed purpose
-                point.l = i / steps;
-                path.push(point);
+                if (!previousPoint || previousPoint && previousPoint.x != point.x && previousPoint.y != point.y && previousPoint.z != point.z) {
+                    point.l = ratio;
+                    path.push(point);
+                }
+                previousPoint = point;
             }
+            return path;
+        }
 
-            console.log("direction", direction, startPoint, endPoint, a, dv, increment);
+        function rasterizeArc(arc, stepSize) {
+            var path = [];
+            var p1 = [];
+            var steps = 100;
+            var previousPoint = null;
+            for (var i = 0; i <= steps; i++) {
+                var ratio = i / steps;
+                var point = COMPONENT_TYPES.arc.pointAtRatio(arc, ratio);
+                point = {x: point[0], y: point[1], z: point[2]};
+                p1.push(point);
+                if (previousPoint) {
+                    var line = {from: previousPoint, to: point, type: "line", feedRate: arc.feedRate};
+                    var rasterized = rasterizeLine(line, stepSize);
+                    $.each(rasterized, function (_, p) {
+                        p.l = ratio + p.l / steps;
+                        path.push(p);
+                    });
+                }
+                previousPoint = point;
+            }
             return path;
         }
         var path = rasterizeLine(testLine, stepSize);
+        path = rasterizeArc(testArc, stepSize);
         displayPath(path, '0 0 0', 'toolpath');
-        var direction = COMPONENT_TYPES.line.entryDirection(testLine);
         $('#x3d')[0].runtime.showAll();
     });
 </script>
