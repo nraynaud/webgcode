@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>webgcode test</title>
+
+    <script src="assets/x3dom.js"></script>
+    <script src="assets/jquery.min.js"></script>
+    <script src="assets/jquery.flot.min.js"></script>
+    <script src="simulation.js"></script>
+    <script src="parser.js"></script>
+    <style>
+        .chart {
+            position: relative;
+            clear: both;
+            width: 100%;
+            height: 200px;
+        }
+
+        X3D, x3d {
+            float: right;
+            width: 500px;
+            height: 1000px;
+        }
+    </style>
+</head>
+<body>
+<h1>Testing line raster</h1>
+
+<p>
+    lol
+</p>
+<x3d id="x3d" xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="false" x="0px" y="0px">
+    <Scene id="scene" DEF='scene'>
+        <Shape id="xaxis">
+            <Appearance>
+                <Material emissiveColor='1 0 0'/>
+            </Appearance>
+            <IndexedLineSet id="lineSet" coordIndex="0 1 -1">
+                <Coordinate id="coordinates" point="0.0 0.0 0.0, 10.0 0.0 0.0"/>
+            </IndexedLineSet>
+        </Shape>
+        <transform translation='11 0 0'>
+            <Shape>
+                <Appearance>
+                    <Material emissiveColor='1 0 0'/>
+                </Appearance>
+                <text string='X' style="BOLD"></text>
+            </Shape>
+        </transform>
+        <Shape id="yaxis">
+            <Appearance>
+                <Material emissiveColor='0 1 0'/>
+            </Appearance>
+            <IndexedLineSet id="lineSet" coordIndex="0 1 -1">
+                <Coordinate id="coordinates" point="0.0 0.0 0.0, 0.0 10.0 0.0"/>
+            </IndexedLineSet>
+        </Shape>
+        <transform translation='0 11 0'>
+            <Shape>
+                <Appearance>
+                    <Material emissiveColor='0 1 0'/>
+                </Appearance>
+                <text string='Y' style="BOLD"></text>
+            </Shape>
+        </transform>
+        <Shape id="zaxis">
+            <Appearance>
+                <Material emissiveColor='0 0 1'/>
+            </Appearance>
+            <IndexedLineSet id="lineSet" coordIndex="0 1 -1">
+                <Coordinate id="coordinates" point="0.0 0.0 0.0, 0.0 0.0 10.0"/>
+            </IndexedLineSet>
+        </Shape>
+        <transform translation='0 0 11'>
+            <Shape>
+                <Appearance>
+                    <Material emissiveColor='0 0 1'/>
+                </Appearance>
+                <text string='Z' style="BOLD"></text>
+            </Shape>
+        </transform>
+    </Scene>
+</x3d>
+
+<script>
+    x3dom.runtime.ready = (function () {
+        function findBiggestAxis(dv) {
+            var max = -Infinity;
+            var biggestAxis;
+            $.each(AXES, function (_, axis) {
+                var l = Math.abs(dv[axis]);
+                if (l > max) {
+                    max = l;
+                    biggestAxis = axis;
+                }
+            });
+            return biggestAxis;
+        }
+
+        function quadrant(angle) {
+            return (Math.floor(angle / (Math.PI / 2) + 0.5) % 4 + 4) % 4;
+        }
+
+        var AXES = ['x', 'y', 'z'];
+        var testLine = {
+            feedRate: 3000,
+            from: {x: 0, y: 0, z: 0},
+            to: {x: -10.2, y: -3.1, z: -4},
+            type: "line"};
+        var stepSize = 1 / 640;
+
+        function rasterizeLine(line, stepSize) {
+            function unaryOp(input, op) {
+                var result = {};
+                $.each(AXES, function (_, coord) {
+                    result[coord] = op(input[coord]);
+                });
+                return result;
+            }
+
+            function binaryOp(i1, i2, op) {
+                var result = {};
+                $.each(['x', 'y', 'z'], function (_, coord) {
+                    result[coord] = op(i1[coord], i2[coord]);
+                });
+                return result;
+            }
+
+            var startPoint = unaryOp(line.from, function (val) {
+                return Math.round(val / stepSize) * stepSize;
+            });
+
+            function clampToGrid(val) {
+                return Math.round(val / stepSize) * stepSize;
+            }
+
+            var endPoint = unaryOp(line.to, clampToGrid);
+            var dv = binaryOp(line.to, line.from, function (i1, i2) {
+                return i1 - i2;
+            });
+            var a = findBiggestAxis(dv);
+            var path = [];
+            var increment = dv[a] >= 0 ? stepSize : -stepSize;
+            var steps = (endPoint[a] - startPoint[a]) / increment;
+            for (var i = 0, l = startPoint[a]; i <= steps; i++, l = i * increment) {
+                // could be negative, because of rounding
+                var ratio = (l - line.from[a]) / dv[a];
+                var point = binaryOp(line.from, dv, function (from, d) {
+                    return clampToGrid(from + d * ratio);
+                });
+                //corresponding ratio for speed purpose
+                point.l = i / steps;
+                path.push(point);
+            }
+
+            console.log("direction", direction, startPoint, endPoint, a, dv, increment);
+            return path;
+        }
+        var path = rasterizeLine(testLine, stepSize);
+        displayPath(path, '0 0 0', 'toolpath');
+        var direction = COMPONENT_TYPES.line.entryDirection(testLine);
+        $('#x3d')[0].runtime.showAll();
+    });
+</script>
+</body>
+</html>
