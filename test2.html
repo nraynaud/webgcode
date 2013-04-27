@@ -201,17 +201,21 @@
         planSpeed(group[0]);
         console.log(path);
         var delay = [];
+        var entropy = {};
         var currentTime = -0.01;
         var str = '';
         for (var i = 0; i < path.length; i++) {
             var time = dataForRatio(testLine, path[i].l).time;
-            delay.push((time - currentTime) * 200000);
-            str += '' + (Math.round((time - currentTime) * 200000)) + ', ';
+            var val = Math.round((time - currentTime) * 200000);
+            entropy[val] = true;
+            delay.push(val);
+            str += '' + (val) + ', ';
             currentTime = time;
         }
         console.log(delay);
         console.log(Math.max.apply(null, delay));
         console.log(str);
+        console.log(Object.keys(entropy).length);
         path = rasterizeArc(testArc, stepSize);
         displayPath(path, '0 0 0', 'toolpath');
         $('#x3d')[0].runtime.showAll();
