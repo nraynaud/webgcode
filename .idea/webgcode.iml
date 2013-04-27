@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="CIDR_MODULE" version="4">
   <component name="NewModuleRootManager">
-    <content url="file://$MODULE_DIR$/.idea">
-      <sourceFolder url="file://$MODULE_DIR$/.idea" isTestSource="false" />
+    <content url="file://$MODULE_DIR$/../STM32F4.platform/Developer/SDKs/STM34F4.sdk/usr/include">
+      <sourceFolder url="file://$MODULE_DIR$/../STM32F4.platform/Developer/SDKs/STM34F4.sdk/usr/include" isTestSource="false" />
+    </content>
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

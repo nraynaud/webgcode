@@ -105,7 +105,7 @@
         var testLine = {
             feedRate: 3000,
             from: {x: 0, y: 0, z: 0},
-            to: {x: -10.2, y: -3.1, z: -4},
+            to: {x: 5, y: 0, z: 0},
             type: "line"};
         var testArc = {
             angularDistance: -Math.PI,
@@ -164,7 +164,7 @@
                 var point = binaryOp(line.from, dv, function (from, d) {
                     return clampToGrid(from + d * ratio);
                 });
-                if (!previousPoint || previousPoint && previousPoint.x != point.x && previousPoint.y != point.y && previousPoint.z != point.z) {
+                if (!previousPoint || previousPoint && (previousPoint.x != point.x || previousPoint.y != point.y || previousPoint.z != point.z)) {
                     point.l = ratio;
                     path.push(point);
                 }
@@ -195,7 +195,23 @@
             }
             return path;
         }
-        var path = rasterizeLine(testLine, stepSize);
+
+        var path = rasterizeLine(testLine, 1 / 640);
+        var group = groupConnectedComponents([testLine], 50);
+        planSpeed(group[0]);
+        console.log(path);
+        var delay = [];
+        var currentTime = -0.01;
+        var str = '';
+        for (var i = 0; i < path.length; i++) {
+            var time = dataForRatio(testLine, path[i].l).time;
+            delay.push((time - currentTime) * 200000);
+            str += '' + (Math.round((time - currentTime) * 200000)) + ', ';
+            currentTime = time;
+        }
+        console.log(delay);
+        console.log(Math.max.apply(null, delay));
+        console.log(str);
         path = rasterizeArc(testArc, stepSize);
         displayPath(path, '0 0 0', 'toolpath');
         $('#x3d')[0].runtime.showAll();
