@@ -3,4 +3,4 @@ SRCS += *.c
 OBJS = $(SRCS:.c=.o)
 
 main.elf: $(SRCS)
-	$(CC) $(CFLAGS) $^ -o $@ -L$(SDK)/usr/lib -nostdlib -lm -lstm32f4
+	$(CC) $(CFLAGS) $^ -o $@ -L$(SDK)/usr/lib -nostdlib -lm -lstm32f4 -lUSB_Device -lUSB_OTG
