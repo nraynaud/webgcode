@@ -95,7 +95,23 @@ int main(void) {
     TIM_Cmd(TIM3, ENABLE);
     initUSB();
 
-    STM_EVAL_PBInit(BUTTON_USER, BUTTON_MODE_EXTI);
+    STM_EVAL_PBInit(BUTTON_USER, BUTTON_MODE_GPIO);
+
+    SYSCFG_EXTILineConfig(USER_BUTTON_EXTI_PORT_SOURCE, USER_BUTTON_EXTI_PIN_SOURCE);
+    EXTI_InitTypeDef EXTI_InitStructure;
+    EXTI_InitStructure.EXTI_Line = USER_BUTTON_EXTI_LINE;
+    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+    EXTI_Init(&EXTI_InitStructure);
+
+    /* Enable and set Button EXTI Interrupt to the lowest priority */
+    NVIC_InitStructure.NVIC_IRQChannel = USER_BUTTON_EXTI_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+
+    NVIC_Init(&NVIC_InitStructure);
     while (1) {
     }
 }
@@ -133,45 +149,8 @@ void executeStep(stepDef step) {
     STM_EVAL_LEDToggle(LED6);
 }
 
-__attribute__ ((used)) void TIM3_IRQHandler(void) {
-    if (TIM_GetITStatus(TIM3, TIM_IT_CC1) != RESET) {
-        TIM_ClearITPendingBit(TIM3, TIM_IT_CC1);
-        if (currentStep.xDirection)
-            GPIO_SetBits(GPIOB, GPIO_Pin_0);
-    }
-    if (TIM_GetITStatus(TIM3, TIM_IT_CC2) != RESET) {
-        TIM_ClearITPendingBit(TIM3, TIM_IT_CC2);
-        if (currentStep.xStep)
-            GPIO_SetBits(GPIOC, GPIO_Pin_6);
-    }
-    if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET) {
-        TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
-        executeStep(nextStep());
-    }
-}
-
-__attribute__ ((used)) void EXTI0_IRQHandler(void) {
-    EXTI_ClearITPendingBit(USER_BUTTON_EXTI_LINE);
-}
-
-void OTG_FS_WKUP_IRQHandler(void) {
-    if (USB_OTG_dev.cfg.low_power) {
-        /* Reset SLEEPDEEP and SLEEPONEXIT bits */
-        SCB->SCR &= (uint32_t) ~((uint32_t) (SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
-
-        /* After wake-up from sleep mode, reconfigure the system clock */
-        SystemInit();
-        USB_OTG_UngateClock(&USB_OTG_dev);
-    }
-    EXTI_ClearITPendingBit(EXTI_Line18);
-}
-
-__attribute__ ((used)) void OTG_FS_IRQHandler(void) {
-    USBD_OTG_ISR_Handler(&USB_OTG_dev);
-}
-
 #define USBD_VID                     0x0483
-#define USBD_PID                     0x5710
+#define USBD_PID                     0xFFFF
 
 #define USBD_LANGID_STRING            0x409
 #define USBD_MANUFACTURER_STRING      "STMicroelectronics"
@@ -183,7 +162,7 @@ __attribute__ ((used)) void OTG_FS_IRQHandler(void) {
 #define USBD_INTERFACE_FS_STRING      "Interface"
 
 #define VENDOR_CLASS                0xFF
-#define USB_PACKET_SIZE             4
+#define USB_PACKET_SIZE             1
 
 static const struct __attribute__((__packed__)) {
     uint8_t bLength, bDescriptorType;
@@ -207,7 +186,7 @@ static const struct __attribute__((__packed__)) {
         .idVendorH = HIBYTE(USBD_VID),
         .idProductL = LOBYTE(USBD_PID),
         .idProductH = HIBYTE(USBD_PID),
-        .bcdDeviceL= 0x00,
+        .bcdDeviceL = 0x00,
         .bcdDeviceH = 0x02,
         .iManufacturer = USBD_IDX_MFC_STR,
         .iProduct = USBD_IDX_PRODUCT_STR,
@@ -257,11 +236,17 @@ uint8_t *USBD_USR_InterfaceStrDescriptor(uint8_t speed, uint16_t *length) {
     return USBD_StrDesc;
 }
 
+#define ENDPOINT_ADDRESS 0b10000001U
+
 static uint8_t USBD_HID_Init(void *pdev, uint8_t cfgidx) {
+    DCD_EP_Open(pdev, ENDPOINT_ADDRESS, USB_PACKET_SIZE, USB_OTG_EP_INT);
+    STM_EVAL_LEDOn(LED4);
     return USBD_OK;
 }
 
 static uint8_t USBD_HID_DeInit(void *pdev, uint8_t cfgidx) {
+    DCD_EP_Close(pdev, ENDPOINT_ADDRESS);
+    STM_EVAL_LEDOff(LED4);
     return USBD_OK;
 }
 
@@ -270,6 +255,8 @@ static uint8_t USBD_HID_Setup(void *pdev, USB_SETUP_REQ *req) {
 }
 
 static uint8_t USBD_HID_DataIn(void *pdev, uint8_t epnum) {
+    STM_EVAL_LEDToggle(LED3);
+    DCD_EP_Flush(pdev, ENDPOINT_ADDRESS);
     return USBD_OK;
 }
 
@@ -286,7 +273,7 @@ static const struct __attribute__((packed)) {
     } interface;
 
 } configurationDescriptor __attribute__((aligned (4))) = {
-        .bLength=9,
+        .bLength = 9,
         .bDescriptorType = USB_CONFIGURATION_DESCRIPTOR_TYPE,
         .wTotalLengthL =  LOBYTE(sizeof(configurationDescriptor)),
         .wTotalLengthH = HIBYTE(sizeof(configurationDescriptor)),
@@ -295,24 +282,24 @@ static const struct __attribute__((packed)) {
         .iConfiguration = 0,
         .bmAttributes = 0xE0,
         .bMaxPower = 0x32,
-        .interface={
-                .bLength=9,
+        .interface = {
+                .bLength = 9,
                 .bDescriptorType = USB_INTERFACE_DESCRIPTOR_TYPE,
-                .bInterfaceNumber=0,
-                .bAlternateSetting=0,
+                .bInterfaceNumber = 0,
+                .bAlternateSetting = 0,
                 .bNumEndpoints = 1,
-                .bInterfaceClass=VENDOR_CLASS,
-                .bInterfaceSubClass=0x01,
-                .bInterfaceProtocol=0x00,
+                .bInterfaceClass = VENDOR_CLASS,
+                .bInterfaceSubClass = 0x01,
+                .bInterfaceProtocol = 0x00,
                 .iInterface = 0,
-                .firstEndpoint={
+                .firstEndpoint = {
                         .bLength = 7,
                         .bDescriptorType = USB_ENDPOINT_DESCRIPTOR_TYPE,
-                        .bEndpointAddress=0b10000001,
+                        .bEndpointAddress = ENDPOINT_ADDRESS,
                         .bmAttributes = 0b00000011,
-                        .wMaxPacketSizeL=LOBYTE(USB_PACKET_SIZE),
-                        .wMaxPacketSizeH=HIBYTE(USB_PACKET_SIZE),
-                        .bInterval=10
+                        .wMaxPacketSizeL = LOBYTE(USB_PACKET_SIZE),
+                        .wMaxPacketSizeH = HIBYTE(USB_PACKET_SIZE),
+                        .bInterval = 10
                 }
         }
 };
@@ -344,15 +331,12 @@ void USBD_USR_DeviceReset(uint8_t speed) {
 
 
 void USBD_USR_DeviceConfigured(void) {
-    STM_EVAL_LEDOn(LED4);
 }
 
 void USBD_USR_DeviceConnected(void) {
-    STM_EVAL_LEDOn(LED3);
 }
 
 void USBD_USR_DeviceDisconnected(void) {
-    STM_EVAL_LEDOff(LED3);
 }
 
 void USBD_USR_DeviceSuspended(void) {
@@ -378,9 +362,49 @@ USBD_DEVICE USR_desc = {
         USBD_USR_SerialStrDescriptor,
         USBD_USR_ConfigStrDescriptor,
         USBD_USR_InterfaceStrDescriptor,
-
 };
 
 void initUSB() {
     USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_CNC_cb, &USR_cb);
+}
+
+__attribute__ ((used)) void TIM3_IRQHandler(void) {
+    if (TIM_GetITStatus(TIM3, TIM_IT_CC1) != RESET) {
+        TIM_ClearITPendingBit(TIM3, TIM_IT_CC1);
+        if (currentStep.xDirection)
+            GPIO_SetBits(GPIOB, GPIO_Pin_0);
+    }
+    if (TIM_GetITStatus(TIM3, TIM_IT_CC2) != RESET) {
+        TIM_ClearITPendingBit(TIM3, TIM_IT_CC2);
+        if (currentStep.xStep)
+            GPIO_SetBits(GPIOC, GPIO_Pin_6);
+    }
+    if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET) {
+        TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
+        executeStep(nextStep());
+    }
+}
+
+static uint8_t buttonState;
+
+__attribute__ ((used)) void EXTI0_IRQHandler(void) {
+    EXTI_ClearITPendingBit(USER_BUTTON_EXTI_LINE);
+    buttonState = (uint8_t) STM_EVAL_PBGetState(BUTTON_USER);
+    DCD_EP_Tx(&USB_OTG_dev, ENDPOINT_ADDRESS, &buttonState, USB_PACKET_SIZE);
+}
+
+void OTG_FS_WKUP_IRQHandler(void) {
+    if (USB_OTG_dev.cfg.low_power) {
+        /* Reset SLEEPDEEP and SLEEPONEXIT bits */
+        SCB->SCR &= (uint32_t) ~((uint32_t) (SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
+
+        /* After wake-up from sleep mode, reconfigure the system clock */
+        SystemInit();
+        USB_OTG_UngateClock(&USB_OTG_dev);
+    }
+    EXTI_ClearITPendingBit(EXTI_Line18);
+}
+
+__attribute__ ((used)) void OTG_FS_IRQHandler(void) {
+    USBD_OTG_ISR_Handler(&USB_OTG_dev);
 }

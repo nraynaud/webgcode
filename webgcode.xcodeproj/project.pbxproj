@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DDAA5112A98CF57045D5EC46 /* index.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5952187ECA2FF5B96420 /* index.js */; };
+		DDAA524E6774021C15E7F044 /* background.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA58422CF9EADC8397599D /* background.js */; };
 		EE86132C172A02F7008B2029 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = EE86132B172A02F7008B2029 /* main.c */; };
 		EE861334172A0501008B2029 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = EE861332172A0501008B2029 /* main.c */; };
 		EE861335172A0502008B2029 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = EE861333172A0501008B2029 /* Makefile */; };
@@ -25,6 +27,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		DDAA58422CF9EADC8397599D /* background.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = background.js; path = webapp/background.js; sourceTree = "<group>"; };
+		DDAA5952187ECA2FF5B96420 /* index.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = index.js; path = webapp/index.js; sourceTree = "<group>"; };
+		DDAA5956F5D267A7A07F388B /* test.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = test.py; path = interpolator/test.py; sourceTree = "<group>"; };
+		DDAA5A99ECD28BC66706A677 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = file.json; name = manifest.json; path = webapp/manifest.json; sourceTree = "<group>"; };
 		EE861323172A0232008B2029 /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = ../STM32F4.platform/Developer/SDKs/STM34F4.sdk/usr/include; sourceTree = "<group>"; };
 		EE861328172A02F7008B2029 /* interpolator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = interpolator; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE86132B172A02F7008B2029 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
@@ -49,6 +55,10 @@
 				EE861323172A0232008B2029 /* include */,
 				EE86132A172A02F7008B2029 /* interpolator */,
 				EE861329172A02F7008B2029 /* Products */,
+				DDAA5A99ECD28BC66706A677 /* manifest.json */,
+				DDAA58422CF9EADC8397599D /* background.js */,
+				DDAA5952187ECA2FF5B96420 /* index.js */,
+				DDAA5956F5D267A7A07F388B /* test.py */,
 			);
 			sourceTree = "<group>";
 		};
@@ -142,6 +152,8 @@
 				EE86132C172A02F7008B2029 /* main.c in Sources */,
 				EE861334172A0501008B2029 /* main.c in Sources */,
 				EE861335172A0502008B2029 /* Makefile in Sources */,
+				DDAA524E6774021C15E7F044 /* background.js in Sources */,
+				DDAA5112A98CF57045D5EC46 /* index.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
