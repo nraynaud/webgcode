@@ -1,77 +1,79 @@
-var VENDOR_ID = 0x0483;
-var PRODUCT_ID = 0xFFFF;
-var DEVICE_INFO = {"vendorId": VENDOR_ID, "productId": PRODUCT_ID};
-
-var permissionObj = {permissions: [
+"use strict";
+var DEVICE_INFO = {"vendorId": 0x0483, "productId": 0xFFFF};
+var PERMISSIONS = {permissions: [
     {'usbDevices': [DEVICE_INFO] }
 ]};
-document.getElementById("reset").addEventListener('click', function () {
-    "use strict";
-    chrome.permissions.request(permissionObj, function (result) {
+var textElement = document.getElementById("text");
+var permissionElement = document.getElementById("perms");
+function resetDevice() {
+    chrome.usb.findDevices(DEVICE_INFO,
+        function (devices) {
+            if (!devices || !devices.length) {
+                resetDevice();
+                return;
+            }
+            chrome.usb.closeDevice(devices[0], function () {
+                bindDevice();
+            });
+        });
+}
+var transfer = {
+    direction: 'in',
+    endpoint: 1,
+    length: 1
+};
+function interruptHandler(device) {
+    return function (usbEvent) {
+        if (usbEvent.resultCode) {
+            textElement.style.color = 'black';
+            resetDevice();
+            return;
+        }
+        var buffer = new Int8Array(usbEvent.data);
+        textElement.style.color = buffer[0] ? 'red' : 'blue';
+        chrome.usb.interruptTransfer(device, transfer, interruptHandler(device));
+    };
+}
+
+function bindDevice() {
+    chrome.usb.findDevices(DEVICE_INFO, function (devices) {
+        if (!devices || !devices.length) {
+            console.log('no device found');
+            bindDevice();
+            return;
+        }
+        var device = devices[0];
+        chrome.usb.claimInterface(device, 0, function () {
+            chrome.usb.setInterfaceAlternateSetting(device, 0, 0, function () {
+                if (chrome.runtime.lastError) {
+                    resetDevice();
+                    return;
+                }
+                textElement.style.color = 'blue';
+                chrome.usb.interruptTransfer(device, transfer, interruptHandler(device));
+            });
+        });
+    });
+}
+permissionElement.addEventListener('click', function () {
+    chrome.permissions.request(PERMISSIONS, function (result) {
         if (result) {
-            chrome.usb.findDevices(DEVICE_INFO,
-                function (devices) {
-                    if (!devices || !devices.length) {
-                        console.log('no device found');
-                        return;
-                    }
-                    console.log('Found device', devices[0]);
-                    var device = devices[0];
-                    chrome.usb.closeDevice(device, function (res) {
-                        console.log('reset', res);
-                    });
-                });
+            permissionElement.style.visibility = 'hidden';
+            textElement.style.visibility = 'visible';
+            bindDevice();
         } else {
             console.log('App was not granted the "usbDevices" permission.');
             console.log(chrome.runtime.lastError);
         }
     });
 });
-document.getElementById("perms").addEventListener('click', function () {
-    "use strict";
+chrome.permissions.contains(PERMISSIONS, function (result) {
 
-    chrome.permissions.request(permissionObj, function (result) {
-        if (result) {
-            chrome.usb.findDevices(DEVICE_INFO,
-                function (devices) {
-                    if (!devices || !devices.length) {
-                        console.log('no device found');
-                        return;
-                    }
-                    console.log('Found device', devices[0]);
-                    var device = devices[0];
-                    chrome.usb.claimInterface(device, 0, function () {
-                        console.log('claimed');
-                        chrome.usb.setInterfaceAlternateSetting(device, 0, 0, function () {
-                            console.log('setInterfaceAlternateSetting');
-                            var transfer = {
-                                direction: 'in',
-                                endpoint: 1,
-                                length: 1
-                            };
-
-                            function onInterrupt(usbEvent) {
-                                if (usbEvent.resultCode) {
-                                    console.log("interrupt Error", usbEvent.error);
-                                    return;
-                                }
-                                console.log('interrupt');
-                                var buffer = new Int8Array(usbEvent.data);
-                                var val = buffer[0];
-                                document.getElementById("lol").style.color = val ? 'red' : 'blue';
-                                chrome.usb.interruptTransfer(device, transfer, onInterrupt);
-                            }
-
-                            chrome.usb.interruptTransfer(device, transfer, onInterrupt);
-                        });
-                    });
-
-                });
-        } else {
-            console.log('App was not granted the "usbDevices" permission.');
-            console.log(chrome.runtime.lastError);
-        }
-    });
+    if (result)
+        bindDevice();
+    else {
+        permissionElement.style.visibility = 'visible';
+        textElement.style.visibility = 'hidden';
+    }
 });
-
 
