@@ -21,9 +21,21 @@
 #define USBD_CONFIGURATION_FS_STRING  "Config"
 #define USBD_INTERFACE_FS_STRING      "Interface"
 
-#define VENDOR_CLASS                0xFF
-#define USB_PACKET_SIZE             1
-#define ENDPOINT_ADDRESS 0b10000001U
+#define VENDOR_CLASS                  0xFF
+
+#define INTERRUPT_PACKET_SIZE         8
+#define INTERRUPT_ENDPOINT_NUM        1
+#define INTERRUPT_ENDPOINT_DIR        EP_IN
+#define INTERRUPT_ENDPOINT            (INTERRUPT_ENDPOINT_DIR|INTERRUPT_ENDPOINT_NUM)
+
+#define BULK_PACKET_SIZE              64
+#define BULK_ENDPOINT_NUM             1
+#define BULK_ENDPOINT_DIR             EP_OUT
+#define BULK_ENDPOINT                 (BULK_ENDPOINT_DIR|BULK_ENDPOINT_NUM)
+
+typedef enum {
+    EP_IN = 0b10000000U, EP_OUT = 0b00000000U
+} EndpointDirection_t;
 
 static USB_OTG_CORE_HANDLE USB_OTG_dev __attribute__((aligned (4)));
 
@@ -56,83 +68,90 @@ static const struct __attribute__((__packed__)) {
         .iSerialNumber = USBD_IDX_SERIAL_STR,
         .bNumConfigurations = USBD_CFG_MAX_NUM};
 
-uint8_t *USBD_USR_DeviceDescriptor(uint8_t speed, uint16_t *length) {
+static uint8_t *getDeviceDescriptor(uint8_t speed, uint16_t *length) {
     *length = (uint16_t) sizeof(deviceDescriptor);
     return (uint8_t *) &deviceDescriptor;
 }
 
-uint8_t USBD_LangIDDesc[USB_SIZ_STRING_LANGID] __attribute__((aligned (4))) = {
+static uint8_t USBD_LangIDDesc[USB_SIZ_STRING_LANGID] __attribute__((aligned (4))) = {
         USB_SIZ_STRING_LANGID,
         USB_DESC_TYPE_STRING,
         LOBYTE(USBD_LANGID_STRING),
         HIBYTE(USBD_LANGID_STRING),
 };
 
-uint8_t *USBD_USR_LangIDStrDescriptor(uint8_t speed, uint16_t *length) {
+static uint8_t *getLangIDDescriptor(uint8_t speed, uint16_t *length) {
     *length = (uint16_t) sizeof(USBD_LangIDDesc);
     return USBD_LangIDDesc;
 }
 
-uint8_t *USBD_USR_ProductStrDescriptor(uint8_t speed, uint16_t *length) {
+static uint8_t *getProductStr(uint8_t speed, uint16_t *length) {
     USBD_GetString((uint8_t *) USBD_PRODUCT_FS_STRING, USBD_StrDesc, length);
     return USBD_StrDesc;
 }
 
-uint8_t *USBD_USR_ManufacturerStrDescriptor(uint8_t speed, uint16_t *length) {
+static uint8_t *getManufacturerStr(uint8_t speed, uint16_t *length) {
     USBD_GetString((uint8_t *) USBD_MANUFACTURER_STRING, USBD_StrDesc, length);
     return USBD_StrDesc;
 }
 
-uint8_t *USBD_USR_SerialStrDescriptor(uint8_t speed, uint16_t *length) {
+static uint8_t *getSerialStr(uint8_t speed, uint16_t *length) {
     USBD_GetString((uint8_t *) USBD_SERIALNUMBER_FS_STRING, USBD_StrDesc, length);
     return USBD_StrDesc;
 }
 
-uint8_t *USBD_USR_ConfigStrDescriptor(uint8_t speed, uint16_t *length) {
-    USBD_GetString((uint8_t *) USBD_CONFIGURATION_FS_STRING, USBD_StrDesc, length);
-    return USBD_StrDesc;
+static uint8_t *getConfigStr(uint8_t speed, uint16_t *length) {
+    return 0;
 }
 
-
-uint8_t *USBD_USR_InterfaceStrDescriptor(uint8_t speed, uint16_t *length) {
-    USBD_GetString((uint8_t *) USBD_INTERFACE_FS_STRING, USBD_StrDesc, length);
-    return USBD_StrDesc;
+static uint8_t *getInterfaceStr(uint8_t speed, uint16_t *length) {
+    return 0;
 }
 
-static uint8_t USBD_HID_Init(void *pdev, uint8_t cfgidx) {
-    DCD_EP_Open(pdev, ENDPOINT_ADDRESS, USB_PACKET_SIZE, USB_OTG_EP_INT);
+static uint8_t cncInit(void *pdev, uint8_t cfgidx) {
+    DCD_EP_Open(pdev, INTERRUPT_ENDPOINT, INTERRUPT_PACKET_SIZE, USB_OTG_EP_INT);
+    DCD_EP_Open(pdev, BULK_ENDPOINT, BULK_PACKET_SIZE, USB_OTG_EP_BULK);
     STM_EVAL_LEDOn(LED4);
     return USBD_OK;
 }
 
-static uint8_t USBD_HID_DeInit(void *pdev, uint8_t cfgidx) {
-    DCD_EP_Close(pdev, ENDPOINT_ADDRESS);
+static uint8_t cncDeInit(void *pdev, uint8_t cfgidx) {
+    DCD_EP_Flush(pdev, INTERRUPT_ENDPOINT);
+    DCD_EP_Close(pdev, INTERRUPT_ENDPOINT);
+    DCD_EP_Close(pdev, BULK_ENDPOINT);
     STM_EVAL_LEDOff(LED4);
     return USBD_OK;
 }
 
-static uint8_t USBD_HID_Setup(void *pdev, USB_SETUP_REQ *req) {
+static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
     return USBD_OK;
 }
 
-static uint8_t USBD_HID_DataIn(void *pdev, uint8_t epnum) {
-    STM_EVAL_LEDToggle(LED3);
-    DCD_EP_Flush(pdev, ENDPOINT_ADDRESS);
+static uint8_t cncDataIn(void *pdev, uint8_t epnum) {
+    if (INTERRUPT_ENDPOINT_NUM == epnum) {
+        STM_EVAL_LEDToggle(LED3);
+        DCD_EP_Flush(pdev, INTERRUPT_ENDPOINT);
+    }
+    if (BULK_ENDPOINT_NUM == epnum) {
+
+    }
     return USBD_OK;
 }
+
+typedef struct __attribute__((packed)) {
+    // http://www.beyondlogic.org/usbnutshell/usb5.shtml#EndpointDescriptors
+    uint8_t bLength, bDescriptorType, bEndpointAddress, bmAttributes, wMaxPacketSizeL, wMaxPacketSizeH, bInterval;
+} EndPoint_t;
 
 static const struct __attribute__((packed)) {
     uint8_t bLength, bDescriptorType, wTotalLengthL, wTotalLengthH, bNumInterfaces, bConfigurationValue, iConfiguration,
             bmAttributes, bMaxPower;
-
     struct __attribute__((packed)) {
         uint8_t bLength, bDescriptorType, bInterfaceNumber, bAlternateSetting, bNumEndpoints, bInterfaceClass,
                 bInterfaceSubClass, bInterfaceProtocol, iInterface;
-        struct __attribute__((packed)) {
-            uint8_t bLength, bDescriptorType, bEndpointAddress, bmAttributes, wMaxPacketSizeL, wMaxPacketSizeH, bInterval;
-        } firstEndpoint;
+        EndPoint_t firstEndpoint;
+        EndPoint_t secondEndpoint;
     } interface;
-
 } configurationDescriptor __attribute__((aligned (4))) = {
         .bLength = 9,
         .bDescriptorType = USB_CONFIGURATION_DESCRIPTOR_TYPE,
@@ -156,81 +175,59 @@ static const struct __attribute__((packed)) {
                 .firstEndpoint = {
                         .bLength = 7,
                         .bDescriptorType = USB_ENDPOINT_DESCRIPTOR_TYPE,
-                        .bEndpointAddress = ENDPOINT_ADDRESS,
+                        .bEndpointAddress = INTERRUPT_ENDPOINT,
                         .bmAttributes = 0b00000011,
-                        .wMaxPacketSizeL = LOBYTE(USB_PACKET_SIZE),
-                        .wMaxPacketSizeH = HIBYTE(USB_PACKET_SIZE),
-                        .bInterval = 10
-                }
+                        .wMaxPacketSizeL = LOBYTE(INTERRUPT_PACKET_SIZE),
+                        .wMaxPacketSizeH = HIBYTE(INTERRUPT_PACKET_SIZE),
+                        .bInterval = 1},
+                .secondEndpoint = {
+                        .bLength = 7,
+                        .bDescriptorType = USB_ENDPOINT_DESCRIPTOR_TYPE,
+                        .bEndpointAddress = BULK_ENDPOINT,
+                        .bmAttributes = 0b00000010,
+                        .wMaxPacketSizeL = LOBYTE(BULK_PACKET_SIZE),
+                        .wMaxPacketSizeH = HIBYTE(BULK_PACKET_SIZE),
+                        .bInterval = 0}
         }
 };
 
-static uint8_t *USBD_HID_GetCfgDesc(uint8_t speed, uint16_t *length) {
+static uint8_t *cncGetCfgDesc(uint8_t speed, uint16_t *length) {
     *length = (uint16_t) sizeof (configurationDescriptor);
     return (uint8_t *) &configurationDescriptor;
 }
 
 USBD_Class_cb_TypeDef USBD_CNC_cb = {
-        USBD_HID_Init,
-        USBD_HID_DeInit,
-        USBD_HID_Setup,
+        cncInit,
+        cncDeInit,
+        cncSetup,
         NULL, /*EP0_TxSent*/
         NULL, /*EP0_RxReady*/
-        USBD_HID_DataIn, /*DataIn*/
+        cncDataIn, /*DataIn*/
         NULL, /*DataOut*/
         NULL, /*SOF */
         NULL,
         NULL,
-        USBD_HID_GetCfgDesc,
+        cncGetCfgDesc,
 };
 
-void USBD_USR_Init(void) {
+static void USBD_USR_DeviceReset(uint8_t speed) {
 }
 
-void USBD_USR_DeviceReset(uint8_t speed) {
+static void DoNothing(void) {
 }
 
-
-void USBD_USR_DeviceConfigured(void) {
-}
-
-void USBD_USR_DeviceConnected(void) {
-}
-
-void USBD_USR_DeviceDisconnected(void) {
-}
-
-void USBD_USR_DeviceSuspended(void) {
-}
-
-void USBD_USR_DeviceResumed(void) {
-}
-
-USBD_Usr_cb_TypeDef USR_cb = {
-        USBD_USR_Init,
-        USBD_USR_DeviceReset,
-        USBD_USR_DeviceConfigured,
-        USBD_USR_DeviceSuspended,
-        USBD_USR_DeviceResumed,
-        USBD_USR_DeviceConnected,
-        USBD_USR_DeviceDisconnected,
-};
-USBD_DEVICE USR_desc = {
-        USBD_USR_DeviceDescriptor,
-        USBD_USR_LangIDStrDescriptor,
-        USBD_USR_ManufacturerStrDescriptor,
-        USBD_USR_ProductStrDescriptor,
-        USBD_USR_SerialStrDescriptor,
-        USBD_USR_ConfigStrDescriptor,
-        USBD_USR_InterfaceStrDescriptor,
-};
+static USBD_Usr_cb_TypeDef USR_cb = {DoNothing, USBD_USR_DeviceReset, DoNothing, DoNothing, DoNothing, DoNothing, DoNothing,};
+static USBD_DEVICE USR_desc = {getDeviceDescriptor, getLangIDDescriptor, getManufacturerStr, getProductStr, getSerialStr,
+        getConfigStr, getInterfaceStr};
 
 void initUSB() {
     USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_CNC_cb, &USR_cb);
+    DCD_DevDisconnect(&USB_OTG_dev);
 }
 
-uint32_t sendInterrupt(uint8_t *buffer, uint32_t len) {
-    return DCD_EP_Tx(&USB_OTG_dev, ENDPOINT_ADDRESS, buffer, MIN(len, USB_PACKET_SIZE));
+void sendInterrupt(uint8_t *buffer, uint32_t len) {
+    if (USB_OTG_dev.dev.device_status == USB_OTG_CONFIGURED)
+        DCD_EP_Tx(&USB_OTG_dev, INTERRUPT_ENDPOINT, buffer, MIN(len, INTERRUPT_PACKET_SIZE));
 }
 
 void OTG_FS_WKUP_IRQHandler(void) {
