@@ -68,7 +68,6 @@ permissionElement.addEventListener('click', function () {
     });
 });
 chrome.permissions.contains(PERMISSIONS, function (result) {
-
     if (result)
         bindDevice();
     else {
