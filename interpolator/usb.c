@@ -7,6 +7,7 @@
 #include "usbd_req.h"
 #include "usbd_desc.h"
 #include "usb_dcd_int.h"
+#include "usbd_ioreq.h"
 
 
 #define USBD_VID                     0x0483
@@ -17,9 +18,6 @@
 
 #define USBD_PRODUCT_FS_STRING        "Nico CNC"
 #define USBD_SERIALNUMBER_FS_STRING   "000000000DEV"
-
-#define USBD_CONFIGURATION_FS_STRING  "Config"
-#define USBD_INTERFACE_FS_STRING      "Interface"
 
 #define VENDOR_CLASS                  0xFF
 
@@ -108,9 +106,14 @@ static uint8_t *getInterfaceStr(uint8_t speed, uint16_t *length) {
     return 0;
 }
 
+#define BUFFER_SIZE     64
+static uint8_t buffer[BUFFER_SIZE];
+
+
 static uint8_t cncInit(void *pdev, uint8_t cfgidx) {
     DCD_EP_Open(pdev, INTERRUPT_ENDPOINT, INTERRUPT_PACKET_SIZE, USB_OTG_EP_INT);
     DCD_EP_Open(pdev, BULK_ENDPOINT, BULK_PACKET_SIZE, USB_OTG_EP_BULK);
+    DCD_EP_PrepareRx(pdev, BULK_ENDPOINT, buffer, BUFFER_SIZE);
     STM_EVAL_LEDOn(LED4);
     return USBD_OK;
 }
@@ -128,14 +131,46 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
 }
 
 static uint8_t cncDataIn(void *pdev, uint8_t epnum) {
-    if (INTERRUPT_ENDPOINT_NUM == epnum) {
-        STM_EVAL_LEDToggle(LED3);
+    if (INTERRUPT_ENDPOINT_NUM == epnum)
         DCD_EP_Flush(pdev, INTERRUPT_ENDPOINT);
-    }
-    if (BULK_ENDPOINT_NUM == epnum) {
-
-    }
     return USBD_OK;
+}
+
+#define CIRCULAR_BUFFER_SIZE    20000
+static uint8_t circularBuffer[CIRCULAR_BUFFER_SIZE];
+static volatile int32_t writeCount = 0;
+static volatile int32_t readCount = 0;
+
+extern void executeNextStep();
+
+static uint8_t cncDataOut(void *pdev, uint8_t epnum) {
+    uint32_t count = USBD_GetRxCount(pdev, epnum);
+    if (count == 0)
+        executeNextStep();
+    for (int i = 0; i < count; i++) {
+        if (writeCount - readCount < CIRCULAR_BUFFER_SIZE) {
+            circularBuffer[(writeCount) % CIRCULAR_BUFFER_SIZE] = buffer[i % BUFFER_SIZE];
+            writeCount++;
+        }
+    }
+    DCD_EP_PrepareRx(pdev, BULK_ENDPOINT, buffer, BUFFER_SIZE);
+    return USBD_OK;
+}
+
+void resetBuffer() {
+    readCount = 0;
+    writeCount = 0;
+}
+
+uint8_t readBuffer() {
+    if (writeCount - readCount <= 0) {
+        STM_EVAL_LEDOn(LED5);
+        return 0;
+    }
+    STM_EVAL_LEDOff(LED5);
+    uint8_t val = circularBuffer[(readCount) % CIRCULAR_BUFFER_SIZE];
+    readCount++;
+    return val;
 }
 
 typedef struct __attribute__((packed)) {
@@ -167,7 +202,7 @@ static const struct __attribute__((packed)) {
                 .bDescriptorType = USB_INTERFACE_DESCRIPTOR_TYPE,
                 .bInterfaceNumber = 0,
                 .bAlternateSetting = 0,
-                .bNumEndpoints = 1,
+                .bNumEndpoints = 2,
                 .bInterfaceClass = VENDOR_CLASS,
                 .bInterfaceSubClass = 0x01,
                 .bInterfaceProtocol = 0x00,
@@ -203,7 +238,7 @@ USBD_Class_cb_TypeDef USBD_CNC_cb = {
         NULL, /*EP0_TxSent*/
         NULL, /*EP0_RxReady*/
         cncDataIn, /*DataIn*/
-        NULL, /*DataOut*/
+        cncDataOut, /*DataOut*/
         NULL, /*SOF */
         NULL,
         NULL,
@@ -226,8 +261,9 @@ void initUSB() {
 }
 
 void sendInterrupt(uint8_t *buffer, uint32_t len) {
-    if (USB_OTG_dev.dev.device_status == USB_OTG_CONFIGURED)
+    if (USB_OTG_dev.dev.device_status == USB_OTG_CONFIGURED) {
         DCD_EP_Tx(&USB_OTG_dev, INTERRUPT_ENDPOINT, buffer, MIN(len, INTERRUPT_PACKET_SIZE));
+    }
 }
 
 void OTG_FS_WKUP_IRQHandler(void) {
