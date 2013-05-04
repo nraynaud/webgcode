@@ -7,6 +7,7 @@
     <script src="assets/x3dom.js"></script>
     <script src="assets/jquery.min.js"></script>
     <script src="assets/jquery.flot.min.js"></script>
+    <script src="geometry.js"></script>
     <script src="simulation.js"></script>
     <script src="parser.js"></script>
     <style>
@@ -84,18 +85,7 @@
 
 <script>
     x3dom.runtime.ready = (function () {
-        function findBiggestAxis(dv) {
-            var max = -Infinity;
-            var biggestAxis;
-            $.each(AXES, function (_, axis) {
-                var l = Math.abs(dv[axis]);
-                if (l > max) {
-                    max = l;
-                    biggestAxis = axis;
-                }
-            });
-            return biggestAxis;
-        }
+
 
         function quadrant(angle) {
             return (Math.floor(angle / (Math.PI / 2) + 0.5) % 4 + 4) % 4;
@@ -105,7 +95,7 @@
         var testLine = {
             feedRate: 3000,
             from: {x: 0, y: 0, z: 0},
-            to: {x: 5, y: 0, z: 0},
+            to: {x: 5, y: 5, z: 5},
             type: "line"};
         var testArc = {
             angularDistance: -Math.PI,
@@ -114,109 +104,33 @@
                 second: 0
             },
             feedRate: 200,
-            from: { x: 0, y: 0, z: 0
-            },
+            from: { x: 0, y: 0, z: 0},
             fromAngle: -Math.PI / 2,
             plane: {
                 firstCoord: "x",
                 lastCoord: "z",
                 secondCoord: "y"
             },
-            radius: 5,
-            to: {x: 10, y: 0, z: 10},
+            radius: 6,
+            to: {x: 12, y: 0, z: 0},
             type: "arc"
         };
         var stepSize = 0.1;
 
-        function rasterizeLine(line, stepSize) {
-            function unaryOp(input, op) {
-                var result = {};
-                $.each(AXES, function (_, coord) {
-                    result[coord] = op(input[coord]);
-                });
-                return result;
-            }
-
-            function binaryOp(i1, i2, op) {
-                var result = {};
-                $.each(['x', 'y', 'z'], function (_, coord) {
-                    result[coord] = op(i1[coord], i2[coord]);
-                });
-                return result;
-            }
-
-            function clampToGrid(val) {
-                return Math.round(val / stepSize) * stepSize;
-            }
-
-            var startPoint = unaryOp(line.from, clampToGrid);
-            var endPoint = unaryOp(line.to, clampToGrid);
-            var dv = binaryOp(line.to, line.from, function (i1, i2) {
-                return i1 - i2;
-            });
-            var a = findBiggestAxis(dv);
-            var path = [];
-            var increment = dv[a] >= 0 ? stepSize : -stepSize;
-            var steps = (endPoint[a] - startPoint[a]) / increment;
-            var previousPoint = null;
-            for (var i = 0, l = startPoint[a]; i <= steps; i++, l = i * increment) {
-                var ratio = i / steps;
-                var point = binaryOp(line.from, dv, function (from, d) {
-                    return clampToGrid(from + d * ratio);
-                });
-                if (!previousPoint || previousPoint && (previousPoint.x != point.x || previousPoint.y != point.y || previousPoint.z != point.z)) {
-                    point.l = ratio;
-                    path.push(point);
-                }
-                previousPoint = point;
-            }
-            return path;
+        function prepare(segment) {
+            var group = groupConnectedComponents([segment], 50);
+            planSpeed(group[0]);
+            return segment;
         }
 
-        function rasterizeArc(arc, stepSize) {
-            var path = [];
-            var p1 = [];
-            var steps = 100;
-            var previousPoint = null;
-            for (var i = 0; i <= steps; i++) {
-                var ratio = i / steps;
-                var point = COMPONENT_TYPES.arc.pointAtRatio(arc, ratio);
-                point = {x: point[0], y: point[1], z: point[2]};
-                p1.push(point);
-                if (previousPoint) {
-                    var line = {from: previousPoint, to: point, type: "line", feedRate: arc.feedRate};
-                    var rasterized = rasterizeLine(line, stepSize);
-                    $.each(rasterized, function (_, p) {
-                        p.l = ratio + p.l / steps;
-                        path.push(p);
-                    });
-                }
-                previousPoint = point;
+        path = rasterizeArc(prepare(testArc), stepSize);
+        $.each(path, function (idx, point) {
+            if (Math.abs(point.dx) > 1 || Math.abs(point.dy) > 1 || Math.abs(point.dz) > 1) {
+                console.log('before', path[idx - 1]);
+                console.log(point);
             }
-            return path;
-        }
-
-        var path = rasterizeLine(testLine, 1 / 640);
-        var group = groupConnectedComponents([testLine], 50);
-        planSpeed(group[0]);
-        console.log(path);
-        var delay = [];
-        var entropy = {};
-        var currentTime = -0.01;
-        var str = '';
-        for (var i = 0; i < path.length; i++) {
-            var time = dataForRatio(testLine, path[i].l).time;
-            var val = Math.round((time - currentTime) * 200000);
-            entropy[val] = true;
-            delay.push(val);
-            str += '' + (val) + ', ';
-            currentTime = time;
-        }
-        console.log(delay);
-        console.log(Math.max.apply(null, delay));
-        console.log(str);
-        console.log(Object.keys(entropy).length);
-        path = rasterizeArc(testArc, stepSize);
+        });
+        console.log(path.length);
         displayPath(path, '0 0 0', 'toolpath');
         $('#x3d')[0].runtime.showAll();
     });

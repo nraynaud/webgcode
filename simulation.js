@@ -22,12 +22,12 @@ var COMPONENT_TYPES = {
         exitDirection: function (line) {
             return COMPONENT_TYPES.line.entryDirection(line);
         },
-        pointAtRatio: function (line, ratio) {
+        pointAtRatio: function (line, ratio, asObject) {
             function scaled(axis) {
                 return line.from[axis] + ratio * (line.to[axis] - line.from[axis]);
             }
 
-            return [scaled('x'), scaled('y'), scaled('z')];
+            return asObject ? scaled : [scaled('x'), scaled('y'), scaled('z')];
         }
     },
     arc: {
@@ -47,7 +47,7 @@ var COMPONENT_TYPES = {
         exitDirection: function (arc) {
             return getArcSpeedDirection(arc, arc.angularDistance);
         },
-        pointAtRatio: function (arc, ratio) {
+        pointAtRatio: function (arc, ratio, asObject) {
             var lastCoord = arc.plane.lastCoord;
             var radius = arc.radius;
             var angle = arc.fromAngle + arc.angularDistance * ratio;
@@ -55,7 +55,7 @@ var COMPONENT_TYPES = {
             newPoint[arc.plane.firstCoord] = arc.center.first + radius * Math.cos(angle);
             newPoint[arc.plane.secondCoord] = arc.center.second + radius * Math.sin(angle);
             newPoint[lastCoord] = (arc.from[lastCoord] * (1 - ratio) + arc.to[lastCoord] * ratio);
-            return [newPoint.x, newPoint.y, newPoint.z];
+            return asObject ? newPoint : [newPoint.x, newPoint.y, newPoint.z];
         }
     }
 };
