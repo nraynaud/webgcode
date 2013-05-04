@@ -28,7 +28,8 @@ var COMPONENT_TYPES = {
             }
 
             return asObject ? scaled : [scaled('x'), scaled('y'), scaled('z')];
-        }
+        },
+        rasterize: rasterizeLine
     },
     arc: {
         length: function (arc) {
@@ -56,7 +57,8 @@ var COMPONENT_TYPES = {
             newPoint[arc.plane.secondCoord] = arc.center.second + radius * Math.sin(angle);
             newPoint[lastCoord] = (arc.from[lastCoord] * (1 - ratio) + arc.to[lastCoord] * ratio);
             return asObject ? newPoint : [newPoint.x, newPoint.y, newPoint.z];
-        }
+        },
+        rasterize: rasterizeArc
     }
 };
 

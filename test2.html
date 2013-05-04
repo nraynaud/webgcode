@@ -31,11 +31,7 @@
     </style>
 </head>
 <body>
-<h1>Testing line raster</h1>
-
-<p>
-    lol
-</p>
+<h1>Testing raster</h1>
 <x3d id="x3d" xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="false" x="0px" y="0px">
     <Scene id="scene" DEF='scene'>
         <Shape id="xaxis">
@@ -90,9 +86,8 @@
 </x3d>
 
 <script>
+
     x3dom.runtime.ready = (function () {
-
-
         function quadrant(angle) {
             return (Math.floor(angle / (Math.PI / 2) + 0.5) % 4 + 4) % 4;
         }
@@ -109,7 +104,7 @@
                 first: 0,
                 second: 0
             },
-            feedRate: 200,
+            feedRate: 1000,
             from: { x: 0, y: 0, z: 0},
             fromAngle: -Math.PI / 2,
             plane: {
@@ -117,27 +112,44 @@
                 lastCoord: "z",
                 secondCoord: "y"
             },
-            radius: 6,
-            to: {x: 12, y: 0, z: 0},
+            radius: 30,
+            to: {x: 60, y: 0, z: 0},
             type: "arc"
         };
-        var stepSize = 0.1;
+
+        window.addEventListener("message", function (event) {
+            console.log(event);
+            if (event.data['type'] == 'gimme program') {
+                event.source.postMessage({type: 'program', program: plan(testArc).program}, event.origin);
+            }
+        }, false);
+        var stepSize = 1 / 640;
 
         function prepare(segment) {
-            var group = groupConnectedComponents([segment], 50);
+            var group = groupConnectedComponents([segment], 200);
             planSpeed(group[0]);
             return segment;
         }
 
-        path = rasterizeArc(prepare(testArc), stepSize);
-        $.each(path, function (idx, point) {
-            if (Math.abs(point.dx) > 1 || Math.abs(point.dy) > 1 || Math.abs(point.dz) > 1) {
-                console.log('before', path[idx - 1]);
-                console.log(point);
-            }
-        });
-        console.log(path.length);
-        displayPath(path, '0 0 0', 'toolpath');
+        function plan(segment) {
+            var path = COMPONENT_TYPES[segment.type].rasterize(prepare(segment), stepSize);
+            var program = [];
+            var currentTime = -0.01;
+            $.each(path, function (idx, point) {
+                var time = dataForRatio(segment, point.l).time;
+                program.push({
+                    time: (time - currentTime) * 200000,
+                    dx: point.dx,
+                    dy: point.dy,
+                    dz: point.dz
+                });
+                currentTime = time;
+            });
+            return {program: program, path: path};
+        }
+
+        console.log(plan(testArc).program);
+        displayPath(plan(testArc).path, '0 0 0', 'toolpath');
         $('#x3d')[0].runtime.showAll();
     });
 </script>
