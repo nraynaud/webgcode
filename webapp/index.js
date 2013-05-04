@@ -17,21 +17,29 @@ function flushBulkSend(device, endpoint, callback) {
         callback(usbEvent);
     });
 }
+function sendSpeed(device, callback) {
+    var formattedData = new ArrayBuffer(speedData.length * 2);
+    var view = new DataView(formattedData);
+    for (var i = 0; i < speedData.length; i++)
+        view.setUint16(i * 2, speedData[i], true);
+    var transfer2 = {direction: 'out', endpoint: 1, data: formattedData};
+    chrome.usb.bulkTransfer(device, transfer2, function (usbEvent) {
+        if (usbEvent.resultCode) {
+            callback(usbEvent);
+            console.log('error in bulkSend', usbEvent);
+            return;
+        }
+        flushBulkSend(device, 1, function (usbEvent) {
+            callback(usbEvent);
+        });
+    });
+}
 
 sendButton.addEventListener('click', function () {
     if (currentDevice) {
-        var formattedData = new ArrayBuffer(speedData.length * 2);
-        var view = new DataView(formattedData);
-        for (var i = 0; i < speedData.length; i++)
-            view.setUint16(i * 2, speedData[i], true);
-        var transfer2 = {direction: 'out', endpoint: 1, data: formattedData};
-        chrome.usb.bulkTransfer(currentDevice, transfer2, function (usbEvent) {
-            if (usbEvent.resultCode) {
-                console.log('error in bulkSend', usbEvent);
-                return;
-            }
-            flushBulkSend(currentDevice, 1, function () {
-            });
+        sendButton.disabled = true;
+        sendSpeed(currentDevice, function () {
+            sendButton.disabled = false;
         });
     }
 });
@@ -86,6 +94,7 @@ permissionElement.addEventListener('click', function () {
     chrome.permissions.request(PERMISSIONS, function (result) {
         if (result) {
             permissionElement.style.visibility = 'hidden';
+            sendButton.style.visibility = 'visible';
             bindDevice();
         } else {
             console.log('App was not granted the "usbDevices" permission.');
@@ -98,6 +107,7 @@ chrome.permissions.contains(PERMISSIONS, function (result) {
         bindDevice();
     else {
         permissionElement.style.visibility = 'visible';
+        sendButton.style.visibility = 'hidden';
     }
 });
 

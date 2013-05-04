@@ -25,11 +25,12 @@ int main(void) {
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
     GPIO_Init(GPIOE, &GPIO_InitStructure);
 
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
     NVIC_InitTypeDef NVIC_InitStructure;
     NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
@@ -103,8 +104,6 @@ typedef struct {
 
 static stepDef currentStep;
 
-extern void resetBuffer();
-
 extern uint8_t readBuffer();
 
 uint16_t readInt() {
@@ -134,7 +133,6 @@ void executeStep(stepDef step) {
         TIM_SelectOnePulseMode(TIM3, TIM_OPMode_Single);
         TIM_Cmd(TIM3, ENABLE);
     } else {
-        resetBuffer();
         STM_EVAL_LEDOff(LED6);
     }
 }

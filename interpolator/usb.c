@@ -136,7 +136,7 @@ static uint8_t cncDataIn(void *pdev, uint8_t epnum) {
     return USBD_OK;
 }
 
-#define CIRCULAR_BUFFER_SIZE    20000
+#define CIRCULAR_BUFFER_SIZE    200
 static uint8_t circularBuffer[CIRCULAR_BUFFER_SIZE];
 static volatile int32_t writeCount = 0;
 static volatile int32_t readCount = 0;
@@ -145,13 +145,16 @@ extern void executeNextStep();
 
 static uint8_t cncDataOut(void *pdev, uint8_t epnum) {
     uint32_t count = USBD_GetRxCount(pdev, epnum);
-    if (count == 0)
+    if (count == 0 && !(TIM3->CR1 & TIM_CR1_CEN))
         executeNextStep();
     for (int i = 0; i < count; i++) {
-        if (writeCount - readCount < CIRCULAR_BUFFER_SIZE) {
-            circularBuffer[(writeCount) % CIRCULAR_BUFFER_SIZE] = buffer[i % BUFFER_SIZE];
-            writeCount++;
-        }
+        if (writeCount - readCount >= CIRCULAR_BUFFER_SIZE && !(TIM3->CR1 & TIM_CR1_CEN))
+            executeNextStep();
+        while (writeCount - readCount >= CIRCULAR_BUFFER_SIZE)
+            STM_EVAL_LEDOn(LED3);
+        STM_EVAL_LEDOff(LED3);
+        circularBuffer[(writeCount) % CIRCULAR_BUFFER_SIZE] = buffer[i % BUFFER_SIZE];
+        writeCount++;
     }
     DCD_EP_PrepareRx(pdev, BULK_ENDPOINT, buffer, BUFFER_SIZE);
     return USBD_OK;
