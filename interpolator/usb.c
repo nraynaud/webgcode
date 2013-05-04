@@ -127,10 +127,10 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
     return USBD_OK;
 }
 
-#define CIRCULAR_BUFFER_SIZE    200
+#define CIRCULAR_BUFFER_SIZE    1000U
 static uint8_t circularBuffer[CIRCULAR_BUFFER_SIZE];
-static volatile int32_t writeCount = 0;
-static volatile int32_t readCount = 0;
+static volatile uint16_t writeCount = 0;
+static volatile uint16_t readCount = 0;
 
 extern void executeNextStep();
 
@@ -138,16 +138,12 @@ extern uint8_t running;
 
 static uint8_t cncDataOut(void *pdev, uint8_t epnum) {
     uint32_t count = USBD_GetRxCount(pdev, epnum);
-    if (count == 0 && !running) {
-        //we know nobody else is using those variables, so we try to reduce them to limit a future overflow
-        writeCount %= CIRCULAR_BUFFER_SIZE;
-        readCount %= CIRCULAR_BUFFER_SIZE;
+    if (count == 0 && !running)
         executeNextStep();
-    }
     for (int i = 0; i < count; i++) {
-        if (writeCount - readCount >= CIRCULAR_BUFFER_SIZE && !running)
+        if ((uint16_t) (writeCount - readCount) >= CIRCULAR_BUFFER_SIZE && !running)
             executeNextStep();
-        while (writeCount - readCount >= CIRCULAR_BUFFER_SIZE)
+        while ((uint16_t) (writeCount - readCount) >= CIRCULAR_BUFFER_SIZE)
             STM_EVAL_LEDOn(LED3);
         STM_EVAL_LEDOff(LED3);
         circularBuffer[(writeCount) % CIRCULAR_BUFFER_SIZE] = buffer[i % BUFFER_SIZE];
@@ -158,7 +154,7 @@ static uint8_t cncDataOut(void *pdev, uint8_t epnum) {
 }
 
 uint8_t readBuffer() {
-    if (writeCount - readCount <= 0) {
+    if ((uint16_t) (writeCount - readCount) <= 0) {
         STM_EVAL_LEDOn(LED5);
         return 0;
     }
