@@ -96,31 +96,40 @@ void initUserButton() {
     NVIC_Init(&NVIC_InitStructure);
 }
 
-typedef struct {
-    uint16_t duration;
-    uint8_t xStep;
-    uint8_t xDirection;
-} stepDef;
-
-static stepDef currentStep;
 
 extern uint8_t readBuffer();
 
-stepDef nextStep() {
-    stepDef step;
+typedef struct __attribute__((packed)) {
+    unsigned int xStep : 1;
+    unsigned int xDirection : 1;
+    unsigned int yStep : 1;
+    unsigned int yDirection : 1;
+    unsigned int zStep : 1;
+    unsigned int zDirection :1;
+} axes_t;
+
+typedef struct {
+    uint16_t duration;
+    axes_t axes;
+} step_t;
+
+
+step_t nextStep() {
     uint16_t nextDuration = 0;
     nextDuration |= readBuffer();
     nextDuration |= readBuffer() << 8;
-    uint8_t axes = readBuffer();
-    step.duration = (uint16_t) nextDuration;
-    step.xStep = axes & 0b00000001U;
-    step.xDirection = axes & 0b00000010U;
+    union {
+        axes_t as;
+        uint8_t ab;
+    } axes = {.ab = readBuffer()};
+    step_t step = {nextDuration, axes.as};
     return step;
 }
 
 volatile uint8_t running = 0;
+volatile static step_t currentStep;
 
-void executeStep(stepDef step) {
+void executeStep(step_t step) {
     GPIO_ResetBits(GPIOE, GPIO_Pin_3);
     GPIO_ResetBits(GPIOE, GPIO_Pin_4);
     currentStep = step;
@@ -153,12 +162,12 @@ __attribute__ ((used)) void EXTI0_IRQHandler(void) {
 __attribute__ ((used)) void TIM3_IRQHandler(void) {
     if (TIM_GetITStatus(TIM3, TIM_IT_CC1) != RESET) {
         TIM_ClearITPendingBit(TIM3, TIM_IT_CC1);
-        if (currentStep.xDirection)
+        if (currentStep.axes.xDirection)
             GPIO_SetBits(GPIOE, GPIO_Pin_3);
     }
     if (TIM_GetITStatus(TIM3, TIM_IT_CC2) != RESET) {
         TIM_ClearITPendingBit(TIM3, TIM_IT_CC2);
-        if (currentStep.xStep)
+        if (currentStep.axes.xStep)
             GPIO_SetBits(GPIOE, GPIO_Pin_4);
     }
     if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET) {
