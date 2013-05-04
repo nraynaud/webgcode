@@ -106,6 +106,7 @@ typedef struct __attribute__((packed)) {
     unsigned int yDirection : 1;
     unsigned int zStep : 1;
     unsigned int zDirection :1;
+    unsigned int :2;
 } axes_t;
 
 typedef struct {
