@@ -18,10 +18,16 @@ function flushBulkSend(device, endpoint, callback) {
     });
 }
 function sendSpeed(device, callback) {
-    var formattedData = new ArrayBuffer(speedData.length * 2);
+    var formattedData = new ArrayBuffer(speedData.length * 3 * 2);
     var view = new DataView(formattedData);
-    for (var i = 0; i < speedData.length; i++)
-        view.setUint16(i * 2, speedData[i], true);
+    for (var i = 0; i < speedData.length; i++) {
+        view.setUint16(i * 3, speedData[i], true);
+        view.setUint8(i * 3 + 2, parseInt('00000001', 2), true);
+    }
+    for (i = 0; i < speedData.length; i++) {
+        view.setUint16((speedData.length + i) * 3, speedData[i], true);
+        view.setUint8((speedData.length + i) * 3 + 2, parseInt('00000011', 2), true);
+    }
     var transfer2 = {direction: 'out', endpoint: 1, data: formattedData};
     chrome.usb.bulkTransfer(device, transfer2, function (usbEvent) {
         if (usbEvent.resultCode) {

@@ -106,20 +106,15 @@ static stepDef currentStep;
 
 extern uint8_t readBuffer();
 
-uint16_t readInt() {
-    uint16_t res = 0;
-    res |= readBuffer();
-    res |= readBuffer() << 8;
-    return res;
-}
-
 stepDef nextStep() {
-    static uint8_t direction = 1;
     stepDef step;
-    uint32_t nextDuration = readInt();
+    uint16_t nextDuration = 0;
+    nextDuration |= readBuffer();
+    nextDuration |= readBuffer() << 8;
+    uint8_t axes = readBuffer();
     step.duration = (uint16_t) nextDuration;
-    step.xStep = 1;
-    step.xDirection = direction;
+    step.xStep = axes & 0b00000001U;
+    step.xDirection = axes & 0b00000010U;
     return step;
 }
 

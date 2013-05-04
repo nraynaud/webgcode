@@ -12,13 +12,10 @@
 
 #define USBD_VID                     0x0483
 #define USBD_PID                     0xFFFF
-
 #define USBD_LANGID_STRING            0x409
 #define USBD_MANUFACTURER_STRING      "STMicroelectronics"
-
 #define USBD_PRODUCT_FS_STRING        "Nico CNC"
 #define USBD_SERIALNUMBER_FS_STRING   "000000000DEV"
-
 #define VENDOR_CLASS                  0xFF
 
 #define INTERRUPT_PACKET_SIZE         8
@@ -130,12 +127,6 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
     return USBD_OK;
 }
 
-static uint8_t cncDataIn(void *pdev, uint8_t epnum) {
-    if (INTERRUPT_ENDPOINT_NUM == epnum)
-        DCD_EP_Flush(pdev, INTERRUPT_ENDPOINT);
-    return USBD_OK;
-}
-
 #define CIRCULAR_BUFFER_SIZE    200
 static uint8_t circularBuffer[CIRCULAR_BUFFER_SIZE];
 static volatile int32_t writeCount = 0;
@@ -147,8 +138,12 @@ extern uint8_t running;
 
 static uint8_t cncDataOut(void *pdev, uint8_t epnum) {
     uint32_t count = USBD_GetRxCount(pdev, epnum);
-    if (count == 0 && !running)
+    if (count == 0 && !running) {
+        //we know nobody else is using those variables, so we try to reduce them to limit a future overflow
+        writeCount %= CIRCULAR_BUFFER_SIZE;
+        readCount %= CIRCULAR_BUFFER_SIZE;
         executeNextStep();
+    }
     for (int i = 0; i < count; i++) {
         if (writeCount - readCount >= CIRCULAR_BUFFER_SIZE && !running)
             executeNextStep();
@@ -160,11 +155,6 @@ static uint8_t cncDataOut(void *pdev, uint8_t epnum) {
     }
     DCD_EP_PrepareRx(pdev, BULK_ENDPOINT, buffer, BUFFER_SIZE);
     return USBD_OK;
-}
-
-void resetBuffer() {
-    readCount = 0;
-    writeCount = 0;
 }
 
 uint8_t readBuffer() {
@@ -237,17 +227,11 @@ static uint8_t *cncGetCfgDesc(uint8_t speed, uint16_t *length) {
 }
 
 USBD_Class_cb_TypeDef USBD_CNC_cb = {
-        cncInit,
-        cncDeInit,
-        cncSetup,
-        NULL, /*EP0_TxSent*/
-        NULL, /*EP0_RxReady*/
-        cncDataIn, /*DataIn*/
-        cncDataOut, /*DataOut*/
-        NULL, /*SOF */
-        NULL,
-        NULL,
-        cncGetCfgDesc,
+        .Init = cncInit,
+        .DeInit = cncDeInit,
+        .Setup = cncSetup,
+        .DataOut = cncDataOut,
+        .GetConfigDescriptor = cncGetCfgDesc
 };
 
 static void USBD_USR_DeviceReset(uint8_t speed) {
@@ -256,7 +240,7 @@ static void USBD_USR_DeviceReset(uint8_t speed) {
 static void DoNothing(void) {
 }
 
-static USBD_Usr_cb_TypeDef USR_cb = {DoNothing, USBD_USR_DeviceReset, DoNothing, DoNothing, DoNothing, DoNothing, DoNothing,};
+static USBD_Usr_cb_TypeDef USR_cb = {DoNothing, USBD_USR_DeviceReset, DoNothing, DoNothing, DoNothing, DoNothing, DoNothing};
 static USBD_DEVICE USR_desc = {getDeviceDescriptor, getLangIDDescriptor, getManufacturerStr, getProductStr, getSerialStr,
         getConfigStr, getInterfaceStr};
 
