@@ -123,16 +123,20 @@ stepDef nextStep() {
     return step;
 }
 
+volatile uint8_t running = 0;
+
 void executeStep(stepDef step) {
     GPIO_ResetBits(GPIOE, GPIO_Pin_3);
     GPIO_ResetBits(GPIOE, GPIO_Pin_4);
     currentStep = step;
     if (step.duration) {
+        running = 1;
         STM_EVAL_LEDOn(LED6);
         TIM3->ARR = step.duration;
         TIM_SelectOnePulseMode(TIM3, TIM_OPMode_Single);
         TIM_Cmd(TIM3, ENABLE);
     } else {
+        running = 0;
         STM_EVAL_LEDOff(LED6);
     }
 }

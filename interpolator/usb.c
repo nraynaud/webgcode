@@ -143,12 +143,14 @@ static volatile int32_t readCount = 0;
 
 extern void executeNextStep();
 
+extern uint8_t running;
+
 static uint8_t cncDataOut(void *pdev, uint8_t epnum) {
     uint32_t count = USBD_GetRxCount(pdev, epnum);
-    if (count == 0 && !(TIM3->CR1 & TIM_CR1_CEN))
+    if (count == 0 && !running)
         executeNextStep();
     for (int i = 0; i < count; i++) {
-        if (writeCount - readCount >= CIRCULAR_BUFFER_SIZE && !(TIM3->CR1 & TIM_CR1_CEN))
+        if (writeCount - readCount >= CIRCULAR_BUFFER_SIZE && !running)
             executeNextStep();
         while (writeCount - readCount >= CIRCULAR_BUFFER_SIZE)
             STM_EVAL_LEDOn(LED3);
