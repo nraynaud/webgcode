@@ -341,3 +341,36 @@ function simulate(path) {
     $.plot("#chart3", accelerationData, {xaxis: {max: chart1.getAxes().xaxis.max}});
     return simulatedPath;
 }
+
+function planProgram(text, acceleration, stepSize, timebase) {
+    var input = evaluate(text);
+    var groups = groupConnectedComponents(input, acceleration);
+    var program = [];
+    var path = [];
+    $.each(groups, function (_, group) {
+        planSpeed(group);
+        $.each(group, function (_, segment) {
+            var p = plan(segment, stepSize, timebase);
+            program = program.concat(p.program);
+            path = path.concat(p.path);
+        });
+    });
+    return {program: program, path: path};
+}
+
+function plan(segment, stepSize, timebase) {
+    var path = COMPONENT_TYPES[segment.type].rasterize(segment, stepSize);
+    var program = [];
+    var currentTime = -0.1;
+    $.each(path, function (idx, point) {
+        var time = dataForRatio(segment, point.l).time;
+        program.push({
+            time: (time - currentTime) * timebase,
+            dx: point.dx,
+            dy: point.dy,
+            dz: point.dz
+        });
+        currentTime = time;
+    });
+    return {program: program, path: path};
+}

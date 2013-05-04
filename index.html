@@ -156,6 +156,13 @@
             $('#codebox').val(code);
         evaluateCode();
         $('#x3d')[0].runtime.showAll();
+        window.addEventListener("message", function (event) {
+            console.log(event);
+            if (event.data['type'] == 'gimme program') {
+                evaluateCode();
+                event.source.postMessage({type: 'program', program: planProgram($('#codebox').val(), 200, 1 / 640, 200000).program}, event.origin);
+            }
+        }, false);
     });
 </script>
 

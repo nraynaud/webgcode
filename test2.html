@@ -86,7 +86,7 @@
 </x3d>
 
 <script>
-
+    var text = "G1 X30 F1000\nG3 Y20 J10";
     x3dom.runtime.ready = (function () {
         function quadrant(angle) {
             return (Math.floor(angle / (Math.PI / 2) + 0.5) % 4 + 4) % 4;
@@ -120,36 +120,13 @@
         window.addEventListener("message", function (event) {
             console.log(event);
             if (event.data['type'] == 'gimme program') {
-                event.source.postMessage({type: 'program', program: plan(testArc).program}, event.origin);
+                event.source.postMessage({type: 'program', program: planProgram(text, 200, 1 / 640, 200000).program}, event.origin);
             }
         }, false);
-        var stepSize = 1 / 640;
 
-        function prepare(segment) {
-            var group = groupConnectedComponents([segment], 200);
-            planSpeed(group[0]);
-            return segment;
-        }
-
-        function plan(segment) {
-            var path = COMPONENT_TYPES[segment.type].rasterize(prepare(segment), stepSize);
-            var program = [];
-            var currentTime = -0.01;
-            $.each(path, function (idx, point) {
-                var time = dataForRatio(segment, point.l).time;
-                program.push({
-                    time: (time - currentTime) * 200000,
-                    dx: point.dx,
-                    dy: point.dy,
-                    dz: point.dz
-                });
-                currentTime = time;
-            });
-            return {program: program, path: path};
-        }
-
-        console.log(plan(testArc).program);
-        displayPath(plan(testArc).path, '0 0 0', 'toolpath');
+        var prgm = planProgram(text, 200, 1 / 640, 200000);
+        console.log(prgm.program);
+        displayPath(prgm.path, '0 0 0', 'toolpath');
         $('#x3d')[0].runtime.showAll();
     });
 </script>

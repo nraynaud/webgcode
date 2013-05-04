@@ -61,7 +61,10 @@ function sendSpeed(device, speedData, callback) {
 sendButton.addEventListener('click', function () {
     if (currentDevice) {
         sendButton.disabled = true;
-        webView.contentWindow.postMessage({type: 'gimme program'}, 'http://localhost');
+        var parser = document.createElement('a');
+        parser.href = webView.src;
+
+        webView.contentWindow.postMessage({type: 'gimme program'}, parser.protocol + '//' + parser.host);
     }
 });
 function resetDevice() {
