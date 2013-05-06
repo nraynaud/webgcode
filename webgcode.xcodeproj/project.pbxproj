@@ -7,11 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		DDAA5028ED6609E0ABD7D6B6 /* geometry.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA59507FFF83F31AC6ECEB /* geometry.js */; };
 		DDAA5112A98CF57045D5EC46 /* index.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5952187ECA2FF5B96420 /* index.js */; };
 		DDAA524E6774021C15E7F044 /* background.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA58422CF9EADC8397599D /* background.js */; };
 		DDAA5B6641CFBF0C81D7B5CF /* usb.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5223044005BFC70BD5DE /* usb.c */; };
 		DDAA5CDD5DCBC168FB293986 /* jquery.flot.resize.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5518BC9939B7C36FE0B9 /* jquery.flot.resize.js */; };
+		DDAA5E39B611B3CD37DFF97F /* geometry.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA507CC79F9033457329F7 /* geometry.js */; };
 		EE86132C172A02F7008B2029 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = EE86132B172A02F7008B2029 /* main.c */; };
 		EE861334172A0501008B2029 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = EE861332172A0501008B2029 /* main.c */; };
 		EE861335172A0502008B2029 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = EE861333172A0501008B2029 /* Makefile */; };
@@ -30,10 +30,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		DDAA507CC79F9033457329F7 /* geometry.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = geometry.js; path = webapp/cnc/geometry.js; sourceTree = "<group>"; };
 		DDAA5223044005BFC70BD5DE /* usb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = usb.c; path = interpolator/usb.c; sourceTree = "<group>"; };
 		DDAA5518BC9939B7C36FE0B9 /* jquery.flot.resize.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jquery.flot.resize.js; path = assets/jquery.flot.resize.js; sourceTree = "<group>"; };
 		DDAA58422CF9EADC8397599D /* background.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = background.js; path = webapp/background.js; sourceTree = "<group>"; };
-		DDAA59507FFF83F31AC6ECEB /* geometry.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = geometry.js; sourceTree = "<group>"; };
 		DDAA5952187ECA2FF5B96420 /* index.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = index.js; path = webapp/index.js; sourceTree = "<group>"; };
 		DDAA5956F5D267A7A07F388B /* test.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = test.py; path = interpolator/test.py; sourceTree = "<group>"; };
 		DDAA5A99ECD28BC66706A677 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = file.json; name = manifest.json; path = webapp/manifest.json; sourceTree = "<group>"; };
@@ -67,7 +67,7 @@
 				DDAA5956F5D267A7A07F388B /* test.py */,
 				DDAA5223044005BFC70BD5DE /* usb.c */,
 				DDAA5518BC9939B7C36FE0B9 /* jquery.flot.resize.js */,
-				DDAA59507FFF83F31AC6ECEB /* geometry.js */,
+				DDAA507CC79F9033457329F7 /* geometry.js */,
 			);
 			sourceTree = "<group>";
 		};
@@ -165,7 +165,7 @@
 				DDAA5112A98CF57045D5EC46 /* index.js in Sources */,
 				DDAA5B6641CFBF0C81D7B5CF /* usb.c in Sources */,
 				DDAA5CDD5DCBC168FB293986 /* jquery.flot.resize.js in Sources */,
-				DDAA5028ED6609E0ABD7D6B6 /* geometry.js in Sources */,
+				DDAA5E39B611B3CD37DFF97F /* geometry.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

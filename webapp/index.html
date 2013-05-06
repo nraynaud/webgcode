@@ -2,12 +2,70 @@
 <html>
 <head>
     <title>LOL</title>
+    <style>
+        input:invalid {
+            background-color: red;
+        }
+
+        .control {
+            float: right;
+            background-color: antiquewhite;
+        }
+
+        .controlButtons {
+            float: left;
+            text-align: center;
+        }
+
+        .xyBlock {
+            float: left;
+        }
+
+        .zBlock {
+            float: right;
+        }
+
+        .controlParams {
+            float: right;
+        }
+    </style>
 </head>
 <body id="body" style="background-color: black; padding: 0;margin: 0">
-<button id='perms' style="visibility: hidden">Click here to Start!</button>
-<button id='send'>Click here to send!</button>
-<webview id="webView" style="width: 100%; height: 100%;" src="http://nraynaud.github.io/webgcode/index.html"></webview>
+<button id='connect'>Connect</button>
+<button id='send'>Send</button>
+<div class="control">
+    <div class="controlButtons">
+        <div class="xyBlock">
+            <button data-axis="Y+" class="axisButton">Y+</button>
+            <br>
+            <button data-axis="X-" class="axisButton">X-</button>
+            <button data-axis="X+" class="axisButton">X+</button>
+            <br>
+            <button data-axis="Y-" class="axisButton">Y-</button>
+        </div>
+        <div class="zBlock">
+            <button data-axis="Z+" class="axisButton">Z+</button>
+            <br><br>
+            <button data-axis="Z-" class="axisButton">Z-</button>
+        </div>
+    </div>
+    <div class="controlParams">
+        <div id="feedrateDiv" class="">
+            <label for="feedRateField">feedrate:</label>
+            <input id="feedRateField" type="number" class='paramField' size="4" value="200" max="3000" required="true">
+        </div>
+        <div id="incrementDiv" class="">
+            <label for="incrementField">increment:</label>
+            <input id="incrementField" class='paramField' type="number" min="0" max="100" size="4" value="10"
+                   required="true">
+        </div>
+    </div>
+</div>
+<webview id="webView" style="width: 100%; height: 100%;" src="http://localhost/~nraynaud/webgcode/index.html"></webview>
 </body>
-<script src="index.js"></script>
 <script src="jquery.min.js"></script>
+<script src="cnc/geometry.js"></script>
+<script src="cnc/parser.js"></script>
+<script src="cnc/simulation.js"></script>
+<script src="index.js"></script>
 </html>

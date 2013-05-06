@@ -4,7 +4,6 @@ var PERMISSIONS = {permissions: [
     {'usbDevices': [DEVICE_INFO] }
 ]};
 var bodyElement = document.getElementById("body");
-var permissionElement = document.getElementById("perms");
 var sendButton = document.getElementById("send");
 var webView = document.getElementById("webView");
 
@@ -37,9 +36,9 @@ function sendSpeed(device, speedData, callback) {
         var point = speedData[i];
         view.setUint16(i * 3, point.time, true);
         var xs = point.dx ? 1 : 0;
-        var xd = point.dx >= 0 ? 1 : 0;
+        var xd = point.dx <= 0 ? 1 : 0;
         var ys = point.dy ? 1 : 0;
-        var yd = point.dy >= 0 ? 1 : 0;
+        var yd = point.dy <= 0 ? 1 : 0;
         var zs = point.dz ? 1 : 0;
         var zd = point.dz >= 0 ? 1 : 0;
         var word = '00' + zd + zs + yd + ys + xd + xs;
@@ -69,11 +68,11 @@ sendButton.addEventListener('click', function () {
 });
 function resetDevice() {
     currentDevice = null;
+    $('#connect').show();
+    $('#send').hide();
     chrome.usb.findDevices(DEVICE_INFO, function (devices) {
-        if (!devices || !devices.length) {
-            resetDevice();
+        if (!devices || !devices.length)
             return;
-        }
         chrome.usb.closeDevice(devices[0], bindDevice);
     });
 }
@@ -96,7 +95,8 @@ function bindDevice() {
     chrome.usb.findDevices(DEVICE_INFO, function (devices) {
         if (!devices || !devices.length) {
             console.log('no device found');
-            bindDevice();
+            $('#connect').show();
+            $('#send').hide();
             return;
         }
         var device = devices[0];
@@ -107,6 +107,8 @@ function bindDevice() {
                     return;
                 }
                 currentDevice = device;
+                $('#connect').hide();
+                $('#send').show();
                 bodyElement.style.backgroundColor = 'blue';
                 var transfer = {direction: 'in', endpoint: 1, length: 1};
                 chrome.usb.interruptTransfer(device, transfer, interruptHandler(device));
@@ -114,11 +116,9 @@ function bindDevice() {
         });
     });
 }
-permissionElement.addEventListener('click', function () {
+$('#connect').click(function () {
     chrome.permissions.request(PERMISSIONS, function (result) {
         if (result) {
-            permissionElement.style.visibility = 'hidden';
-            sendButton.style.visibility = 'visible';
             bindDevice();
         } else {
             console.log('App was not granted the "usbDevices" permission.');
@@ -130,8 +130,20 @@ chrome.permissions.contains(PERMISSIONS, function (result) {
     if (result)
         bindDevice();
     else {
-        permissionElement.style.visibility = 'visible';
-        sendButton.style.visibility = 'hidden';
+        $('#connect').show();
+        $('#send').hide();
     }
 });
 
+$('.paramField').bind('input', function () {
+    $('.axisButton').prop('disabled', $('.paramField:invalid').length > 0);
+});
+
+$('.axisButton').click(function (event) {
+    var text = "G1 F" + $('#feedRateField').val() + " " + $(event.target).data('axis') + $('#incrementField').val();
+    console.log(text);
+    var res = planProgram(text, 200, 1 / 640, 200000);
+    sendSpeed(currentDevice, res.program, function () {
+        console.log('sent');
+    });
+});
