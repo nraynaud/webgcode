@@ -49,7 +49,6 @@ int main(void) {
             .NVIC_IRQChannelCmd = ENABLE};
     NVIC_Init(&nvicConfig);
 
-
     uint16_t PrescalerValue = (uint16_t) ((SystemCoreClock / 2) / clockFreq) - 1;
 
     TIM_Cmd(TIM3, DISABLE);
@@ -64,8 +63,7 @@ int main(void) {
             .TIM_CounterMode = TIM_CounterMode_Down};
     TIM_TimeBaseInit(TIM3, &timeBaseConfig);
 
-    /* Channel1 first for direction */
-
+    /* Channel1 for direction */
     TIM_OCInitTypeDef timeChannelConfig = {
             .TIM_OCMode = TIM_OCMode_PWM1,
             .TIM_OutputState = TIM_OutputState_Enable,
