@@ -127,7 +127,7 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
     return USBD_OK;
 }
 
-#define CIRCULAR_BUFFER_SIZE    1000U
+#define CIRCULAR_BUFFER_SIZE    10000U
 static uint8_t circularBuffer[CIRCULAR_BUFFER_SIZE];
 static volatile uint16_t writeCount = 0;
 static volatile uint16_t readCount = 0;
