@@ -127,7 +127,7 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
     return USBD_OK;
 }
 
-#define CIRCULAR_BUFFER_SIZE    10000U
+#define CIRCULAR_BUFFER_SIZE    500U
 static uint8_t circularBuffer[CIRCULAR_BUFFER_SIZE];
 static volatile uint16_t writeCount = 0;
 static volatile uint16_t readCount = 0;
@@ -205,7 +205,7 @@ static const struct __attribute__((packed)) {
                         .bmAttributes = 0b00000011,
                         .wMaxPacketSizeL = LOBYTE(INTERRUPT_PACKET_SIZE),
                         .wMaxPacketSizeH = HIBYTE(INTERRUPT_PACKET_SIZE),
-                        .bInterval = 1},
+                        .bInterval = 10},
                 .secondEndpoint = {
                         .bLength = 7,
                         .bDescriptorType = USB_ENDPOINT_DESCRIPTOR_TYPE,

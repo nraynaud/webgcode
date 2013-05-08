@@ -142,7 +142,7 @@ $('.paramField').bind('input', function () {
 $('.axisButton').click(function (event) {
     var text = "G1 F" + $('#feedRateField').val() + " " + $(event.target).data('axis') + $('#incrementField').val();
     console.log(text);
-    var res = planProgram(text, 200, 1 / 640, 200000);
+    var res = planProgram(text, 150, 1 / 640, 200000);
     sendSpeed(currentDevice, res.program, function () {
         console.log('sent');
     });
