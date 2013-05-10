@@ -83,6 +83,12 @@ test("jsparse number evaluation", function () {
         var decimal = jp.action(jp.sequence(jp.optional(jp.choice('+', '-')), unsignedNumber), function (ast) {
             return parseFloat(ast[0] !== false ? ast[0] + ast[1] : ast[1]);
         });
+        var identifier = jp.action(jp.wsequence('<', jp.repeat1(jp.choice('_', jp.range('0', '9'), jp.range('a', 'z'))), '>'), function (ast) {
+            return ast.join('').toLowerCase();
+        });
+        var parameter = jp.action(jp.sequence(jp.expect('#'), jp.choice(number, identifier)), function (ast) {
+            return 0;
+        });
         var expression = function (state) {
             return expression(state);
         };
@@ -177,7 +183,7 @@ test("jsparse number evaluation", function () {
             ['EQ', 'NE', 'GT', 'GE', 'LT', 'LE'],
             ['AND', 'OR', 'XOR']
         ];
-        expression = jp.whitespace(jp.choice(functionCall, jp.wsequence(jp.expect('['), expression, jp.expect(']')), decimal, expression));
+        expression = jp.whitespace(jp.choice(functionCall, jp.wsequence(jp.expect('['), expression, jp.expect(']')), parameter, decimal, expression));
         //push expression by precedence layer
         $.each(binopStack, function (_, layer) {
             var choices = [];
@@ -230,7 +236,7 @@ test("jsparse number evaluation", function () {
         ['1/2-1', -0.5],
         ['1+2/-1', -1],
         ['2/-1*3+1', -5],
-        ['[1 + 2] * -1', -3],
+        ['[1 + 2] * -1', -3]
     ]);
     testValues([
         ['3**2', 9],
@@ -278,7 +284,12 @@ test("jsparse number evaluation", function () {
         ['FIX[-2.8]', -3],
         ['FUP[2.8]', 3],
         ['FUP[ -2.8 ]', -2],
-        ['ATAN[-1] / [1]', -Math.PI / 4]
+        ['ATAN[-1] / [1]', -Math.PI / 4],
+        ['ATAN[-1] / [1] / [-0.5]', Math.PI / 2]
+    ]);
+    testValues([
+        ['#3 + 5', 5],
+        ['#<_3_aa_b2z>+ 5', 5]
     ]);
 });
 test("simple speed planning", function () {
