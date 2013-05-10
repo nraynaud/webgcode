@@ -69,13 +69,10 @@ test("G3 evaluation", function () {
 });
 test("jsparse number evaluation", function () {
     var jp = jsparse;
+    var memory = {};
     var parser = function () {
-        var number = jp.action(jp.repeat1(jp.range('0', '9')), function (ast) {
-            return ast.join('');
-        });
-        var decimalPart = jp.action(jp.sequence('.', number), function (ast) {
-            return ast.join('');
-        });
+        var number = jp.join_action(jp.repeat1(jp.range('0', '9')), '');
+        var decimalPart = jp.join_action(jp.sequence('.', number), '');
         var integerAndDecimal = jp.action(jp.sequence(number, jp.optional(decimalPart)), function (ast) {
             return ast[1] !== false ? ast[0] + ast[1] : ast[0];
         });
@@ -83,11 +80,13 @@ test("jsparse number evaluation", function () {
         var decimal = jp.action(jp.sequence(jp.optional(jp.choice('+', '-')), unsignedNumber), function (ast) {
             return parseFloat(ast[0] !== false ? ast[0] + ast[1] : ast[1]);
         });
-        var identifier = jp.action(jp.wsequence('<', jp.repeat1(jp.choice('_', jp.range('0', '9'), jp.range('a', 'z'))), '>'), function (ast) {
-            return ast.join('').toLowerCase();
+        var identifier = jp.join_action(jp.repeat1(jp.choice('_', jp.range('0', '9'), jp.range('a', 'z'), jp.range('A', 'Z'))), '');
+        var varName = jp.action(jp.wsequence(jp.expect('<'), identifier, jp.expect('>')), function (ast) {
+            return ast[0].toLowerCase();
         });
-        var parameter = jp.action(jp.sequence(jp.expect('#'), jp.choice(number, identifier)), function (ast) {
-            return 0;
+        var parameter = jp.action(jp.sequence(jp.expect('#'), jp.choice(number, varName)), function (ast) {
+            var res = memory[ast];
+            return res === undefined ? 0 : res;
         });
         var expression = function (state) {
             return expression(state);
@@ -240,7 +239,7 @@ test("jsparse number evaluation", function () {
     ]);
     testValues([
         ['3**2', 9],
-        ['3**2**3', 729], //yeah, it's left in g-code
+        ['3**2**3', Math.pow(Math.pow(3, 2), 3)], //yeah, it's left in g-code
         ['3**2+3', 12]
     ]);
     testValues([
@@ -287,9 +286,12 @@ test("jsparse number evaluation", function () {
         ['ATAN[-1] / [1]', -Math.PI / 4],
         ['ATAN[-1] / [1] / [-0.5]', Math.PI / 2]
     ]);
+    memory['var1'] = 3;
     testValues([
         ['#3 + 5', 5],
-        ['#<_3_aa_b2z>+ 5', 5]
+        ['#<_3_aa_b2z>+ 5', 5],
+        ['#<var1>', 3],
+        ['#<VAR1>', 3]
     ]);
 });
 test("simple speed planning", function () {
