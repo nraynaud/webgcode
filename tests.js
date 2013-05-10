@@ -104,7 +104,7 @@ test("jsparse number evaluation", function () {
             'SIN': Math.sin,
             'SQRT': Math.sqrt,
             'TAN': Math.tan,
-            'EXISTS': function (ast) {
+            'EXISTS': function () {
                 console.log('EXISTS TBD');
                 return 1;
             }
@@ -122,9 +122,7 @@ test("jsparse number evaluation", function () {
         var functionCall = jp.choice.apply(null, exprs);
 
         var binops = {
-            '**': function (l, r) {
-                return Math.pow(l, r);
-            },
+            '**': Math.pow,
             '*': function (l, r) {
                 return l * r;
             },
@@ -195,9 +193,8 @@ test("jsparse number evaluation", function () {
     }();
 
     function testValue(str, expected) {
-        var parsed = parser.expression(jp.ps(str));
-        equal(parsed.remaining.length, 0, "consume all the string");
-        deepEqual(parsed.ast, expected, str + ' = ' + expected);
+        var parsed = jp.wsequence(parser.expression, jp.expect(jp.end))(jp.ps(str));
+        deepEqual(parsed.ast[0], expected, str + ' = ' + expected);
     }
 
     function testValues(values) {
