@@ -83,6 +83,38 @@ test("jsparse number evaluation", function () {
         var decimal = jp.action(jp.sequence(jp.optional(jp.choice('+', '-')), unsignedNumber), function (ast) {
             return parseFloat(ast[0] !== false ? ast[0] + ast[1] : ast[1]);
         });
+        var expression = function (state) {
+            return expression(state);
+        };
+        var functions = {
+            'ABS': Math.abs,
+            'ACOS': Math.acos,
+            'ASIN': Math.asin,
+            'COS': Math.cos,
+            'EXP': Math.exp,
+            'FIX': Math.floor,
+            'FUP': Math.ceil,
+            'ROUND': Math.round,
+            'LN': Math.log,
+            'SIN': Math.sin,
+            'SQRT': Math.sqrt,
+            'TAN': Math.tan,
+            'EXISTS': function (ast) {
+                console.log('EXISTS TBD');
+                return 1;
+            }
+        };
+
+        var atanExpr = jp.wsequence(jp.expect('ATAN['), expression, jp.expect(']'), jp.expect('/'), jp.expect('['), expression, jp.expect(']'));
+        atanExpr = jp.action(atanExpr, function (ast) {
+            return Math.atan2(ast[0], ast[1]);
+        });
+        var exprs = [atanExpr];
+        $.each(functions, function (name, funct) {
+            exprs.push(jp.action(jp.wsequence(jp.expect(name + '['), expression, jp.expect(']')), funct));
+        });
+
+        var functionCall = jp.choice.apply(null, exprs);
 
         var binops = {
             '**': function (l, r) {
@@ -145,10 +177,7 @@ test("jsparse number evaluation", function () {
             ['EQ', 'NE', 'GT', 'GE', 'LT', 'LE'],
             ['AND', 'OR', 'XOR']
         ];
-        var expression = function (state) {
-            return expression(state);
-        };
-        expression = jp.whitespace(jp.choice(jp.wsequence(jp.expect('['), expression, jp.expect(']')), decimal, expression));
+        expression = jp.whitespace(jp.choice(functionCall, jp.wsequence(jp.expect('['), expression, jp.expect(']')), decimal, expression));
         //push expression by precedence layer
         $.each(binopStack, function (_, layer) {
             var choices = [];
@@ -237,6 +266,19 @@ test("jsparse number evaluation", function () {
         ['1OR1', 1],
         ['1OR0', 1],
         ['0OR0', 0]
+    ]);
+    testValues([
+        ['EXP[2-1]', Math.E],
+        ['ABS[-1]', 1],
+        ['ACOS[1]', 0],
+        ['ASIN[1]', Math.PI / 2],
+        ['COS[0]', 1],
+        ['EXP[1]', Math.E],
+        ['FIX[2.8]', 2],
+        ['FIX[-2.8]', -3],
+        ['FUP[2.8]', 3],
+        ['FUP[ -2.8 ]', -2],
+        ['ATAN[-1] / [1]', -Math.PI / 4]
     ]);
 });
 test("simple speed planning", function () {
