@@ -67,6 +67,178 @@ test("G3 evaluation", function () {
         type: "arc"
     }, '"' + code + '" second component check');
 });
+test("jsparse number evaluation", function () {
+    var jp = jsparse;
+    var parser = function () {
+        var number = jp.action(jp.repeat1(jp.range('0', '9')), function (ast) {
+            return ast.join('');
+        });
+        var decimalPart = jp.action(jp.sequence('.', number), function (ast) {
+            return ast.join('');
+        });
+        var integerAndDecimal = jp.action(jp.sequence(number, jp.optional(decimalPart)), function (ast) {
+            return ast[1] !== false ? ast[0] + ast[1] : ast[0];
+        });
+        var unsignedNumber = jp.choice(integerAndDecimal, decimalPart);
+        var decimal = jp.action(jp.sequence(jp.optional(jp.choice('+', '-')), unsignedNumber), function (ast) {
+            return parseFloat(ast[0] !== false ? ast[0] + ast[1] : ast[1]);
+        });
+
+        var binops = {
+            '**': function (l, r) {
+                return Math.pow(l, r);
+            },
+            '*': function (l, r) {
+                return l * r;
+            },
+            '/': function (l, r) {
+                return l / r;
+            },
+            'MOD': function (l, r) {
+                return l % r;
+            },
+            '+': function (l, r) {
+                return l + r;
+            },
+            '-': function (l, r) {
+                return l - r;
+            },
+            'EQ': function (l, r) {
+                return l === r ? 1 : 0;
+            },
+            'NE': function (l, r) {
+                return l !== r ? 1 : 0;
+            },
+            'GT': function (l, r) {
+                return l > r ? 1 : 0;
+            },
+            'GE': function (l, r) {
+                return l >= r ? 1 : 0;
+            },
+            'LT': function (l, r) {
+                return l < r ? 1 : 0;
+            },
+            'LE': function (l, r) {
+                return l <= r ? 1 : 0;
+            },
+            'AND': function (l, r) {
+                return l && r ? 1 : 0;
+            },
+            'OR': function (l, r) {
+                return l || r ? 1 : 0;
+            },
+            'XOR': function (l, r) {
+                return (l ? !r : r) ? 1 : 0;
+            }
+        };
+
+        function binOp(op) {
+            return jp.action(jp.whitespace(op), function () {
+                return binops[op];
+            });
+        }
+
+        var binopStack = [
+            ['**'],
+            ['*', '/', 'MOD'],
+            ['+', '-'],
+            ['EQ', 'NE', 'GT', 'GE', 'LT', 'LE'],
+            ['AND', 'OR', 'XOR']
+        ];
+        var expression = function (state) {
+            return expression(state);
+        };
+        expression = jp.whitespace(jp.choice(jp.wsequence(jp.expect('['), expression, jp.expect(']')), decimal, expression));
+        //push expression by precedence layer
+        $.each(binopStack, function (_, layer) {
+            var choices = [];
+            $.each(layer, function (_, choice) {
+                choices.push(binOp(choice));
+            });
+            expression = jp.chainl(expression, jp.choice.apply(null, choices));
+        });
+        return {decimal: decimal, expression: expression};
+    }();
+
+    function testValue(str, expected) {
+        var parsed = parser.expression(jp.ps(str));
+        equal(parsed.remaining.length, 0, "consume all the string");
+        deepEqual(parsed.ast, expected, str + ' = ' + expected);
+    }
+
+    function testValues(values) {
+        $.each(values, function (_, input) {
+            testValue(input[0], input[1]);
+        });
+    }
+
+    $.each(["-10", "+1.5", "-1.5", "1", "1.5", ".5", "-.5", "+.55"], function (_, str) {
+        testValue(str, parseFloat(str));
+    });
+    testValues([
+        ['1+2', 3],
+        ['-1+2', 1],
+        ['-1+-2', -3],
+        ['1+2+-1', 2],
+        ['1+2++1', 4]
+    ]);
+    testValues([
+        ['1-2', -1],
+        ['-1-+2', -3],
+        ['-1-2', -3],
+        ['1-2-1', -2],
+        ['1+2--1', 4]
+    ]);
+    testValues([
+        ['1*2', 2],
+        ['-1*+2', -2],
+        ['-1*2', -2],
+        ['1*2-1', 1],
+        ['1+2*-1', -1],
+        ['1/2', 0.5],
+        ['-1/+2', -0.5],
+        ['-1/2', -0.5],
+        ['1/2-1', -0.5],
+        ['1+2/-1', -1],
+        ['2/-1*3+1', -5],
+        ['[1 + 2] * -1', -3],
+    ]);
+    testValues([
+        ['3**2', 9],
+        ['3**2**3', 729], //yeah, it's left in g-code
+        ['3**2+3', 12]
+    ]);
+    testValues([
+        ['3**2LT100+100', 1],
+        ['1EQ0', 0],
+        ['1EQ1', 1],
+        ['0EQ1', 0],
+        ['1NE0', 1],
+        ['1NE1', 0],
+        ['0NE1', 1],
+        ['1GT0', 1],
+        ['1GT1', 0],
+        ['0GT1', 0],
+        ['1GE0', 1],
+        ['1GE1', 1],
+        ['0GE1', 0],
+        ['1LT0', 0],
+        ['1LT1', 0],
+        ['0LT1', 1],
+        ['1LE0', 0],
+        ['1LE1', 1],
+        ['0LE1', 1],
+        ['1AND1', 1],
+        ['1AND0', 0],
+        ['0AND0', 0],
+        ['1XOR1', 0],
+        ['1XOR0', 1],
+        ['0XOR0', 0],
+        ['1OR1', 1],
+        ['1OR0', 1],
+        ['0OR0', 0]
+    ]);
+});
 test("simple speed planning", function () {
     var data = [
         {length: 3, maxAcceleration: 8, squaredSpeed: 16, originalSpeed: 4}
