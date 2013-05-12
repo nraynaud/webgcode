@@ -116,14 +116,6 @@
             to: {x: 60, y: 0, z: 0},
             type: "arc"
         };
-
-        window.addEventListener("message", function (event) {
-            console.log(event);
-            if (event.data['type'] == 'gimme program') {
-                event.source.postMessage({type: 'program', program: planProgram(text, 200, 1 / 640, 200000).program}, event.origin);
-            }
-        }, false);
-
         var prgm = planProgram(text, 200, 1 / 640, 200000);
         console.log(prgm.program);
         displayPath(prgm.path, '0 0 0', 'toolpath');

@@ -103,9 +103,8 @@ static uint8_t *getInterfaceStr(uint8_t speed, uint16_t *length) {
     return 0;
 }
 
-#define BUFFER_SIZE     64
+#define BUFFER_SIZE     64U
 static uint8_t buffer[BUFFER_SIZE];
-
 
 static uint8_t cncInit(void *pdev, uint8_t cfgidx) {
     DCD_EP_Open(pdev, INTERRUPT_ENDPOINT, INTERRUPT_PACKET_SIZE, USB_OTG_EP_INT);

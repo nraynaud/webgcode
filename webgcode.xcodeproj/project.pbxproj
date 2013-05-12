@@ -38,6 +38,8 @@
 		DDAA58422CF9EADC8397599D /* background.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = background.js; path = webapp/background.js; sourceTree = "<group>"; };
 		DDAA5952187ECA2FF5B96420 /* index.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = index.js; path = webapp/index.js; sourceTree = "<group>"; };
 		DDAA5A99ECD28BC66706A677 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = file.json; name = manifest.json; path = webapp/manifest.json; sourceTree = "<group>"; };
+		EE33B6C5173EECBC00C89AC8 /* stm32f4-discovery */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "stm32f4-discovery"; path = "../stm32-templates/stm32f4-discovery"; sourceTree = "<group>"; };
+		EE33B6C6173EECD500C89AC8 /* STM32F4xx_StdPeriph_Examples */ = {isa = PBXFileReference; lastKnownFileType = folder; name = STM32F4xx_StdPeriph_Examples; path = ../STM32F4xx_DSP_StdPeriph_Lib_V1.0.1/Project/STM32F4xx_StdPeriph_Examples; sourceTree = "<group>"; };
 		EE861323172A0232008B2029 /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = ../STM32F4.platform/Developer/SDKs/STM34F4.sdk/usr/include; sourceTree = "<group>"; };
 		EE861328172A02F7008B2029 /* interpolator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = interpolator; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE86132B172A02F7008B2029 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
@@ -59,6 +61,8 @@
 		EE0864331729F61900AB3B0B = {
 			isa = PBXGroup;
 			children = (
+				EE33B6C6173EECD500C89AC8 /* STM32F4xx_StdPeriph_Examples */,
+				EE33B6C5173EECBC00C89AC8 /* stm32f4-discovery */,
 				EE861323172A0232008B2029 /* include */,
 				EE86132A172A02F7008B2029 /* interpolator */,
 				EE861329172A02F7008B2029 /* Products */,

@@ -160,7 +160,7 @@
             console.log(event);
             if (event.data['type'] == 'gimme program') {
                 evaluateCode();
-                event.source.postMessage({type: 'program', program: planProgram($('#codebox').val(), 200, 1 / 640, 200000).program}, event.origin);
+                event.source.postMessage({type: 'program', program: $('#codebox').val()}, event.origin);
             }
         }, false);
     });
