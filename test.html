@@ -117,13 +117,17 @@
     function encode(input) {
         for (var i = 0; i < array.length; i++)
             if ((array[i][0] & input) != 0)
-                return array[i][1] << 6 | (input >> array[i][2]);
+                return array[i][1] << 6 | (input >>> array[i][2]);
         return input;
     }
 
     function decode(input) {
         var index = 3 - (input >> 6);
-        return (input & parseInt('00111111', 2)) << array[index][2];
+        var shift = array[index][2];
+        var significant = (input & parseInt('00111111', 2));
+        if (!shift)
+            return significant;
+        return ( (significant << 1) | 1) << (shift - 1);
     }
 
     var collected = [];
