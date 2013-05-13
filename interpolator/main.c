@@ -103,7 +103,6 @@ void initUserButton() {
     NVIC_Init(&nvicConfig);
 }
 
-
 extern uint8_t readBuffer();
 
 typedef struct __attribute__((packed)) {
@@ -140,18 +139,16 @@ static void executeStep(step_t step) {
     GPIO_ResetBits(GPIOE, pinout.xDirection | pinout.xStep | pinout.yDirection | pinout.yStep | pinout.zDirection | pinout.zStep);
     currentStep = step;
     if (step.duration) {
-        running = 1;
         STM_EVAL_LEDOn(LED6);
         TIM3->ARR = step.duration;
         TIM_SelectOnePulseMode(TIM3, TIM_OPMode_Single);
         TIM_Cmd(TIM3, ENABLE);
-    } else {
+    } else
         running = 0;
-        STM_EVAL_LEDOff(LED6);
-    }
 }
 
 void executeNextStep() {
+    running = 1;
     executeStep(nextStep());
 }
 
@@ -190,6 +187,7 @@ __attribute__ ((used)) void TIM3_IRQHandler(void) {
     }
     if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET) {
         TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
+        STM_EVAL_LEDOff(LED6);
         executeNextStep();
     }
 }
