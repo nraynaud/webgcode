@@ -361,16 +361,13 @@ function planProgram(text, acceleration, stepSize, timebase) {
 function plan(segment, stepSize, timebase) {
     var path = COMPONENT_TYPES[segment.type].rasterize(segment, stepSize);
     var program = [];
-    var currentTime = -0.1;
     $.each(path, function (idx, point) {
-        var time = dataForRatio(segment, point.l).time;
         program.push({
-            time: Math.round((time - currentTime) * timebase),
+            time: Math.round(Math.min(0.1, stepSize / dataForRatio(segment, point.l).speed) * timebase),
             dx: point.dx,
             dy: point.dy,
             dz: point.dz
         });
-        currentTime = time;
     });
     return {program: program, path: path};
 }

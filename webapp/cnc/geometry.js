@@ -79,7 +79,6 @@ function rasterizeArc(arc, stepSize) {
     var endPoint = COMPONENT_TYPES.arc.pointAtRatio(arc, 1, true);
     var linearSteps = Math.ceil(Math.abs(endPoint[arc.plane.lastCoord] - startPoint[arc.plane.lastCoord]) / stepSize);
     var steps = Math.max(arcSteps, linearSteps);
-    console.log('steps', steps);
     var previousPoint = null;
     for (var i = 0; i <= steps; i++) {
         var ratio = i / steps;
