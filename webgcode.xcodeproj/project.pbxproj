@@ -31,6 +31,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		DDAA50787FD3BD28F80E1F0D /* test.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = test.py; sourceTree = "<group>"; };
 		DDAA507CC79F9033457329F7 /* geometry.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = geometry.js; path = webapp/cnc/geometry.js; sourceTree = "<group>"; };
 		DDAA5223044005BFC70BD5DE /* usb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = usb.c; path = interpolator/usb.c; sourceTree = "<group>"; };
 		DDAA54F29F1F185A35EE1B8C /* jsparse.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jsparse.js; path = webapp/libs/jsparse.js; sourceTree = "<group>"; };
@@ -38,8 +39,6 @@
 		DDAA58422CF9EADC8397599D /* background.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = background.js; path = webapp/background.js; sourceTree = "<group>"; };
 		DDAA5952187ECA2FF5B96420 /* index.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = index.js; path = webapp/index.js; sourceTree = "<group>"; };
 		DDAA5A99ECD28BC66706A677 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = file.json; name = manifest.json; path = webapp/manifest.json; sourceTree = "<group>"; };
-		EE33B6C5173EECBC00C89AC8 /* stm32f4-discovery */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "stm32f4-discovery"; path = "../stm32-templates/stm32f4-discovery"; sourceTree = "<group>"; };
-		EE33B6C6173EECD500C89AC8 /* STM32F4xx_StdPeriph_Examples */ = {isa = PBXFileReference; lastKnownFileType = folder; name = STM32F4xx_StdPeriph_Examples; path = ../STM32F4xx_DSP_StdPeriph_Lib_V1.0.1/Project/STM32F4xx_StdPeriph_Examples; sourceTree = "<group>"; };
 		EE861323172A0232008B2029 /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = ../STM32F4.platform/Developer/SDKs/STM34F4.sdk/usr/include; sourceTree = "<group>"; };
 		EE861328172A02F7008B2029 /* interpolator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = interpolator; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE86132B172A02F7008B2029 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
@@ -61,8 +60,6 @@
 		EE0864331729F61900AB3B0B = {
 			isa = PBXGroup;
 			children = (
-				EE33B6C6173EECD500C89AC8 /* STM32F4xx_StdPeriph_Examples */,
-				EE33B6C5173EECBC00C89AC8 /* stm32f4-discovery */,
 				EE861323172A0232008B2029 /* include */,
 				EE86132A172A02F7008B2029 /* interpolator */,
 				EE861329172A02F7008B2029 /* Products */,
@@ -73,6 +70,7 @@
 				DDAA5518BC9939B7C36FE0B9 /* jquery.flot.resize.js */,
 				DDAA507CC79F9033457329F7 /* geometry.js */,
 				DDAA54F29F1F185A35EE1B8C /* jsparse.js */,
+				DDAA50787FD3BD28F80E1F0D /* test.py */,
 			);
 			sourceTree = "<group>";
 		};

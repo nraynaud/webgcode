@@ -365,7 +365,7 @@ function plan(segment, stepSize, timebase) {
     $.each(path, function (idx, point) {
         var time = dataForRatio(segment, point.l).time;
         program.push({
-            time: (time - currentTime) * timebase,
+            time: Math.round((time - currentTime) * timebase),
             dx: point.dx,
             dy: point.dy,
             dz: point.dz
