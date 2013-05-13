@@ -7,11 +7,17 @@ var bodyElement = document.getElementById("body");
 var webView = document.getElementById("webView");
 
 var currentDevice = null;
+
+chrome.runtime.onSuspend.addListener(function () {
+    closeDevice(function () {
+    });
+});
+
 window.addEventListener("message", function (event) {
     console.log(event);
     var message = event.data;
     if (message['type'] == 'program' && currentDevice) {
-        var res = planProgram(message['program'], 150, 1 / 640, 200000);
+        var res = planProgram(message['program'], 150, 1 / 640, 200000)
         sendSpeed(currentDevice, res.program, function (usbEvent) {
             console.log('sent!');
             $('#send').removeAttr('disabled');
@@ -57,31 +63,26 @@ $('#send').click(function () {
         $('#send').attr('disabled', 'disabled');
         var parser = $('<a></a>').attr('href', webView.src)[0];
         webView.contentWindow.postMessage({type: 'gimme program'}, parser.protocol + '//' + parser.host);
-    }
+    } else
+        closeDevice();
 });
-function resetDevice() {
-    currentDevice = null;
-    $('#connect').show();
-    $('#send').hide();
-    chrome.usb.findDevices(DEVICE_INFO, function (devices) {
-        if (!devices || !devices.length)
-            return;
-        chrome.usb.closeDevice(devices[0], bindDevice);
-    });
+
+function closeDevice(callback) {
+    bodyElement.style.backgroundColor = 'black';
+    if (currentDevice) {
+        var savedDevice = currentDevice;
+        currentDevice = null;
+        chrome.usb.releaseInterface(savedDevice, 0, function () {
+            chrome.usb.closeDevice(savedDevice, callback);
+        });
+    }
 }
 
-function interruptHandler(device) {
-    return function (usbEvent) {
-        if (usbEvent.resultCode) {
-            bodyElement.style.backgroundColor = 'black';
-            resetDevice();
-            return;
-        }
-        var buffer = new Int8Array(usbEvent.data);
-        bodyElement.style.backgroundColor = buffer[0] ? 'red' : 'blue';
-        var transfer = {direction: 'in', endpoint: 1, length: 1};
-        chrome.usb.interruptTransfer(device, transfer, interruptHandler(device));
-    };
+function resetDevice() {
+    closeDevice(bindDevice);
+    $('#connect').show();
+    $('#send').hide();
+    bindDevice();
 }
 
 function bindDevice() {
@@ -94,18 +95,14 @@ function bindDevice() {
         }
         var device = devices[0];
         chrome.usb.claimInterface(device, 0, function () {
-            chrome.usb.setInterfaceAlternateSetting(device, 0, 0, function () {
-                if (chrome.runtime.lastError) {
-                    resetDevice();
-                    return;
-                }
-                currentDevice = device;
-                $('#connect').hide();
-                $('#send').show();
-                bodyElement.style.backgroundColor = 'blue';
-                var transfer = {direction: 'in', endpoint: 1, length: 1};
-                chrome.usb.interruptTransfer(device, transfer, interruptHandler(device));
-            });
+            if (chrome.runtime.lastError) {
+                resetDevice();
+                return;
+            }
+            currentDevice = device;
+            $('#connect').hide();
+            $('#send').show();
+            bodyElement.style.backgroundColor = 'blue';
         });
     });
 }

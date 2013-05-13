@@ -5,8 +5,6 @@ static __IO uint32_t clockFreq = 200000;
 
 extern void initUSB();
 
-void initUserButton();
-
 static const struct {
     uint16_t xDirection, xStep, yDirection, yStep, zDirection, zStep;
 } pinout = {
@@ -80,27 +78,8 @@ int main(void) {
     TIM_ITConfig(TIM3, TIM_IT_CC1| TIM_IT_CC2 | TIM_IT_Update, ENABLE);
 
     initUSB();
-    initUserButton();
     while (1) {
     }
-}
-
-void initUserButton() {
-    STM_EVAL_PBInit(BUTTON_USER, BUTTON_MODE_GPIO);
-    //init the interrupt by hand to set a lower-priority than what STM_EVAL_PBInit() would do
-    SYSCFG_EXTILineConfig(USER_BUTTON_EXTI_PORT_SOURCE, USER_BUTTON_EXTI_PIN_SOURCE);
-    EXTI_InitTypeDef extiConfig = {
-            .EXTI_Line = USER_BUTTON_EXTI_LINE,
-            .EXTI_Mode = EXTI_Mode_Interrupt,
-            .EXTI_Trigger = EXTI_Trigger_Rising_Falling,
-            .EXTI_LineCmd = ENABLE};
-    EXTI_Init(&extiConfig);
-    NVIC_InitTypeDef nvicConfig = {
-            .NVIC_IRQChannel = USER_BUTTON_EXTI_IRQn,
-            .NVIC_IRQChannelPreemptionPriority = 0x0F,
-            .NVIC_IRQChannelSubPriority = 0x0F,
-            .NVIC_IRQChannelCmd = ENABLE};
-    NVIC_Init(&nvicConfig);
 }
 
 extern uint8_t readBuffer();
@@ -150,16 +129,6 @@ static void executeStep(step_t step) {
 void executeNextStep() {
     running = 1;
     executeStep(nextStep());
-}
-
-extern uint32_t sendInterrupt(uint8_t *buffer, uint32_t len);
-
-static uint8_t buttonState;
-
-__attribute__ ((used)) void EXTI0_IRQHandler(void) {
-    EXTI_ClearITPendingBit(USER_BUTTON_EXTI_LINE);
-    buttonState = (uint8_t) STM_EVAL_PBGetState(BUTTON_USER);
-    sendInterrupt(&buttonState, 1);
 }
 
 __attribute__ ((used)) void TIM3_IRQHandler(void) {

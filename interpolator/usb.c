@@ -18,11 +18,6 @@
 #define USBD_SERIALNUMBER_FS_STRING   "000000000DEV"
 #define VENDOR_CLASS                  0xFF
 
-#define INTERRUPT_PACKET_SIZE         8
-#define INTERRUPT_ENDPOINT_NUM        1
-#define INTERRUPT_ENDPOINT_DIR        EP_IN
-#define INTERRUPT_ENDPOINT            (INTERRUPT_ENDPOINT_DIR|INTERRUPT_ENDPOINT_NUM)
-
 #define BULK_PACKET_SIZE              64
 #define BULK_ENDPOINT_NUM             1
 #define BULK_ENDPOINT_DIR             EP_OUT
@@ -107,7 +102,6 @@ static uint8_t *getInterfaceStr(uint8_t speed, uint16_t *length) {
 static uint8_t buffer[BUFFER_SIZE];
 
 static uint8_t cncInit(void *pdev, uint8_t cfgidx) {
-    DCD_EP_Open(pdev, INTERRUPT_ENDPOINT, INTERRUPT_PACKET_SIZE, USB_OTG_EP_INT);
     DCD_EP_Open(pdev, BULK_ENDPOINT, BULK_PACKET_SIZE, USB_OTG_EP_BULK);
     DCD_EP_PrepareRx(pdev, BULK_ENDPOINT, buffer, BUFFER_SIZE);
     STM_EVAL_LEDOn(LED4);
@@ -115,8 +109,6 @@ static uint8_t cncInit(void *pdev, uint8_t cfgidx) {
 }
 
 static uint8_t cncDeInit(void *pdev, uint8_t cfgidx) {
-    DCD_EP_Flush(pdev, INTERRUPT_ENDPOINT);
-    DCD_EP_Close(pdev, INTERRUPT_ENDPOINT);
     DCD_EP_Close(pdev, BULK_ENDPOINT);
     STM_EVAL_LEDOff(LED4);
     return USBD_OK;
@@ -191,7 +183,6 @@ static const struct __attribute__((packed)) {
         uint8_t bLength, bDescriptorType, bInterfaceNumber, bAlternateSetting, bNumEndpoints, bInterfaceClass,
                 bInterfaceSubClass, bInterfaceProtocol, iInterface;
         EndPoint_t firstEndpoint;
-        EndPoint_t secondEndpoint;
     } interface;
 } configurationDescriptor __attribute__((aligned (4))) = {
         .bLength = 9,
@@ -208,20 +199,12 @@ static const struct __attribute__((packed)) {
                 .bDescriptorType = USB_INTERFACE_DESCRIPTOR_TYPE,
                 .bInterfaceNumber = 0,
                 .bAlternateSetting = 0,
-                .bNumEndpoints = 2,
+                .bNumEndpoints = 1,
                 .bInterfaceClass = VENDOR_CLASS,
                 .bInterfaceSubClass = 0x01,
                 .bInterfaceProtocol = 0x00,
                 .iInterface = 0,
                 .firstEndpoint = {
-                        .bLength = 7,
-                        .bDescriptorType = USB_ENDPOINT_DESCRIPTOR_TYPE,
-                        .bEndpointAddress = INTERRUPT_ENDPOINT,
-                        .bmAttributes = 0b00000011,
-                        .wMaxPacketSizeL = LOBYTE(INTERRUPT_PACKET_SIZE),
-                        .wMaxPacketSizeH = HIBYTE(INTERRUPT_PACKET_SIZE),
-                        .bInterval = 10},
-                .secondEndpoint = {
                         .bLength = 7,
                         .bDescriptorType = USB_ENDPOINT_DESCRIPTOR_TYPE,
                         .bEndpointAddress = BULK_ENDPOINT,
@@ -258,12 +241,6 @@ static USBD_DEVICE USR_desc = {getDeviceDescriptor, getLangIDDescriptor, getManu
 void initUSB() {
     USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_CNC_cb, &USR_cb);
     DCD_DevDisconnect(&USB_OTG_dev);
-}
-
-void sendInterrupt(uint8_t *buffer, uint32_t len) {
-    if (USB_OTG_dev.dev.device_status == USB_OTG_CONFIGURED) {
-        DCD_EP_Tx(&USB_OTG_dev, INTERRUPT_ENDPOINT, buffer, MIN(len, INTERRUPT_PACKET_SIZE));
-    }
 }
 
 void OTG_FS_WKUP_IRQHandler(void) {
