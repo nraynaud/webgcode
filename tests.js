@@ -69,8 +69,9 @@ test("G3 evaluation", function () {
 });
 test("jsparse number evaluation", function () {
     var jp = jsparse;
-    var memory = {};
-    var parser = function () {
+
+    function createParser() {
+        var memory = {};
         var number = jp.join_action(jp.repeat1(jp.range('0', '9')), '');
         var decimalPart = jp.join_action(jp.sequence('.', number), '');
         var integerAndDecimal = jp.action(jp.sequence(number, jp.optional(decimalPart)), function (ast) {
@@ -84,7 +85,8 @@ test("jsparse number evaluation", function () {
         var varName = jp.action(jp.wsequence(jp.expect('<'), identifier, jp.expect('>')), function (ast) {
             return ast[0].toLowerCase();
         });
-        var parameter = jp.action(jp.sequence(jp.expect('#'), jp.choice(number, varName)), function (ast) {
+        var parameter = jp.sequence(jp.expect('#'), jp.choice(number, varName));
+        var parameterRead = jp.action(parameter, function (ast) {
             var res = memory[ast];
             return res === undefined ? 0 : res;
         });
@@ -180,7 +182,10 @@ test("jsparse number evaluation", function () {
             ['EQ', 'NE', 'GT', 'GE', 'LT', 'LE'],
             ['AND', 'OR', 'XOR']
         ];
-        expression = jp.whitespace(jp.choice(functionCall, jp.wsequence(jp.expect('['), expression, jp.expect(']')), parameter, decimal, expression));
+        var bracketedExpression = jp.action(jp.wsequence(jp.expect('['), expression, jp.expect(']')), function (ast) {
+            return ast[0];
+        });
+        expression = jp.whitespace(jp.choice(functionCall, bracketedExpression, parameterRead, decimal, expression));
         //push expression by precedence layer
         $.each(binopStack, function (_, layer) {
             var choices = [];
@@ -189,17 +194,50 @@ test("jsparse number evaluation", function () {
             });
             expression = jp.chainl(expression, jp.choice.apply(null, choices));
         });
-        return {decimal: decimal, expression: expression};
-    }();
+        var readExpression = jp.choice(bracketedExpression, decimal);
+        var affectation = jp.action(jp.wsequence(parameter, jp.expect('='), readExpression), function (ast) {
+            return {variable: ast[0], value: ast[1]};
+        });
+        var word = jp.wsequence(jp.choice.apply(null, 'GIJXYZFMgijxyzfm'.split('')), readExpression);
+        var line = jp.action(jp.wsequence(jp.repeat0(jp.choice(affectation, word)), jp.end), function (ast) {
+            var res = {};
+            var affectations = [];
 
-    function testValue(str, expected) {
+            function appendProperty(key, value) {
+                if (res[key] === undefined)
+                    res[key] = [value];
+                else
+                    res[key].push(value);
+            }
+
+            $.each(ast[0], function (_, element) {
+                if (Array.isArray(element))
+                    appendProperty(element[0], element[1]);
+                else
+                    affectations.push(element);
+            });
+            $.each(affectations, function (_, affectation) {
+                memory[affectation.variable] = affectation.value;
+            });
+            return res;
+        });
+        return {decimal: decimal, expression: expression, affectation: affectation, line: line, memory: memory,
+            clearMemory: function () {
+                for (var key in memory)
+                    delete memory[key];
+            }};
+    }
+
+    function testValue(str, expected, parser) {
+        if (parser == undefined)
+            parser = createParser();
         var parsed = jp.wsequence(parser.expression, jp.expect(jp.end))(jp.ps(str));
         deepEqual(parsed.ast[0], expected, str + ' = ' + expected);
     }
 
-    function testValues(values) {
+    function testValues(values, parser) {
         $.each(values, function (_, input) {
-            testValue(input[0], input[1]);
+            testValue(input[0], input[1], parser);
         });
     }
 
@@ -283,13 +321,34 @@ test("jsparse number evaluation", function () {
         ['ATAN[-1] / [1]', -Math.PI / 4],
         ['ATAN[-1] / [1] / [-0.5]', Math.PI / 2]
     ]);
-    memory['var1'] = 3;
+    var p1 = createParser();
+    p1.memory['var1'] = 3;
     testValues([
         ['#3 + 5', 5],
         ['#<_3_aa_b2z>+ 5', 5],
         ['#<var1>', 3],
         ['#<VAR1>', 3]
-    ]);
+    ], p1);
+
+    var p2 = createParser();
+    p2.line(jp.ps('#54 = [COS[0]]'));
+    p2.line(jp.ps('#<lol>=12\n'));
+    //check that affectation are done after reading on the same line
+    p2.line(jp.ps('#<v1>=10 #<v2>=[#<v1>+1]\n'));
+    testValues([
+        ['#54', 1],
+        ['#<lol>', 12],
+        ['#<undefined>', 0],
+        ['#<v2>', 1],
+        ['#<v1>', 10]
+    ], p2);
+    var parsed = jp.wsequence(createParser().line, jp.expect(jp.end))(jp.ps("#4 = 4.000000 #5 = 5.000000 G1 X10 F[3000] X [12+#4]"));
+    console.log(parsed);
+    deepEqual(parsed.ast[0],
+        {
+            F: [3000],
+            G: [1],
+            X: [10, 12]});
 });
 test("simple speed planning", function () {
     var data = [
