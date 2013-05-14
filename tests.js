@@ -9,6 +9,16 @@ test("G0 evaluation", function () {
         to: {x: 10, y: 0, z: 0},
         type: "line"}, '"' + code + '" second component check');
 });
+test("G0 evaluation with expression", function () {
+    var code = 'G0 X[5+5]';
+    var result = evaluate(code);
+    equal(result.length, 1, '"' + code + '" code length');
+    deepEqual(result[0], {
+        feedRate: 3000,
+        from: {x: 0, y: 0, z: 0},
+        to: {x: 10, y: 0, z: 0},
+        type: "line"}, '"' + code + '" second component check');
+});
 test("G1 evaluation", function () {
     var code = 'G1 X10';
     var result = evaluate(code);
@@ -69,164 +79,6 @@ test("G3 evaluation", function () {
 });
 test("jsparse number evaluation", function () {
     var jp = jsparse;
-
-    function createParser() {
-        var memory = {};
-        var number = jp.join_action(jp.repeat1(jp.range('0', '9')), '');
-        var decimalPart = jp.join_action(jp.sequence('.', number), '');
-        var integerAndDecimal = jp.action(jp.sequence(number, jp.optional(decimalPart)), function (ast) {
-            return ast[1] !== false ? ast[0] + ast[1] : ast[0];
-        });
-        var unsignedNumber = jp.choice(integerAndDecimal, decimalPart);
-        var decimal = jp.action(jp.sequence(jp.optional(jp.choice('+', '-')), unsignedNumber), function (ast) {
-            return parseFloat(ast[0] !== false ? ast[0] + ast[1] : ast[1]);
-        });
-        var identifier = jp.join_action(jp.repeat1(jp.choice('_', jp.range('0', '9'), jp.range('a', 'z'), jp.range('A', 'Z'))), '');
-        var varName = jp.action(jp.wsequence(jp.expect('<'), identifier, jp.expect('>')), function (ast) {
-            return ast[0].toLowerCase();
-        });
-        var parameter = jp.sequence(jp.expect('#'), jp.choice(number, varName));
-        var parameterRead = jp.action(parameter, function (ast) {
-            var res = memory[ast];
-            return res === undefined ? 0 : res;
-        });
-        var expression = function (state) {
-            return expression(state);
-        };
-        var functions = {
-            'ABS': Math.abs,
-            'ACOS': Math.acos,
-            'ASIN': Math.asin,
-            'COS': Math.cos,
-            'EXP': Math.exp,
-            'FIX': Math.floor,
-            'FUP': Math.ceil,
-            'ROUND': Math.round,
-            'LN': Math.log,
-            'SIN': Math.sin,
-            'SQRT': Math.sqrt,
-            'TAN': Math.tan,
-            'EXISTS': function () {
-                console.log('EXISTS TBD');
-                return 1;
-            }
-        };
-
-        var atanExpr = jp.wsequence(jp.expect('ATAN['), expression, jp.expect(']'), jp.expect('/'), jp.expect('['), expression, jp.expect(']'));
-        atanExpr = jp.action(atanExpr, function (ast) {
-            return Math.atan2(ast[0], ast[1]);
-        });
-        var exprs = [atanExpr];
-        $.each(functions, function (name, funct) {
-            exprs.push(jp.action(jp.wsequence(jp.expect(name + '['), expression, jp.expect(']')), funct));
-        });
-
-        var functionCall = jp.choice.apply(null, exprs);
-
-        var binops = {
-            '**': Math.pow,
-            '*': function (l, r) {
-                return l * r;
-            },
-            '/': function (l, r) {
-                return l / r;
-            },
-            'MOD': function (l, r) {
-                return l % r;
-            },
-            '+': function (l, r) {
-                return l + r;
-            },
-            '-': function (l, r) {
-                return l - r;
-            },
-            'EQ': function (l, r) {
-                return l === r ? 1 : 0;
-            },
-            'NE': function (l, r) {
-                return l !== r ? 1 : 0;
-            },
-            'GT': function (l, r) {
-                return l > r ? 1 : 0;
-            },
-            'GE': function (l, r) {
-                return l >= r ? 1 : 0;
-            },
-            'LT': function (l, r) {
-                return l < r ? 1 : 0;
-            },
-            'LE': function (l, r) {
-                return l <= r ? 1 : 0;
-            },
-            'AND': function (l, r) {
-                return l && r ? 1 : 0;
-            },
-            'OR': function (l, r) {
-                return l || r ? 1 : 0;
-            },
-            'XOR': function (l, r) {
-                return (l ? !r : r) ? 1 : 0;
-            }
-        };
-
-        function binOp(op) {
-            return jp.action(jp.whitespace(op), function () {
-                return binops[op];
-            });
-        }
-
-        var binopStack = [
-            ['**'],
-            ['*', '/', 'MOD'],
-            ['+', '-'],
-            ['EQ', 'NE', 'GT', 'GE', 'LT', 'LE'],
-            ['AND', 'OR', 'XOR']
-        ];
-        var bracketedExpression = jp.action(jp.wsequence(jp.expect('['), expression, jp.expect(']')), function (ast) {
-            return ast[0];
-        });
-        expression = jp.whitespace(jp.choice(functionCall, bracketedExpression, parameterRead, decimal, expression));
-        //push expression by precedence layer
-        $.each(binopStack, function (_, layer) {
-            var choices = [];
-            $.each(layer, function (_, choice) {
-                choices.push(binOp(choice));
-            });
-            expression = jp.chainl(expression, jp.choice.apply(null, choices));
-        });
-        var readExpression = jp.choice(bracketedExpression, decimal);
-        var affectation = jp.action(jp.wsequence(parameter, jp.expect('='), readExpression), function (ast) {
-            return {variable: ast[0], value: ast[1]};
-        });
-        var word = jp.wsequence(jp.choice.apply(null, 'GIJXYZFMgijxyzfm'.split('')), readExpression);
-        var line = jp.action(jp.wsequence(jp.repeat0(jp.choice(affectation, word)), jp.end), function (ast) {
-            var res = {};
-            var affectations = [];
-
-            function appendProperty(key, value) {
-                if (res[key] === undefined)
-                    res[key] = [value];
-                else
-                    res[key].push(value);
-            }
-
-            $.each(ast[0], function (_, element) {
-                if (Array.isArray(element))
-                    appendProperty(element[0], element[1]);
-                else
-                    affectations.push(element);
-            });
-            $.each(affectations, function (_, affectation) {
-                memory[affectation.variable] = affectation.value;
-            });
-            return res;
-        });
-        return {decimal: decimal, expression: expression, affectation: affectation, line: line, memory: memory,
-            clearMemory: function () {
-                for (var key in memory)
-                    delete memory[key];
-            }};
-    }
 
     function testValue(str, expected, parser) {
         if (parser == undefined)
@@ -342,13 +194,19 @@ test("jsparse number evaluation", function () {
         ['#<v2>', 1],
         ['#<v1>', 10]
     ], p2);
-    var parsed = jp.wsequence(createParser().line, jp.expect(jp.end))(jp.ps("#4 = 4.000000 #5 = 5.000000 G1 X10 F[3000] X [12+#4]"));
-    console.log(parsed);
-    deepEqual(parsed.ast[0],
-        {
-            F: [3000],
-            G: [1],
-            X: [10, 12]});
+    deepEqual(createParser().parseLine("#4 = 4.000000 #5 = 5.000000 G1 X10 F[3000] X [12+#4]").ast, {
+        f: [3000],
+        g: [1],
+        x: [10, 12]});
+    deepEqual(createParser().parseLine('G02X10Y30R10 ').ast, {
+        g: [2],
+        r: [10],
+        x: [10],
+        y: [30]});
+    deepEqual(createParser().parseLine('G01Z[-1.000000*#7+#10]F#4 ').ast, {
+        g: [1],
+        f: [0],
+        z: [0]});
 });
 test("simple speed planning", function () {
     var data = [

@@ -24,14 +24,6 @@ var XZ_PLANE = {
 };
 
 var TRAVERSE_RATE = 3000;
-
-var REAL_NUMBER_REGEX = "[+-]?[0-9]+(?:[.][0-9]*)?";
-//partial list for supported stuff only
-var LETTERS = ['f', 'g', 'i', 'j', 'r', 'x', 'y', 'z'];
-var WORD_DETECTORS = {};
-$.each(LETTERS, function (_, letter) {
-    WORD_DETECTORS[letter] = new RegExp(letter.toUpperCase() + '(' + REAL_NUMBER_REGEX + ')');
-});
 var AXES = ['x', 'y', 'z'];
 var GROUPS_TRANSITIONS = {
     0: {motionMode: moveTraverseRate},
@@ -54,7 +46,6 @@ var GROUPS_TRANSITIONS = {
     90: {distanceMode: absoluteDistance},
     91: {distanceMode: incrementalDistance}
 };
-
 
 function absoluteDistance(previous, parsedMove) {
     return $.extend(cloneObject(previous), parsedMove);
@@ -103,12 +94,12 @@ function noMotion(line, machineState) {
     //do nothing
 }
 
-function detectAxisMove(s, unitMode) {
+function detectAxisMove(line, unitMode) {
     var result = {};
     $.each(AXES, function (_, axis) {
-        var parsed = WORD_DETECTORS[axis].exec(s);
-        if (parsed)
-            result[axis] = unitMode(parseFloat(parsed[1]));
+        var parsed = line[axis];
+        if (parsed !== undefined && parsed.length)
+            result[axis] = unitMode(parsed[parsed.length - 1]);
     });
     return Object.keys(result).length ? result : null;
 }
@@ -144,10 +135,10 @@ function addPathComponent(point, machineState, speed) {
 
 function findCircle(line, unitMode, targetPos, plane, currentPosition, clockwise) {
     var radius, toCenterX, toCenterY;
-    var radiusMatch = WORD_DETECTORS.r.exec(line);
-    if (radiusMatch) {
+    var radiusMatch = line['r'];
+    if (radiusMatch != undefined && radiusMatch.length) {
         //radius notation
-        radius = unitMode(parseFloat(radiusMatch[1]));
+        radius = unitMode(radiusMatch[radiusMatch.length - 1]);
         var dx = targetPos[plane.firstCoord] - currentPosition[plane.firstCoord];
         var dy = targetPos[plane.secondCoord] - currentPosition[plane.secondCoord];
         var mightyFactor = 4 * radius * radius - dx * dx - dy * dy;
@@ -162,10 +153,10 @@ function findCircle(line, unitMode, targetPos, plane, currentPosition, clockwise
         toCenterY = 0.5 * (dy + (dx * mightyFactor));
     } else {
         //center notation
-        var iMatch = WORD_DETECTORS.i.exec(line);
-        var jMatch = WORD_DETECTORS.j.exec(line);
-        toCenterX = iMatch ? unitMode(parseFloat(iMatch[1])) : 0;
-        toCenterY = jMatch ? unitMode(parseFloat(jMatch[1])) : 0;
+        var iMatch = line['i'];
+        var jMatch = line['j'];
+        toCenterX = iMatch ? unitMode(iMatch[iMatch.length - 1]) : 0;
+        toCenterY = jMatch ? unitMode(jMatch[jMatch.length - 1]) : 0;
         radius = length(toCenterX, toCenterY);
     }
     return {radius: radius, toCenterX: toCenterX, toCenterY: toCenterY};
@@ -219,17 +210,185 @@ function createMachine() {
         planeMode: XY_PLANE,
         feedRate: 200,
         pathControl: 61,
-        path: []};
+        path: [],
+        parser: createParser()};
     $.each(AXES, function (_, axis) {
         machineState.position[axis] = 0;
     });
     return machineState;
 }
 
+function createParser() {
+    var jp = jsparse;
+    var memory = {};
+    var number = jp.join_action(jp.repeat1(jp.range('0', '9')), '');
+    var decimalPart = jp.join_action(jp.sequence('.', number), '');
+    var integerAndDecimal = jp.action(jp.sequence(number, jp.optional(decimalPart)), function (ast) {
+        return ast[1] !== false ? ast[0] + ast[1] : ast[0];
+    });
+    var unsignedNumber = jp.choice(integerAndDecimal, decimalPart);
+    var decimal = jp.action(jp.sequence(jp.optional(jp.choice('+', '-')), unsignedNumber), function (ast) {
+        return parseFloat(ast[0] !== false ? ast[0] + ast[1] : ast[1]);
+    });
+    var identifier = jp.join_action(jp.repeat1(jp.choice('_', jp.range('0', '9'), jp.range('a', 'z'), jp.range('A', 'Z'))), '');
+    var varName = jp.action(jp.wsequence(jp.expect('<'), identifier, jp.expect('>')), function (ast) {
+        return ast[0].toLowerCase();
+    });
+    var parameter = jp.sequence(jp.expect('#'), jp.choice(number, varName));
+    var parameterRead = jp.action(parameter, function (ast) {
+        var res = memory[ast];
+        return res === undefined ? 0 : res;
+    });
+    var expression = function (state) {
+        return expression(state);
+    };
+    var functions = {
+        'ABS': Math.abs,
+        'ACOS': Math.acos,
+        'ASIN': Math.asin,
+        'COS': Math.cos,
+        'EXP': Math.exp,
+        'FIX': Math.floor,
+        'FUP': Math.ceil,
+        'ROUND': Math.round,
+        'LN': Math.log,
+        'SIN': Math.sin,
+        'SQRT': Math.sqrt,
+        'TAN': Math.tan,
+        'EXISTS': function () {
+            console.log('EXISTS TBD');
+            return 1;
+        }
+    };
+
+    var atanExpr = jp.wsequence(jp.expect('ATAN['), expression, jp.expect(']'), jp.expect('/'), jp.expect('['), expression, jp.expect(']'));
+    atanExpr = jp.action(atanExpr, function (ast) {
+        return Math.atan2(ast[0], ast[1]);
+    });
+    var exprs = [atanExpr];
+    $.each(functions, function (name, funct) {
+        exprs.push(jp.action(jp.wsequence(jp.expect(name + '['), expression, jp.expect(']')), funct));
+    });
+
+    var functionCall = jp.choice.apply(null, exprs);
+
+    var binops = {
+        '**': Math.pow,
+        '*': function (l, r) {
+            return l * r;
+        },
+        '/': function (l, r) {
+            return l / r;
+        },
+        'MOD': function (l, r) {
+            return l % r;
+        },
+        '+': function (l, r) {
+            return l + r;
+        },
+        '-': function (l, r) {
+            return l - r;
+        },
+        'EQ': function (l, r) {
+            return l === r ? 1 : 0;
+        },
+        'NE': function (l, r) {
+            return l !== r ? 1 : 0;
+        },
+        'GT': function (l, r) {
+            return l > r ? 1 : 0;
+        },
+        'GE': function (l, r) {
+            return l >= r ? 1 : 0;
+        },
+        'LT': function (l, r) {
+            return l < r ? 1 : 0;
+        },
+        'LE': function (l, r) {
+            return l <= r ? 1 : 0;
+        },
+        'AND': function (l, r) {
+            return l && r ? 1 : 0;
+        },
+        'OR': function (l, r) {
+            return l || r ? 1 : 0;
+        },
+        'XOR': function (l, r) {
+            return (l ? !r : r) ? 1 : 0;
+        }
+    };
+
+    function binOp(op) {
+        return jp.action(jp.whitespace(op), function () {
+            return binops[op];
+        });
+    }
+
+    var binopStack = [
+        ['**'],
+        ['*', '/', 'MOD'],
+        ['+', '-'],
+        ['EQ', 'NE', 'GT', 'GE', 'LT', 'LE'],
+        ['AND', 'OR', 'XOR']
+    ];
+    var bracketedExpression = jp.action(jp.wsequence(jp.expect('['), expression, jp.expect(']')), function (ast) {
+        return ast[0];
+    });
+    expression = jp.whitespace(jp.choice(functionCall, bracketedExpression, parameterRead, decimal, expression));
+    //push expression by precedence layer
+    $.each(binopStack, function (_, layer) {
+        var choices = [];
+        $.each(layer, function (_, choice) {
+            choices.push(binOp(choice));
+        });
+        expression = jp.chainl(expression, jp.choice.apply(null, choices));
+    });
+    var readExpression = jp.choice(bracketedExpression, decimal, parameterRead);
+    var affectation = jp.action(jp.wsequence(parameter, jp.expect('='), readExpression), function (ast) {
+        return {variable: ast[0], value: ast[1]};
+    });
+    var word = jp.wsequence(jp.choice.apply(null, 'FGIJMRXYZfgijmrxyz'.split('')), readExpression);
+    var line = jp.action(jp.wsequence(jp.repeat0(jp.choice(affectation, word)), jp.end), function (ast) {
+        var res = {};
+        var affectations = [];
+
+        function appendProperty(key, value) {
+            if (res[key] === undefined)
+                res[key] = [value];
+            else
+                res[key].push(value);
+        }
+
+        $.each(ast[0], function (_, element) {
+            if (Array.isArray(element))
+                appendProperty(element[0].toLowerCase(), element[1]);
+            else
+                affectations.push(element);
+        });
+        $.each(affectations, function (_, affectation) {
+            memory[affectation.variable] = affectation.value;
+        });
+        return res;
+    });
+    var wholeLine = jp.action(jp.wsequence(line, jp.expect(jp.end)), function (ast) {
+        return ast[0];
+    });
+    return {decimal: decimal, expression: expression, affectation: affectation, line: line, memory: memory,
+        clearMemory: function () {
+            for (var key in memory)
+                if (memory.hasOwnProperty(key))
+                    delete memory[key];
+        }, parseLine: function (str) {
+            return wholeLine(jp.ps(str));
+        }};
+}
+
 function evaluate(text) {
     var machineState = createMachine();
     var arrayOfLines = text.match(/[^\r\n]+/g);
     $.each(arrayOfLines, function (lineNo, originalLine) {
+        if (originalLine.match(/[\t ]*%[\t ]*/))
+            return;
         //drop spaces, go uppercase
         var line = originalLine.replace(/[\t ]+/g, '').toUpperCase();
         // drop comments
@@ -237,25 +396,24 @@ function evaluate(text) {
         line = line.replace(/;.*$/, '');
         //drop line number
         line = line.replace(/^N[0-9]+/, '');
-        var fCode = WORD_DETECTORS.f.exec(line);
-        if (fCode)
-            machineState.feedRate = machineState.unitMode(parseFloat(fCode[1]));
-        do {
-            var gCode = WORD_DETECTORS.g.exec(line);
-            if (gCode) {
-                var codeNum = parseFloat(gCode[1]);
-                var transition = GROUPS_TRANSITIONS[codeNum];
-                if (transition != null)
-                    $.extend(machineState, transition);
-                else {
-                    console.log('Did not understand G' + gCode[1] + ', skipping');
-                    console.log(originalLine);
-                }
-                line = line.replace(WORD_DETECTORS.g, '');
+        var parsed = machineState.parser.parseLine(line).ast;
+        if (parsed == undefined)
+            console.log('could not parse ', line);
+        var fCode = parsed['f'];
+        if (fCode != undefined && fCode.length)
+            machineState.feedRate = machineState.unitMode(fCode[0]);
+        var gCode = parsed['g'];
+        for (var i = 0; gCode !== undefined && i < gCode.length; i++) {
+            var codeNum = gCode[i];
+            var transition = GROUPS_TRANSITIONS[codeNum];
+            if (transition != null)
+                $.extend(machineState, transition);
+            else {
+                console.log('Did not understand G' + gCode + ', skipping');
+                console.log(originalLine);
             }
-
-        } while (gCode);
-        machineState.motionMode(line, machineState);
+        }
+        machineState.motionMode(parsed, machineState);
     });
     return machineState.path;
 }
