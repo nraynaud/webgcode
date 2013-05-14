@@ -347,7 +347,7 @@ function createParser() {
     var affectation = jp.action(jp.wsequence(parameter, jp.expect('='), readExpression), function (ast) {
         return {variable: ast[0], value: ast[1]};
     });
-    var word = jp.wsequence(jp.choice.apply(null, 'FGIJMRXYZfgijmrxyz'.split('')), readExpression);
+    var word = jp.wsequence(jp.choice.apply(null, 'FGIJMPRSTXYZfgijmrpstxyz'.split('')), readExpression);
     var line = jp.action(jp.wsequence(jp.repeat0(jp.choice(affectation, word)), jp.end), function (ast) {
         var res = {};
         var affectations = [];
