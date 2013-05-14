@@ -29,6 +29,9 @@ var COMPONENT_TYPES = {
 
             return asObject ? scaled : [scaled('x'), scaled('y'), scaled('z')];
         },
+        simulationSteps: function () {
+            return 5;
+        },
         rasterize: rasterizeLine
     },
     arc: {
@@ -57,6 +60,9 @@ var COMPONENT_TYPES = {
             newPoint[arc.plane.secondCoord] = arc.center.second + radius * Math.sin(angle);
             newPoint[lastCoord] = (arc.from[lastCoord] * (1 - ratio) + arc.to[lastCoord] * ratio);
             return asObject ? newPoint : [newPoint.x, newPoint.y, newPoint.z];
+        },
+        simulationSteps: function (arc) {
+            return Math.round(Math.abs(arc.angularDistance) / (2 * Math.PI) * 50);
         },
         rasterize: rasterizeArc
     }
@@ -233,13 +239,14 @@ function simulate2(path, pushPoint) {
     var lastPosition;
 
     function discretize(segment) {
-        var steps = 300;
+        var type = COMPONENT_TYPES[segment.type];
+        var steps = type.simulationSteps(segment);
         var startTime = currentTime;
         for (var j = 1; j <= steps; j++) {
             var ratio = j / steps;
             var data = dataForRatio(segment, ratio);
             currentTime = startTime + data.time;
-            internalPushPoint.apply(null, COMPONENT_TYPES[segment.type].pointAtRatio(segment, ratio));
+            internalPushPoint.apply(null, type.pointAtRatio(segment, ratio));
         }
     }
 
@@ -334,8 +341,6 @@ function simulate(path) {
     }
 
     simulate2(path, pushPoint);
-
-    console.log("path", path);
     var chart1 = $.plot("#chart1", posData);
     $.plot("#chart2", speedData, {xaxis: {max: chart1.getAxes().xaxis.max}});
     $.plot("#chart3", accelerationData, {xaxis: {max: chart1.getAxes().xaxis.max}});
