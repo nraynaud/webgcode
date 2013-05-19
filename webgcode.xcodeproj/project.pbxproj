@@ -36,6 +36,7 @@
 		DDAA5223044005BFC70BD5DE /* usb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = usb.c; path = interpolator/usb.c; sourceTree = "<group>"; };
 		DDAA54F29F1F185A35EE1B8C /* jsparse.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jsparse.js; path = webapp/libs/jsparse.js; sourceTree = "<group>"; };
 		DDAA5518BC9939B7C36FE0B9 /* jquery.flot.resize.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jquery.flot.resize.js; path = assets/jquery.flot.resize.js; sourceTree = "<group>"; };
+		DDAA56FDF85987C80CFAD40D /* tux.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngx; name = tux.ngc; path = samples/tux.ngc; sourceTree = "<group>"; };
 		DDAA58422CF9EADC8397599D /* background.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = background.js; path = webapp/background.js; sourceTree = "<group>"; };
 		DDAA5952187ECA2FF5B96420 /* index.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = index.js; path = webapp/index.js; sourceTree = "<group>"; };
 		DDAA5A99ECD28BC66706A677 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = file.json; name = manifest.json; path = webapp/manifest.json; sourceTree = "<group>"; };
@@ -71,6 +72,7 @@
 				DDAA507CC79F9033457329F7 /* geometry.js */,
 				DDAA54F29F1F185A35EE1B8C /* jsparse.js */,
 				DDAA50787FD3BD28F80E1F0D /* test.py */,
+				DDAA56FDF85987C80CFAD40D /* tux.ngc */,
 			);
 			sourceTree = "<group>";
 		};
