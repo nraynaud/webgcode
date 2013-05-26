@@ -30,7 +30,7 @@ var COMPONENT_TYPES = {
             return asObject ? scaled : [scaled('x'), scaled('y'), scaled('z')];
         },
         simulationSteps: function () {
-            return 5;
+            return 40;
         },
         rasterize: rasterizeLine
     },
@@ -104,8 +104,8 @@ function arcClampedSpeed(radius, speed, acceleration) {
     return {speed: speed, acceleration: maxTangentialAcceleration};
 }
 
-function areEqualVectors(v1, v2) {
-    return length(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z) < 0.000001;
+function areMostlyContinuous(v1, v2) {
+    return length(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z) >= 1.95;
 }
 
 function getArcSpeedDirection(arc, angle) {
@@ -215,7 +215,7 @@ function groupConnectedComponents(path, acceleration) {
     for (var i = 0; i < path.length; i++) {
         var component = path[i];
         var trait = COMPONENT_TYPES[component.type];
-        if (areEqualVectors(lastExitDirection, trait.entryDirection(component))) {
+        if (areMostlyContinuous(lastExitDirection, trait.entryDirection(component))) {
             currentGroup.push(component);
         } else {
             currentGroup = [component];
@@ -347,8 +347,8 @@ function simulate(path) {
     return simulatedPath;
 }
 
-function planProgram(text, acceleration, stepSize, timebase) {
-    var input = evaluate(text);
+function planProgram(text, acceleration, stepSize, timebase, currentPosition) {
+    var input = evaluate(text, currentPosition);
     var groups = groupConnectedComponents(input, acceleration);
     var program = [];
     var path = [];

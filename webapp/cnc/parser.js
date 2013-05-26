@@ -202,7 +202,13 @@ function parseArc(line, clockwise, machineState) {
     machineState.position = targetPos;
 }
 
-function createMachine() {
+function createMachine(position) {
+    if (position === undefined) {
+        position = {};
+        $.each(AXES, function (_, axis) {
+            position[axis] = 0;
+        });
+    }
     var machineState = {position: {},
         distanceMode: absoluteDistance,
         motionMode: moveTraverseRate,
@@ -213,7 +219,7 @@ function createMachine() {
         path: [],
         parser: createParser()};
     $.each(AXES, function (_, axis) {
-        machineState.position[axis] = 0;
+        machineState.position[axis] = position[axis];
     });
     return machineState;
 }
@@ -383,8 +389,8 @@ function createParser() {
         }};
 }
 
-function evaluate(text) {
-    var machineState = createMachine();
+function evaluate(text, position) {
+    var machineState = createMachine(position);
     var arrayOfLines = text.match(/[^\r\n]+/g);
     $.each(arrayOfLines, function (lineNo, originalLine) {
         if (originalLine.match(/[\t ]*%[\t ]*/))

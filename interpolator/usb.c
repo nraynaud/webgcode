@@ -1,107 +1,20 @@
 #include "stm32f4xx_conf.h"
 #include "stm32f4_discovery.h"
 #include "arm_math.h"
-#include "usbd_conf.h"
 #include "usb_core.h"
 #include "usbd_core.h"
 #include "usbd_req.h"
-#include "usbd_desc.h"
 #include "usb_dcd_int.h"
 #include "usbd_ioreq.h"
-
-
-#define USBD_VID                     0x0483
-#define USBD_PID                     0xFFFF
-#define USBD_LANGID_STRING            0x409
-#define USBD_MANUFACTURER_STRING      "STMicroelectronics"
-#define USBD_PRODUCT_FS_STRING        "Nico CNC"
-#define USBD_SERIALNUMBER_FS_STRING   "000000000DEV"
-#define VENDOR_CLASS                  0xFF
-
-#define BULK_PACKET_SIZE              64
-#define BULK_ENDPOINT_NUM             1
-#define BULK_ENDPOINT_DIR             EP_OUT
-#define BULK_ENDPOINT                 (BULK_ENDPOINT_DIR|BULK_ENDPOINT_NUM)
-
-typedef enum {
-    EP_IN = 0b10000000U, EP_OUT = 0b00000000U
-} EndpointDirection_t;
+#include "cnc.h"
 
 static USB_OTG_CORE_HANDLE USB_OTG_dev __attribute__((aligned (4)));
-
-static const struct __attribute__((__packed__)) {
-    uint8_t bLength, bDescriptorType;
-    uint8_t bcdUSBL, bcdUSBH;
-    uint8_t bDeviceClass, bDeviceSubClass, bDeviceProtocol, bMaxPacketSize;
-    uint8_t idVendorL, idVendorH;
-    uint8_t idProductL, idProductH;
-    uint8_t bcdDeviceL, bcdDeviceH;
-    uint8_t iManufacturer, iProduct, iSerialNumber;
-    uint8_t bNumConfigurations;
-} deviceDescriptor __attribute__((aligned (4))) = {
-        .bLength = (uint8_t) sizeof(deviceDescriptor),
-        .bDescriptorType = USB_DEVICE_DESCRIPTOR_TYPE,
-        .bcdUSBL = 0x00,
-        .bcdUSBH = 0x02,
-        .bDeviceClass = 0x00,
-        .bDeviceSubClass = 0x00,
-        .bDeviceProtocol = 0x00,
-        .bMaxPacketSize = USB_OTG_MAX_EP0_SIZE,
-        .idVendorL = LOBYTE(USBD_VID),
-        .idVendorH = HIBYTE(USBD_VID),
-        .idProductL = LOBYTE(USBD_PID),
-        .idProductH = HIBYTE(USBD_PID),
-        .bcdDeviceL = 0x00,
-        .bcdDeviceH = 0x02,
-        .iManufacturer = USBD_IDX_MFC_STR,
-        .iProduct = USBD_IDX_PRODUCT_STR,
-        .iSerialNumber = USBD_IDX_SERIAL_STR,
-        .bNumConfigurations = USBD_CFG_MAX_NUM};
-
-static uint8_t *getDeviceDescriptor(uint8_t speed, uint16_t *length) {
-    *length = (uint16_t) sizeof(deviceDescriptor);
-    return (uint8_t *) &deviceDescriptor;
-}
-
-static uint8_t USBD_LangIDDesc[USB_SIZ_STRING_LANGID] __attribute__((aligned (4))) = {
-        USB_SIZ_STRING_LANGID,
-        USB_DESC_TYPE_STRING,
-        LOBYTE(USBD_LANGID_STRING),
-        HIBYTE(USBD_LANGID_STRING),
-};
-
-static uint8_t *getLangIDDescriptor(uint8_t speed, uint16_t *length) {
-    *length = (uint16_t) sizeof(USBD_LangIDDesc);
-    return USBD_LangIDDesc;
-}
-
-static uint8_t *getProductStr(uint8_t speed, uint16_t *length) {
-    USBD_GetString((uint8_t *) USBD_PRODUCT_FS_STRING, USBD_StrDesc, length);
-    return USBD_StrDesc;
-}
-
-static uint8_t *getManufacturerStr(uint8_t speed, uint16_t *length) {
-    USBD_GetString((uint8_t *) USBD_MANUFACTURER_STRING, USBD_StrDesc, length);
-    return USBD_StrDesc;
-}
-
-static uint8_t *getSerialStr(uint8_t speed, uint16_t *length) {
-    USBD_GetString((uint8_t *) USBD_SERIALNUMBER_FS_STRING, USBD_StrDesc, length);
-    return USBD_StrDesc;
-}
-
-static uint8_t *getConfigStr(uint8_t speed, uint16_t *length) {
-    return 0;
-}
-
-static uint8_t *getInterfaceStr(uint8_t speed, uint16_t *length) {
-    return 0;
-}
 
 #define BUFFER_SIZE     64U
 static uint8_t buffer[BUFFER_SIZE];
 
 static uint8_t cncInit(void *pdev, uint8_t cfgidx) {
+    DCD_EP_Open(pdev, INTERRUPT_ENDPOINT, INTERRUPT_PACKET_SIZE, USB_OTG_EP_INT);
     DCD_EP_Open(pdev, BULK_ENDPOINT, BULK_PACKET_SIZE, USB_OTG_EP_BULK);
     DCD_EP_PrepareRx(pdev, BULK_ENDPOINT, buffer, BUFFER_SIZE);
     STM_EVAL_LEDOn(LED4);
@@ -109,124 +22,170 @@ static uint8_t cncInit(void *pdev, uint8_t cfgidx) {
 }
 
 static uint8_t cncDeInit(void *pdev, uint8_t cfgidx) {
+    DCD_EP_Close(pdev, INTERRUPT_ENDPOINT);
     DCD_EP_Close(pdev, BULK_ENDPOINT);
     STM_EVAL_LEDOff(LED4);
     return USBD_OK;
 }
 
+enum {
+    REQUEST_POSITION = 0,
+    REQUEST_PARAMETERS = 1,
+    REQUEST_STATE = 2
+};
+
+typedef enum {
+    OUT = 0,
+    IN = 1
+} ctrl_req_direction_t;
+
+typedef enum {
+    STANDARD = 0,
+    CLASS = 1,
+    VENDOR = 2,
+} ctrl_req_type_t;
+
+typedef enum {
+    DEVICE = 0,
+    INTERFACE = 1,
+    ENDPOINT = 2,
+    OTHER = 3
+} ctrl_req_recipient_t;
+
+typedef struct {
+    ctrl_req_recipient_t recipient: 5;
+    ctrl_req_type_t type: 2;
+    ctrl_req_direction_t direction : 1;
+} bmRequest_t;
+
 static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
+    bmRequest_t parsed =
+            ((union {
+                uint8_t n;
+                bmRequest_t s;
+            }) {.n=req->bmRequest}).s;
+    switch (parsed.type) {
+        case VENDOR :
+            switch (req->bRequest) {
+                case REQUEST_POSITION:
+                    if (parsed.direction == IN)
+                        USBD_CtlSendData(pdev, (uint8_t *) &cncMemory.position, (uint16_t) sizeof(cncMemory.position));
+                    else
+                        USBD_CtlError(pdev, req);
+                    return USBD_OK;
+                case REQUEST_PARAMETERS:
+                    if (parsed.direction == IN)
+                        USBD_CtlSendData(pdev, (uint8_t *) &cncMemory.parameters, (uint16_t) sizeof(cncMemory.parameters));
+                    else
+                        USBD_CtlError(pdev, req);
+                    return USBD_OK;
+                case REQUEST_STATE:
+                    if (parsed.direction == IN)
+                        USBD_CtlSendData(pdev, (uint8_t *) &cncMemory.state, (uint16_t) sizeof(cncMemory.state));
+                    else
+                        USBD_CtlError(pdev, req);
+                    return USBD_OK;
+                default:
+                    USBD_CtlError(pdev, req);
+                    break;
+            }
+            break;
+        default:
+            break;
+    }
     return USBD_OK;
 }
 
+void sendEvent(uint32_t event) {
+    cncMemory.lastEvent[0] = event;
+    DCD_EP_Tx(&USB_OTG_dev, INTERRUPT_ENDPOINT, (uint8_t *) cncMemory.lastEvent, sizeof(cncMemory.lastEvent));
+}
+
+void sendMovedEvent(position_t pos) {
+    cncMemory.lastEvent[0] = MOVED;
+    cncMemory.lastEvent[1] = pos.x;
+    cncMemory.lastEvent[2] = pos.y;
+    cncMemory.lastEvent[3] = pos.z;
+    DCD_EP_Tx(&USB_OTG_dev, INTERRUPT_ENDPOINT, (uint8_t *) cncMemory.lastEvent, sizeof(cncMemory.lastEvent));
+}
+
 #define CIRCULAR_BUFFER_SIZE    16384U
-static uint8_t circularBuffer[CIRCULAR_BUFFER_SIZE];
-static volatile uint16_t writeCount = 0;
-static volatile uint16_t readCount = 0;
-static volatile int signaled = 0;
-static volatile int flushing = 0;
-
-extern void executeNextStep();
-
-extern uint8_t running;
+static struct {
+    uint8_t buffer[CIRCULAR_BUFFER_SIZE];
+    uint16_t writeCount;
+    uint16_t readCount;
+    int signaled;
+    int flushing;
+    uint32_t programLength;
+} circularBuffer2 = {
+        .writeCount = 0,
+        .readCount = 0,
+        .signaled = 0,
+        .flushing = 0,
+        .programLength = 0
+};
 
 uint16_t fillLevel() {
-    return (uint16_t) (writeCount - readCount);
+    return (uint16_t) (circularBuffer2.writeCount - circularBuffer2.readCount);
 }
 
 void flushBuffer() {
-    if (!flushing) {
-        flushing = 1;
-        if (signaled) {
+    if (!circularBuffer2.flushing) {
+        circularBuffer2.flushing = 1;
+        if (circularBuffer2.signaled) {
             uint32_t count = USBD_GetRxCount(&USB_OTG_dev, BULK_ENDPOINT_NUM);
             if (fillLevel() <= CIRCULAR_BUFFER_SIZE - count) {
                 for (int i = 0; i < count; i++) {
-                    circularBuffer[writeCount % CIRCULAR_BUFFER_SIZE] = buffer[i];
-                    writeCount++;
+                    circularBuffer2.buffer[circularBuffer2.writeCount % CIRCULAR_BUFFER_SIZE] = buffer[i];
+                    circularBuffer2.writeCount++;
                 }
-                signaled = 0;
+                circularBuffer2.signaled = 0;
                 DCD_EP_PrepareRx(&USB_OTG_dev, BULK_ENDPOINT, buffer, BUFFER_SIZE);
             }
         }
-        if (!running)
+        if (!cncMemory.running)
             executeNextStep();
-        flushing = 0;
+        circularBuffer2.flushing = 0;
     }
 }
 
 static uint8_t cncDataOut(void *pdev, uint8_t epnum) {
-    signaled = 1;
+    circularBuffer2.signaled = 1;
     flushBuffer();
     return USBD_OK;
 }
 
-uint8_t readBuffer() {
+uint8_t readBuffer2() {
     flushBuffer();
     if (fillLevel() == 0) {
         STM_EVAL_LEDOn(LED5);
         return 0;
     }
     STM_EVAL_LEDOff(LED5);
-    uint8_t val = circularBuffer[readCount % CIRCULAR_BUFFER_SIZE];
-    readCount++;
+    uint8_t val = circularBuffer2.buffer[circularBuffer2.readCount % CIRCULAR_BUFFER_SIZE];
+    circularBuffer2.readCount++;
     return val;
 }
 
-typedef struct __attribute__((packed)) {
-    // http://www.beyondlogic.org/usbnutshell/usb5.shtml#EndpointDescriptors
-    uint8_t bLength, bDescriptorType, bEndpointAddress, bmAttributes, wMaxPacketSizeL, wMaxPacketSizeH, bInterval;
-} EndPoint_t;
-
-static const struct __attribute__((packed)) {
-    uint8_t bLength, bDescriptorType, wTotalLengthL, wTotalLengthH, bNumInterfaces, bConfigurationValue, iConfiguration,
-            bmAttributes, bMaxPower;
-    struct __attribute__((packed)) {
-        uint8_t bLength, bDescriptorType, bInterfaceNumber, bAlternateSetting, bNumEndpoints, bInterfaceClass,
-                bInterfaceSubClass, bInterfaceProtocol, iInterface;
-        EndPoint_t firstEndpoint;
-    } interface;
-} configurationDescriptor __attribute__((aligned (4))) = {
-        .bLength = 9,
-        .bDescriptorType = USB_CONFIGURATION_DESCRIPTOR_TYPE,
-        .wTotalLengthL =  LOBYTE(sizeof(configurationDescriptor)),
-        .wTotalLengthH = HIBYTE(sizeof(configurationDescriptor)),
-        .bNumInterfaces = 1,
-        .bConfigurationValue = 1,
-        .iConfiguration = 0,
-        .bmAttributes = 0xE0,
-        .bMaxPower = 0x32,
-        .interface = {
-                .bLength = 9,
-                .bDescriptorType = USB_INTERFACE_DESCRIPTOR_TYPE,
-                .bInterfaceNumber = 0,
-                .bAlternateSetting = 0,
-                .bNumEndpoints = 1,
-                .bInterfaceClass = VENDOR_CLASS,
-                .bInterfaceSubClass = 0x01,
-                .bInterfaceProtocol = 0x00,
-                .iInterface = 0,
-                .firstEndpoint = {
-                        .bLength = 7,
-                        .bDescriptorType = USB_ENDPOINT_DESCRIPTOR_TYPE,
-                        .bEndpointAddress = BULK_ENDPOINT,
-                        .bmAttributes = 0b00000010,
-                        .wMaxPacketSizeL = LOBYTE(BULK_PACKET_SIZE),
-                        .wMaxPacketSizeH = HIBYTE(BULK_PACKET_SIZE),
-                        .bInterval = 0}
-        }
-};
-
-static uint8_t *cncGetCfgDesc(uint8_t speed, uint16_t *length) {
-    *length = (uint16_t) sizeof (configurationDescriptor);
-    return (uint8_t *) &configurationDescriptor;
+uint8_t readBuffer() {
+    if (cncMemory.state == READY) {
+        cncMemory.state = RUNNING_PROGRAM;
+        sendEvent(PROGRAM_START);
+        circularBuffer2.programLength = 0;
+        circularBuffer2.programLength |= (uint32_t) readBuffer2();
+        circularBuffer2.programLength |= (uint32_t) readBuffer2() << 8;
+        circularBuffer2.programLength |= (uint32_t) readBuffer2() << 16;
+        circularBuffer2.programLength |= (uint32_t) readBuffer2() << 24;
+    }
+    if (circularBuffer2.programLength == 0) {
+        cncMemory.state = READY;
+        sendEvent(PROGRAM_END);
+        return 0;
+    }
+    uint8_t val = readBuffer2();
+    circularBuffer2.programLength--;
+    return val;
 }
-
-USBD_Class_cb_TypeDef USBD_CNC_cb = {
-        .Init = cncInit,
-        .DeInit = cncDeInit,
-        .Setup = cncSetup,
-        .DataOut = cncDataOut,
-        .GetConfigDescriptor = cncGetCfgDesc
-};
 
 static void USBD_USR_DeviceReset(uint8_t speed) {
 }
@@ -234,16 +193,35 @@ static void USBD_USR_DeviceReset(uint8_t speed) {
 static void DoNothing(void) {
 }
 
-static USBD_Usr_cb_TypeDef USR_cb = {DoNothing, USBD_USR_DeviceReset, DoNothing, DoNothing, DoNothing, DoNothing, DoNothing};
-static USBD_DEVICE USR_desc = {getDeviceDescriptor, getLangIDDescriptor, getManufacturerStr, getProductStr, getSerialStr,
-        getConfigStr, getInterfaceStr};
+extern USBD_DEVICE USR_desc;
+
+static struct {
+    USBD_DEVICE *USR_desc;
+    USBD_Class_cb_TypeDef USBD_CNC_cb;
+    USBD_Usr_cb_TypeDef usrCB;
+} USB_INTERFACE = {
+        .USR_desc = &USR_desc,
+        .USBD_CNC_cb = {
+                .Init = cncInit,
+                .DeInit = cncDeInit,
+                .Setup = cncSetup,
+                .DataOut = cncDataOut,
+                .GetConfigDescriptor = cncGetCfgDesc},
+        .usrCB = {
+                .Init = DoNothing,
+                .DeviceReset = USBD_USR_DeviceReset,
+                .DeviceConfigured = DoNothing,
+                .DeviceSuspended = DoNothing,
+                .DeviceResumed = DoNothing,
+                .DeviceConnected = DoNothing,
+                .DeviceDisconnected = DoNothing}};
 
 void initUSB() {
-    USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, &USR_desc, &USBD_CNC_cb, &USR_cb);
+    USBD_Init(&USB_OTG_dev, USB_OTG_FS_CORE_ID, USB_INTERFACE.USR_desc, &USB_INTERFACE.USBD_CNC_cb, &USB_INTERFACE.usrCB);
     DCD_DevDisconnect(&USB_OTG_dev);
 }
 
-void OTG_FS_WKUP_IRQHandler(void) {
+__attribute__ ((used)) void OTG_FS_WKUP_IRQHandler(void) {
     if (USB_OTG_dev.cfg.low_power) {
         /* Reset SLEEPDEEP and SLEEPONEXIT bits */
         SCB->SCR &= (uint32_t) ~((uint32_t) (SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));

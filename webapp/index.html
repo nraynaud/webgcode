@@ -9,12 +9,23 @@
 
         .control {
             float: right;
-            background-color: antiquewhite;
+            background-color: white;
         }
 
         .controlButtons {
             float: left;
             text-align: center;
+        }
+
+        .position {
+            height: 100%;
+            float: left;
+            text-align: left;
+        }
+
+        .posAxis {
+            text-align: right;
+            width: 8ex;
         }
 
         .xyBlock {
@@ -28,12 +39,38 @@
         .controlParams {
             float: right;
         }
+
+        .units {
+            vertical-align: bottom;
+            text-align: right;
+            font-size: 60%;
+        }
     </style>
 </head>
 <body id="body" style="background-color: black; padding: 0;margin: 0">
 <button id='connect'>Connect</button>
 <button id='send'>Send</button>
 <div class="control">
+    <div class="position">
+        <table>
+            <colgroup>
+                <col>
+                <col>
+            </colgroup>
+            <tr>
+                <th>X:</th>
+                <td class="posAxis"><span id="xpos">--</span></td>
+            </tr>
+            <tr>
+                <th>Y:</th>
+                <td class="posAxis"><span id="ypos">--</span></td>
+            </tr>
+            <tr>
+                <th>Z:</th>
+                <td class="posAxis"><span id="zpos">--</span></td>
+            </tr>
+        </table>
+    </div>
     <div class="controlButtons">
         <div class="xyBlock">
             <button data-axis="Y+" class="axisButton">Y+</button>
@@ -60,6 +97,7 @@
                    value="10"
                    required="true">
         </div>
+        <div class="units"><span id="spinner" style="display: none;"><img src="ajax-loader.gif"></span>mm</div>
     </div>
 </div>
 <!-- http://localhost/~nraynaud/webgcode/-->

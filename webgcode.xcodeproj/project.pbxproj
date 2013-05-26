@@ -9,7 +9,9 @@
 /* Begin PBXBuildFile section */
 		DDAA5112A98CF57045D5EC46 /* index.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5952187ECA2FF5B96420 /* index.js */; };
 		DDAA524E6774021C15E7F044 /* background.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA58422CF9EADC8397599D /* background.js */; };
+		DDAA59F8C14ADBE647A5FE41 /* cnc.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = DDAA5C39B59BE70527721DE7 /* cnc.h */; };
 		DDAA5B6641CFBF0C81D7B5CF /* usb.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5223044005BFC70BD5DE /* usb.c */; };
+		DDAA5CA52329A23DE4500854 /* usbdesc.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA56B90C5F7FBE9FC0A534 /* usbdesc.c */; };
 		DDAA5CDD5DCBC168FB293986 /* jquery.flot.resize.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5518BC9939B7C36FE0B9 /* jquery.flot.resize.js */; };
 		DDAA5D86ED26C5CD14D88228 /* jsparse.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54F29F1F185A35EE1B8C /* jsparse.js */; };
 		DDAA5E39B611B3CD37DFF97F /* geometry.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA507CC79F9033457329F7 /* geometry.js */; };
@@ -25,6 +27,7 @@
 			dstPath = /usr/share/man/man1/;
 			dstSubfolderSpec = 0;
 			files = (
+				DDAA59F8C14ADBE647A5FE41 /* cnc.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
@@ -36,10 +39,12 @@
 		DDAA5223044005BFC70BD5DE /* usb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = usb.c; path = interpolator/usb.c; sourceTree = "<group>"; };
 		DDAA54F29F1F185A35EE1B8C /* jsparse.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jsparse.js; path = webapp/libs/jsparse.js; sourceTree = "<group>"; };
 		DDAA5518BC9939B7C36FE0B9 /* jquery.flot.resize.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jquery.flot.resize.js; path = assets/jquery.flot.resize.js; sourceTree = "<group>"; };
+		DDAA56B90C5F7FBE9FC0A534 /* usbdesc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = usbdesc.c; path = interpolator/usbdesc.c; sourceTree = "<group>"; };
 		DDAA56FDF85987C80CFAD40D /* tux.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngx; name = tux.ngc; path = samples/tux.ngc; sourceTree = "<group>"; };
 		DDAA58422CF9EADC8397599D /* background.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = background.js; path = webapp/background.js; sourceTree = "<group>"; };
 		DDAA5952187ECA2FF5B96420 /* index.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = index.js; path = webapp/index.js; sourceTree = "<group>"; };
 		DDAA5A99ECD28BC66706A677 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = file.json; name = manifest.json; path = webapp/manifest.json; sourceTree = "<group>"; };
+		DDAA5C39B59BE70527721DE7 /* cnc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cnc.h; path = interpolator/cnc.h; sourceTree = "<group>"; };
 		EE861323172A0232008B2029 /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = ../STM32F4.platform/Developer/SDKs/STM34F4.sdk/usr/include; sourceTree = "<group>"; };
 		EE861328172A02F7008B2029 /* interpolator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = interpolator; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE86132B172A02F7008B2029 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
@@ -73,6 +78,8 @@
 				DDAA54F29F1F185A35EE1B8C /* jsparse.js */,
 				DDAA50787FD3BD28F80E1F0D /* test.py */,
 				DDAA56FDF85987C80CFAD40D /* tux.ngc */,
+				DDAA5C39B59BE70527721DE7 /* cnc.h */,
+				DDAA56B90C5F7FBE9FC0A534 /* usbdesc.c */,
 			);
 			sourceTree = "<group>";
 		};
@@ -172,6 +179,7 @@
 				DDAA5CDD5DCBC168FB293986 /* jquery.flot.resize.js in Sources */,
 				DDAA5E39B611B3CD37DFF97F /* geometry.js in Sources */,
 				DDAA5D86ED26C5CD14D88228 /* jsparse.js in Sources */,
+				DDAA5CA52329A23DE4500854 /* usbdesc.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

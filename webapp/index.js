@@ -3,46 +3,68 @@ var DEVICE_INFO = {"vendorId": 0x0483, "productId": 0xFFFF};
 var PERMISSIONS = {permissions: [
     {'usbDevices': [DEVICE_INFO]}
 ]};
+var CONTROL_COMMANDS = {REQUEST_POSITION: 0, REQUEST_PARAMETERS: 1, REQUEST_STATE: 2};
+var EVENTS = {PROGRAM_END: 1, PROGRAM_START: 2, MOVED: 3};
 var bodyElement = document.getElementById("body");
 var webView = document.getElementById("webView");
 
+var parameters = {
+    stepsPerMillimeter: 640,
+    maxSpeed: 2000,
+    maxAcceleration: 100,
+    clockFrequency: 200000
+};
+
+function webviewProtocol() {
+    var parser = $('<a></a>').attr('href', webView.src)[0];
+    return parser.protocol + '//' + parser.host;
+}
+
 var currentDevice = null;
 
-chrome.runtime.onSuspend.addListener(function () {
+chrome.app.window.onClosed.addListener(function () {
     closeDevice(function () {
     });
 });
 
 window.addEventListener("message", function (event) {
-    console.log(event);
     var message = event.data;
-    if (message['type'] == 'program' && currentDevice) {
-        var res = planProgram(message['program'], 150, 1 / 640, 200000)
-        sendSpeed(currentDevice, res.program, function (usbEvent) {
-            console.log('sent!');
+    if (message['type'] == 'program' && currentDevice)
+        sendPlan(message['program'], function () {
             $('#send').removeAttr('disabled');
         });
-    }
 }, false);
+
 function flushBulkSend(device, endpoint, callback) {
     var transfer2 = {direction: 'out', endpoint: endpoint, data: new ArrayBuffer(0)};
     chrome.usb.bulkTransfer(device, transfer2, function (usbEvent) {
         callback(usbEvent);
     });
 }
+
+function sendPlan(plan, callback) {
+    sendSpeed(currentDevice, planProgram(plan, parameters.maxAcceleration, 1 / parameters.stepsPerMillimeter, parameters.clockFrequency).program, function (usbEvent) {
+        callback(usbEvent);
+    });
+}
+
 function sendSpeed(device, speedData, callback) {
-    var formattedData = new ArrayBuffer(speedData.length * 3);
-    var view = new DataView(formattedData);
+    var programLength = speedData.length * 3;
+    var formattedData = new ArrayBuffer(programLength + 4);
+    new DataView(formattedData).setUint32(0, programLength, true);
+    console.log(programLength);
+    var view = new DataView(formattedData, 4);
+
+    function bin(axis) {
+        var xs = axis ? '1' : '0';
+        var xd = axis >= 0 ? '1' : '0';
+        return '' + xd + xs;
+    }
+
     for (var i = 0; i < speedData.length; i++) {
         var point = speedData[i];
         view.setUint16(i * 3, point.time, true);
-        var xs = point.dx ? 1 : 0;
-        var xd = point.dx <= 0 ? 1 : 0;
-        var ys = point.dy ? 1 : 0;
-        var yd = point.dy <= 0 ? 1 : 0;
-        var zs = point.dz ? 1 : 0;
-        var zd = point.dz >= 0 ? 1 : 0;
-        var word = '00' + zd + zs + yd + ys + xd + xs;
+        var word = '00' + bin(point.dz) + bin(point.dy) + bin(point.dx);
         view.setUint8(i * 3 + 2, parseInt(word, 2), true);
     }
     var transfer2 = {direction: 'out', endpoint: 1, data: formattedData};
@@ -61,28 +83,85 @@ function sendSpeed(device, speedData, callback) {
 $('#send').click(function () {
     if (currentDevice) {
         $('#send').attr('disabled', 'disabled');
-        var parser = $('<a></a>').attr('href', webView.src)[0];
-        webView.contentWindow.postMessage({type: 'gimme program'}, parser.protocol + '//' + parser.host);
+        webView.contentWindow.postMessage({type: 'gimme program'}, webviewProtocol());
     } else
         closeDevice();
 });
 
 function closeDevice(callback) {
     bodyElement.style.backgroundColor = 'black';
+    $('#connect').show();
+    $('#send').hide();
     if (currentDevice) {
         var savedDevice = currentDevice;
         currentDevice = null;
         chrome.usb.releaseInterface(savedDevice, 0, function () {
             chrome.usb.closeDevice(savedDevice, callback);
         });
-    }
+    } else
+        callback();
+}
+var intervalPositionFetcherID = null;
+function interruptHandler(device) {
+    return function (usbEvent) {
+        if (!usbEvent.resultCode) {
+            var event = new Int32Array(usbEvent.data);
+            if (event[0] == EVENTS.PROGRAM_END) {
+                console.log('PROGRAM_END');
+                window.clearInterval(intervalPositionFetcherID);
+                intervalPositionFetcherID = null;
+                fetchPosition();
+                $('#spinner').hide();
+            } else if (event[0] == EVENTS.PROGRAM_START) {
+                console.log('PROGRAM_START');
+                $('#spinner').show();
+                intervalPositionFetcherID = window.setInterval(fetchPosition, 200);
+            } else if (event[0] == EVENTS.MOVED) {
+                console.log('MOVED');
+                handlePosition({data: usbEvent.data.slice(4)});
+            }
+            var transfer = {direction: 'in', endpoint: 1, length: 16};
+            chrome.usb.interruptTransfer(device, transfer, interruptHandler(device));
+        } else {
+            console.log(chrome.runtime.lastError);
+            console.log(usbEvent);
+            closeDevice();
+        }
+    };
+}
+
+function handlePosition(usbEvent) {
+    if (usbEvent.resultCode)
+        return false;
+    var buffer = new Int32Array(usbEvent.data);
+    var x = buffer[0] / parameters.stepsPerMillimeter;
+    var y = buffer[1] / parameters.stepsPerMillimeter;
+    var z = buffer[2] / parameters.stepsPerMillimeter;
+    $('#xpos').text(x.toFixed(3));
+    $('#ypos').text(y.toFixed(3));
+    $('#zpos').text(z.toFixed(3));
+    webView.contentWindow.postMessage({type: 'toolPosition', position: {x: x, y: y, z: z}}, webviewProtocol());
+    return true;
+}
+
+function fetchPosition() {
+    if (currentDevice)
+        chrome.usb.controlTransfer(currentDevice, {
+            requestType: 'vendor',
+            recipient: 'interface',
+            direction: 'in',
+            request: CONTROL_COMMANDS.REQUEST_POSITION,
+            value: 0,
+            index: 0,
+            length: 24
+        }, function (usbEvent) {
+            if (!handlePosition(usbEvent))
+                console.log(chrome.runtime.lastError);
+        });
 }
 
 function resetDevice() {
     closeDevice(bindDevice);
-    $('#connect').show();
-    $('#send').hide();
-    bindDevice();
 }
 
 function bindDevice() {
@@ -103,6 +182,29 @@ function bindDevice() {
             $('#connect').hide();
             $('#send').show();
             bodyElement.style.backgroundColor = 'blue';
+            chrome.usb.controlTransfer(currentDevice, {
+                requestType: 'vendor',
+                recipient: 'interface',
+                direction: 'in',
+                request: CONTROL_COMMANDS.REQUEST_PARAMETERS,
+                value: 0,
+                index: 0,
+                length: 16
+            }, function (res) {
+                if (chrome.runtime.lastError)
+                    console.log(chrome.runtime.lastError);
+                else {
+                    var params = new Int32Array(res.data);
+                    parameters.stepsPerMillimeter = params[0];
+                    parameters.maxSpeed = params[1];
+                    parameters.maxAcceleration = params[2];
+                    parameters.clockFrequency = params[3];
+                    console.log(parameters);
+                }
+            });
+            fetchPosition();
+            var transfer = {direction: 'in', endpoint: 1, length: 16};
+            chrome.usb.interruptTransfer(device, transfer, interruptHandler(device));
         });
     });
 }
@@ -128,8 +230,5 @@ $('.paramField').bind('input', function () {
 $('.axisButton').click(function (event) {
     var text = "G1 F" + $('#feedRateField').val() + " " + $(event.target).data('axis') + $('#incrementField').val();
     console.log(text);
-    var res = planProgram(text, 150, 1 / 640, 200000);
-    sendSpeed(currentDevice, res.program, function () {
-        console.log('sent');
-    });
+    sendPlan(text, fetchPosition);
 });

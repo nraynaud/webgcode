@@ -110,6 +110,16 @@
                 <text string='Z' style="BOLD"></text>
             </Shape>
         </transform>
+        <transform id="toolPos" translation='0 0 0'>
+            <transform rotation='1 0 0 -1.5707' translation='0 0 5'>
+                <Shape>
+                    <Appearance>
+                        <Material emissiveColor='0.5 0 0' transparency="0.5"/>
+                    </Appearance>
+                    <Cylinder DEF="sphere" solid="true" ccw="tru/e" radius="2" height="10"/>
+                </Shape>
+            </transform>
+        </transform>
     </Scene>
 </x3d>
 <div class="editBlock">
@@ -162,6 +172,10 @@
             if (event.data['type'] == 'gimme program') {
                 evaluateCode();
                 event.source.postMessage({type: 'program', program: $('#codebox').val()}, event.origin);
+            }
+            if (event.data['type'] == 'toolPosition') {
+                var pos = event.data['position'];
+                $('#toolPos').attr('translation', [pos.x, pos.y, pos.z].join(' '));
             }
         }, false);
     });
