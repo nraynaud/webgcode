@@ -20,7 +20,9 @@ function webviewProtocol() {
     var parser = $('<a></a>').attr('href', webView.src)[0];
     return parser.protocol + '//' + parser.host;
 }
-
+$('#webView').bind('loadstop', function () {
+    fetchPosition();
+});
 var currentDevice = null;
 
 chrome.app.window.onClosed.addListener(function () {
@@ -230,7 +232,7 @@ $('.paramField').bind('input', function () {
     $('.axisButton').prop('disabled', $('.paramField:invalid').length > 0);
 });
 $('.axisButton').click(function (event) {
-    var text = "G1 F" + $('#feedRateField').val() + " " + $(event.target).data('axis') + $('#incrementField').val();
+    var text = "G91 G1 F" + $('#feedRateField').val() + " " + $(event.target).data('axis') + $('#incrementField').val();
     console.log(text);
     sendPlan(text, fetchPosition);
 });

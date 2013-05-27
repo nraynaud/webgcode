@@ -110,7 +110,7 @@
                 <text string='Z' style="BOLD"></text>
             </Shape>
         </transform>
-        <transform id="toolPos" translation='0 0 0'>
+        <transform id="toolPos" translation='0 0 0' render="false">
             <transform rotation='1 0 0 -1.5707' translation='0 0 5'>
                 <Shape>
                     <Appearance>
@@ -176,6 +176,7 @@
             if (event.data['type'] == 'toolPosition') {
                 var pos = event.data['position'];
                 $('#toolPos').attr('translation', [pos.x, pos.y, pos.z].join(' '));
+                $('#toolPos').attr('render', true);
             }
         }, false);
     });
