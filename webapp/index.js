@@ -12,7 +12,8 @@ var parameters = {
     stepsPerMillimeter: 640,
     maxSpeed: 2000,
     maxAcceleration: 100,
-    clockFrequency: 200000
+    clockFrequency: 200000,
+    position: {x: 0, y: 0, z: 0}
 };
 
 function webviewProtocol() {
@@ -43,7 +44,8 @@ function flushBulkSend(device, endpoint, callback) {
 }
 
 function sendPlan(plan, callback) {
-    sendSpeed(currentDevice, planProgram(plan, parameters.maxAcceleration, 1 / parameters.stepsPerMillimeter, parameters.clockFrequency).program, function (usbEvent) {
+    var program = planProgram(plan, parameters.maxAcceleration, 1 / parameters.stepsPerMillimeter, parameters.clockFrequency, parameters.position);
+    sendSpeed(currentDevice, program.program, function (usbEvent) {
         callback(usbEvent);
     });
 }
@@ -52,7 +54,6 @@ function sendSpeed(device, speedData, callback) {
     var programLength = speedData.length * 3;
     var formattedData = new ArrayBuffer(programLength + 4);
     new DataView(formattedData).setUint32(0, programLength, true);
-    console.log(programLength);
     var view = new DataView(formattedData, 4);
 
     function bin(axis) {
@@ -137,10 +138,11 @@ function handlePosition(usbEvent) {
     var x = buffer[0] / parameters.stepsPerMillimeter;
     var y = buffer[1] / parameters.stepsPerMillimeter;
     var z = buffer[2] / parameters.stepsPerMillimeter;
+    parameters.position = {x: x, y: y, z: z};
     $('#xpos').text(x.toFixed(3));
     $('#ypos').text(y.toFixed(3));
     $('#zpos').text(z.toFixed(3));
-    webView.contentWindow.postMessage({type: 'toolPosition', position: {x: x, y: y, z: z}}, webviewProtocol());
+    webView.contentWindow.postMessage({type: 'toolPosition', position: parameters.position}, webviewProtocol());
     return true;
 }
 

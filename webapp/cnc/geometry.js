@@ -3,13 +3,14 @@ function filterPath(path, stepSize) {
     var newPath = [];
     var previousPoint = null;
     $.each(path, function (_, point) {
-        point.dx = Math.round((point.x - (previousPoint ? previousPoint.x : 0)) / stepSize);
-        point.dy = Math.round((point.y - (previousPoint ? previousPoint.y : 0)) / stepSize);
-        point.dz = Math.round((point.z - (previousPoint ? previousPoint.z : 0)) / stepSize);
-        if (point.dx != 0 || point.dy != 0 || point.dz != 0) {
-            newPath.push(point);
-            previousPoint = point;
+        if (previousPoint) {
+            point.dx = Math.round((point.x - previousPoint.x) / stepSize);
+            point.dy = Math.round((point.y - previousPoint.y) / stepSize);
+            point.dz = Math.round((point.z - previousPoint.z) / stepSize);
+            if (point.dx != 0 || point.dy != 0 || point.dz != 0)
+                newPath.push(point);
         }
+        previousPoint = point;
     });
     return newPath;
 }
