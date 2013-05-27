@@ -114,9 +114,20 @@
             <transform rotation='1 0 0 -1.5707' translation='0 0 5'>
                 <Shape>
                     <Appearance>
-                        <Material emissiveColor='0.5 0 0' transparency="0.5"/>
+                        <Material emissiveColor='0.5 0 0' transparency="0.2" specularColor='0.2 0 0' shininess="0.8"
+                                  diffuseColor='0.8 0.5 0.5'/>
                     </Appearance>
-                    <Cylinder DEF="sphere" solid="true" ccw="tru/e" radius="2" height="10"/>
+                    <Cylinder solid="true" ccw="true" radius="2" height="10"/>
+                </Shape>
+            </transform>
+            <transform rotation='1 0 0 -1.5707' translation='0 0 17.5'>
+                <Shape>
+                    <Appearance>
+                        <Material emissiveColor='0.5 0.5 0.5' transparency="0.8" specularColor='0.2 0.2 0.2'
+                                  shininess="0.8"
+                                  diffuseColor='0.8 0.5 0.5'/>
+                    </Appearance>
+                    <Cylinder DEF="sphere" solid="true" ccw="true" radius="4" height="15"/>
                 </Shape>
             </transform>
         </transform>
