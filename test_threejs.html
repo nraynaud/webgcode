@@ -5,14 +5,16 @@
     <title>Sample Three.js</title>
     <style>
         #container {
+            float: right;
             background: #000;
-            width: 400px;
-            height: 300px;
+            width: 600px;
+            height: 400px;
         }
 
         #map-canvas {
-            width: 400px;
-            height: 300px;
+            float: left;
+            width: 600px;
+            height: 400px;
         }
     </style>
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=drawing,geometry"></script>
@@ -29,8 +31,8 @@
 <script src="webapp/libs/Three.js"></script>
 <script src="webapp/libs/TrackballControls.js"></script>
 <script type="text/javascript">
-    var WIDTH = 400;
-    var HEIGHT = 300;
+    var WIDTH = 600;
+    var HEIGHT = 400;
 
     var $container = $('#container');
     var renderer = new THREE.WebGLRenderer({antialias: true});
