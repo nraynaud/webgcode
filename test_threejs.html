@@ -1,0 +1,158 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Sample Three.js</title>
+    <style>
+        #container {
+            background: #000;
+            width: 400px;
+            height: 300px;
+        }
+
+        #map-canvas {
+            width: 400px;
+            height: 300px;
+        }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=drawing,geometry"></script>
+</head>
+<body>
+
+<div id="map-canvas"></div>
+<div id="container">
+
+</div>
+
+</body>
+<script src="webapp/libs/jquery.min.js"></script>
+<script src="webapp/libs/Three.js"></script>
+<script src="webapp/libs/TrackballControls.js"></script>
+<script type="text/javascript">
+    var WIDTH = 400;
+    var HEIGHT = 300;
+
+    var $container = $('#container');
+    var renderer = new THREE.WebGLRenderer({antialias: true});
+    var camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, 20000);
+    var scene = new THREE.Scene();
+
+    camera.position.z = 300;
+    renderer.setSize(WIDTH, HEIGHT);
+    $container.append(renderer.domElement);
+
+    scene.add(camera);
+    controls = new THREE.TrackballControls(camera, $container[0]);
+    controls.rotateSpeed = 1.0;
+    controls.zoomSpeed = 1.2;
+    controls.panSpeed = 0.8;
+    controls.noZoom = false;
+    controls.noPan = false;
+    controls.staticMoving = true;
+    controls.dynamicDampingFactor = 0.3;
+    controls.minDistance = 300;
+    controls.keys = [ 65, 83, 68 ];
+    controls.addEventListener('change', function () {
+        renderer.render(scene, camera);
+    });
+    function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+    }
+    animate();
+</script>
+<script>
+    var elevator;
+    var map;
+    var infowindow = new google.maps.InfoWindow();
+    var denali = new google.maps.LatLng(43.78025958500131, 3.814994812011694);
+    var currentSelection = null;
+
+    function initialize() {
+        var mapOptions = {
+            zoom: 13,
+            center: denali,
+            mapTypeId: 'terrain'
+        };
+        map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+        elevator = new google.maps.ElevationService();
+        var drawingManager = new google.maps.drawing.DrawingManager({
+            drawingControl: true,
+            drawingControlOptions: {
+                position: google.maps.ControlPosition.TOP_CENTER,
+                drawingModes: [
+                    google.maps.drawing.OverlayType.RECTANGLE
+                ]
+            }
+        });
+        google.maps.event.addListener(drawingManager, 'rectanglecomplete', function (rectangle) {
+            if (currentSelection)
+                currentSelection.setMap(null);
+            currentSelection = rectangle;
+            drawingManager.setDrawingMode(null);
+            var rows = 100, columns = 100;
+            var bounds = rectangle.getBounds();
+            var south = bounds.getSouthWest().lat();
+            var north = bounds.getNorthEast().lat();
+            var west = bounds.getSouthWest().lng();
+            var east = bounds.getNorthEast().lng();
+            var xspan = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(north, west), new google.maps.LatLng(north, east));
+            var yspan = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(south, west), new google.maps.LatLng(north, west));
+            controls.minDistance = Math.max(xspan, yspan) / 2;
+            var geometry = new THREE.PlaneGeometry(xspan, yspan, columns, rows);
+            console.log(geometry);
+            geometry.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+            var workList = [];
+            var batchSize = 250;
+            var i = 0;
+            for (; i < geometry.vertices.length;) {
+                var locations = [];
+                var startI = i;
+                for (var j = 0; j < batchSize && i < geometry.vertices.length; i++, j++) {
+                    var xratio = geometry.vertices[i].x / xspan + 0.5;
+                    var yratio = geometry.vertices[i].z / yspan + 0.5;
+                    locations.push(new google.maps.LatLng(yratio * north + (1 - yratio) * south, xratio * west + (1 - xratio) * east));
+                }
+                workList.push(
+                        (function (startI, locations) {
+                            return function work() {
+                                elevator.getElevationForLocations({'locations': locations}, function (results, status) {
+                                    if (status == google.maps.ElevationStatus.OK) {
+                                        if (results) {
+                                            for (var j = 0, i = startI; j < batchSize && i < geometry.vertices.length; i++, j++)
+                                                geometry.vertices[i].y = results[j].elevation;
+                                            var sum = new THREE.Vector3();
+                                            for (i = 0; i < geometry.vertices.length; i++)
+                                                sum.add(geometry.vertices[i]);
+                                            if (geometry.vertices.length) {
+                                                var center = sum.divideScalar(geometry.vertices.length);
+                                                controls.target.copy(center);
+                                                camera.position = center.sub(new THREE.Vector3(xspan / 1.5, -1000, yspan / 1.5));
+                                            }
+                                            geometry.verticesNeedUpdate = true;
+                                            renderer.render(scene, camera);
+                                        } else
+                                            alert('No results found');
+                                    } else if (status == google.maps.ElevationStatus.OVER_QUERY_LIMIT) {
+                                        console.log("query limit re-trying a batch");
+                                        workList.push(work);
+                                    }
+                                    else
+                                        alert('Elevation service failed due to: ' + status);
+                                });
+                            };
+                        })(startI, locations));
+            }
+            setInterval(function () {
+                if (workList.length)
+                    workList.splice(0, 1)[0]();
+            }, 1000);
+            geometry.dynamic = true;
+            scene.add(new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({wireframe: true, color: 0xCC0000})));
+        });
+        drawingManager.setMap(map);
+    }
+    google.maps.event.addDomListener(window, 'load', initialize);
+
+</script>
+</html>
