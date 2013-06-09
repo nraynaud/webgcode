@@ -59,6 +59,8 @@
         requestAnimationFrame(animate);
         controls.update();
     }
+    var mesh = new THREE.Mesh(new THREE.PlaneGeometry(100, 100, 5, 5), new THREE.MeshBasicMaterial({wireframe: true, color: 0xCC0000}));
+    scene.add(mesh);
     animate();
 </script>
 <script>
@@ -90,7 +92,7 @@
                 currentSelection.setMap(null);
             currentSelection = rectangle;
             drawingManager.setDrawingMode(null);
-            var rows = 100, columns = 100;
+            var rows = 80, columns = 80;
             var bounds = rectangle.getBounds();
             var south = bounds.getSouthWest().lat();
             var north = bounds.getNorthEast().lat();
@@ -100,10 +102,10 @@
             var yspan = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(south, west), new google.maps.LatLng(north, west));
             controls.minDistance = Math.max(xspan, yspan) / 2;
             var geometry = new THREE.PlaneGeometry(xspan, yspan, columns, rows);
-            console.log(geometry);
+            geometry.dynamic = true;
             geometry.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
             var workList = [];
-            var batchSize = 250;
+            var batchSize = 100;
             var i = 0;
             for (; i < geometry.vertices.length;) {
                 var locations = [];
@@ -134,7 +136,7 @@
                                         } else
                                             alert('No results found');
                                     } else if (status == google.maps.ElevationStatus.OVER_QUERY_LIMIT) {
-                                        console.log("query limit re-trying a batch");
+                                        console.log("query limit, re-trying a batch");
                                         workList.push(work);
                                     }
                                     else
@@ -146,9 +148,10 @@
             setInterval(function () {
                 if (workList.length)
                     workList.splice(0, 1)[0]();
-            }, 1000);
-            geometry.dynamic = true;
-            scene.add(new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({wireframe: true, color: 0xCC0000})));
+            }, 100);
+            scene.remove(mesh);
+            mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({wireframe: true, color: 0xCC0000}));
+            scene.add(mesh);
         });
         drawingManager.setMap(map);
     }
