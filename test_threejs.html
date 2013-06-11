@@ -22,15 +22,39 @@
 <body>
 
 <div id="map-canvas"></div>
-<div id="container">
-
-</div>
+<div id="container"></div>
 
 </body>
 <script src="webapp/libs/jquery.min.js"></script>
+<script src="webapp/cnc/delaunay.js"></script>
 <script src="webapp/libs/Three.js"></script>
 <script src="webapp/libs/TrackballControls.js"></script>
 <script type="text/javascript">
+    function randomOrderRange(start, stop, cseed, aseed, first) {
+        function randomInt(min, max, seed) {
+            if (seed === undefined)
+                seed = Math.random();
+            return Math.floor(seed * (max - min + 1)) + min;
+        }
+
+        var result = [];
+        var N = stop - start;
+        var M = Math.ceil(Math.pow(2, Math.ceil(Math.log(N + 1) / Math.LN2)));
+        var c = randomInt(0, M / 2 - 1, cseed) * 2 + 1;
+        var a = randomInt(0, M / 4 - 1, aseed) * 4 + 1;
+        if (first === undefined)
+            first = randomInt(0, M - 1);
+        var x = first;
+        for (; ;) {
+            x = (a * x + c) % M;
+            if (x < N)
+                result.push(start + x);
+            if (x === first)
+                break;
+        }
+        return result;
+    }
+
     var WIDTH = 600;
     var HEIGHT = 400;
 
@@ -73,6 +97,25 @@
     var currentSelection = null;
 
     function initialize() {
+        function delaunayToGeom(delaunay) {
+            var geom = new THREE.Geometry();
+            var normal = new THREE.Vector3(0, 0, 1);
+            $.each(delaunay.vertices, function (_, vertex) {
+                geom.vertices.push(new THREE.Vector3(vertex.x, vertex.z, vertex.y));
+            });
+            $.each(delaunay.triangles, function (_, triangle) {
+                if (!triangle.fromSuper) {
+                    var face = new THREE.Face3(triangle.verticesIndexes[0], triangle.verticesIndexes[1], triangle.verticesIndexes[2]);
+                    face.normal.copy(normal);
+                    face.vertexNormals.push(normal.clone(), normal.clone(), normal.clone());
+                    geom.faces.push(face);
+                }
+            });
+            geom.computeCentroids();
+            geom.computeBoundingSphere();
+            return geom;
+        }
+
         var mapOptions = {
             zoom: 13,
             center: denali,
@@ -94,7 +137,7 @@
                 currentSelection.setMap(null);
             currentSelection = rectangle;
             drawingManager.setDrawingMode(null);
-            var rows = 80, columns = 80;
+            var rows = 50, columns = 50;
             var bounds = rectangle.getBounds();
             var south = bounds.getSouthWest().lat();
             var north = bounds.getNorthEast().lat();
@@ -103,18 +146,22 @@
             var xspan = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(north, west), new google.maps.LatLng(north, east));
             var yspan = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(south, west), new google.maps.LatLng(north, west));
             controls.minDistance = Math.max(xspan, yspan) / 2;
+            var adaptiveGeometry = new THREE.Geometry();
             var geometry = new THREE.PlaneGeometry(xspan, yspan, columns, rows);
+            var delaunayState = createDelaunay(-xspan / 2, -yspan / 2, xspan, yspan);
             geometry.dynamic = true;
             geometry.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
             var workList = [];
             var batchSize = 100;
             var i = 0;
+            var shuffledIndexes = randomOrderRange(0, geometry.vertices.length);
             for (; i < geometry.vertices.length;) {
                 var locations = [];
                 var startI = i;
                 for (var j = 0; j < batchSize && i < geometry.vertices.length; i++, j++) {
-                    var xratio = geometry.vertices[i].x / xspan + 0.5;
-                    var yratio = geometry.vertices[i].z / yspan + 0.5;
+                    var shuffledIndex = shuffledIndexes[i];
+                    var xratio = geometry.vertices[shuffledIndex].x / xspan + 0.5;
+                    var yratio = geometry.vertices[shuffledIndex].z / yspan + 0.5;
                     locations.push(new google.maps.LatLng(yratio * north + (1 - yratio) * south, xratio * west + (1 - xratio) * east));
                 }
                 workList.push(
@@ -123,17 +170,20 @@
                                 elevator.getElevationForLocations({'locations': locations}, function (results, status) {
                                     if (status == google.maps.ElevationStatus.OK) {
                                         if (results) {
-                                            for (var j = 0, i = startI; j < batchSize && i < geometry.vertices.length; i++, j++)
-                                                geometry.vertices[i].y = results[j].elevation;
-                                            var sum = new THREE.Vector3();
-                                            for (i = 0; i < geometry.vertices.length; i++)
-                                                sum.add(geometry.vertices[i]);
-                                            if (geometry.vertices.length) {
-                                                var center = sum.divideScalar(geometry.vertices.length);
-                                                controls.target.copy(center);
-                                                camera.position = center.sub(new THREE.Vector3(xspan / 1.5, -1000, yspan / 1.5));
+                                            for (var j = 0, i = startI; j < batchSize && i < geometry.vertices.length; i++, j++) {
+                                                var shuffledIndex = shuffledIndexes[i];
+                                                var vertex = appendVertex(geometry.vertices[shuffledIndex].x, geometry.vertices[shuffledIndex].z, delaunayState);
+                                                vertex.z = results[j].elevation;
+                                                geometry.vertices[shuffledIndex].y = results[j].elevation;
                                             }
                                             geometry.verticesNeedUpdate = true;
+                                            var delaunayGeom = delaunayToGeom(delaunayState);
+                                            var center = delaunayGeom.boundingSphere.center;
+                                            controls.target.copy(center);
+                                            camera.position = center.sub(new THREE.Vector3(xspan / 1.5, -1000, yspan / 1.5));
+                                            scene.remove(mesh);
+                                            mesh = new THREE.Mesh(delaunayGeom, new THREE.MeshBasicMaterial({wireframe: true, color: 0xCC0000}));
+                                            scene.add(mesh);
                                             renderer.render(scene, camera);
                                         } else
                                             alert('No results found');
@@ -151,9 +201,6 @@
                 if (workList.length)
                     workList.splice(0, 1)[0]();
             }, 100);
-            scene.remove(mesh);
-            mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({wireframe: true, color: 0xCC0000}));
-            scene.add(mesh);
         });
         drawingManager.setMap(map);
     }
