@@ -20,13 +20,13 @@
     var container = $('#container');
     var canvas = container[0];
     var context = canvas.getContext('2d');
-    function drawTriangle(triangle, fill) {
-        var points = triangle.vertices;
+    function drawTriangle(triangle, vertices, fill) {
+        var points = triangle.verticesIndexes;
         context.beginPath();
-        context.moveTo(points[0].x, points[0].y);
-        context.lineTo(points[1].x, points[1].y);
-        context.lineTo(points[2].x, points[2].y);
-        context.lineTo(points[0].x, points[0].y);
+        context.moveTo(vertices[points[0]].x, vertices[points[0]].y);
+        context.lineTo(vertices[points[1]].x, vertices[points[1]].y);
+        context.lineTo(vertices[points[2]].x, vertices[points[2]].y);
+        context.lineTo(vertices[points[0]].x, vertices[points[0]].y);
         context.fillStyle = 'green';
         if (fill)
             context.fill();
@@ -47,7 +47,7 @@
         $.each(delaunayState.triangles, function (index, triangle) {
             if (!triangle.deleted)
                 if (!triangle.fromSuper)
-                    drawTriangle(triangle);
+                    drawTriangle(triangle, delaunayState.vertices);
         });
         $.each(delaunayState.vertices, function (_, vertex) {
             drawPoint(vertex.x, vertex.y, 'green');

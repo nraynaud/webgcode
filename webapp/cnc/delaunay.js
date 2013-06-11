@@ -36,7 +36,6 @@ function createTriangle(ai, bi, ci, vertexBuffer) {
     var circle = circleForTriangle(a, b, c);
     var r = Math.sqrt(circle.rsqd);
     return {
-        vertices: [a, b, c],
         verticesIndexes: [ai, bi, ci],
         fromSuper: a.fromSuper || b.fromSuper || c.fromSuper,
         circle: circle,
@@ -74,9 +73,9 @@ function appendVertex(x, y, state) {
     // http://paulbourke.net/papers/triangulate/
     function isPointInsidetriangle(p, triangle) {
         // http://jsfiddle.net/PerroAZUL/zdaY8/1/
-        var p0 = triangle.vertices[0];
-        var p1 = triangle.vertices[1];
-        var p2 = triangle.vertices[2];
+        var p0 = state.vertices[triangle.verticesIndexes[0]];
+        var p1 = state.vertices[triangle.verticesIndexes[1]];
+        var p2 = state.vertices[triangle.verticesIndexes[2]];
         var A = 1 / 2 * (-p1.y * p2.x + p0.y * (-p1.x + p2.x) + p0.x * (p1.y - p2.y) + p1.x * p2.y);
         var sign = A < 0 ? -1 : 1;
         var s = (p0.y * p2.x - p0.x * p2.y + (p2.y - p0.y) * p.x + (p0.x - p2.x) * p.y) * sign;
@@ -109,36 +108,27 @@ function appendVertex(x, y, state) {
         throw "supertriangle is not big enough to fit vertex";
     var vertexIndex = state.vertices.length;
     state.vertices.push(vertex);
-    var vertices = [
-        vertex,
-        //I have to understand why Bourke does that
-        //state.supertriangle.vertices[0],
-        //state.supertriangle.vertices[1],
-        //state.supertriangle.vertices[2]
-    ];
-    $.each(vertices, function (_, vertex) {
-        var edges = [];
-        var deletedTriangles = [];
-        var selectedTriangles = state.triangles;
-        $.each(selectedTriangles, function (index, triangle) {
-            if (triangle && pointInTriangleCircle(vertex, triangle)) {
-                pushEdgeOrRemoveIfDoubled(triangle.verticesIndexes[0], triangle.verticesIndexes[1], edges);
-                pushEdgeOrRemoveIfDoubled(triangle.verticesIndexes[1], triangle.verticesIndexes[2], edges);
-                pushEdgeOrRemoveIfDoubled(triangle.verticesIndexes[2], triangle.verticesIndexes[0], edges);
-                deletedTriangles.push(index);
-            }
-        });
-        //backwards so that deletions doesn't destroy indexing
-        for (var i = deletedTriangles.length - 1; i >= 0; i--) {
-            var deleted = state.triangles.splice(deletedTriangles[i], 1)[0];
-            deleted.deleted = true;
+    var edges = [];
+    var deletedTriangles = [];
+    var selectedTriangles = state.triangles;
+    $.each(selectedTriangles, function (index, triangle) {
+        if (triangle && pointInTriangleCircle(vertex, triangle)) {
+            pushEdgeOrRemoveIfDoubled(triangle.verticesIndexes[0], triangle.verticesIndexes[1], edges);
+            pushEdgeOrRemoveIfDoubled(triangle.verticesIndexes[1], triangle.verticesIndexes[2], edges);
+            pushEdgeOrRemoveIfDoubled(triangle.verticesIndexes[2], triangle.verticesIndexes[0], edges);
+            deletedTriangles.push(index);
         }
-        $.each(edges, function (_, edge) {
-            if (edge[0] !== vertexIndex && edge[1] !== vertexIndex) {
-                var newTriangle = createTriangle(edge[0], edge[1], vertexIndex, state.vertices);
-                state.triangles.push(newTriangle);
-            }
-        });
+    });
+    //backwards so that deletions doesn't destroy indexing
+    for (var i = deletedTriangles.length - 1; i >= 0; i--) {
+        var deleted = state.triangles.splice(deletedTriangles[i], 1)[0];
+        deleted.deleted = true;
+    }
+    $.each(edges, function (_, edge) {
+        if (edge[0] !== vertexIndex && edge[1] !== vertexIndex) {
+            var newTriangle = createTriangle(edge[0], edge[1], vertexIndex, state.vertices);
+            state.triangles.push(newTriangle);
+        }
     });
     return vertex;
 }

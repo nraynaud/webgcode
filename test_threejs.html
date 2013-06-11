@@ -137,31 +137,36 @@
                 currentSelection.setMap(null);
             currentSelection = rectangle;
             drawingManager.setDrawingMode(null);
-            var rows = 50, columns = 50;
-            var bounds = rectangle.getBounds();
-            var south = bounds.getSouthWest().lat();
-            var north = bounds.getNorthEast().lat();
-            var west = bounds.getSouthWest().lng();
-            var east = bounds.getNorthEast().lng();
+            var rows = 80, columns = 80;
+            var batchSize = 200;
+            var sampleCount = columns * rows;
+            var shuffledIndexes = randomOrderRange(0, sampleCount);
+
+            function iToXRatio(i) {
+                return (shuffledIndexes[i] % columns) / columns;
+            }
+
+            function iToYRatio(i) {
+                return Math.floor(shuffledIndexes[i] / columns) / rows;
+            }
+
+            var south = rectangle.getBounds().getSouthWest().lat();
+            var north = rectangle.getBounds().getNorthEast().lat();
+            var west = rectangle.getBounds().getSouthWest().lng();
+            var east = rectangle.getBounds().getNorthEast().lng();
             var xspan = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(north, west), new google.maps.LatLng(north, east));
             var yspan = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(south, west), new google.maps.LatLng(north, west));
             controls.minDistance = Math.max(xspan, yspan) / 2;
-            var adaptiveGeometry = new THREE.Geometry();
-            var geometry = new THREE.PlaneGeometry(xspan, yspan, columns, rows);
+            camera.position = controls.target.clone().sub(new THREE.Vector3(xspan / 1.5, -1000, yspan / 1.5));
             var delaunayState = createDelaunay(-xspan / 2, -yspan / 2, xspan, yspan);
-            geometry.dynamic = true;
-            geometry.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
             var workList = [];
-            var batchSize = 100;
             var i = 0;
-            var shuffledIndexes = randomOrderRange(0, geometry.vertices.length);
-            for (; i < geometry.vertices.length;) {
+            for (; i < sampleCount;) {
                 var locations = [];
                 var startI = i;
-                for (var j = 0; j < batchSize && i < geometry.vertices.length; i++, j++) {
-                    var shuffledIndex = shuffledIndexes[i];
-                    var xratio = geometry.vertices[shuffledIndex].x / xspan + 0.5;
-                    var yratio = geometry.vertices[shuffledIndex].z / yspan + 0.5;
+                for (var j = 0; j < batchSize && i < sampleCount; i++, j++) {
+                    var xratio = iToXRatio(i);
+                    var yratio = iToYRatio(i);
                     locations.push(new google.maps.LatLng(yratio * north + (1 - yratio) * south, xratio * west + (1 - xratio) * east));
                 }
                 workList.push(
@@ -170,17 +175,19 @@
                                 elevator.getElevationForLocations({'locations': locations}, function (results, status) {
                                     if (status == google.maps.ElevationStatus.OK) {
                                         if (results) {
-                                            for (var j = 0, i = startI; j < batchSize && i < geometry.vertices.length; i++, j++) {
-                                                var shuffledIndex = shuffledIndexes[i];
-                                                var vertex = appendVertex(geometry.vertices[shuffledIndex].x, geometry.vertices[shuffledIndex].z, delaunayState);
+                                            for (var j = 0, i = startI; j < batchSize && i < sampleCount; i++, j++) {
+                                                var vertex = appendVertex(
+                                                        iToXRatio(i) * xspan - xspan / 2,
+                                                        iToYRatio(i) * yspan - yspan / 2,
+                                                        delaunayState);
                                                 vertex.z = results[j].elevation;
-                                                geometry.vertices[shuffledIndex].y = results[j].elevation;
                                             }
-                                            geometry.verticesNeedUpdate = true;
                                             var delaunayGeom = delaunayToGeom(delaunayState);
                                             var center = delaunayGeom.boundingSphere.center;
-                                            controls.target.copy(center);
-                                            camera.position = center.sub(new THREE.Vector3(xspan / 1.5, -1000, yspan / 1.5));
+                                            if (startI == 0) {
+                                                controls.target.copy(center);
+                                                camera.position = center.sub(new THREE.Vector3(xspan / 1.5, -2000, yspan / 1.5));
+                                            }
                                             scene.remove(mesh);
                                             mesh = new THREE.Mesh(delaunayGeom, new THREE.MeshBasicMaterial({wireframe: true, color: 0xCC0000}));
                                             scene.add(mesh);
