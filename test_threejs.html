@@ -23,6 +23,7 @@
 
 <div id="map-canvas"></div>
 <div id="container"></div>
+<a id="downloadLink" href='#'>Download .stl</a>
 
 </body>
 <script src="webapp/libs/jquery.min.js"></script>
@@ -54,7 +55,6 @@
         }
         return result;
     }
-
     var WIDTH = 600;
     var HEIGHT = 400;
 
@@ -63,7 +63,11 @@
     var camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, 20000);
     var scene = new THREE.Scene();
 
-    camera.position.z = 300;
+    var light = new THREE.PointLight(0xff0000, 1, 3000000);
+    light.position.set(0, 200000, 200000);
+    scene.add(light);
+    scene.add(new THREE.AmbientLight(0x404040));
+    camera.position.z = 3000;
     renderer.setSize(WIDTH, HEIGHT);
     $container.append(renderer.domElement);
 
@@ -85,8 +89,10 @@
         requestAnimationFrame(animate);
         controls.update();
     }
-    var mesh = new THREE.Mesh(new THREE.PlaneGeometry(100, 100, 5, 5), new THREE.MeshBasicMaterial({wireframe: true, color: 0xCC0000}));
-    scene.add(mesh);
+    var mesh = null;
+    var planeGeometry = new THREE.PlaneGeometry(100, 100, 5, 5);
+    planeGeometry.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+    scene.add(new THREE.Mesh(planeGeometry, new THREE.MeshBasicMaterial({wireframe: true, color: 0x00CC00})));
     animate();
 </script>
 <script>
@@ -97,25 +103,52 @@
     var currentSelection = null;
 
     function initialize() {
+        function geomToStl(geom) {
+            geom.computeBoundingBox();
+            var min = geom.boundingBox.min;
+            var file = 'solid OBJECT\n';
+
+            function printVector(v0) {
+                return [v0.x.toExponential(), v0.z.toExponential(), v0.y.toExponential()].join(' ');
+            }
+
+            $.each(geom.faces, function (_, face) {
+                geom.faces.push(face);
+                file += '  facet normal ' + printVector(face.normal) + '\n    outer loop\n';
+                $.each([face.a, face.b, face.c], function (_, vIndex) {
+                    var v0 = geom.vertices[vIndex].clone().sub(min);
+                    file += '      vertex ' + printVector(v0) + '\n';
+                });
+                file += '    endloop\n  endfacet\n';
+            });
+
+            file += 'endsolid OBJECT\n';
+            return 'data:application/sla;base64,' + window.btoa(file);
+        }
+
         function delaunayToGeom(delaunay) {
             var geom = new THREE.Geometry();
-            var normal = new THREE.Vector3(0, 0, 1);
             $.each(delaunay.vertices, function (_, vertex) {
                 geom.vertices.push(new THREE.Vector3(vertex.x, vertex.z, vertex.y));
             });
             $.each(delaunay.triangles, function (_, triangle) {
                 if (!triangle.fromSuper) {
                     var face = new THREE.Face3(triangle.verticesIndexes[0], triangle.verticesIndexes[1], triangle.verticesIndexes[2]);
-                    face.normal.copy(normal);
-                    face.vertexNormals.push(normal.clone(), normal.clone(), normal.clone());
                     geom.faces.push(face);
                 }
             });
+            geom.computeFaceNormals();
+            geom.computeVertexNormals();
             geom.computeCentroids();
             geom.computeBoundingSphere();
             return geom;
         }
 
+        $('#downloadLink').click(function (e) {
+            e.preventDefault();
+            if (mesh)
+                $('<a download="test.stl"></a>').attr('href', geomToStl(mesh.geometry))[0].click();
+        });
         var mapOptions = {
             zoom: 13,
             center: denali,
@@ -137,7 +170,7 @@
                 currentSelection.setMap(null);
             currentSelection = rectangle;
             drawingManager.setDrawingMode(null);
-            var rows = 80, columns = 80;
+            var rows = 30, columns = 30;
             var batchSize = 200;
             var sampleCount = columns * rows;
             var shuffledIndexes = randomOrderRange(0, sampleCount);
@@ -188,7 +221,8 @@
                                                 controls.target.copy(center);
                                                 camera.position = center.sub(new THREE.Vector3(xspan / 1.5, -2000, yspan / 1.5));
                                             }
-                                            scene.remove(mesh);
+                                            if (mesh)
+                                                scene.remove(mesh);
                                             mesh = new THREE.Mesh(delaunayGeom, new THREE.MeshBasicMaterial({wireframe: true, color: 0xCC0000}));
                                             scene.add(mesh);
                                             renderer.render(scene, camera);
