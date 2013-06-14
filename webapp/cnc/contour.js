@@ -79,7 +79,8 @@ function contour(altitude, geom) {
                 }
             }
         } while (current != start && moved);
-        //we got blocked by the end of the path (it was not a circle). Do it again backwards from here to get the longest possible.
+        //we got blocked by the end of the path (it was not a looping path).
+        // Do it again backwards from the blocking point to get the longest path possible.
         if (!moved && !reversed)
             return findPath(path[path.length - 1], originalEdges, true);
         return {path: path, vertexPath: vertexPath, remainingGraph: contourEdges};
