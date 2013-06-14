@@ -3,7 +3,7 @@ var DEVICE_INFO = {"vendorId": 0x0483, "productId": 0xFFFF};
 var PERMISSIONS = {permissions: [
     {'usbDevices': [DEVICE_INFO]}
 ]};
-var CONTROL_COMMANDS = {REQUEST_POSITION: 0, REQUEST_PARAMETERS: 1, REQUEST_STATE: 2};
+var CONTROL_COMMANDS = {REQUEST_POSITION: 0, REQUEST_PARAMETERS: 1, REQUEST_STATE: 2, REQUEST_TOGGLE_MANUAL_STATE: 3};
 var EVENTS = {PROGRAM_END: 1, PROGRAM_START: 2, MOVED: 3};
 var bodyElement = document.getElementById("body");
 var webView = document.getElementById("webView");
@@ -104,21 +104,22 @@ function closeDevice(callback) {
     } else
         callback();
 }
-var intervalPositionFetcherID = null;
+window.setInterval(fetchPosition, 50);
+//var intervalPositionFetcherID = null;
 function interruptHandler(device) {
     return function (usbEvent) {
         if (!usbEvent.resultCode) {
             var event = new Int32Array(usbEvent.data);
             if (event[0] == EVENTS.PROGRAM_END) {
                 console.log('PROGRAM_END');
-                window.clearInterval(intervalPositionFetcherID);
-                intervalPositionFetcherID = null;
+                //window.clearInterval(intervalPositionFetcherID);
+                //intervalPositionFetcherID = null;
                 fetchPosition();
                 $('#spinner').hide();
             } else if (event[0] == EVENTS.PROGRAM_START) {
                 console.log('PROGRAM_START');
                 $('#spinner').show();
-                intervalPositionFetcherID = window.setInterval(fetchPosition, 200);
+                //intervalPositionFetcherID = window.setInterval(fetchPosition, 200);
             } else if (event[0] == EVENTS.MOVED) {
                 console.log('MOVED');
                 handlePosition({data: usbEvent.data.slice(4)});
@@ -235,4 +236,17 @@ $('.axisButton').click(function (event) {
     var text = "G91 G1 F" + $('#feedRateField').val() + " " + $(event.target).data('axis') + $('#incrementField').val();
     console.log(text);
     sendPlan(text, fetchPosition);
+});
+$('#manualControl').click(function () {
+    chrome.usb.controlTransfer(currentDevice, {
+        requestType: 'vendor',
+        recipient: 'interface',
+        direction: 'out',
+        request: CONTROL_COMMANDS.REQUEST_TOGGLE_MANUAL_STATE,
+        value: 0,
+        index: 0,
+        data: new ArrayBuffer(0)
+    }, function (e) {
+        console.log(e);
+    });
 });

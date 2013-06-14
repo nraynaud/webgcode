@@ -37,7 +37,8 @@ typedef enum {
 
 typedef enum {
     READY = 0,
-    RUNNING_PROGRAM = 1
+    RUNNING_PROGRAM = 1,
+    MANUAL_CONTROL = 2
 } cnc_state_t;
 
 enum {
@@ -66,3 +67,5 @@ extern void initUSB();
 extern uint8_t readBuffer();
 
 extern uint8_t *cncGetCfgDesc(uint8_t speed, uint16_t *length);
+
+extern void zeroJoystick();
