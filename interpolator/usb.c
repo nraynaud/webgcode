@@ -32,7 +32,8 @@ enum {
     REQUEST_POSITION = 0,
     REQUEST_PARAMETERS = 1,
     REQUEST_STATE = 2,
-    REQUEST_TOGGLE_MANUAL_STATE = 3
+    REQUEST_TOGGLE_MANUAL_STATE = 3,
+    REQUEST_ZERO_AXIS = 4
 };
 
 typedef enum {
@@ -58,6 +59,11 @@ typedef struct {
     ctrl_req_type_t type: 2;
     ctrl_req_direction_t direction : 1;
 } bmRequest_t;
+
+void sendEvent(uint32_t event) {
+    cncMemory.lastEvent[0] = event;
+    DCD_EP_Tx(&usbDevice, INTERRUPT_ENDPOINT, (uint8_t *) cncMemory.lastEvent, sizeof(cncMemory.lastEvent));
+}
 
 static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
     bmRequest_t parsed =
@@ -92,10 +98,12 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                                     zeroJoystick();
                                     cncMemory.state = MANUAL_CONTROL;
                                     executeNextStep();
+                                    sendEvent(ENTER_MANUAL_MODE);
                                     USBD_CtlSendStatus(pdev);
                                     return USBD_OK;
                                 case MANUAL_CONTROL:
                                     cncMemory.state = READY;
+                                    sendEvent(EXIT_MANUAL_MODE);
                                     USBD_CtlSendStatus(pdev);
                                     return USBD_OK;
                                 default:
@@ -111,11 +119,6 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
             break;
     }
     return USBD_OK;
-}
-
-void sendEvent(uint32_t event) {
-    cncMemory.lastEvent[0] = event;
-    DCD_EP_Tx(&usbDevice, INTERRUPT_ENDPOINT, (uint8_t *) cncMemory.lastEvent, sizeof(cncMemory.lastEvent));
 }
 
 void sendMovedEvent(position_t pos) {

@@ -45,7 +45,9 @@ enum {
     NULL_EVENT = 0,
     PROGRAM_END = 1,
     PROGRAM_START = 2,
-    MOVED = 3
+    MOVED = 3,
+    ENTER_MANUAL_MODE = 4,
+    EXIT_MANUAL_MODE = 5
 };
 
 #define INTERRUPT_PACKET_SIZE         24

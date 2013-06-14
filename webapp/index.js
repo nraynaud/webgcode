@@ -4,7 +4,7 @@ var PERMISSIONS = {permissions: [
     {'usbDevices': [DEVICE_INFO]}
 ]};
 var CONTROL_COMMANDS = {REQUEST_POSITION: 0, REQUEST_PARAMETERS: 1, REQUEST_STATE: 2, REQUEST_TOGGLE_MANUAL_STATE: 3};
-var EVENTS = {PROGRAM_END: 1, PROGRAM_START: 2, MOVED: 3};
+var EVENTS = {PROGRAM_END: 1, PROGRAM_START: 2, MOVED: 3, ENTER_MANUAL_MODE: 4, EXIT_MANUAL_MODE: 5};
 var bodyElement = document.getElementById("body");
 var webView = document.getElementById("webView");
 
@@ -123,6 +123,10 @@ function interruptHandler(device) {
             } else if (event[0] == EVENTS.MOVED) {
                 console.log('MOVED');
                 handlePosition({data: usbEvent.data.slice(4)});
+            } else if (event[0] == EVENTS.ENTER_MANUAL_MODE) {
+                console.log('ENTER_MANUAL_MODE');
+            } else if (event[0] == EVENTS.EXIT_MANUAL_MODE) {
+                console.log('EXIT_MANUAL_MODE');
             }
             var transfer = {direction: 'in', endpoint: 1, length: 16};
             chrome.usb.interruptTransfer(device, transfer, interruptHandler(device));
