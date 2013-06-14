@@ -28,6 +28,7 @@
 </body>
 <script src="webapp/libs/jquery.min.js"></script>
 <script src="webapp/cnc/delaunay.js"></script>
+<script src="webapp/cnc/contour.js"></script>
 <script src="webapp/libs/Three.js"></script>
 <script src="webapp/libs/TrackballControls.js"></script>
 <script type="text/javascript">
@@ -98,285 +99,190 @@
     animate();
 </script>
 <script>
-var elevator;
-var map;
-var infowindow = new google.maps.InfoWindow();
-var denali = new google.maps.LatLng(43.78025958500131, 3.814994812011694);
-var currentSelection = null;
+    var elevator;
+    var map;
+    var infowindow = new google.maps.InfoWindow();
+    var denali = new google.maps.LatLng(43.78025958500131, 3.814994812011694);
+    var currentSelection = null;
 
-function initialize() {
-    function geomToStl(geom) {
-        geom.computeBoundingBox();
-        var min = geom.boundingBox.min;
-        var file = 'solid OBJECT\n';
+    function initialize() {
+        function geomToStl(geom) {
+            geom.computeBoundingBox();
+            var min = geom.boundingBox.min;
+            var file = 'solid OBJECT\n';
 
-        function printVector(v0) {
-            return [v0.x.toExponential(), v0.z.toExponential(), v0.y.toExponential()].join(' ');
-        }
+            function printVector(v0) {
+                return [v0.x.toExponential(), v0.z.toExponential(), v0.y.toExponential()].join(' ');
+            }
 
-        $.each(geom.faces, function (_, face) {
-            geom.faces.push(face);
-            file += '  facet normal ' + printVector(face.normal) + '\n    outer loop\n';
-            $.each([face.a, face.b, face.c], function (_, vIndex) {
-                var v0 = geom.vertices[vIndex].clone().sub(min);
-                file += '      vertex ' + printVector(v0) + '\n';
-            });
-            file += '    endloop\n  endfacet\n';
-        });
-
-        file += 'endsolid OBJECT\n';
-        return 'data:application/sla;base64,' + window.btoa(file);
-    }
-
-    function delaunayToGeom(delaunay) {
-        var geom = new THREE.Geometry();
-        $.each(delaunay.vertices, function (_, vertex) {
-            geom.vertices.push(new THREE.Vector3(vertex.x, vertex.z, vertex.y));
-        });
-        $.each(delaunay.triangles, function (_, triangle) {
-            if (!triangle.fromSuper) {
-                var face = new THREE.Face3(triangle.verticesIndexes[0], triangle.verticesIndexes[1], triangle.verticesIndexes[2]);
+            $.each(geom.faces, function (_, face) {
                 geom.faces.push(face);
-            }
-        });
-        geom.computeFaceNormals();
-        geom.computeVertexNormals();
-        geom.computeCentroids();
-        geom.computeBoundingSphere();
-        return geom;
-    }
-
-    function contour(altitude, geom) {
-        if (contourMesh) {
-            scene.remove(contourMesh);
-            contourMesh = null;
-        }
-        if (contourLines.length) {
-            $.each(contourLines, function (_, line) {
-                scene.remove(line);
-            });
-            contourLines = [];
-        }
-        var verticesCount = geom.vertices.length;
-        var geom2 = new THREE.Geometry();
-        geom.computeBoundingBox();
-        geom2.vertices = geom.vertices.concat();
-
-        function edgeCrossesPlan(p1Index, p2Index, otherIndex) {
-            var p1 = geom.vertices[p1Index];
-            var p2 = geom.vertices[p2Index];
-            var p1Y = p1.y;
-            var p2Y = p2.y;
-            var p1distance = altitude - p1Y;
-            var p2distance = altitude - p2Y;
-            if (p1distance * p2distance >= 0)
-                return null;
-            var t = p1distance / (p1distance - p2distance);
-            return [p1Index, p2Index, p2.clone().sub(p1).multiplyScalar(t).add(p1), otherIndex];
-        }
-
-        var contourPoints = [];
-        var contourEdges = [];
-
-        function pushEdge(i1, i2) {
-            if (contourEdges[i1] === undefined)
-                contourEdges[i1] = [];
-            contourEdges[i1].push(i2);
-        }
-
-        $.each(geom.faces, function (faceIndex, face) {
-            var intersection1 = edgeCrossesPlan(face.a, face.b, face.c);
-            var intersection2 = edgeCrossesPlan(face.b, face.c, face.a);
-            if (intersection1 || intersection2) {
-                var intersection3 = edgeCrossesPlan(face.c, face.a, face.b);
-                var edges = [];
-
-                $.each([intersection1, intersection2, intersection3], function (_, edge) {
-                    if (edge) {
-                        var i0 = Math.min(edge[0], edge[1]);
-                        var i1 = Math.max(edge[0], edge[1]);
-                        var contourIndex = i0 + i1 * verticesCount;
-                        contourPoints[contourIndex] = edge[2];
-                        edges.push(contourIndex);
-                    }
+                file += '  facet normal ' + printVector(face.normal) + '\n    outer loop\n';
+                $.each([face.a, face.b, face.c], function (_, vIndex) {
+                    var v0 = geom.vertices[vIndex].clone().sub(min);
+                    file += '      vertex ' + printVector(v0) + '\n';
                 });
-                pushEdge(edges[0], edges[1]);
-                pushEdge(edges[1], edges[0]);
-                geom2.faces.push(face);
-            }
-        });
-
-        function findPath(start, originalEdges, reversed) {
-            function deleteEdge(i1, i2) {
-                for (var j = 0; j < contourEdges[i1].length; j++)
-                    if (contourEdges[i1][j] == i2) {
-                        contourEdges[i1].splice(j, 1);
-                        if (contourEdges[i1].length == 0)
-                            delete contourEdges[i1];
-                        break;
-                    }
-            }
-
-            var contourEdges = jQuery.extend(true, [], originalEdges);
-            var previous = null;
-            var current = start;
-            var path = [start];
-            do {
-                var moved = false;
-                for (var j = 0; contourEdges[current] !== undefined && j < contourEdges[current].length; j++) {
-                    if (contourEdges[current][j] != previous) {
-                        previous = current;
-                        path.push(contourEdges[current][j]);
-                        current = contourEdges[current][j];
-                        deleteEdge(previous, current);
-                        deleteEdge(current, previous);
-                        moved = true;
-                        break;
-                    }
-                }
-            } while (current != start && moved);
-            if (!moved && !reversed)
-                return findPath(path[path.length - 1], originalEdges, true);
-            return [path, contourEdges];
-        }
-
-        var contours = [];
-        do {
-            var start = null;
-            for (var index in contourEdges)
-                if (String(index >>> 0) == index && index >>> 0 != 0xffffffff && contourEdges[index]) {
-                    start = index;
-                    break;
-                }
-            if (start !== null) {
-                var res = findPath(start, contourEdges);
-                var path = res[0];
-                contours.push(path);
-                contourEdges = res[1];
-            }
-        } while (start !== null);
-
-        $.each(contours, function (_, contour) {
-            var lineGeom = new THREE.Geometry();
-            $.each(contour, function (_, vertexIndex) {
-                lineGeom.vertices.push(contourPoints[vertexIndex]);
+                file += '    endloop\n  endfacet\n';
             });
-            var line = new THREE.Line(lineGeom, new THREE.LineBasicMaterial({color: 0x00CC00, linewidth: 3}));
-            scene.add(line);
-            contourLines.push(line);
-        });
-        geom2.computeFaceNormals();
-        geom2.computeVertexNormals();
-        geom2.computeCentroids();
-        geom2.computeBoundingSphere();
-        contourMesh = new THREE.Mesh(geom2, new THREE.MeshBasicMaterial({wireframe: true, wireframeLinewidth: 2, color: 0xFF0000}))
-        scene.add(contourMesh);
-        renderer.render(scene, camera);
-    }
 
-    $('#downloadLink').click(function (e) {
-        e.preventDefault();
-        if (mesh)
-            $('<a download="test.stl"></a>').attr('href', geomToStl(mesh.geometry))[0].click();
-    });
-    var mapOptions = {
-        zoom: 13,
-        center: denali,
-        mapTypeId: 'terrain'
-    };
-    map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-    elevator = new google.maps.ElevationService();
-    var drawingManager = new google.maps.drawing.DrawingManager({
-        drawingControl: true,
-        drawingControlOptions: {
-            position: google.maps.ControlPosition.TOP_CENTER,
-            drawingModes: [
-                google.maps.drawing.OverlayType.RECTANGLE
-            ]
-        }
-    });
-    google.maps.event.addListener(drawingManager, 'rectanglecomplete', function (rectangle) {
-        if (currentSelection)
-            currentSelection.setMap(null);
-        currentSelection = rectangle;
-        drawingManager.setDrawingMode(null);
-        var rows = 80, columns = 80;
-        var batchSize = 200;
-        var sampleCount = columns * rows;
-        var shuffledIndexes = randomOrderRange(0, sampleCount);
-
-        function iToXRatio(i) {
-            return (shuffledIndexes[i] % columns) / columns;
+            file += 'endsolid OBJECT\n';
+            return 'data:application/sla;base64,' + window.btoa(file);
         }
 
-        function iToYRatio(i) {
-            return Math.floor(shuffledIndexes[i] / columns) / rows;
+        function delaunayToGeom(delaunay) {
+            var geom = new THREE.Geometry();
+            $.each(delaunay.vertices, function (_, vertex) {
+                geom.vertices.push(new THREE.Vector3(vertex.x, vertex.z, vertex.y));
+            });
+            $.each(delaunay.triangles, function (_, triangle) {
+                if (!triangle.fromSuper) {
+                    var face = new THREE.Face3(triangle.verticesIndexes[0], triangle.verticesIndexes[1], triangle.verticesIndexes[2]);
+                    geom.faces.push(face);
+                }
+            });
+            geom.computeFaceNormals();
+            geom.computeVertexNormals();
+            geom.computeCentroids();
+            geom.computeBoundingSphere();
+            return geom;
         }
 
-        var south = rectangle.getBounds().getSouthWest().lat();
-        var north = rectangle.getBounds().getNorthEast().lat();
-        var west = rectangle.getBounds().getSouthWest().lng();
-        var east = rectangle.getBounds().getNorthEast().lng();
-        var xspan = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(north, west), new google.maps.LatLng(north, east));
-        var yspan = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(south, west), new google.maps.LatLng(north, west));
-        controls.minDistance = Math.max(xspan, yspan) / 2;
-        camera.position = controls.target.clone().sub(new THREE.Vector3(xspan / 1.5, -1000, yspan / 1.5));
-        var delaunayState = createDelaunay(-xspan / 2, -yspan / 2, xspan, yspan);
-        var workList = [];
-        var i = 0;
-        for (; i < sampleCount;) {
-            var locations = [];
-            var startI = i;
-            for (var j = 0; j < batchSize && i < sampleCount; i++, j++) {
-                var xratio = iToXRatio(i);
-                var yratio = iToYRatio(i);
-                locations.push(new google.maps.LatLng(yratio * north + (1 - yratio) * south, xratio * west + (1 - xratio) * east));
+        function displayContours(altitude, geom) {
+            if (contourMesh) {
+                scene.remove(contourMesh);
+                contourMesh = null;
             }
-            workList.push(
-                    (function (startI, locations) {
-                        return function work() {
-                            elevator.getElevationForLocations({'locations': locations}, function (results, status) {
-                                if (status == google.maps.ElevationStatus.OK) {
-                                    if (results) {
-                                        for (var j = 0, i = startI; j < batchSize && i < sampleCount; i++, j++) {
-                                            var vertex = appendVertex(
-                                                    iToXRatio(i) * xspan - xspan / 2,
-                                                    iToYRatio(i) * yspan - yspan / 2,
-                                                    delaunayState);
-                                            vertex.z = results[j].elevation;
-                                        }
-                                        var delaunayGeom = delaunayToGeom(delaunayState);
-                                        contour(325, delaunayGeom);
-                                        var center = delaunayGeom.boundingSphere.center;
-                                        if (startI == 0) {
-                                            controls.target.copy(center);
-                                            camera.position = center.sub(new THREE.Vector3(xspan / 1.5, -2000, yspan / 1.5));
-                                        }
-                                        if (mesh)
-                                            scene.remove(mesh);
-                                        mesh = new THREE.Mesh(delaunayGeom, new THREE.MeshBasicMaterial({wireframe: true, color: 0xAA0000}));
-                                        scene.add(mesh);
-                                        renderer.render(scene, camera);
-                                    } else
-                                        alert('No results found');
-                                } else if (status == google.maps.ElevationStatus.OVER_QUERY_LIMIT) {
-                                    console.log("query limit, re-trying a batch");
-                                    workList.push(work);
-                                }
-                                else
-                                    alert('Elevation service failed due to: ' + status);
-                            });
-                        };
-                    })(startI, locations));
+            if (contourLines.length) {
+                $.each(contourLines, function (_, line) {
+                    scene.remove(line);
+                });
+                contourLines = [];
+            }
+            var res = contour(altitude, geom);
+            var geom2 = new THREE.Geometry();
+            geom2.vertices = geom.vertices.concat();
+            $.each(res.triangles, function (_, triangle) {
+                geom2.faces.push(triangle);
+            });
+            $.each(res.contours, function (_, contour) {
+                var lineGeom = new THREE.Geometry();
+                lineGeom.vertices = contour.concat();
+                var line = new THREE.Line(lineGeom, new THREE.LineBasicMaterial({color: 0x00CC00, linewidth: 3}));
+                scene.add(line);
+                contourLines.push(line);
+            });
+            geom2.computeFaceNormals();
+            geom2.computeVertexNormals();
+            geom2.computeCentroids();
+            geom2.computeBoundingSphere();
+            contourMesh = new THREE.Mesh(geom2, new THREE.MeshBasicMaterial({wireframe: true, wireframeLinewidth: 2, color: 0xFF0000}))
+            scene.add(contourMesh);
+            renderer.render(scene, camera);
         }
-        setInterval(function () {
-            if (workList.length)
-                workList.splice(0, 1)[0]();
-        }, 100);
-    });
-    drawingManager.setMap(map);
-}
-google.maps.event.addDomListener(window, 'load', initialize);
+
+        $('#downloadLink').click(function (e) {
+            e.preventDefault();
+            if (mesh)
+                $('<a download="test.stl"></a>').attr('href', geomToStl(mesh.geometry))[0].click();
+        });
+        var mapOptions = {
+            zoom: 13,
+            center: denali,
+            mapTypeId: 'terrain'
+        };
+        map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+        elevator = new google.maps.ElevationService();
+        var drawingManager = new google.maps.drawing.DrawingManager({
+            drawingControl: true,
+            drawingControlOptions: {
+                position: google.maps.ControlPosition.TOP_CENTER,
+                drawingModes: [
+                    google.maps.drawing.OverlayType.RECTANGLE
+                ]
+            }
+        });
+        google.maps.event.addListener(drawingManager, 'rectanglecomplete', function (rectangle) {
+            if (currentSelection)
+                currentSelection.setMap(null);
+            currentSelection = rectangle;
+            drawingManager.setDrawingMode(null);
+            var rows = 80, columns = 80;
+            var batchSize = 200;
+            var sampleCount = columns * rows;
+            var shuffledIndexes = randomOrderRange(0, sampleCount);
+
+            function iToXRatio(i) {
+                return (shuffledIndexes[i] % columns) / columns;
+            }
+
+            function iToYRatio(i) {
+                return Math.floor(shuffledIndexes[i] / columns) / rows;
+            }
+
+            var south = rectangle.getBounds().getSouthWest().lat();
+            var north = rectangle.getBounds().getNorthEast().lat();
+            var west = rectangle.getBounds().getSouthWest().lng();
+            var east = rectangle.getBounds().getNorthEast().lng();
+            var xspan = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(north, west), new google.maps.LatLng(north, east));
+            var yspan = google.maps.geometry.spherical.computeDistanceBetween(new google.maps.LatLng(south, west), new google.maps.LatLng(north, west));
+            controls.minDistance = Math.max(xspan, yspan) / 2;
+            camera.position = controls.target.clone().sub(new THREE.Vector3(xspan / 1.5, -1000, yspan / 1.5));
+            var delaunayState = createDelaunay(-xspan / 2, -yspan / 2, xspan, yspan);
+            var workList = [];
+            var i = 0;
+            for (; i < sampleCount;) {
+                var locations = [];
+                var startI = i;
+                for (var j = 0; j < batchSize && i < sampleCount; i++, j++) {
+                    var xratio = iToXRatio(i);
+                    var yratio = iToYRatio(i);
+                    locations.push(new google.maps.LatLng(yratio * north + (1 - yratio) * south, xratio * west + (1 - xratio) * east));
+                }
+                workList.push(
+                        (function (startI, locations) {
+                            return function work() {
+                                elevator.getElevationForLocations({'locations': locations}, function (results, status) {
+                                    if (status == google.maps.ElevationStatus.OK) {
+                                        if (results) {
+                                            for (var j = 0, i = startI; j < batchSize && i < sampleCount; i++, j++) {
+                                                var vertex = appendVertex(
+                                                        iToXRatio(i) * xspan - xspan / 2,
+                                                        iToYRatio(i) * yspan - yspan / 2,
+                                                        delaunayState);
+                                                vertex.z = results[j].elevation;
+                                            }
+                                            var delaunayGeom = delaunayToGeom(delaunayState);
+                                            displayContours(325, delaunayGeom);
+                                            var center = delaunayGeom.boundingSphere.center;
+                                            if (startI == 0) {
+                                                controls.target.copy(center);
+                                                camera.position = center.sub(new THREE.Vector3(xspan / 1.5, -2000, yspan / 1.5));
+                                            }
+                                            if (mesh)
+                                                scene.remove(mesh);
+                                            mesh = new THREE.Mesh(delaunayGeom, new THREE.MeshBasicMaterial({wireframe: true, color: 0xAA0000}));
+                                            scene.add(mesh);
+                                            renderer.render(scene, camera);
+                                        } else
+                                            alert('No results found');
+                                    } else if (status == google.maps.ElevationStatus.OVER_QUERY_LIMIT) {
+                                        console.log("query limit, re-trying a batch");
+                                        workList.push(work);
+                                    }
+                                    else
+                                        alert('Elevation service failed due to: ' + status);
+                                });
+                            };
+                        })(startI, locations));
+            }
+            setInterval(function () {
+                if (workList.length)
+                    workList.splice(0, 1)[0]();
+            }, 100);
+        });
+        drawingManager.setMap(map);
+    }
+    google.maps.event.addDomListener(window, 'load', initialize);
 
 </script>
 </html>
