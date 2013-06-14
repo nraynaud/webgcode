@@ -133,6 +133,14 @@ static void executeStep(step_t step) {
     cncMemory.currentStep = step;
     if (step.duration) {
         STM_EVAL_LEDOn(LED6);
+        uint16_t directions = 0;
+        if (cncMemory.currentStep.axes.xDirection ^ motorDirection.x)
+            directions |= motorsPinout.xDirection;
+        if (cncMemory.currentStep.axes.yDirection ^ motorDirection.y)
+            directions |= motorsPinout.yDirection;
+        if (cncMemory.currentStep.axes.zDirection ^ motorDirection.z)
+            directions |= motorsPinout.zDirection;
+        GPIO_SetBits(motorsPinout.gpio, directions);
         uint16_t duration = step.duration;
         int32_t axesCount = step.axes.xStep + step.axes.yStep + step.axes.zStep;
         if (axesCount == 2)
@@ -140,6 +148,7 @@ static void executeStep(step_t step) {
         if (axesCount == 3)
             duration *= sqrt3;
         TIM3->ARR = duration;
+        TIM3->CNT = 0;
         TIM_SelectOnePulseMode(TIM3, TIM_OPMode_Single);
         TIM_Cmd(TIM3, ENABLE);
     } else {
@@ -172,17 +181,6 @@ void updatePosition(step_t step) {
 __attribute__ ((used)) void TIM3_IRQHandler(void) {
     if (TIM_GetITStatus(TIM3, TIM_IT_CC1) != RESET) {
         TIM_ClearITPendingBit(TIM3, TIM_IT_CC1);
-        uint16_t directions = 0;
-        if (cncMemory.currentStep.axes.xDirection ^ motorDirection.x)
-            directions |= motorsPinout.xDirection;
-        if (cncMemory.currentStep.axes.yDirection ^ motorDirection.y)
-            directions |= motorsPinout.yDirection;
-        if (cncMemory.currentStep.axes.zDirection ^ motorDirection.z)
-            directions |= motorsPinout.zDirection;
-        GPIO_SetBits(motorsPinout.gpio, directions);
-    }
-    if (TIM_GetITStatus(TIM3, TIM_IT_CC2) != RESET) {
-        TIM_ClearITPendingBit(TIM3, TIM_IT_CC2);
         uint16_t steps = 0;
         if (cncMemory.currentStep.axes.xStep)
             steps |= motorsPinout.xStep;
@@ -245,29 +243,21 @@ int main(void) {
     TIM_Cmd(TIM3, DISABLE);
     TIM_UpdateRequestConfig(TIM3, TIM_UpdateSource_Regular);
     TIM_SelectOnePulseMode(TIM3, TIM_OPMode_Single);
-    TIM_SetCounter(TIM3, 10000);
-
+    TIM3->CNT = 0;
     TIM_TimeBaseInit(TIM3, &((TIM_TimeBaseInitTypeDef) {
             .TIM_Period = 10000,
             .TIM_Prescaler = PrescalerValue,
             .TIM_ClockDivision = 0,
-            .TIM_CounterMode = TIM_CounterMode_Down}));
-    /* Channel1 for direction */
+            .TIM_CounterMode = TIM_CounterMode_Up}));
+    /* Channel1 for step */
     TIM_OC1Init(TIM3, &(TIM_OCInitTypeDef) {
-            .TIM_OCMode = TIM_OCMode_PWM1,
-            .TIM_OutputState = TIM_OutputState_Enable,
-            .TIM_Pulse = 2,
-            .TIM_OCPolarity = TIM_OCPolarity_High});
-    TIM_OC1PreloadConfig(TIM3, TIM_OCPreload_Disable);
-    /* Channel2 for step */
-    TIM_OC2Init(TIM3, &(TIM_OCInitTypeDef) {
             .TIM_OCMode = TIM_OCMode_PWM1,
             .TIM_OutputState = TIM_OutputState_Enable,
             .TIM_Pulse = 1,
             .TIM_OCPolarity = TIM_OCPolarity_High});
-
     TIM_OC1PreloadConfig(TIM3, TIM_OCPreload_Disable);
-    TIM_ITConfig(TIM3, TIM_IT_CC1| TIM_IT_CC2 | TIM_IT_Update, ENABLE);
+    TIM_ITConfig(TIM3, TIM_IT_CC1 | TIM_IT_Update, ENABLE);
+
     initUSB();
 
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
