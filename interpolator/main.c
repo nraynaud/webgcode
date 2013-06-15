@@ -40,9 +40,9 @@ volatile cnc_memory_t cncMemory = {
 static const struct {
     unsigned int x:1, y:1, z:1;
 } motorDirection = {
-        .x = 0,
-        .y = 0,
-        .z = 1};
+        .x = 1,
+        .y = 1,
+        .z = 0};
 
 static struct {
     float32_t x, y;
