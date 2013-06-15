@@ -110,6 +110,20 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                                     USBD_CtlError(pdev, req);
                                     return USBD_FAIL;
                             }
+                        case REQUEST_ZERO_AXIS:
+                            if (cncMemory.state == MANUAL_CONTROL || cncMemory.state == READY) {
+                                if (req->wValue & 0b001)
+                                    cncMemory.position.x = 0;
+                                if (req->wValue & 0b010)
+                                    cncMemory.position.y = 0;
+                                if (req->wValue & 0b100)
+                                    cncMemory.position.z = 0;
+                                USBD_CtlSendStatus(pdev);
+                                return USBD_OK;
+                            } else {
+                                USBD_CtlError(pdev, req);
+                                return USBD_FAIL;
+                            }
                         default:
                             USBD_CtlError(pdev, req);
                             return USBD_FAIL;

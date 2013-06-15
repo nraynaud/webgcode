@@ -3,7 +3,7 @@ var DEVICE_INFO = {"vendorId": 0x0483, "productId": 0xFFFF};
 var PERMISSIONS = {permissions: [
     {'usbDevices': [DEVICE_INFO]}
 ]};
-var CONTROL_COMMANDS = {REQUEST_POSITION: 0, REQUEST_PARAMETERS: 1, REQUEST_STATE: 2, REQUEST_TOGGLE_MANUAL_STATE: 3};
+var CONTROL_COMMANDS = {REQUEST_POSITION: 0, REQUEST_PARAMETERS: 1, REQUEST_STATE: 2, REQUEST_TOGGLE_MANUAL_STATE: 3, REQUEST_ZERO_AXIS: 4};
 var EVENTS = {PROGRAM_END: 1, PROGRAM_START: 2, MOVED: 3, ENTER_MANUAL_MODE: 4, EXIT_MANUAL_MODE: 5};
 var bodyElement = document.getElementById("body");
 var webView = document.getElementById("webView");
@@ -248,6 +248,21 @@ $('#manualControl').click(function () {
         direction: 'out',
         request: CONTROL_COMMANDS.REQUEST_TOGGLE_MANUAL_STATE,
         value: 0,
+        index: 0,
+        data: new ArrayBuffer(0)
+    }, function (e) {
+        console.log(e);
+    });
+});
+$('.zeroButton').click(function (eventevent) {
+    var axis = $(event.target).data('axis');
+    var value = parseInt({X: '001', Y: '010', Z: '100'}[axis], 2);
+    chrome.usb.controlTransfer(currentDevice, {
+        requestType: 'vendor',
+        recipient: 'interface',
+        direction: 'out',
+        request: CONTROL_COMMANDS.REQUEST_ZERO_AXIS,
+        value: value,
         index: 0,
         data: new ArrayBuffer(0)
     }, function (e) {
