@@ -16,14 +16,6 @@ static const struct {
         .zDirection=GPIO_Pin_7,
         .zStep=GPIO_Pin_8};
 
-static const struct {
-    GPIO_TypeDef *gpio;
-    uint16_t plugged, xControl, yControl;
-} uiPinout = {
-        .gpio = GPIOA,
-        .xControl=GPIO_Pin_1,
-        .yControl=GPIO_Pin_2};
-
 volatile cnc_memory_t cncMemory = {
         .position = {.x=0, .y=0, .z=0},
         .parameters = {
@@ -154,10 +146,6 @@ int main(void) {
             .GPIO_Mode = GPIO_Mode_OUT,
             .GPIO_Speed = GPIO_Speed_2MHz,
             .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd = GPIO_PuPd_NOPULL});
-    GPIO_Init(uiPinout.gpio, &(GPIO_InitTypeDef) {
-            .GPIO_Pin = uiPinout.xControl | uiPinout.yControl,
-            .GPIO_Mode = GPIO_Mode_AN,
             .GPIO_PuPd = GPIO_PuPd_NOPULL});
 
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);

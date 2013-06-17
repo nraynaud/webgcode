@@ -4,6 +4,14 @@
 
 static volatile uint8_t adcValue[2] = {0, 0};
 
+static const struct {
+    GPIO_TypeDef *gpio;
+    uint16_t plugged, xControl, yControl;
+} uiPinout = {
+        .gpio = GPIOA,
+        .xControl=GPIO_Pin_1,
+        .yControl=GPIO_Pin_2};
+
 static struct {
     float32_t x, y;
     float32_t deadzoneRadius;
@@ -83,6 +91,11 @@ void zeroJoystick() {
 }
 
 void initManualControls() {
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+    GPIO_Init(uiPinout.gpio, &(GPIO_InitTypeDef) {
+            .GPIO_Pin = uiPinout.xControl | uiPinout.yControl,
+            .GPIO_Mode = GPIO_Mode_AN,
+            .GPIO_PuPd = GPIO_PuPd_NOPULL});
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
     ADC_CommonInit(&(ADC_CommonInitTypeDef) {
