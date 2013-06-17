@@ -201,8 +201,7 @@ static uint8_t cncDataOut(void *pdev, uint8_t epnum) {
     if (cncMemory.state == READY || cncMemory.state == RUNNING_PROGRAM) {
         circularBuffer.signaled = 1;
         flushBuffer();
-    } else
-        DCD_EP_Stall(pdev, epnum);
+    }
     return USBD_OK;
 }
 
@@ -222,7 +221,10 @@ uint8_t readBuffer() {
     if (circularBuffer.programLength == 0) {
         cncMemory.state = READY;
         sendEvent(PROGRAM_END);
-        return 0;
+        if (fillLevel())
+            startProgram();
+        else
+            return 0;
     }
     uint8_t val = readBuffer2();
     circularBuffer.programLength--;
