@@ -147,7 +147,6 @@ function handlePosition(usbEvent) {
     var z = buffer[2] / parameters.stepsPerMillimeter;
     var feedRate = buffer[3] * 60;
     $('#currentFeedrate').text(feedRate);
-    console.log('feedrate', feedRate);
     parameters.position = {x: x, y: y, z: z};
     $('#xpos').text(x.toFixed(3));
     $('#ypos').text(y.toFixed(3));
