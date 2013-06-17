@@ -5,7 +5,7 @@ typedef struct __attribute__((__packed__)) {
 } parameters_t;
 
 typedef struct __attribute__((__packed__)) {
-    int32_t x, y, z;
+    int32_t x, y, z, speed;
 } position_t;
 
 typedef struct __attribute__((packed)) {
@@ -71,3 +71,7 @@ extern uint8_t readBuffer();
 extern uint8_t *cncGetCfgDesc(uint8_t speed, uint16_t *length);
 
 extern void zeroJoystick();
+
+extern step_t nextManualStep();
+
+extern void initManualControls();

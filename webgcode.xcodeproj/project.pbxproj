@@ -17,6 +17,7 @@
 		DDAA5CDD5DCBC168FB293986 /* jquery.flot.resize.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5518BC9939B7C36FE0B9 /* jquery.flot.resize.js */; };
 		DDAA5D86ED26C5CD14D88228 /* jsparse.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54F29F1F185A35EE1B8C /* jsparse.js */; };
 		DDAA5E39B611B3CD37DFF97F /* geometry.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA507CC79F9033457329F7 /* geometry.js */; };
+		DDAA5E743FA52561B2B0FF84 /* manual.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53D0D9AE21EE52463EAE /* manual.c */; };
 		DDAA5E90BDFC07678EE201D3 /* delaunay.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C7DCC7731222576D7BA /* delaunay.js */; };
 		EE86132C172A02F7008B2029 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = EE86132B172A02F7008B2029 /* main.c */; };
 		EE861334172A0501008B2029 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = EE861332172A0501008B2029 /* main.c */; };
@@ -42,6 +43,7 @@
 		DDAA51B9F55C5AFD9629737D /* test_threejs.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_threejs.html; sourceTree = "<group>"; };
 		DDAA51DE17B96DCF612B22D5 /* contour.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = contour.js; path = webapp/cnc/contour.js; sourceTree = "<group>"; };
 		DDAA5223044005BFC70BD5DE /* usb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = usb.c; path = interpolator/usb.c; sourceTree = "<group>"; };
+		DDAA53D0D9AE21EE52463EAE /* manual.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = manual.c; path = interpolator/manual.c; sourceTree = "<group>"; };
 		DDAA54F29F1F185A35EE1B8C /* jsparse.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jsparse.js; path = webapp/libs/jsparse.js; sourceTree = "<group>"; };
 		DDAA5518BC9939B7C36FE0B9 /* jquery.flot.resize.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jquery.flot.resize.js; path = assets/jquery.flot.resize.js; sourceTree = "<group>"; };
 		DDAA55BD80E7C2D0A1E30C84 /* TrackballControls.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = TrackballControls.js; path = webapp/libs/TrackballControls.js; sourceTree = "<group>"; };
@@ -93,6 +95,7 @@
 				DDAA5718DDD9B2705A3B6819 /* test_delaunay.html */,
 				DDAA5C7DCC7731222576D7BA /* delaunay.js */,
 				DDAA51DE17B96DCF612B22D5 /* contour.js */,
+				DDAA53D0D9AE21EE52463EAE /* manual.c */,
 			);
 			sourceTree = "<group>";
 		};
@@ -196,6 +199,7 @@
 				DDAA5483FC94B19E4DDD5313 /* TrackballControls.js in Sources */,
 				DDAA5E90BDFC07678EE201D3 /* delaunay.js in Sources */,
 				DDAA53EB6E3F53DD1452FF40 /* contour.js in Sources */,
+				DDAA5E743FA52561B2B0FF84 /* manual.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
