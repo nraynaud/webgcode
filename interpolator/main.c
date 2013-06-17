@@ -55,9 +55,9 @@ static struct {
     float32_t previousCoord, newCoord;
 } manualControlStatus = {
         .x=0, .y=0,
-        .deadzoneRadius = 0.1F,
-        .minFeed = 30,
-        .maxFeed = 3000,
+        .deadzoneRadius = 0.12F,
+        .minFeed = 20,
+        .maxFeed = 10000,
         .zeroX = 128,
         .zeroY = 128};
 
@@ -73,6 +73,12 @@ step_t nextManualStep() {
     x *= factor;
     y *= factor;
     magnitude *= factor;
+    if (magnitude < 0.70) {
+        if (fabs(x) >= fabs(y))
+            y = 0;
+        else
+            x = 0;
+    }
     manualControlStatus.calls++;
     if (x != manualControlStatus.x || y != manualControlStatus.y) {
         manualControlStatus.x = x;
@@ -81,8 +87,7 @@ step_t nextManualStep() {
     }
     float32_t minFeedSec = manualControlStatus.minFeed / 60.0F;
     float32_t maxFeedSec = manualControlStatus.maxFeed / 60.0F;
-    float32_t feedAmplitude = maxFeedSec - minFeedSec;
-    float32_t feedSec = feedAmplitude * magnitude;
+    float32_t feedSec = powf(maxFeedSec, magnitude) * powf(minFeedSec, (1 - magnitude));
     uint16_t duration = (uint16_t) (cncMemory.parameters.clockFrequency / feedSec / cncMemory.parameters.stepsPerMillimeter);
     step_t result = {
             .duration = magnitude ? duration : 0,
@@ -141,12 +146,16 @@ static void executeStep(step_t step) {
         if (cncMemory.currentStep.axes.zDirection ^ motorDirection.z)
             directions |= motorsPinout.zDirection;
         GPIO_SetBits(motorsPinout.gpio, directions);
-        uint16_t duration = step.duration;
+        uint32_t duration = step.duration;
         int32_t axesCount = step.axes.xStep + step.axes.yStep + step.axes.zStep;
         if (axesCount == 2)
             duration *= sqrt2;
         if (axesCount == 3)
             duration *= sqrt3;
+        if (duration < 2)
+            duration = 2;
+        if (duration > 65535)
+            duration = 65535;
         TIM3->ARR = duration;
         TIM3->CNT = 0;
         TIM_SelectOnePulseMode(TIM3, TIM_OPMode_Single);
@@ -239,14 +248,13 @@ int main(void) {
             .NVIC_IRQChannelSubPriority = 0,
             .NVIC_IRQChannelCmd = ENABLE});
 
-    uint16_t PrescalerValue = (uint16_t) ((SystemCoreClock / 2) / cncMemory.parameters.clockFrequency) - 1;
     TIM_Cmd(TIM3, DISABLE);
     TIM_UpdateRequestConfig(TIM3, TIM_UpdateSource_Regular);
     TIM_SelectOnePulseMode(TIM3, TIM_OPMode_Single);
     TIM3->CNT = 0;
     TIM_TimeBaseInit(TIM3, &((TIM_TimeBaseInitTypeDef) {
             .TIM_Period = 10000,
-            .TIM_Prescaler = PrescalerValue,
+            .TIM_Prescaler = (uint16_t) ((SystemCoreClock / 2) / cncMemory.parameters.clockFrequency) - 1,
             .TIM_ClockDivision = 0,
             .TIM_CounterMode = TIM_CounterMode_Up}));
     /* Channel1 for step */
