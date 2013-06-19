@@ -9,10 +9,9 @@ typedef struct __attribute__((__packed__)) {
 } position_t;
 
 typedef struct __attribute__((packed)) {
-    unsigned int xStep : 1, xDirection : 1;
-    unsigned int yStep : 1, yDirection : 1;
-    unsigned int zStep : 1, zDirection : 1;
-    unsigned int :2;
+    uint8_t xStep, xDirection;
+    uint8_t yStep, yDirection;
+    uint8_t zStep, zDirection;
 } axes_t;
 
 typedef struct {
@@ -28,6 +27,7 @@ typedef struct {
     int32_t lastEvent[4];
     step_t currentStep;
     uint8_t running;
+    uint64_t tick;
 } cnc_memory_t;
 
 typedef enum {
@@ -68,6 +68,8 @@ extern void initUSB();
 
 extern uint8_t readBuffer();
 
+extern void sendEvent(uint32_t event);
+
 extern uint8_t *cncGetCfgDesc(uint8_t speed, uint16_t *length);
 
 extern void zeroJoystick();
@@ -75,3 +77,5 @@ extern void zeroJoystick();
 extern step_t nextManualStep();
 
 extern void initManualControls();
+
+extern uint32_t toggleManualMode();

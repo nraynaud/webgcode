@@ -25,7 +25,8 @@ volatile cnc_memory_t cncMemory = {
                 .clockFrequency = 200000},
         .state = READY,
         .lastEvent = {NULL_EVENT, 0, 0, 0},
-        .running = 0};
+        .running = 0,
+        .tick = 0};
 
 static const struct {
     unsigned int x:1, y:1, z:1;
@@ -38,12 +39,18 @@ static step_t nextProgramStep() {
     uint16_t nextDuration = 0;
     nextDuration |= readBuffer();
     nextDuration |= readBuffer() << 8;
+    uint8_t binAxes = readBuffer();
     return (step_t) {
             .duration = nextDuration,
-            .axes = ((union {
-                axes_t s;
-                uint8_t b;
-            }) {.b = readBuffer()}).s};
+            .axes = {
+                    .xStep = binAxes & 0b000001,
+                    .xDirection = binAxes & 0b000010,
+                    .yStep = binAxes & 0b000100,
+                    .yDirection = binAxes & 0b001000,
+                    .zStep = binAxes & 0b010000,
+                    .zDirection = binAxes & 0b100000,
+            }
+    };
 }
 
 static void executeStep(step_t step) {
@@ -137,7 +144,7 @@ int main(void) {
     STM_EVAL_LEDOff(LED5);
     STM_EVAL_LEDOff(LED6);
 
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOE, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
 
     GPIO_Init(motorsPinout.gpio, &(GPIO_InitTypeDef) {
             .GPIO_Pin = motorsPinout.xDirection | motorsPinout.xStep
@@ -176,6 +183,11 @@ int main(void) {
 
     initUSB();
     initManualControls();
+    SysTick_Config(SystemCoreClock / cncMemory.parameters.clockFrequency);
 
     while (1);
+}
+
+void SysTick_Handler(void) {
+    cncMemory.tick++;
 }

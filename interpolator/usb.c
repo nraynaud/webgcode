@@ -93,22 +93,12 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                 case OUT:
                     switch (req->bRequest) {
                         case REQUEST_TOGGLE_MANUAL_STATE:
-                            switch (cncMemory.state) {
-                                case READY:
-                                    zeroJoystick();
-                                    cncMemory.state = MANUAL_CONTROL;
-                                    executeNextStep();
-                                    sendEvent(ENTER_MANUAL_MODE);
-                                    USBD_CtlSendStatus(pdev);
-                                    return USBD_OK;
-                                case MANUAL_CONTROL:
-                                    cncMemory.state = READY;
-                                    sendEvent(EXIT_MANUAL_MODE);
-                                    USBD_CtlSendStatus(pdev);
-                                    return USBD_OK;
-                                default:
-                                    USBD_CtlError(pdev, req);
-                                    return USBD_FAIL;
+                            if (toggleManualMode()) {
+                                USBD_CtlSendStatus(pdev);
+                                return USBD_OK;
+                            } else {
+                                USBD_CtlError(pdev, req);
+                                return USBD_FAIL;
                             }
                         case REQUEST_ZERO_AXIS:
                             if (cncMemory.state == MANUAL_CONTROL || cncMemory.state == READY) {
