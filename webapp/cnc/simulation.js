@@ -69,23 +69,17 @@ var COMPONENT_TYPES = {
 };
 
 function displayPath(path, color, id) {
-    var indexes = [];
-    var points = [];
+    var lineGeometry = new THREE.Geometry();
     for (var i = 0; i < path.length; i++) {
-        indexes.push(i);
         var p = path[i];
-        points.push([p.x.toFixed(2), p.y.toFixed(2), p.z.toFixed(2)].join(' '));
+        lineGeometry.vertices.push(new THREE.Vector3(p.x, p.y, p.z));
     }
-    indexes.push(-1);
-    var lineset = $('<IndexedLineSet></IndexedLineSet>');
-    var coordinates = $('<Coordinate></Coordinate>');
-    lineset.attr('coordIndex', indexes.join(' '));
-    coordinates.attr('point', points.join(', '));
-    lineset.append(coordinates);
-    $('#' + id).remove();
-    $('#scene').append($('<Shape id="' + id + '"></Shape>')
-        .append("<Appearance><Material emissiveColor='" + color + "'/></Appearance>")
-        .append(lineset));
+    lineGeometry.verticesNeedUpdate = true;
+    if (window.toolpath)
+        scene.remove(window.toolpath);
+    window.toolpath = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({color: 0xCCCCCC}));
+    scene.add(window.toolpath);
+    renderer.render(scene, camera);
 }
 
 function displayVector(origin, vector, color, id) {

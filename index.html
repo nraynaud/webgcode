@@ -4,22 +4,16 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1"/>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <title>g-code simulator</title>
-    <script src="webapp/libs/x3dom.js"></script>
     <script src="webapp/libs/jquery.min.js"></script>
     <script src="webapp/libs/jquery.flot.min.js"></script>
     <script src="webapp/libs/jquery.flot.resize.js"></script>
+    <script src="webapp/libs/Three.js"></script>
+    <script src="webapp/libs/TrackballControls.js"></script>
     <script src="webapp/libs/jsparse.js"></script>
     <script src="webapp/cnc/geometry.js"></script>
     <script src="webapp/cnc/simulation.js"></script>
     <script src="webapp/cnc/parser.js"></script>
-    <link rel="stylesheet" href="webapp/libs/x3dom.css">
     <style>
-        X3D, x3d {
-            float: right;
-            width: 50%;
-            height: 400px;
-        }
-
         .editBlock {
             position: relative;
             float: left;
@@ -44,6 +38,13 @@
             width: 100%;
             height: 200px;
         }
+
+        #container {
+            float: right;
+            background: #000;
+            width: 600px;
+            height: 400px;
+        }
     </style>
 </head>
 <body>
@@ -52,87 +53,14 @@
 
 <p>
     Paste your g-code in the left window and see the 3D preview of your toolpath on the right.<br>
-    The right pane is interactive, drag it to change the point of view (<a
-        href="http://x3dom.org/docs/dev/navigation.html#interactive-camera-movement">view documentation</a>).
+    The right pane is interactive, drag it to change the point of view.
 </p>
 
 <p>
     <a href="https://github.com/nraynaud/webgcode/tree/gh-pages">https://github.com/nraynaud/webgcode/tree/gh-pages</a>
 </p>
 
-<x3d id="x3d" xmlns="http://www.x3dom.org/x3dom" showStat="false" showLog="false" x="0px" y="0px">
-    <Scene id="scene" DEF='scene'>
-        <Shape id="xaxis">
-            <Appearance>
-                <Material emissiveColor='1 0 0'/>
-            </Appearance>
-            <IndexedLineSet id="lineSet" coordIndex="0 1 -1">
-                <Coordinate id="coordinates" point="0.0 0.0 0.0, 10.0 0.0 0.0"/>
-            </IndexedLineSet>
-        </Shape>
-        <transform translation='11 0 0'>
-            <Shape>
-                <Appearance>
-                    <Material emissiveColor='1 0 0'/>
-                </Appearance>
-                <text string='X' style="BOLD"></text>
-            </Shape>
-        </transform>
-        <Shape id="yaxis">
-            <Appearance>
-                <Material emissiveColor='0 1 0'/>
-            </Appearance>
-            <IndexedLineSet id="lineSet" coordIndex="0 1 -1">
-                <Coordinate id="coordinates" point="0.0 0.0 0.0, 0.0 10.0 0.0"/>
-            </IndexedLineSet>
-        </Shape>
-        <transform translation='0 11 0'>
-            <Shape>
-                <Appearance>
-                    <Material emissiveColor='0 1 0'/>
-                </Appearance>
-                <text string='Y' style="BOLD"></text>
-            </Shape>
-        </transform>
-        <Shape id="zaxis">
-            <Appearance>
-                <Material emissiveColor='0 0 1'/>
-            </Appearance>
-            <IndexedLineSet id="lineSet" coordIndex="0 1 -1">
-                <Coordinate id="coordinates" point="0.0 0.0 0.0, 0.0 0.0 10.0"/>
-            </IndexedLineSet>
-        </Shape>
-        <transform translation='0 0 11'>
-            <Shape>
-                <Appearance>
-                    <Material emissiveColor='0 0 1'/>
-                </Appearance>
-                <text string='Z' style="BOLD"></text>
-            </Shape>
-        </transform>
-        <transform id="toolPos" translation='0 0 0' render="false">
-            <transform rotation='1 0 0 -1.5707' translation='0 0 5'>
-                <Shape>
-                    <Appearance>
-                        <Material emissiveColor='0.5 0 0' transparency="0.2" specularColor='0.2 0 0' shininess="0.8"
-                                  diffuseColor='0.8 0.5 0.5'/>
-                    </Appearance>
-                    <Cylinder solid="true" ccw="true" radius="2" height="10"/>
-                </Shape>
-            </transform>
-            <transform rotation='1 0 0 -1.5707' translation='0 0 17.5'>
-                <Shape>
-                    <Appearance>
-                        <Material emissiveColor='0.5 0.5 0.5' transparency="0.8" specularColor='0.2 0.2 0.2'
-                                  shininess="0.8"
-                                  diffuseColor='0.8 0.5 0.5'/>
-                    </Appearance>
-                    <Cylinder DEF="sphere" solid="true" ccw="true" radius="4" height="15"/>
-                </Shape>
-            </transform>
-        </transform>
-    </Scene>
-</x3d>
+<div id="container"></div>
 <div class="editBlock">
     <textarea id="codebox">
         G0 Y10 Z-5
@@ -172,27 +100,90 @@
     function getURLParameter(name) {
         return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null;
     }
-    x3dom.runtime.ready = (function () {
-        var code = getURLParameter('code');
-        if (code !== null)
-            $('#codebox').val(code);
-        evaluateCode();
-        $('#x3d')[0].runtime.showAll();
-        window.addEventListener("message", function (event) {
-            console.log(event);
-            if (event.data['type'] == 'gimme program') {
-                evaluateCode();
-                event.source.postMessage({type: 'program', program: $('#codebox').val()}, event.origin);
-            }
-            if (event.data['type'] == 'toolPosition') {
-                var pos = event.data['position'];
-                $('#toolPos').attr('translation', [pos.x, pos.y, pos.z].join(' '));
-                $('#toolPos').attr('render', true);
-            }
-        }, false);
-    });
 </script>
-
+<script>
+    var WIDTH = 600;
+    var HEIGHT = 400;
+    var mouse = new THREE.Vector2(), INTERSECTED;
+    projector = new THREE.Projector();
+    raycaster = new THREE.Raycaster();
+    var $container = $('#container');
+    var renderer = new THREE.WebGLRenderer({antialias: true});
+    var camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, 20000);
+    var scene = new THREE.Scene();
+    camera.position.x = 30;
+    camera.position.y = 30;
+    camera.position.z = 30;
+    camera.up.set(0, 0, 1);
+    renderer.setSize(WIDTH, HEIGHT);
+    $container.append(renderer.domElement);
+    scene.add(camera);
+    controls = new THREE.TrackballControls(camera, $container[0]);
+    controls.rotateSpeed = 1.0;
+    controls.zoomSpeed = 1.2;
+    controls.panSpeed = 0.8;
+    controls.noZoom = false;
+    controls.noPan = false;
+    controls.staticMoving = true;
+    controls.dynamicDampingFactor = 0.3;
+    controls.minDistance = 3;
+    controls.keys = [ 65, 83, 68 ];
+    controls.addEventListener('change', function () {
+        renderer.render(scene, camera);
+    });
+    function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+    }
+    var mesh = null;
+    var contourMesh = null;
+    var contourLines = [];
+    var planeGeometry = new THREE.PlaneGeometry(10, 10, 5, 5);
+    scene.add(new THREE.Mesh(planeGeometry, new THREE.MeshBasicMaterial({wireframe: true, color: 0x00CC00})));
+    function createAxis(x, y, z, color) {
+        var geom = new THREE.Geometry();
+        geom.vertices.push(new THREE.Vector3(0, 0, 0));
+        geom.vertices.push(new THREE.Vector3(x, y, z));
+        return new THREE.Line(geom, new THREE.LineBasicMaterial({color: color}));
+    }
+    var axes = new THREE.Object3D();
+    axes.add(createAxis(10, 0, 0, 0xFF0000));
+    axes.add(createAxis(0, 10, 0, 0x00FF00));
+    axes.add(createAxis(0, 0, 10, 0x0000FF));
+    scene.add(axes);
+    var tool = new THREE.Object3D();
+    var toolbit = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 10, 20, 2, false), new THREE.MeshPhongMaterial({emissive: 0xEF0000, specular: 0x0F0000, shininess: 204, color: 0xF0F0F0, opacity: 0.5, transparent: true}));
+    toolbit.translateY(5);
+    var spindle = new THREE.Mesh(new THREE.CylinderGeometry(4, 4, 15, 25, 2, false), new THREE.MeshPhongMaterial({emissive: 0xEFEFEF, specular: 0x0F0F0F, shininess: 204, color: 0xF0F0F0, opacity: 0.5, transparent: true}));
+    spindle.translateY(17.5);
+    tool.applyMatrix(new THREE.Matrix4().makeRotationX(Math.PI / 2));
+    tool.add(toolbit);
+    tool.add(spindle);
+    tool.matrixAutoUpdate = true;
+    scene.add(tool);
+    animate();
+</script>
+<script>
+    window.addEventListener("message", function (event) {
+        if (event.data['type'] == 'gimme program') {
+            evaluateCode();
+            event.source.postMessage({type: 'program', program: $('#codebox').val()}, event.origin);
+        }
+        if (event.data['type'] == 'toolPosition') {
+            var pos = event.data['position'];
+            $('#toolPos').attr('translation', [pos.x, pos.y, pos.z].join(' '));
+            $('#toolPos').attr('render', true);
+            tool.position.setX(pos.x);
+            tool.position.setY(pos.y);
+            tool.position.setZ(pos.z);
+            tool.traverse(function (child) {
+                child.visible = true;
+            });
+            renderer.render(scene, camera);
+        }
+    }, false);
+    evaluateCode();
+</script>
 </body>
 </html>
 
