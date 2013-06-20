@@ -42,7 +42,7 @@
         #container {
             float: right;
             background: #000;
-            width: 600px;
+            width: 50%;
             height: 400px;
         }
     </style>
@@ -116,6 +116,12 @@
     camera.position.z = 30;
     camera.up.set(0, 0, 1);
     renderer.setSize(WIDTH, HEIGHT);
+    $(window).resize(function () {
+        camera.aspect = $container.width() / $container.height();
+        camera.updateProjectionMatrix();
+        renderer.setSize($container.width(), $container.height());
+        renderer.render(scene, camera);
+    });
     $container.append(renderer.domElement);
     scene.add(camera);
     controls = new THREE.TrackballControls(camera, $container[0]);
