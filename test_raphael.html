@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+<head>
+    <title>Raphael Play</title>
+    <script src="webapp/libs/raphael-min.js"></script>
+    <script src="webapp/libs/jquery.min.js"></script>
+    <script src="webapp/libs/handlebars-1.0.0-rc.4.js"></script>
+    <script src="webapp/libs/ember-1.0.0-rc.5.js"></script>
+    <script src="webapp/libs/ember-data-0.13.min.js"></script>
+</head>
+<body>
+
+<script type="text/x-handlebars" data-template-name="testApp">
+    <h1>Circle diplay</h1>
+
+    <p>y'all never see a more MVC circle displayer than that!</p>
+
+    <h2>list</h2>
+    {{view Ember.TextField id="new-point" placeholder="radius to add circle" valueBinding="newX" action="createPoint"}}
+    <ul id="point-list">
+        {{#each controller itemController="point"}}
+        <li>
+            r={{radius}}
+            <button title="delete"
+            {{action "deletePoint"}}>X</button>
+        </li>
+        {{/each}}
+    </ul>
+    <h2>Output:</h2>
+
+    <div style="position: relative">
+        {{view TestApp.RaphaelView}}
+    </div>
+</script>
+<script>
+    window.TestApp = Ember.Application.create();
+    TestApp.Router.map(function () {
+        this.resource('testApp', { path: '/' });
+    });
+    TestApp.Store = DS.Store.extend({
+        revision: 13,
+        adapter: 'DS.FixtureAdapter'
+    });
+    TestApp.Circle = DS.Model.extend({
+        radius: DS.attr('number')
+    });
+    TestApp.TestAppRoute = Ember.Route.extend({
+        model: function () {
+            return TestApp.Circle.find();
+        }
+    });
+    TestApp.TestAppController = Ember.ArrayController.extend({
+        createPoint: function () {
+            var x = this.get('newX');
+            if (isNaN(parseFloat(x.trim())))
+                return;
+            var point = TestApp.Circle.createRecord({
+                radius: x
+            });
+            this.set('newX', '');
+            point.save();
+        }
+    });
+    TestApp.PointController = Ember.ObjectController.extend({
+        deletePoint: function (event) {
+            var point = this.get('model');
+            point.deleteRecord();
+            point.save();
+        }
+    });
+    TestApp.RaphaelView = Ember.View.extend({
+        didInsertElement: function () {
+            this._super();
+            this.set('subViews', []);
+            var paper = Raphael(this.get('element'), 640, 480);
+            this.set('paper', paper);
+            var controller = this.get('controller');
+            controller.addArrayObserver(this);
+        },
+        _controllerDidChange: Ember.observer(function () {
+            var controller = this.get('controller');
+            this.arrayDidChange(controller, 0, null, controller.length);
+        }, 'controller'),
+        _controllerWillChange: Ember.beforeObserver(function (obj, keyName, value) {
+            this.arrayWillChange(value, 0, controller.length);
+        }, 'controller'),
+        arrayWillChange: function (content, start, removedCount) {
+            var subViews = this.get('subViews');
+            for (var idx = start + removedCount - 1; idx >= start; idx--)
+                subViews[idx].remove();
+            subViews.splice(start, removedCount);
+        },
+        arrayDidChange: function (content, start, removed, added) {
+            var subViews = this.get('subViews');
+            var paper = this.get('paper');
+            for (var idx = start; idx < start + added; idx++)
+                subViews.push(paper.circle(50, 40, content.objectAt(idx).get('radius')));
+        }
+    });
+    TestApp.Circle.FIXTURES = [
+        { id: 1, radius: 4},
+        { id: 2, radius: 7}
+    ];
+</script>
+</body>
+</html>
