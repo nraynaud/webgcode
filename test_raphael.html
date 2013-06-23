@@ -7,25 +7,37 @@
     <script src="webapp/libs/handlebars-1.0.0-rc.4.js"></script>
     <script src="webapp/libs/ember-1.0.0-rc.5.js"></script>
     <script src="webapp/libs/ember-data-0.13.min.js"></script>
+    <script src="webapp/libs/ember-history.js"></script>
 </head>
 <body>
 
+<script type="text/x-handlebars" data-template-name="slot">
+    <h2>Slot</h2>
+    <label for="length">length: </label>{{view TestApp.NumberField id="length" placeholder="length"
+    numericValueBinding="length"}}
+    <label for="width">width: </label>{{view TestApp.NumberField id="width" placeholder="width"
+    numericValueBinding="width"}}
+    <label for="depth">depth: </label>{{view TestApp.NumberField id="depth" placeholder="depth"
+    numericValueBinding="depth"}}
+</script>
+<script type="text/x-handlebars" data-template-name="tool">
+    <h2>Tool</h2>
+    <label for="diameter">diameter: </label>{{view TestApp.NumberField id="diameter" placeholder="diameter"
+    numericValueBinding="diameter"}}
+    <label for="flutes">flutes: </label>{{view TestApp.NumberField id="flutes" placeholder="flutes"
+    numericValueBinding="flutes"}}
+</script>
+<script type="text/x-handlebars" data-template-name="operation">
+    <h2>Operation</h2>
+    <label for="increment">increment(a<sub>e</sub>): </label>{{view TestApp.NumberField id="increment"
+    placeholder="increment"
+    numericValueBinding="increment" min="0"}}
+</script>
 <script type="text/x-handlebars" data-template-name="testApp">
-    <h1>Circle display</h1>
-
-    <p>Y'all will never see a more MVC circle show than that!</p>
-
-    <h2>list</h2>
-    {{view Ember.TextField id="new-point" placeholder="radius to add circle" valueBinding="newX" action="createPoint"}}
-    <ul id="point-list">
-        {{#each controller itemController="point"}}
-        <li>
-            r={{radius}}
-            <button title="delete"
-            {{action "deletePoint"}}>X</button>
-        </li>
-        {{/each}}
-    </ul>
+    <h1>Trochoidal slot milling</h1>
+    {{render 'tool' tool}}
+    {{render 'slot' slot}}
+    {{render 'operation' operation}}
     <h2>Output:</h2>
 
     <div style="position: relative">
@@ -41,65 +53,112 @@
         revision: 13,
         adapter: 'DS.FixtureAdapter'
     });
-    TestApp.Circle = DS.Model.extend({
-        radius: DS.attr('number')
+    TestApp.Document = DS.Model.extend({
+        tool: DS.belongsTo('TestApp.Tool'),
+        slot: DS.belongsTo('TestApp.Slot'),
+        operation: DS.belongsTo('TestApp.Operation')
+    });
+    TestApp.Tool = DS.Model.extend({
+        document: DS.belongsTo('TestApp.Document'),
+        diameter: DS.attr('number'),
+        flutes: DS.attr('number')
+    });
+    TestApp.Slot = DS.Model.extend({
+        document: DS.belongsTo('TestApp.Document'),
+        depth: DS.attr('number'),
+        length: DS.attr('number'),
+        width: DS.attr('number')
+    });
+    TestApp.Operation = DS.Model.extend({
+        document: DS.belongsTo('TestApp.Document'),
+        increment: DS.attr('number')
     });
     TestApp.TestAppRoute = Ember.Route.extend({
         model: function () {
-            return TestApp.Circle.find();
+            return TestApp.Document.find(1);
         }
     });
-    TestApp.TestAppController = Ember.ArrayController.extend({
-        createPoint: function () {
-            var x = this.get('newX');
-            if (isNaN(parseFloat(x.trim())))
-                return;
-            var point = TestApp.Circle.createRecord({
-                radius: x
-            });
-            this.set('newX', '');
-            point.save();
-        }
-    });
-    TestApp.PointController = Ember.ObjectController.extend({
-        deletePoint: function (event) {
-            var point = this.get('model');
-            point.deleteRecord();
-            point.save();
-        }
+    TestApp.NumberField = Ember.TextField.extend({
+        type: 'number',
+        attributeBindings: ['min', 'max', 'step'],
+        numericValue: function (key, v) {
+            if (arguments.length === 1) {
+                var val = parseFloat(this.get('value'));
+                return isNaN(val) ? null : val;
+            } else
+                this.set('value', v + '');
+        }.property('value')
     });
     TestApp.RaphaelView = Ember.View.extend({
         didInsertElement: function () {
             this._super();
-            this.set('subViews', []);
             var paper = Raphael(this.get('element'), 640, 480);
             this.set('paper', paper);
-            var controller = this.get('controller');
-            controller.addArrayObserver(this);
+            this.set('toolDrawing', paper.circle(320, 240, null));
+            this.set('slotDrawing', paper.rect(320, 240, 0, 0));
+            this.set('operationAxis', paper.path('M320,240').attr({'stroke-dasharray': '- .'}));
+            this.set('operationPath', paper.path('M320,240'));
         },
-        _controllerDidChange: Ember.observer(function () {
-            var controller = this.get('controller');
-            this.arrayDidChange(controller, 0, null, controller.length);
-        }, 'controller'),
-        _controllerWillChange: Ember.beforeObserver(function (obj, keyName, value) {
-            this.arrayWillChange(value, 0, controller.length);
-        }, 'controller'),
-        arrayWillChange: function (content, start, removedCount) {
-            var subViews = this.get('subViews');
-            for (var idx = start + removedCount - 1; idx >= start; idx--)
-                subViews[idx].remove();
-            subViews.splice(start, removedCount);
-        },
-        arrayDidChange: function (content, start, removed, added) {
-            var subViews = this.get('subViews');
-            var paper = this.get('paper');
-            for (var idx = start; idx < start + added; idx++)
-                subViews.push(paper.circle(320, 240, content.objectAt(idx).get('radius')));
-        }
+        changeToolDiameter: function () {
+            var diameter = this.get('controller.tool.diameter');
+            if (diameter != null)
+                this.get('toolDrawing').animate({
+                    r: diameter / 2
+                }, 200);
+        }.observes('controller.tool.diameter'),
+        slotLengthWidthChanged: function () {
+            var w = this.get('controller.slot.width');
+            var l = this.get('controller.slot.length');
+            if (w != null && l != null)
+                this.get('slotDrawing').animate({x: 320 - w / 2, y: 240 - l / 2, width: w, height: l}, 200);
+        }.observes('controller.slot.length', 'controller.slot.width'),
+        operationIncrementChanged: function () {
+            var w = this.get('controller.slot.width');
+            var l = this.get('controller.slot.length');
+            var toolD = this.get('controller.tool.diameter');
+            var inc = this.get('controller.operation.increment');
+            var operationPath = this.get('operationPath');
+            if (w == null || l == null || toolD == null || inc == null || inc == 0) {
+                operationPath.attr({'path': ''});
+                return;
+            }
+            var trochoR = (w - toolD) / 2;
+            var startX = 320;
+            var startY = 240 - l / 2 - trochoR;
+            this.get('operationAxis').animate({path: 'M 320 ' + (startY - 10) + 'L 320 ' + (240 + l / 2 + 10) }, 200);
+            var pathLength = l + trochoR + inc;
+            var tInc = pathLength / inc;
+            var segments = tInc * 15;
+            segment = Math.min(segments, 15000);
+            var path = '';
+            var dirX = 0;
+            var dirY = 1;
+            for (var i = 0; i < segments; i++) {
+                var ratio = (i / segments);
+                var t = ratio * tInc;
+                var x = startX + dirX * t + trochoR * Math.cos(2 * Math.PI * t);
+                var y = startY + dirY * inc * t + trochoR * Math.sin(2 * Math.PI * t);
+                if (i == 0)
+                    path = 'M ' + x + ' ' + y + ' R ' + x + ' ' + y;
+                else
+                    path += ' ' + x + ' ' + y;
+            }
+            operationPath.attr({'path': path});
+            var start = operationPath.getPointAtLength(0);
+            this.get('toolDrawing').attr({cx: start.x, cy: start.y});
+        }.observes('controller.operation.increment', 'controller.slot.length', 'controller.slot.width', 'controller.tool.diameter')
     });
-    TestApp.Circle.FIXTURES = [
-        { id: 1, radius: 4},
-        { id: 2, radius: 7}
+    TestApp.Document.FIXTURES = [
+        { id: 1, tool: 1, slot: 1, operation: 1}
+    ];
+    TestApp.Tool.FIXTURES = [
+        { id: 1, diameter: 30, flutes: 2}
+    ];
+    TestApp.Slot.FIXTURES = [
+        { id: 1, depth: 10, length: 300, width: 100}
+    ];
+    TestApp.Operation.FIXTURES = [
+        { id: 1, increment: 10}
     ];
 </script>
 </body>
