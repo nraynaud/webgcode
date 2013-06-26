@@ -8,30 +8,94 @@
     <script src="webapp/libs/ember-1.0.0-rc.5.js"></script>
     <script src="webapp/libs/ember-data-0.13.min.js"></script>
     <script src="webapp/libs/ember-history.js"></script>
+    <style>th {
+        text-align: right;
+    }</style>
 </head>
 <body>
 
 <script type="text/x-handlebars" data-template-name="slot">
     <h2>Slot</h2>
-    <label for="length">length: </label>{{view TestApp.NumberField id="length" placeholder="length"
-    numericValueBinding="length"}}
-    <label for="width">width: </label>{{view TestApp.NumberField id="width" placeholder="width"
-    numericValueBinding="width"}}
-    <label for="depth">depth: </label>{{view TestApp.NumberField id="depth" placeholder="depth"
-    numericValueBinding="depth"}}
+    <table>
+        <tr>
+            <th><label for="length">length: </label></th>
+            <td>{{view TestApp.NumberField id="length" placeholder="length"
+                numericValueBinding="length"}}
+            </td>
+        <tr>
+            <th><label for="width">width: </label></th>
+            <td>{{view TestApp.NumberField id="width" placeholder="width"
+                numericValueBinding="width"}}
+            </td>
+        </tr>
+        <tr>
+            <th><label for="depth">depth: </label></th>
+            <td>{{view TestApp.NumberField id="depth" placeholder="depth"
+                numericValueBinding="depth"}}
+            </td>
+        </tr>
+    </table>
 </script>
 <script type="text/x-handlebars" data-template-name="tool">
     <h2>Tool</h2>
-    <label for="diameter">diameter: </label>{{view TestApp.NumberField id="diameter" placeholder="diameter"
-    numericValueBinding="diameter"}}
-    <label for="flutes">flutes: </label>{{view TestApp.NumberField id="flutes" placeholder="flutes"
-    numericValueBinding="flutes"}}
+    <table>
+        <tr>
+            <th><label for="diameter">diameter: </label></th>
+            <td>{{view TestApp.NumberField id="diameter" placeholder="diameter"
+                numericValueBinding="diameter"}}
+            </td>
+        </tr>
+        <tr>
+            <th><label for="flutes">flutes: </label></th>
+            <td>{{view TestApp.NumberField id="flutes" placeholder="flutes"
+                numericValueBinding="flutes"}}
+            </td>
+        </tr>
+    </table>
 </script>
 <script type="text/x-handlebars" data-template-name="operation">
     <h2>Operation</h2>
-    <label for="increment">increment(a<sub>e</sub>): </label>{{view TestApp.NumberField id="increment"
-    placeholder="increment"
-    numericValueBinding="increment" min="0"}}
+    <table>
+        <tr>
+            <th><label for="increment">increment(a<sub>e</sub>): </label></th>
+            <td>{{view TestApp.NumberField id="increment" placeholder="increment" numericValueBinding="increment"
+                min="0"}}
+            </td>
+        </tr>
+        <tr>
+            <th><label for="stepOver">step over(%): </label></th>
+            <td>{{view TestApp.NumberField id="stepOver"
+                placeholder="step over"
+                numericValueBinding="stepOver" min="0" max="100"}}
+            </td>
+        </tr>
+        <tr>
+            <th><label for="rotationFrequency">rotation frequency(rpm): </label></th>
+            <td>{{view TestApp.NumberField id="rotationFrequency"
+                placeholder="step over"
+                numericValueBinding="rotationFrequency" min="0"}}
+            </td>
+        </tr>
+        <tr>
+            <th><label for="feedRate">feed rate(mm/min): </label></th>
+            <td>{{view TestApp.NumberField id="feedRate"
+                numericValueBinding="feedRate" min="0"}}
+
+            </td>
+        </tr>
+        <tr>
+            <th>chip load(mm):</th>
+            <td>{{chipLoad}}</td>
+        </tr>
+        <tr>
+            <th>h<sub>max</sub>:</th>
+            <td>{{hMax}}</td>
+        </tr>
+        <tr>
+            <th>surface speed(m/min):</th>
+            <td>{{surfaceSpeed}}</td>
+        </tr>
+    </table>
 </script>
 <script type="text/x-handlebars" data-template-name="testApp">
     <h1>Trochoidal slot milling</h1>
@@ -71,7 +135,29 @@
     });
     TestApp.Operation = DS.Model.extend({
         document: DS.belongsTo('TestApp.Document'),
-        increment: DS.attr('number')
+        increment: DS.attr('number'),
+        rotationFrequency: DS.attr('number'),
+        feedRate: DS.attr('number'),
+        stepOver: function (key, v) {
+            var diameter = this.get('document.tool.diameter');
+            var increment = this.get('increment');
+            if (arguments.length === 1)
+                return increment / diameter * 100;
+            else
+                this.set('increment', diameter * v / 100);
+        }.property('increment', 'document.tool.diameter'),
+        chipLoad: function () {
+            return this.get('feedRate') / ( this.get('rotationFrequency') * this.get('document.tool.flutes'));
+        }.property('feedRate', 'rotationFrequency', 'document.tool.flutes'),
+        hMax: function () {
+            var diameter = this.get('document.tool.diameter');
+            var increment = this.get('increment');
+            var fz = this.get('feedRate') / (this.get('document.tool.flutes') * this.get('rotationFrequency'));
+            return 2 * fz * Math.sqrt(increment / diameter * (1 - increment / diameter));
+        }.property('increment', 'feedRate', 'rotationFrequency', 'document.tool.diameter', 'document.tool.flutes'),
+        surfaceSpeed: function () {
+            return Math.PI * this.get('document.tool.diameter') * this.get('rotationFrequency') / 1000;
+        }.property('rotationFrequency', 'document.tool.diameter')
     });
     TestApp.TestAppRoute = Ember.Route.extend({
         model: function () {
@@ -94,10 +180,11 @@
             this._super();
             var paper = Raphael(this.get('element'), 640, 480);
             this.set('paper', paper);
-            this.set('toolDrawing', paper.circle(320, 240, null));
-            this.set('slotDrawing', paper.rect(320, 240, 0, 0));
-            this.set('operationAxis', paper.path('M320,240').attr({'stroke-dasharray': '- .'}));
-            this.set('operationPath', paper.path('M320,240'));
+            this.set('slotDrawing', paper.rect(320, 240, 1, 1).attr({fill: '#99D9FC', 'stroke-width': 2}));
+            this.set('toolDrawing', paper.circle(320, 240, null).attr({fill: '#8DAABC'}));
+            this.set('operationAxis', paper.path('M320,240').attr({'stroke-dasharray': '--.', "stroke-width": 1}));
+            this.set('operationPath', paper.path('M320,240').attr({'stroke-dasharray': '--', stroke: 'grey'}));
+            paper.text(320, 200, 'lolilol').node.setAttribute("editable", "simple");
         },
         changeToolDiameter: function () {
             var diameter = this.get('controller.tool.diameter');
@@ -129,7 +216,7 @@
             var pathLength = l + trochoR + inc;
             var tInc = pathLength / inc;
             var segments = tInc * 15;
-            segment = Math.min(segments, 15000);
+            segments = Math.min(segments, 2000);
             var path = '';
             var dirX = 0;
             var dirY = 1;
@@ -144,7 +231,8 @@
                     path += ' ' + x + ' ' + y;
             }
             operationPath.attr({'path': path});
-            var start = operationPath.getPointAtLength(0);
+            console.log(operationPath.getTotalLength());
+            var start = operationPath.getPointAtLength(operationPath.getTotalLength() / 2);
             this.get('toolDrawing').attr({cx: start.x, cy: start.y});
         }.observes('controller.operation.increment', 'controller.slot.length', 'controller.slot.width', 'controller.tool.diameter')
     });
@@ -152,13 +240,13 @@
         { id: 1, tool: 1, slot: 1, operation: 1}
     ];
     TestApp.Tool.FIXTURES = [
-        { id: 1, diameter: 30, flutes: 2}
+        { id: 1, document: 1, diameter: 30, flutes: 2}
     ];
     TestApp.Slot.FIXTURES = [
-        { id: 1, depth: 10, length: 300, width: 100}
+        { id: 1, document: 1, depth: 10, length: 300, width: 100}
     ];
     TestApp.Operation.FIXTURES = [
-        { id: 1, increment: 10}
+        { id: 1, document: 1, increment: 3, rotationFrequency: 1000, feedRate: 150}
     ];
 </script>
 </body>
