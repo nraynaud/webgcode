@@ -9,12 +9,12 @@ static const struct {
     uint16_t xDirection, xStep, yDirection, yStep, zDirection, zStep;
 } motorsPinout = {
         .gpio=GPIOE,
-        .xDirection = GPIO_Pin_3,
-        .xStep = GPIO_Pin_4,
-        .yDirection = GPIO_Pin_5,
-        .yStep=GPIO_Pin_6,
-        .zDirection=GPIO_Pin_7,
-        .zStep=GPIO_Pin_8};
+        .xStep = GPIO_Pin_3,
+        .xDirection = GPIO_Pin_4,
+        .yStep=GPIO_Pin_5,
+        .yDirection = GPIO_Pin_6,
+        .zStep=GPIO_Pin_7,
+        .zDirection=GPIO_Pin_8};
 
 volatile cnc_memory_t cncMemory = {
         .position = {.x=0, .y=0, .z=0},
@@ -32,8 +32,8 @@ static const struct {
     unsigned int x:1, y:1, z:1;
 } motorDirection = {
         .x = 1,
-        .y = 1,
-        .z = 0};
+        .y = 0,
+        .z = 1};
 
 static step_t nextProgramStep() {
     uint16_t nextDuration = 0;
