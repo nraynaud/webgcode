@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		DDAA5112A98CF57045D5EC46 /* index.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5952187ECA2FF5B96420 /* index.js */; };
+		DDAA5219D9583110B392E36B /* elliptic.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA58FBD65B40549EC27922 /* elliptic.js */; };
 		DDAA524E6774021C15E7F044 /* background.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA58422CF9EADC8397599D /* background.js */; };
 		DDAA53EB6E3F53DD1452FF40 /* contour.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA51DE17B96DCF612B22D5 /* contour.js */; };
 		DDAA5483FC94B19E4DDD5313 /* TrackballControls.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA55BD80E7C2D0A1E30C84 /* TrackballControls.js */; };
@@ -52,6 +53,7 @@
 		DDAA56FDF85987C80CFAD40D /* tux.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngx; name = tux.ngc; path = samples/tux.ngc; sourceTree = "<group>"; };
 		DDAA5718DDD9B2705A3B6819 /* test_delaunay.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_delaunay.html; sourceTree = "<group>"; };
 		DDAA58422CF9EADC8397599D /* background.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = background.js; path = webapp/background.js; sourceTree = "<group>"; };
+		DDAA58FBD65B40549EC27922 /* elliptic.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = elliptic.js; path = webapp/cnc/elliptic.js; sourceTree = "<group>"; };
 		DDAA59038852D4F76BE9925A /* test_raphael.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_raphael.html; sourceTree = "<group>"; };
 		DDAA5952187ECA2FF5B96420 /* index.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = index.js; path = webapp/index.js; sourceTree = "<group>"; };
 		DDAA5A99ECD28BC66706A677 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = file.json; name = manifest.json; path = webapp/manifest.json; sourceTree = "<group>"; };
@@ -101,6 +103,7 @@
 				DDAA53D0D9AE21EE52463EAE /* manual.c */,
 				DDAA59038852D4F76BE9925A /* test_raphael.html */,
 				DDAA5C8892ACD5137945A01A /* ember-history.js */,
+				DDAA58FBD65B40549EC27922 /* elliptic.js */,
 			);
 			sourceTree = "<group>";
 		};
@@ -206,6 +209,7 @@
 				DDAA53EB6E3F53DD1452FF40 /* contour.js in Sources */,
 				DDAA5E743FA52561B2B0FF84 /* manual.c in Sources */,
 				DDAA5D884B028284F6E73759 /* ember-history.js in Sources */,
+				DDAA5219D9583110B392E36B /* elliptic.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

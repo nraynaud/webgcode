@@ -8,6 +8,7 @@
     <script src="webapp/libs/ember-1.0.0-rc.5.js"></script>
     <script src="webapp/libs/ember-data-0.13.min.js"></script>
     <script src="webapp/libs/ember-history.js"></script>
+    <script src="webapp/cnc/elliptic.js"></script>
     <style>th {
         text-align: right;
     }</style>
@@ -95,6 +96,14 @@
             <th>surface speed(m/min):</th>
             <td>{{surfaceSpeed}}</td>
         </tr>
+        <tr>
+            <th>path length(mm):</th>
+            <td>{{actualPathLength}}</td>
+        </tr>
+        <tr>
+            <th>duration(hh:min:ss):</th>
+            <td>{{durationText}}</td>
+        </tr>
     </table>
 </script>
 <script type="text/x-handlebars" data-template-name="testApp">
@@ -109,6 +118,13 @@
     </div>
 </script>
 <script>
+    function secondsToHms(d) {
+        d = Number(d);
+        var h = Math.floor(d / 3600);
+        var m = Math.floor(d % 3600 / 60);
+        var s = Math.floor(d % 3600 % 60);
+        return ((h > 0 ? h + ":" : "") + (m > 0 ? (h > 0 && m < 10 ? "0" : "") + m + ":" : "0:") + (s < 10 ? "0" : "") + s);
+    }
     window.TestApp = Ember.Application.create();
     TestApp.Router.map(function () {
         this.resource('testApp', { path: '/' });
@@ -157,12 +173,42 @@
         }.property('increment', 'feedRate', 'rotationFrequency', 'document.tool.diameter', 'document.tool.flutes'),
         surfaceSpeed: function () {
             return Math.PI * this.get('document.tool.diameter') * this.get('rotationFrequency') / 1000;
-        }.property('rotationFrequency', 'document.tool.diameter')
+        }.property('rotationFrequency', 'document.tool.diameter'),
+        trochoidalRadius: function () {
+            var w = this.get('document.slot.width');
+            var toolD = this.get('document.tool.diameter');
+            return (w - toolD) / 2;
+        }.property('document.slot.width', 'document.tool.diameter'),
+        pathStartY: function () {
+            return -this.get('document.slot.length') / 2 - this.get('trochoidalRadius');
+        }.property('trochoidalRadius', 'document.slot.length'),
+        pathGeneratorLength: function () {
+            var l = this.get('document.slot.length') + this.get('trochoidalRadius');
+            var increment = this.get('increment');
+            return  (Math.ceil(l / increment) + 0.5) * increment;
+        }.property('document.slot.length', 'trochoidalRadius', 'increment'),
+        actualPathLength: function () {
+            var trochoR = this.get('trochoidalRadius');
+            var increment = this.get('increment');
+            var a = increment / (2 * Math.PI);
+            var m = -4 * a * trochoR / Math.pow(a - trochoR, 2);
+            var t = this.get('pathGeneratorLength') / increment * 2 * Math.PI - Math.PI / 2;
+            return 2 * Math.abs(a - trochoR) * incompleteEllipticIntegralSecondKind(t / 2, m);
+        }.property('trochoidalRadius', 'pathGeneratorLength', 'increment'),
+        duration: function () {
+            return this.get('actualPathLength') / this.get('feedRate');
+        }.property('actualPathLength', 'feedRate')
     });
     TestApp.TestAppRoute = Ember.Route.extend({
         model: function () {
             return TestApp.Document.find(1);
         }
+    });
+    TestApp.OperationController = Ember.ObjectController.extend({
+        durationText: function () {
+            console.log(this.get('duration'));
+            return secondsToHms(this.get('model.duration') * 60);
+        }.property('model.duration')
     });
     TestApp.NumberField = Ember.TextField.extend({
         type: 'number',
@@ -183,8 +229,7 @@
             this.set('slotDrawing', paper.rect(320, 240, 1, 1).attr({fill: '#99D9FC', 'stroke-width': 2}));
             this.set('toolDrawing', paper.circle(320, 240, null).attr({fill: '#8DAABC'}));
             this.set('operationAxis', paper.path('M320,240').attr({'stroke-dasharray': '--.', "stroke-width": 1}));
-            this.set('operationPath', paper.path('M320,240').attr({'stroke-dasharray': '--', stroke: 'grey'}));
-            paper.text(320, 200, 'lolilol').node.setAttribute("editable", "simple");
+            this.set('operationPath', paper.path('M320,240').attr({stroke: 'grey'}));
         },
         changeToolDiameter: function () {
             var diameter = this.get('controller.tool.diameter');
@@ -200,31 +245,30 @@
                 this.get('slotDrawing').animate({x: 320 - w / 2, y: 240 - l / 2, width: w, height: l}, 200);
         }.observes('controller.slot.length', 'controller.slot.width'),
         operationIncrementChanged: function () {
-            var w = this.get('controller.slot.width');
             var l = this.get('controller.slot.length');
-            var toolD = this.get('controller.tool.diameter');
             var inc = this.get('controller.operation.increment');
             var operationPath = this.get('operationPath');
-            if (w == null || l == null || toolD == null || inc == null || inc == 0) {
+            if (l == null || inc == null || inc == 0) {
                 operationPath.attr({'path': ''});
                 return;
             }
-            var trochoR = (w - toolD) / 2;
+            var trochoR = this.get('controller.operation.trochoidalRadius');
             var startX = 320;
-            var startY = 240 - l / 2 - trochoR;
+            var startY = 240 + this.get('controller.operation.pathStartY');
             this.get('operationAxis').animate({path: 'M 320 ' + (startY - 10) + 'L 320 ' + (240 + l / 2 + 10) }, 200);
-            var pathLength = l + trochoR + inc;
+            var pathLength = this.get('controller.operation.pathGeneratorLength');
             var tInc = pathLength / inc;
             var segments = tInc * 15;
             segments = Math.min(segments, 2000);
             var path = '';
             var dirX = 0;
             var dirY = 1;
+            var a = inc / (2 * Math.PI);
             for (var i = 0; i < segments; i++) {
                 var ratio = (i / segments);
-                var t = ratio * tInc;
-                var x = startX + dirX * t + trochoR * Math.cos(2 * Math.PI * t);
-                var y = startY + dirY * inc * t + trochoR * Math.sin(2 * Math.PI * t);
+                var t = ratio * tInc * 2 * Math.PI - Math.PI / 2;
+                var x = startX + dirX * t + trochoR * Math.cos(t);
+                var y = startY + dirY * a * t + trochoR * Math.sin(t);
                 if (i == 0)
                     path = 'M ' + x + ' ' + y + ' R ' + x + ' ' + y;
                 else
@@ -232,7 +276,8 @@
             }
             operationPath.attr({'path': path});
             console.log(operationPath.getTotalLength());
-            var start = operationPath.getPointAtLength(operationPath.getTotalLength() / 2);
+            console.log('trocho', this.get('controller.operation.actualPathLength'));
+            var start = operationPath.getPointAtLength(0);
             this.get('toolDrawing').attr({cx: start.x, cy: start.y});
         }.observes('controller.operation.increment', 'controller.slot.length', 'controller.slot.width', 'controller.tool.diameter')
     });
@@ -246,7 +291,7 @@
         { id: 1, document: 1, depth: 10, length: 300, width: 100}
     ];
     TestApp.Operation.FIXTURES = [
-        { id: 1, document: 1, increment: 3, rotationFrequency: 1000, feedRate: 150}
+        { id: 1, document: 1, increment: 10, rotationFrequency: 1000, feedRate: 150}
     ];
 </script>
 </body>

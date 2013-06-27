@@ -355,6 +355,26 @@ test("two segments speed planning", function () {
     });
     deepEqual(data, [segment1, segment2], 'should transition smoothly between segments');
 });
+test("rd(x, y, z)", function () {
+    equal(rd(0, 2, 1), 1.7972103521033886);
+    equal(rd(2, 3, 4), 0.16510527294261057);
+});
+test("rf(x, y, z)", function () {
+    equal(rf(1, 2, 4), 0.6850858166334359);
+    equal(rf(1, 2, 0), 1.31102877714606);
+    equal(rf(2, 3, 4), 0.5840828416771515);
+});
+test("E(m)", function () {
+    equal(completeEllipticIntegralSecondKind(0.5), 1.350643881047675);
+});
+test("E(phi,m)", function () {
+    equal(incompleteEllipticIntegralSecondKind(Math.PI / 4, 0.5), 0.748186504177661);
+    equal(incompleteEllipticIntegralSecondKind(Math.PI / 4, 0.7), 0.7323015038648828);
+    equal(incompleteEllipticIntegralSecondKind(Math.PI / 2, 0.7), 1.2416705679458233);
+    equal(incompleteEllipticIntegralSecondKind(-Math.PI / 2, 0.7), -1.2416705679458233);
+    equal(incompleteEllipticIntegralSecondKind(-3 * Math.PI + 0.5, 0.5), -7.613952326493532);
+});
+
 function testSimulation(path) {
     var simulated = [];
 
