@@ -35,6 +35,11 @@
                 numericValueBinding="depth"}}
             </td>
         </tr>
+        <tr>
+            <th><label for="volume">volume (mm<sup>3</sup>): </label></th>
+            <td>{{volume}}
+            </td>
+        </tr>
     </table>
 </script>
 <script type="text/x-handlebars" data-template-name="tool">
@@ -104,6 +109,10 @@
             <th>duration(hh:min:ss):</th>
             <td>{{durationText}}</td>
         </tr>
+        <tr>
+            <th>material removal rate (cm<sup>3</sup>/min):</th>
+            <td>{{materialRemovalRate}}</td>
+        </tr>
     </table>
 </script>
 <script type="text/x-handlebars" data-template-name="testApp">
@@ -147,7 +156,10 @@
         document: DS.belongsTo('TestApp.Document'),
         depth: DS.attr('number'),
         length: DS.attr('number'),
-        width: DS.attr('number')
+        width: DS.attr('number'),
+        volume: function () {
+            return this.get('depth') * this.get('length') * this.get('width');
+        }.property('depth', 'length', 'width')
     });
     TestApp.Operation = DS.Model.extend({
         document: DS.belongsTo('TestApp.Document'),
@@ -197,7 +209,10 @@
         }.property('trochoidalRadius', 'pathGeneratorLength', 'increment'),
         duration: function () {
             return this.get('actualPathLength') / this.get('feedRate');
-        }.property('actualPathLength', 'feedRate')
+        }.property('actualPathLength', 'feedRate'),
+        materialRemovalRate: function () {
+            return this.get('document.slot.volume') / this.get('duration') / 1000;
+        }.property('document.slot.volume', 'duration')
     });
     TestApp.TestAppRoute = Ember.Route.extend({
         model: function () {
