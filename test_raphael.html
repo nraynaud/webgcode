@@ -2,16 +2,44 @@
 <html>
 <head>
     <title>Raphael Play</title>
-    <script src="webapp/libs/raphael-min.js"></script>
     <script src="webapp/libs/jquery.min.js"></script>
     <script src="webapp/libs/handlebars-1.0.0-rc.4.js"></script>
     <script src="webapp/libs/ember-1.0.0-rc.5.js"></script>
     <script src="webapp/libs/ember-data-0.13.min.js"></script>
-    <script src="webapp/libs/ember-history.js"></script>
+    <script src="webapp/libs/Three.js"></script>
+    <script src="webapp/libs/TrackballControls.js"></script>
+    <script src="webapp/libs/csg.js"></script>
+    <script src="webapp/libs/ThreeCSG.js"></script>
+    <script src="webapp/libs/svg.js"></script>
     <script src="webapp/cnc/elliptic.js"></script>
-    <style>th {
-        text-align: right;
-    }</style>
+    <script src="http://mrdoob.github.io/three.js/examples/js/shaders/CopyShader.js"></script>
+    <script src="http://f.z.nf/three.js/examples/js/ShaderToon.js"></script>
+    <script src="http://mrdoob.github.io/three.js/examples/js/shaders/DotScreenShader.js"></script>
+    <script src="http://mrdoob.github.io/three.js/examples/js/shaders/RGBShiftShader.js"></script>
+    <script src="http://mrdoob.github.io/three.js/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="http://mrdoob.github.io/three.js/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="http://mrdoob.github.io/three.js/examples/js/postprocessing/MaskPass.js"></script>
+    <script src="http://mrdoob.github.io/three.js/examples/js/postprocessing/ShaderPass.js"></script>
+
+    <script src="http://f.z.nf/three.js/examples/js/ShaderToon.js"></script>
+    <style>
+        * {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        th {
+            text-align: right;
+        }
+
+        .threeDView {
+            width: 50%;
+            height: 400px;
+            float: right;
+            border: solid
+        }
+    </style>
 </head>
 <body>
 
@@ -120,194 +148,284 @@
     {{render 'tool' tool}}
     {{render 'slot' slot}}
     {{render 'operation' operation}}
-    <h2>Output:</h2>
-
-    <div style="position: relative">
-        {{view TestApp.RaphaelView}}
+    <div>
+        <div style="border:solid; width:50%; float:left;">
+            {{view TestApp.RaphaelView}}
+        </div>
+        {{view TestApp.ThreeJSView classNames="threeDView"}}
     </div>
 </script>
 <script>
-    function secondsToHms(d) {
-        d = Number(d);
-        var h = Math.floor(d / 3600);
-        var m = Math.floor(d % 3600 / 60);
-        var s = Math.floor(d % 3600 % 60);
-        return ((h > 0 ? h + ":" : "") + (m > 0 ? (h > 0 && m < 10 ? "0" : "") + m + ":" : "0:") + (s < 10 ? "0" : "") + s);
+function secondsToHms(d) {
+    d = Number(d);
+    var h = Math.floor(d / 3600);
+    var m = Math.floor(d % 3600 / 60);
+    var s = Math.floor(d % 3600 % 60);
+    return ((h > 0 ? h + ":" : "") + (m > 0 ? (h > 0 && m < 10 ? "0" : "") + m + ":" : "0:") + (s < 10 ? "0" : "") + s);
+}
+window.TestApp = Ember.Application.create();
+TestApp.Router.map(function () {
+    this.resource('testApp', { path: '/' });
+});
+TestApp.Store = DS.Store.extend({
+    revision: 13,
+    adapter: 'DS.FixtureAdapter'
+});
+TestApp.Document = DS.Model.extend({
+    tool: DS.belongsTo('TestApp.Tool'),
+    slot: DS.belongsTo('TestApp.Slot'),
+    operation: DS.belongsTo('TestApp.Operation')
+});
+TestApp.Tool = DS.Model.extend({
+    document: DS.belongsTo('TestApp.Document'),
+    diameter: DS.attr('number'),
+    flutes: DS.attr('number')
+});
+TestApp.Slot = DS.Model.extend({
+    document: DS.belongsTo('TestApp.Document'),
+    depth: DS.attr('number'),
+    length: DS.attr('number'),
+    width: DS.attr('number'),
+    volume: function () {
+        return this.get('depth') * this.get('length') * this.get('width');
+    }.property('depth', 'length', 'width')
+});
+TestApp.Operation = DS.Model.extend({
+    document: DS.belongsTo('TestApp.Document'),
+    increment: DS.attr('number'),
+    rotationFrequency: DS.attr('number'),
+    feedRate: DS.attr('number'),
+    stepOver: function (key, v) {
+        var diameter = this.get('document.tool.diameter');
+        var increment = this.get('increment');
+        if (arguments.length === 1)
+            return increment / diameter * 100;
+        else
+            this.set('increment', diameter * v / 100);
+    }.property('increment', 'document.tool.diameter'),
+    chipLoad: function () {
+        return this.get('feedRate') / ( this.get('rotationFrequency') * this.get('document.tool.flutes'));
+    }.property('feedRate', 'rotationFrequency', 'document.tool.flutes'),
+    hMax: function () {
+        var diameter = this.get('document.tool.diameter');
+        var increment = this.get('increment');
+        var fz = this.get('feedRate') / (this.get('document.tool.flutes') * this.get('rotationFrequency'));
+        return 2 * fz * Math.sqrt(increment / diameter * (1 - increment / diameter));
+    }.property('increment', 'feedRate', 'rotationFrequency', 'document.tool.diameter', 'document.tool.flutes'),
+    surfaceSpeed: function () {
+        return Math.PI * this.get('document.tool.diameter') * this.get('rotationFrequency') / 1000;
+    }.property('rotationFrequency', 'document.tool.diameter'),
+    trochoidalRadius: function () {
+        var w = this.get('document.slot.width');
+        var toolD = this.get('document.tool.diameter');
+        return (w - toolD) / 2;
+    }.property('document.slot.width', 'document.tool.diameter'),
+    pathStartY: function () {
+        return -this.get('document.slot.length') / 2 - this.get('trochoidalRadius');
+    }.property('trochoidalRadius', 'document.slot.length'),
+    pathGeneratorLength: function () {
+        var l = this.get('document.slot.length') + this.get('trochoidalRadius');
+        var increment = this.get('increment');
+        return  (Math.ceil(l / increment) + 0.5) * increment;
+    }.property('document.slot.length', 'trochoidalRadius', 'increment'),
+    actualPathLength: function () {
+        var trochoR = this.get('trochoidalRadius');
+        var increment = this.get('increment');
+        var a = increment / (2 * Math.PI);
+        var m = -4 * a * trochoR / Math.pow(a - trochoR, 2);
+        var t = this.get('pathGeneratorLength') / increment * 2 * Math.PI - Math.PI / 2;
+        return 2 * Math.abs(a - trochoR) * incompleteEllipticIntegralSecondKind(t / 2, m);
+    }.property('trochoidalRadius', 'pathGeneratorLength', 'increment'),
+    duration: function () {
+        return this.get('actualPathLength') / this.get('feedRate');
+    }.property('actualPathLength', 'feedRate'),
+    materialRemovalRate: function () {
+        return this.get('document.slot.volume') / this.get('duration') / 1000;
+    }.property('document.slot.volume', 'duration')
+});
+TestApp.TestAppRoute = Ember.Route.extend({
+    model: function () {
+        return TestApp.Document.find(1);
     }
-    window.TestApp = Ember.Application.create();
-    TestApp.Router.map(function () {
-        this.resource('testApp', { path: '/' });
-    });
-    TestApp.Store = DS.Store.extend({
-        revision: 13,
-        adapter: 'DS.FixtureAdapter'
-    });
-    TestApp.Document = DS.Model.extend({
-        tool: DS.belongsTo('TestApp.Tool'),
-        slot: DS.belongsTo('TestApp.Slot'),
-        operation: DS.belongsTo('TestApp.Operation')
-    });
-    TestApp.Tool = DS.Model.extend({
-        document: DS.belongsTo('TestApp.Document'),
-        diameter: DS.attr('number'),
-        flutes: DS.attr('number')
-    });
-    TestApp.Slot = DS.Model.extend({
-        document: DS.belongsTo('TestApp.Document'),
-        depth: DS.attr('number'),
-        length: DS.attr('number'),
-        width: DS.attr('number'),
-        volume: function () {
-            return this.get('depth') * this.get('length') * this.get('width');
-        }.property('depth', 'length', 'width')
-    });
-    TestApp.Operation = DS.Model.extend({
-        document: DS.belongsTo('TestApp.Document'),
-        increment: DS.attr('number'),
-        rotationFrequency: DS.attr('number'),
-        feedRate: DS.attr('number'),
-        stepOver: function (key, v) {
-            var diameter = this.get('document.tool.diameter');
-            var increment = this.get('increment');
-            if (arguments.length === 1)
-                return increment / diameter * 100;
-            else
-                this.set('increment', diameter * v / 100);
-        }.property('increment', 'document.tool.diameter'),
-        chipLoad: function () {
-            return this.get('feedRate') / ( this.get('rotationFrequency') * this.get('document.tool.flutes'));
-        }.property('feedRate', 'rotationFrequency', 'document.tool.flutes'),
-        hMax: function () {
-            var diameter = this.get('document.tool.diameter');
-            var increment = this.get('increment');
-            var fz = this.get('feedRate') / (this.get('document.tool.flutes') * this.get('rotationFrequency'));
-            return 2 * fz * Math.sqrt(increment / diameter * (1 - increment / diameter));
-        }.property('increment', 'feedRate', 'rotationFrequency', 'document.tool.diameter', 'document.tool.flutes'),
-        surfaceSpeed: function () {
-            return Math.PI * this.get('document.tool.diameter') * this.get('rotationFrequency') / 1000;
-        }.property('rotationFrequency', 'document.tool.diameter'),
-        trochoidalRadius: function () {
-            var w = this.get('document.slot.width');
-            var toolD = this.get('document.tool.diameter');
-            return (w - toolD) / 2;
-        }.property('document.slot.width', 'document.tool.diameter'),
-        pathStartY: function () {
-            return -this.get('document.slot.length') / 2 - this.get('trochoidalRadius');
-        }.property('trochoidalRadius', 'document.slot.length'),
-        pathGeneratorLength: function () {
-            var l = this.get('document.slot.length') + this.get('trochoidalRadius');
-            var increment = this.get('increment');
-            return  (Math.ceil(l / increment) + 0.5) * increment;
-        }.property('document.slot.length', 'trochoidalRadius', 'increment'),
-        actualPathLength: function () {
-            var trochoR = this.get('trochoidalRadius');
-            var increment = this.get('increment');
-            var a = increment / (2 * Math.PI);
-            var m = -4 * a * trochoR / Math.pow(a - trochoR, 2);
-            var t = this.get('pathGeneratorLength') / increment * 2 * Math.PI - Math.PI / 2;
-            return 2 * Math.abs(a - trochoR) * incompleteEllipticIntegralSecondKind(t / 2, m);
-        }.property('trochoidalRadius', 'pathGeneratorLength', 'increment'),
-        duration: function () {
-            return this.get('actualPathLength') / this.get('feedRate');
-        }.property('actualPathLength', 'feedRate'),
-        materialRemovalRate: function () {
-            return this.get('document.slot.volume') / this.get('duration') / 1000;
-        }.property('document.slot.volume', 'duration')
-    });
-    TestApp.TestAppRoute = Ember.Route.extend({
-        model: function () {
-            return TestApp.Document.find(1);
+});
+TestApp.OperationController = Ember.ObjectController.extend({
+    durationText: function () {
+        console.log(this.get('duration'));
+        return secondsToHms(this.get('model.duration') * 60);
+    }.property('model.duration')
+});
+TestApp.NumberField = Ember.TextField.extend({
+    type: 'number',
+    attributeBindings: ['min', 'max', 'step'],
+    numericValue: function (key, v) {
+        if (arguments.length === 1) {
+            var val = parseFloat(this.get('value'));
+            return isNaN(val) ? null : val;
+        } else
+            this.set('value', v + '');
+    }.property('value')
+});
+TestApp.ThreeJSView = Ember.View.extend({
+    didInsertElement: function () {
+        this._super();
+        var element = $(this.get('element'));
+        element.attr('style', "");
+        var renderer = new THREE.WebGLRenderer({antialias: true});
+        element.append(renderer.domElement);
+
+        var camera = new THREE.OrthographicCamera(element.width() / -2, element.width() / 2, element.height() / 2, element.height() / -2, 0.01, 20000);
+        camera.up = new THREE.Vector3(0, 0, 1);
+        var scene = new THREE.Scene();
+        var light = new THREE.PointLight(0xffffff, 1, 3000000);
+        light.position.set(0, 200000, 200000);
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0x404040));
+        camera.position.z = 300;
+        camera.position.y = 300;
+        camera.position.x = 300;
+        scene.add(camera);
+        var controls = new THREE.TrackballControls(camera, element[0]);
+        controls.rotateSpeed = 1.0;
+        controls.zoomSpeed = 1.2;
+        controls.panSpeed = 0.8;
+        controls.noZoom = false;
+        controls.noPan = false;
+        controls.staticMoving = true;
+        controls.dynamicDampingFactor = 0.3;
+        controls.minDistance = 0.01;
+        controls.keys = [ 65, 83, 68 ];
+        controls.addEventListener('change', function () {
+            renderer.render(scene, camera);
+        });
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
         }
-    });
-    TestApp.OperationController = Ember.ObjectController.extend({
-        durationText: function () {
-            console.log(this.get('duration'));
-            return secondsToHms(this.get('model.duration') * 60);
-        }.property('model.duration')
-    });
-    TestApp.NumberField = Ember.TextField.extend({
-        type: 'number',
-        attributeBindings: ['min', 'max', 'step'],
-        numericValue: function (key, v) {
-            if (arguments.length === 1) {
-                var val = parseFloat(this.get('value'));
-                return isNaN(val) ? null : val;
-            } else
-                this.set('value', v + '');
-        }.property('value')
-    });
-    TestApp.RaphaelView = Ember.View.extend({
-        didInsertElement: function () {
-            this._super();
-            var paper = Raphael(this.get('element'), 640, 480);
-            this.set('paper', paper);
-            this.set('slotDrawing', paper.rect(320, 240, 1, 1).attr({fill: '#99D9FC', 'stroke-width': 2}));
-            this.set('toolDrawing', paper.circle(320, 240, null).attr({fill: '#8DAABC'}));
-            this.set('operationAxis', paper.path('M320,240').attr({'stroke-dasharray': '--.', "stroke-width": 1}));
-            this.set('operationPath', paper.path('M320,240').attr({stroke: 'grey'}));
-        },
-        changeToolDiameter: function () {
-            var diameter = this.get('controller.tool.diameter');
-            if (diameter != null)
-                this.get('toolDrawing').animate({
-                    r: diameter / 2
-                }, 200);
-        }.observes('controller.tool.diameter'),
-        slotLengthWidthChanged: function () {
-            var w = this.get('controller.slot.width');
-            var l = this.get('controller.slot.length');
-            if (w != null && l != null)
-                this.get('slotDrawing').animate({x: 320 - w / 2, y: 240 - l / 2, width: w, height: l}, 200);
-        }.observes('controller.slot.length', 'controller.slot.width'),
-        operationIncrementChanged: function () {
-            var l = this.get('controller.slot.length');
-            var inc = this.get('controller.operation.increment');
-            var operationPath = this.get('operationPath');
-            if (l == null || inc == null || inc == 0) {
-                operationPath.attr({'path': ''});
-                return;
+
+        var planeGeometry = new THREE.PlaneGeometry(100, 100, 5, 5);
+        scene.add(new THREE.Mesh(planeGeometry, new THREE.MeshBasicMaterial({wireframe: true, color: 0x00CC00})));
+        var partMesh = null;
+
+        this.updateMesh = function (newMesh) {
+            if (partMesh)
+                scene.remove(partMesh);
+            partMesh = newMesh;
+            if (newMesh) {
+                scene.add(newMesh);
             }
-            var trochoR = this.get('controller.operation.trochoidalRadius');
-            var startX = 320;
-            var startY = 240 + this.get('controller.operation.pathStartY');
-            this.get('operationAxis').animate({path: 'M 320 ' + (startY - 10) + 'L 320 ' + (240 + l / 2 + 10) }, 200);
-            var pathLength = this.get('controller.operation.pathGeneratorLength');
-            var tInc = pathLength / inc;
-            var segments = tInc * 15;
-            segments = Math.min(segments, 2000);
-            var path = '';
-            var dirX = 0;
-            var dirY = 1;
-            var a = inc / (2 * Math.PI);
-            for (var i = 0; i < segments; i++) {
-                var ratio = (i / segments);
-                var t = ratio * tInc * 2 * Math.PI - Math.PI / 2;
-                var x = startX + dirX * t + trochoR * Math.cos(t);
-                var y = startY + dirY * a * t + trochoR * Math.sin(t);
-                if (i == 0)
-                    path = 'M ' + x + ' ' + y + ' R ' + x + ' ' + y;
-                else
-                    path += ' ' + x + ' ' + y;
-            }
-            operationPath.attr({'path': path});
-            console.log(operationPath.getTotalLength());
-            console.log('trocho', this.get('controller.operation.actualPathLength'));
-            var start = operationPath.getPointAtLength(0);
-            this.get('toolDrawing').attr({cx: start.x, cy: start.y});
-        }.observes('controller.operation.increment', 'controller.slot.length', 'controller.slot.width', 'controller.tool.diameter')
-    });
-    TestApp.Document.FIXTURES = [
-        { id: 1, tool: 1, slot: 1, operation: 1}
-    ];
-    TestApp.Tool.FIXTURES = [
-        { id: 1, document: 1, diameter: 30, flutes: 2}
-    ];
-    TestApp.Slot.FIXTURES = [
-        { id: 1, document: 1, depth: 10, length: 300, width: 100}
-    ];
-    TestApp.Operation.FIXTURES = [
-        { id: 1, document: 1, increment: 10, rotationFrequency: 1000, feedRate: 150}
-    ];
+            renderer.render(scene, camera);
+        };
+        renderer.render(scene, camera);
+        function resizeEveryBody() {
+            renderer.setSize(element.width(), element.height());
+            camera.aspect = element.width() / element.height();
+            camera.updateProjectionMatrix();
+            renderer.render(scene, camera);
+        }
+
+        $(window).resize(resizeEveryBody);
+        resizeEveryBody();
+        animate();
+    },
+    partChanged: function () {
+        var width = this.get('controller.slot.width');
+        var length = this.get('controller.slot.length');
+        var depth = this.get('controller.slot.depth');
+        var stockThickness = Math.max(30, depth + 5);
+        var stockGeometry = new THREE.CubeGeometry(Math.max(300, width + 60), length, stockThickness, 1, 1, 1);
+        stockGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, -stockThickness / 2));
+        stockGeometry.computeFaceNormals();
+        console.log(width, length, depth);
+        if (width == null || length == null || depth == null)
+            return;
+        var slotGeometry = new THREE.CubeGeometry(width, length, depth, 1, 1, 1);
+        slotGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, -depth / 2));
+        slotGeometry.computeFaceNormals();
+        var geom = THREE.CSG.fromCSG(THREE.CSG.toCSG(stockGeometry).subtract(THREE.CSG.toCSG(slotGeometry)));
+        var partMesh = new THREE.Mesh(geom, new THREE.MeshLambertMaterial({color: 0xCC0000}));
+        var partMeshWireFrame = new THREE.Mesh(geom, new THREE.MeshBasicMaterial({wireframe: true, depthTest: true, color: 0xF0F0F0, transparent: true, opacity: 0.2}));
+        var obj = new THREE.Object3D();
+        obj.add(partMesh);
+        obj.add(partMeshWireFrame);
+        this.updateMesh(obj);
+    }.observes('controller.slot.length', 'controller.slot.width', 'controller.slot.depth')
+});
+TestApp.RaphaelView = Ember.View.extend({
+    didInsertElement: function () {
+        this._super();
+        var paper = SVG(this.get('element'));
+        this.set('slotDrawing', paper.rect(1, 1).attr({'vector-effect': 'non-scaling-stroke', fill: '#99D9FC', 'stroke-width': 2}));
+        this.set('toolDrawing', paper.circle(0).attr({'vector-effect': 'non-scaling-stroke', fill: '#8DAABC'}));
+        this.set('operationAxis', paper.path('M320,240', true).attr({'vector-effect': 'non-scaling-stroke', 'stroke-dasharray': '--.', "stroke-width": 1}));
+        this.set('operationPath', paper.path('M320,240', true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: 'grey', 'stroke-width': 1}));
+        var paperX = 0;
+        var paperY = 0;
+        $(this.get('element')).bind('mousewheel', function (event) {
+
+        });
+    },
+    changeToolDiameter: function () {
+        var diameter = this.get('controller.tool.diameter');
+        if (diameter != null)
+            this.get('toolDrawing').attr({
+                r: diameter / 2
+            });
+    }.observes('controller.tool.diameter'),
+    slotLengthWidthChanged: function () {
+        var w = this.get('controller.slot.width');
+        var l = this.get('controller.slot.length');
+        if (w != null && l != null)
+            this.get('slotDrawing').attr({x: 320 - w / 2, y: 240 - l / 2, width: w, height: l});
+    }.observes('controller.slot.length', 'controller.slot.width'),
+    operationIncrementChanged: function () {
+        var l = this.get('controller.slot.length');
+        var inc = this.get('controller.operation.increment');
+        var operationPath = this.get('operationPath');
+        if (l == null || inc == null || inc == 0) {
+            operationPath.attr({'path': ''});
+            return;
+        }
+        var trochoR = this.get('controller.operation.trochoidalRadius');
+        var startX = 320;
+        var startY = 240 + this.get('controller.operation.pathStartY');
+        this.get('operationAxis').attr({d: 'M 320 ' + (startY - 10) + 'L 320 ' + (240 + l / 2 + 10) });
+        var pathLength = this.get('controller.operation.pathGeneratorLength');
+        var tInc = pathLength / inc;
+        var segments = tInc * 20;
+        segments = Math.min(segments, 10000);
+        var path = '';
+        var dirX = 0;
+        var dirY = 1;
+        var a = inc / (2 * Math.PI);
+        for (var i = 0; i < segments; i++) {
+            var ratio = (i / segments);
+            var t = ratio * tInc * 2 * Math.PI - Math.PI / 2;
+            var x = startX + dirX * t + trochoR * Math.cos(t);
+            var y = startY + dirY * a * t + trochoR * Math.sin(t);
+            if (i == 0)
+                path = 'M ' + x + ' ' + y + ' L ' + x + ' ' + y;
+            else
+                path += ' ' + x + ' ' + y;
+        }
+        operationPath.attr({'d': path});
+        console.log(operationPath.node.getTotalLength());
+        console.log('trocho', this.get('controller.operation.actualPathLength'));
+        var start = operationPath.node.getPointAtLength(0);
+        this.get('toolDrawing').attr({cx: start.x, cy: start.y});
+    }.observes('controller.operation.increment', 'controller.slot.length', 'controller.slot.width', 'controller.tool.diameter')
+});
+TestApp.Document.FIXTURES = [
+    { id: 1, tool: 1, slot: 1, operation: 1}
+];
+TestApp.Tool.FIXTURES = [
+    { id: 1, document: 1, diameter: 30, flutes: 2}
+];
+TestApp.Slot.FIXTURES = [
+    { id: 1, document: 1, depth: 10, length: 300, width: 100}
+];
+TestApp.Operation.FIXTURES = [
+    { id: 1, document: 1, increment: 10, rotationFrequency: 1000, feedRate: 150}
+];
 </script>
 </body>
 </html>

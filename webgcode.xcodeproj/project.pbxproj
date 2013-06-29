@@ -10,14 +10,15 @@
 		DDAA5112A98CF57045D5EC46 /* index.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5952187ECA2FF5B96420 /* index.js */; };
 		DDAA5219D9583110B392E36B /* elliptic.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA58FBD65B40549EC27922 /* elliptic.js */; };
 		DDAA524E6774021C15E7F044 /* background.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA58422CF9EADC8397599D /* background.js */; };
+		DDAA52C75C4385D4E8E57C10 /* svg.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5A030F4462F1A261CEB0 /* svg.js */; };
 		DDAA53EB6E3F53DD1452FF40 /* contour.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA51DE17B96DCF612B22D5 /* contour.js */; };
 		DDAA5483FC94B19E4DDD5313 /* TrackballControls.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA55BD80E7C2D0A1E30C84 /* TrackballControls.js */; };
+		DDAA554DBA35296CDEFFBF7B /* csg.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C645D269334C0AA6957 /* csg.js */; };
 		DDAA59F8C14ADBE647A5FE41 /* cnc.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = DDAA5C39B59BE70527721DE7 /* cnc.h */; };
 		DDAA5B6641CFBF0C81D7B5CF /* usb.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5223044005BFC70BD5DE /* usb.c */; };
 		DDAA5CA52329A23DE4500854 /* usbdesc.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA56B90C5F7FBE9FC0A534 /* usbdesc.c */; };
 		DDAA5CDD5DCBC168FB293986 /* jquery.flot.resize.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5518BC9939B7C36FE0B9 /* jquery.flot.resize.js */; };
 		DDAA5D86ED26C5CD14D88228 /* jsparse.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54F29F1F185A35EE1B8C /* jsparse.js */; };
-		DDAA5D884B028284F6E73759 /* ember-history.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C8892ACD5137945A01A /* ember-history.js */; };
 		DDAA5E39B611B3CD37DFF97F /* geometry.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA507CC79F9033457329F7 /* geometry.js */; };
 		DDAA5E743FA52561B2B0FF84 /* manual.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53D0D9AE21EE52463EAE /* manual.c */; };
 		DDAA5E90BDFC07678EE201D3 /* delaunay.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C7DCC7731222576D7BA /* delaunay.js */; };
@@ -56,10 +57,11 @@
 		DDAA58FBD65B40549EC27922 /* elliptic.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = elliptic.js; path = webapp/cnc/elliptic.js; sourceTree = "<group>"; };
 		DDAA59038852D4F76BE9925A /* test_raphael.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_raphael.html; sourceTree = "<group>"; };
 		DDAA5952187ECA2FF5B96420 /* index.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = index.js; path = webapp/index.js; sourceTree = "<group>"; };
+		DDAA5A030F4462F1A261CEB0 /* svg.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = svg.js; path = webapp/libs/svg.js; sourceTree = "<group>"; };
 		DDAA5A99ECD28BC66706A677 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = file.json; name = manifest.json; path = webapp/manifest.json; sourceTree = "<group>"; };
 		DDAA5C39B59BE70527721DE7 /* cnc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cnc.h; path = interpolator/cnc.h; sourceTree = "<group>"; };
+		DDAA5C645D269334C0AA6957 /* csg.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = csg.js; path = webapp/libs/csg.js; sourceTree = "<group>"; };
 		DDAA5C7DCC7731222576D7BA /* delaunay.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = delaunay.js; path = webapp/cnc/delaunay.js; sourceTree = "<group>"; };
-		DDAA5C8892ACD5137945A01A /* ember-history.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = "ember-history.js"; path = "webapp/libs/ember-history.js"; sourceTree = "<group>"; };
 		EE861323172A0232008B2029 /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = ../STM32F4.platform/Developer/SDKs/STM34F4.sdk/usr/include; sourceTree = "<group>"; };
 		EE861328172A02F7008B2029 /* interpolator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = interpolator; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE86132B172A02F7008B2029 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
@@ -102,8 +104,9 @@
 				DDAA51DE17B96DCF612B22D5 /* contour.js */,
 				DDAA53D0D9AE21EE52463EAE /* manual.c */,
 				DDAA59038852D4F76BE9925A /* test_raphael.html */,
-				DDAA5C8892ACD5137945A01A /* ember-history.js */,
 				DDAA58FBD65B40549EC27922 /* elliptic.js */,
+				DDAA5A030F4462F1A261CEB0 /* svg.js */,
+				DDAA5C645D269334C0AA6957 /* csg.js */,
 			);
 			sourceTree = "<group>";
 		};
@@ -208,8 +211,9 @@
 				DDAA5E90BDFC07678EE201D3 /* delaunay.js in Sources */,
 				DDAA53EB6E3F53DD1452FF40 /* contour.js in Sources */,
 				DDAA5E743FA52561B2B0FF84 /* manual.c in Sources */,
-				DDAA5D884B028284F6E73759 /* ember-history.js in Sources */,
 				DDAA5219D9583110B392E36B /* elliptic.js in Sources */,
+				DDAA52C75C4385D4E8E57C10 /* svg.js in Sources */,
+				DDAA554DBA35296CDEFFBF7B /* csg.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
