@@ -49,18 +49,18 @@
         <tr>
             <th><label for="length">length: </label></th>
             <td>{{view TestApp.NumberField id="length" placeholder="length"
-                numericValueBinding="length"}}
+                numericValueBinding="length" min="0"}}
             </td>
         <tr>
             <th><label for="width">width: </label></th>
             <td>{{view TestApp.NumberField id="width" placeholder="width"
-                numericValueBinding="width"}}
+                numericValueBinding="width" min="0"}}
             </td>
         </tr>
         <tr>
             <th><label for="depth">depth: </label></th>
             <td>{{view TestApp.NumberField id="depth" placeholder="depth"
-                numericValueBinding="depth"}}
+                numericValueBinding="depth" min="0"}}
             </td>
         </tr>
         <tr>
@@ -76,13 +76,13 @@
         <tr>
             <th><label for="diameter">diameter: </label></th>
             <td>{{view TestApp.NumberField id="diameter" placeholder="diameter"
-                numericValueBinding="diameter"}}
+                numericValueBinding="diameter" min="0"}}
             </td>
         </tr>
         <tr>
             <th><label for="flutes">flutes: </label></th>
             <td>{{view TestApp.NumberField id="flutes" placeholder="flutes"
-                numericValueBinding="flutes"}}
+                numericValueBinding="flutes" min="0" step="1"}}
             </td>
         </tr>
     </table>
@@ -250,7 +250,6 @@ TestApp.TestAppRoute = Ember.Route.extend({
 });
 TestApp.OperationController = Ember.ObjectController.extend({
     durationText: function () {
-        console.log(this.get('duration'));
         return secondsToHms(this.get('model.duration') * 60);
     }.property('model.duration')
 });
@@ -335,7 +334,6 @@ TestApp.ThreeJSView = Ember.View.extend({
         var stockGeometry = new THREE.CubeGeometry(Math.max(300, width + 60), length, stockThickness, 1, 1, 1);
         stockGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, -stockThickness / 2));
         stockGeometry.computeFaceNormals();
-        console.log(width, length, depth);
         if (width == null || length == null || depth == null)
             return;
         var slotGeometry = new THREE.CubeGeometry(width, length, depth, 1, 1, 1);
