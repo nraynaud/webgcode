@@ -9,18 +9,24 @@
 var XY_PLANE = {
     firstCoord: 'x',
     secondCoord: 'y',
-    lastCoord: 'z'
+    lastCoord: 'z',
+    firstCenterCoord: 'i',
+    secondCenterCoord: 'j'
 };
 var YZ_PLANE = {
     firstCoord: 'y',
     secondCoord: 'z',
-    lastCoord: 'x'
+    lastCoord: 'x',
+    firstCenterCoord: 'j',
+    secondCenterCoord: 'k'
 };
 
 var XZ_PLANE = {
     firstCoord: 'x',
     secondCoord: 'z',
-    lastCoord: 'y'
+    lastCoord: 'y',
+    firstCenterCoord: 'i',
+    secondCenterCoord: 'k'
 };
 
 var TRAVERSE_RATE = 3000;
@@ -153,10 +159,10 @@ function findCircle(line, unitMode, targetPos, plane, currentPosition, clockwise
         toCenterY = 0.5 * (dy + (dx * mightyFactor));
     } else {
         //center notation
-        var iMatch = line['i'];
-        var jMatch = line['j'];
-        toCenterX = iMatch ? unitMode(iMatch[iMatch.length - 1]) : 0;
-        toCenterY = jMatch ? unitMode(jMatch[jMatch.length - 1]) : 0;
+        var xMatch = line[plane.firstCenterCoord];
+        var yMatch = line[plane.secondCenterCoord];
+        toCenterX = xMatch ? unitMode(xMatch[xMatch.length - 1]) : 0;
+        toCenterY = yMatch ? unitMode(yMatch[yMatch.length - 1]) : 0;
         radius = length(toCenterX, toCenterY);
     }
     return {radius: radius, toCenterX: toCenterX, toCenterY: toCenterY};
@@ -353,7 +359,7 @@ function createParser() {
     var affectation = jp.action(jp.wsequence(parameter, jp.expect('='), readExpression), function (ast) {
         return {variable: ast[0], value: ast[1]};
     });
-    var word = jp.wsequence(jp.choice.apply(null, 'FGIJLMPRSTXYZfgijlmrpstxyz'.split('')), readExpression);
+    var word = jp.wsequence(jp.choice.apply(null, 'FGIJKLMPRSTXYZfgijklmrpstxyz'.split('')), readExpression);
     var line = jp.action(jp.wsequence(jp.repeat0(jp.choice(affectation, word)), jp.end), function (ast) {
         var res = {};
         var affectations = [];
