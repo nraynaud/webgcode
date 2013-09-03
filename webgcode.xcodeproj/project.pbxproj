@@ -16,6 +16,7 @@
 		DDAA5483FC94B19E4DDD5313 /* TrackballControls.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA55BD80E7C2D0A1E30C84 /* TrackballControls.js */; };
 		DDAA554DBA35296CDEFFBF7B /* csg.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C645D269334C0AA6957 /* csg.js */; };
 		DDAA59F8C14ADBE647A5FE41 /* cnc.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = DDAA5C39B59BE70527721DE7 /* cnc.h */; };
+		DDAA5A5E764293C2F41E01A8 /* morphology.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C805943B69550EFE55F /* morphology.js */; };
 		DDAA5B6641CFBF0C81D7B5CF /* usb.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5223044005BFC70BD5DE /* usb.c */; };
 		DDAA5CA52329A23DE4500854 /* usbdesc.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA56B90C5F7FBE9FC0A534 /* usbdesc.c */; };
 		DDAA5CDD5DCBC168FB293986 /* jquery.flot.resize.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5518BC9939B7C36FE0B9 /* jquery.flot.resize.js */; };
@@ -64,6 +65,7 @@
 		DDAA5C39B59BE70527721DE7 /* cnc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cnc.h; path = interpolator/cnc.h; sourceTree = "<group>"; };
 		DDAA5C645D269334C0AA6957 /* csg.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = csg.js; path = webapp/libs/csg.js; sourceTree = "<group>"; };
 		DDAA5C7DCC7731222576D7BA /* delaunay.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = delaunay.js; path = webapp/cnc/delaunay.js; sourceTree = "<group>"; };
+		DDAA5C805943B69550EFE55F /* morphology.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = morphology.js; path = webapp/cnc/morphology.js; sourceTree = "<group>"; };
 		DDAA5E7A80E2949416A2BA67 /* svg.draggable.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = svg.draggable.js; path = webapp/libs/svg.draggable.js; sourceTree = "<group>"; };
 		EE861323172A0232008B2029 /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = ../STM32F4.platform/Developer/SDKs/STM34F4.sdk/usr/include; sourceTree = "<group>"; };
 		EE861328172A02F7008B2029 /* interpolator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = interpolator; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -111,6 +113,7 @@
 				DDAA5C645D269334C0AA6957 /* csg.js */,
 				DDAA5E7A80E2949416A2BA67 /* svg.draggable.js */,
 				DDAA583C80A2932FBC42EED1 /* svg.memory.js */,
+				DDAA5C805943B69550EFE55F /* morphology.js */,
 			);
 			sourceTree = "<group>";
 		};
@@ -220,6 +223,7 @@
 				DDAA554DBA35296CDEFFBF7B /* csg.js in Sources */,
 				DDAA526EED67132597417007 /* svg.draggable.js in Sources */,
 				DDAA5EC3FA0A4CDF769718B8 /* svg.memory.js in Sources */,
+				DDAA5A5E764293C2F41E01A8 /* morphology.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
