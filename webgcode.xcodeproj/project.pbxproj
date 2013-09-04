@@ -57,6 +57,7 @@
 		DDAA5718DDD9B2705A3B6819 /* test_delaunay.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_delaunay.html; sourceTree = "<group>"; };
 		DDAA583C80A2932FBC42EED1 /* svg.memory.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = svg.memory.js; path = webapp/libs/svg.memory.js; sourceTree = "<group>"; };
 		DDAA58422CF9EADC8397599D /* background.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = background.js; path = webapp/background.js; sourceTree = "<group>"; };
+		DDAA586ED3964DF7D3AB9C61 /* test_offset.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_offset.html; sourceTree = "<group>"; };
 		DDAA58FBD65B40549EC27922 /* elliptic.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = elliptic.js; path = webapp/cnc/elliptic.js; sourceTree = "<group>"; };
 		DDAA59038852D4F76BE9925A /* test_raphael.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_raphael.html; sourceTree = "<group>"; };
 		DDAA5952187ECA2FF5B96420 /* index.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = index.js; path = webapp/index.js; sourceTree = "<group>"; };
@@ -114,6 +115,7 @@
 				DDAA5E7A80E2949416A2BA67 /* svg.draggable.js */,
 				DDAA583C80A2932FBC42EED1 /* svg.memory.js */,
 				DDAA5C805943B69550EFE55F /* morphology.js */,
+				DDAA586ED3964DF7D3AB9C61 /* test_offset.html */,
 			);
 			sourceTree = "<group>";
 		};

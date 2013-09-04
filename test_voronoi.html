@@ -109,7 +109,7 @@
     var puzzlePath = group.path(puzzle, true).translate(puzzleTranslation.x, puzzleTranslation.y);
     puzzlePath.attr({fill: 'none', stroke: '#F0F0F0', 'stroke-width': 3});
     var puzzleBBOX = puzzlePath.node.getBBox();
-    var path = group.path('', true).attr({fill: 'none', stroke: 'grey', });
+    var path = group.path('', true).attr({fill: 'none', stroke: 'grey' });
     var pointCount = 200;
     var totalLength = puzzlePath.node.getTotalLength();
     var index = 0;
