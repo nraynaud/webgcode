@@ -76,11 +76,11 @@
     var puzzleBBOX = puzzlePath.node.getBBox();
     //paper.use(puzzlePath).attr({fill: 'none', stroke: '#FF0000', 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-linejoin': 'round'});
     var path = paper.path('', true).attr({fill: 'none', stroke: 'grey'});
-    var pointCount = 200;
+    var pointCount = 500;
     var totalLength = puzzlePath.node.getTotalLength();
     var index = 0;
     var clipperPoints = [];
-    var scale = 100;
+    var scale = 1000;
     for (var l = 0; l <= totalLength; l += totalLength / pointCount) {
         index++;
         var p = puzzlePath.node.getPointAtLength(l);
@@ -89,7 +89,7 @@
         points.push({x: x, y: y, index: index * 2});
         clipperPoints.push({X: x * scale, Y: y * scale});
     }
-
+    clipperPoints = ClipperLib.Clean(clipperPoints, 0.01 * scale);
     function showPolygon(path, points, getX, getY) {
         $.each(points, function (index, point) {
             var segment;
@@ -123,43 +123,38 @@
         });
     }
 
-    function showShape(openingRadius, offset, maxRadialPass, previousPass) {
+    function showShape(openingRadius, offset, maxRadialPass, previousPassOffset) {
         //group.remove();
         group = paper.group();
 
         var cpr = new ClipperLib.Clipper();
         var offset_polygon = cpr.OffsetPolygons([clipperPoints], (-offset - openingRadius) * scale, ClipperLib.JoinType.jtRound, 2, true);
-
-
-        //showClipperPolygon(group, offset_polygon, 'green');
         var opened_polygon = cpr.OffsetPolygons(offset_polygon, openingRadius * scale, ClipperLib.JoinType.jtRound, 2, true);
 
         showClipperPolygon(group, opened_polygon, 'blue');
-        //showClipperPolygon(group, offset_polygon);
-        if (previousPass != null) {
-            var dilatedPreviousPass = cpr.OffsetPolygons(previousPass, maxRadialPass * scale, ClipperLib.JoinType.jtRound, 2, true);
+        if (previousPassOffset != null) {
+            //to limit accuracy problems, avoid stacking the dilations.
+            var dilatedPreviousPass = cpr.OffsetPolygons(previousPassOffset, (maxRadialPass + openingRadius) * scale, ClipperLib.JoinType.jtRound, 2, true);
             cpr = new ClipperLib.Clipper();
             cpr.AddPolygons(opened_polygon, ClipperLib.PolyType.ptSubject);
             cpr.AddPolygons(dilatedPreviousPass, ClipperLib.PolyType.ptClip);
             var solution_polygons = new ClipperLib.Polygons();
             cpr.Execute(ClipperLib.ClipType.ctDifference, solution_polygons, ClipperLib.PolyFillType.pftNonZero, ClipperLib.ClipType.ctDifference);
-
-            //showClipperPolygon(group, offset_polygon, 'green');
-            //showClipperPolygon(group, dilatedPreviousPass, 'orange');
-
-            //showClipperPolygon(group, previousPass, 'blue');
-
             showClipperPolygon(group, solution_polygons, 'red');
         }
-        return opened_polygon;
+        return offset_polygon;
     }
 
-    var radialPass = 10;
-    var maxRadialPass = 15;
+    var radialPass = 20;
+    var maxRadialPass = 25;
+    var minPathRadius = 10;
 
-    var startPass = 20;
-    var pass1 = showShape(20, startPass + radialPass, maxRadialPass, null);
-    var pass2 = showShape(20, startPass, maxRadialPass, pass1);
+    var startPass = 6;
+    var previousPass = null;
+    for (var i = 10; i >= 0; i--) {
+        previousPass = showShape(i * 2, startPass + i * radialPass, maxRadialPass, previousPass);
+        console.log(previousPass);
+    }
 </script>
 </body>
 </html>
