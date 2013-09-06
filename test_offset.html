@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 <head>
-    <title>SVG Play</title>
+    <title>Contouring Test</title>
     <script src="webapp/libs/jquery.min.js"></script>
     <script src="webapp/libs/handlebars-1.0.0-rc.4.js"></script>
     <script src="webapp/libs/ember-1.0.0-rc.5.js"></script>
@@ -13,6 +13,7 @@
     <script src="webapp/libs/svg.js"></script>
     <script src="webapp/libs/svg.draggable.js"></script>
     <script src="webapp/libs/svg.memory.js"></script>
+    <script src="webapp/libs/jquery.mousewheel.js"></script>
     <script src="webapp/libs/clipper_unminified.js"></script>
     <script src="webapp/cnc/elliptic.js"></script>
     <script src="webapp/cnc/morphology.js"></script>
@@ -37,59 +38,38 @@
     </style>
 </head>
 <body>
-<div id="drawing" style="border:solid; width:500px; height: 400px; float:left;">
+<div id="drawing" style="border:solid; width:600px; height: 700px; float:left;overflow: hidden">
 </div>
-
+<textarea id='code' style="border:solid; width:600px; height: 700px; float:right;"></textarea>
 <script>
-    function indexColor(index) {
-        // add one to avoid black;
-        index++;
-        var redVal = index & 255;
-        var greenVal = (index >> 8) & 255;
-        //reserve some colors for extra
-        var blueVal = (index >> 16) & 0xF;
-        return "rgb(" + redVal + "," + greenVal + "," + blueVal + ")";
-    }
-    function colorToIndex(r, g, b) {
-        var val = (r + (g << 8) + (b << 16)) - 1;
-        if (val == 16777214)
-            console.log(r, g, b, val);
-        return (r + (g << 8) + (b << 16)) - 1;
-    }
-    //stolen here: http://www.clker.com/inc/svgedit/svg-editor.html?paramurl=/inc/clean.html?id=162595
-    var puzzle = 'M232.64845275878906,52.628318786621094 C216.02122497558594,53.22764205932617 197.37046813964844,58.68354797363281 187.4209747314453,70.36833953857422 C172.94898986816406,100.56008911132812 208.10482788085938,86.6199722290039 212.23968505859375,107.52195739746094 C216.37452697753906,128.42393493652344 191.5574188232422,129.579833984375 191.5574188232422,129.579833984375 L191.5574188232422,129.579833984375 L84.6250228881836,129.579833984375 C84.6250228881836,129.579833984375 84.76176452636719,233.40914916992188 84.76176452636719,233.4091339111328 C84.76176452636719,233.4091339111328 85.94230651855469,257.7080383300781 107.2900390625,253.65953063964844 C124.63508605957031,250.3701171875 118.48403930664062,227.0127716064453 132.10874938964844,225.97840881347656 C135.25291442871094,225.73971557617188 139.45431518554688,226.7022247314453 145.2360076904297,229.3590545654297 C157.16998291015625,239.10079956054688 162.74224853515625,257.36212158203125 163.35433959960938,273.64215087890625 C163.58030700683594,279.65203857421875 163.04443359375,285.3041687011719 161.98692321777344,290.244140625 C161.95977783203125,290.4633483886719 161.91331481933594,290.69415283203125 161.88436889648438,290.91357421875 C160.03134155273438,304.9603576660156 154.4873809814453,319.20953369140625 144.41554260253906,327.43121337890625 C113.5799331665039,341.6010437011719 127.81732940673828,307.17926025390625 106.46958923339844,303.1307373046875 C90.91576385498047,300.1810302734375 86.11091613769531,312.21185302734375 84.6250228881836,318.996337890625 L84.6250228881836,429.21875 C84.6250228881836,429.21875 191.93348693847656,428.3819580078125 191.9334716796875,428.3819580078125 C191.9334716796875,428.3819580078125 216.7505645751953,427.2260437011719 212.61572265625,406.3240966796875 C208.4808807373047,385.4220886230469 173.3592071533203,399.3621826171875 187.83119201660156,369.17047119140625 C197.78070068359375,357.48565673828125 216.3972625732422,352.02978515625 233.0244903564453,351.4304504394531 C239.16253662109375,351.2091979980469 244.9352264404297,351.73388671875 249.98052978515625,352.7693176269531 C250.20443725585938,352.7958984375 250.44017028808594,352.8414001464844 250.66424560546875,352.8697204589844 C265.0105895996094,354.68408203125 279.5978698730469,360.11224365234375 287.994873046875,369.9737854003906 C302.46685791015625,400.1655578613281 267.3110046386719,386.2254333496094 263.1761474609375,407.1274108886719 C259.0412902832031,428.0293884277344 283.8583984375,429.1852722167969 283.8583984375,429.1852722167969 L390.17547607421875,429.21875 L390.17547607421875,319.8666076660156 C391.692138671875,313.0628967285156 396.5233154296875,301.16900634765625 411.9858703613281,304.1014099121094 C433.3335876464844,308.1499328613281 419.09619140625,342.57171630859375 449.93182373046875,328.4018859863281 C460.0036315917969,320.18023681640625 465.547607421875,305.8975524902344 467.400634765625,291.85076904296875 C467.4295654296875,291.6313781738281 467.4760437011719,291.4340515136719 467.5032043457031,291.2148132324219 C468.5606689453125,286.27484130859375 469.0965881347656,280.6227111816406 468.87060546875,274.6128234863281 C468.2585144042969,258.3327941894531 462.686279296875,240.07147216796875 450.75225830078125,230.32972717285156 C419.9166259765625,216.15992736816406 434.154052734375,250.58169555664062 412.8063049316406,254.6302032470703 C391.45855712890625,258.6787414550781 390.2780456542969,234.3798065185547 390.2780456542969,234.3798065185547 L390.17547607421875,129.579833984375 L278.42291259765625,129.579833984375 C271.4156188964844,127.9925308227539 259.8650817871094,123.16194915771484 262.80010986328125,108.32527923583984 C266.9349670410156,87.42329406738281 302.056640625,101.36341094970703 287.5846252441406,71.17166137695312 C279.1876220703125,61.31014633178711 264.6345520019531,55.8819580078125 250.28819274902344,54.067604064941406 C250.06411743164062,54.03927230834961 249.82839965820312,53.9937629699707 249.6044921875,53.96718978881836 C244.55918884277344,52.9317626953125 238.7864990234375,52.40707778930664 232.64845275878906,52.628318786621094 z';
-    //var puzzle = "m235.12163,288.70404c-0.4189,-69.36761 65.69643,-125.90895 147.73921,-126.34552c82.04279,-0.43655 148.83673,55.39758 149.25568,124.76517c0.41895,69.36761 -65.69641,125.90894 -147.7392,126.34552c-82.04279,0.43655 -148.83678,-55.39758 -149.25569,-124.76517z"
-    //var puzzle = 'M100, 100L100,300L550, 300L550, 200L250, 200L250,100z';
-    var points = [];
+
 </script>
 <script>
     function hyp(x, y) {
         return Math.sqrt(x * x + y * y);
     }
-
-    var paper = SVG($('#drawing')[0]).size(500, 400);
-    paper.viewbox(0, 0, 500, 400);
-    var puzzleTranslation = {x: -70, y: -50};
-    var puzzlePath = paper.defs().path(puzzle, true).translate(puzzleTranslation.x, puzzleTranslation.y);
-    puzzlePath.attr({id: 'shape'});
-
-    var puzzleBBOX = puzzlePath.node.getBBox();
-    //paper.use(puzzlePath).attr({fill: 'none', stroke: '#FF0000', 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-linejoin': 'round'});
-    var path = paper.path('', true).attr({fill: 'none', stroke: 'grey'});
-    var pointCount = 500;
-    var totalLength = puzzlePath.node.getTotalLength();
-    var index = 0;
-    var clipperPoints = [];
-    var scale = 1000;
-    for (var l = 0; l <= totalLength; l += totalLength / pointCount) {
-        index++;
-        var p = puzzlePath.node.getPointAtLength(l);
-        var x = p.x + puzzleTranslation.x;
-        var y = p.y + puzzleTranslation.y;
-        points.push({x: x, y: y, index: index * 2});
-        clipperPoints.push({X: x * scale, Y: y * scale});
+    var svg = SVG($('#drawing')[0]).size(600, 700);
+    var paper = svg.group().attr({id: 'root', 'vector-effect': 'non-scaling-stroke'});
+    function setMatrix(element, matrix) {
+        var components = $.map('abcdef'.split(''),function (c) {
+            return matrix[c];
+        }).join(',');
+        element.attr({transform: 'matrix(' + components + ')'});
     }
-    clipperPoints = ClipperLib.Clean(clipperPoints, 0.01 * scale);
+    $('#drawing').mousewheel(function (event, delta, deltaX, deltaY) {
+        var svgRoot = paper.node;
+        var p = svg.node.createSVGPoint();
+        p.x = event.clientX;
+        p.y = event.clientY;
+        p = p.matrixTransform(svgRoot.getCTM().inverse());
+        var k = svg.node.createSVGMatrix().translate(p.x, p.y).scale(1 + delta / 360).translate(-p.x, -p.y);
+        var m = svgRoot.getCTM().multiply(k);
+        setMatrix(paper, m);
+        event.preventDefault();
+    });
+    var pointCount = 500;
+    var scale = 10000;
+
     function showPolygon(path, points, getX, getY) {
         $.each(points, function (index, point) {
             var segment;
@@ -102,59 +82,155 @@
         path.node.pathSegList.appendItem(path.node.createSVGPathSegClosePath());
     }
 
-    var openingRadius = 10;
-    var offset = 40;
-    showPolygon(path, points, function (p) {
-        return p.x;
-    }, function (p) {
-        return p.y;
-    });
-    var group = paper.group();
-
-
+    function getX(p) {
+        return p.X / scale;
+    }
+    function getY(p) {
+        return p.Y / scale;
+    }
     function showClipperPolygon(group, polygon, stroke) {
         $.each(polygon, function (_, polygon) {
-            var path = group.path('', true).attr({fill: 'none', stroke: stroke == null ? 'red' : stroke});
-            showPolygon(path, polygon, function (p) {
-                return p.X / scale;
-            }, function (p) {
-                return p.Y / scale;
-            });
+            var path = group.path('', true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: stroke == null ? 'red' : stroke});
+            showPolygon(path, polygon, getX, getY);
         });
     }
 
-    function showShape(openingRadius, offset, maxRadialPass, previousPassOffset) {
-        //group.remove();
-        group = paper.group();
+    var isStraightLine = function () {
+        var STRAIGHT_LINES = ['PATHSEG_CLOSEPATH', 'PATHSEG_LINETO_ABS', 'PATHSEG_LINETO_REL',
+            'PATHSEG_LINETO_HORIZONTAL_ABS', 'PATHSEG_LINETO_HORIZONTAL_REL', 'PATHSEG_LINETO_VERTICAL_ABS',
+            'PATHSEG_LINETO_VERTICAL_REL'];
+        var linePrefixes = [];
+        $.each(STRAIGHT_LINES, function (_, type) {
+            linePrefixes[SVGPathSeg[type]] = true;
+        });
+        return function isStraightLine(pathSeg) {
+            return !!linePrefixes[pathSeg.pathSegType];
+        };
+    }();
 
-        var cpr = new ClipperLib.Clipper();
-        var offset_polygon = cpr.OffsetPolygons([clipperPoints], (-offset - openingRadius) * scale, ClipperLib.JoinType.jtRound, 2, true);
-        var opened_polygon = cpr.OffsetPolygons(offset_polygon, openingRadius * scale, ClipperLib.JoinType.jtRound, 2, true);
-
-        showClipperPolygon(group, opened_polygon, 'blue');
-        if (previousPassOffset != null) {
-            //to limit accuracy problems, avoid stacking the dilations.
-            var dilatedPreviousPass = cpr.OffsetPolygons(previousPassOffset, (maxRadialPass + openingRadius) * scale, ClipperLib.JoinType.jtRound, 2, true);
-            cpr = new ClipperLib.Clipper();
-            cpr.AddPolygons(opened_polygon, ClipperLib.PolyType.ptSubject);
-            cpr.AddPolygons(dilatedPreviousPass, ClipperLib.PolyType.ptClip);
-            var solution_polygons = new ClipperLib.Polygons();
-            cpr.Execute(ClipperLib.ClipType.ctDifference, solution_polygons, ClipperLib.PolyFillType.pftNonZero, ClipperLib.ClipType.ctDifference);
-            showClipperPolygon(group, solution_polygons, 'red');
+    function getPathLengths(path) {
+        var shadowPath = paper.defs().path();
+        var segmentsLengths = [];
+        var clone = path.clone();
+        shadowPath.node.pathSegList.clear();
+        for (var i = 0; i < path.node.pathSegList.numberOfItems; i++) {
+            //explicitly remove it because append() in chrome removes it while ff leaves it
+            var item = clone.node.pathSegList.removeItem(0);
+            shadowPath.node.pathSegList.appendItem(item);
+            segmentsLengths[i] = shadowPath.node.getTotalLength();
         }
-        return offset_polygon;
+        shadowPath.remove();
+        return segmentsLengths;
     }
 
-    var radialPass = 20;
-    var maxRadialPass = 25;
-    var minPathRadius = 10;
+    function contouring(shapePath, toolRadius, translation) {
+        if (translation == null)
+            translation = {x: 0, y: 0};
+        var totalLength = shapePath.node.getTotalLength();
+        var index = 0;
+        var clipperPoints = [];
+        var segmentsLengths = getPathLengths(shapePath);
 
-    var startPass = 6;
-    var previousPass = null;
-    for (var i = 10; i >= 0; i--) {
-        previousPass = showShape(i * 2, startPass + i * radialPass, maxRadialPass, previousPass);
-        console.log(previousPass);
+        for (var l = 0; l <= totalLength;) {
+            index++;
+            var segmentIndex = shapePath.node.getPathSegAtLength(l);
+            var pathSeg = shapePath.node.pathSegList.getItem(segmentIndex);
+            var p = shapePath.node.getPointAtLength(l);
+
+            if (isStraightLine(pathSeg)) {
+                //push the initial segment point
+                p = shapePath.node.getPointAtLength(segmentsLengths[segmentIndex - 1]);
+                //skip to slightly after the end of the segment
+                l = segmentsLengths[segmentIndex] + totalLength / pointCount * 0.01;
+            } else
+                l += totalLength / pointCount;
+            clipperPoints.push({X: (translation.x + p.x) * scale, Y: (translation.y + p.y) * scale});
+        }
+        clipperPoints = [clipperPoints];
+        clipperPoints = ClipperLib.Clean(clipperPoints, 0.0001 * scale);
+        var cpr = new ClipperLib.Clipper();
+        return cpr.OffsetPolygons(clipperPoints, toolRadius * scale, ClipperLib.JoinType.jtRound, 0.25, true);
     }
+
+    function createCircle(centerX, centerY, radius) {
+        function coords(x, y) {
+            return x + ', ' + y;
+        }
+
+        var arcPrefix = 'A' + coords(radius, radius) + ' 0 1 1 ';
+        var arc1 = arcPrefix + coords(centerX, centerY - radius);
+        var arc2 = arcPrefix + coords(centerX, centerY + radius);
+        return 'M' + coords(centerX, centerY + radius) + ' ' + arc1 + ' ' + arc2;
+    }
+
+    var toolDiameter = 3;
+    var toolRadius = toolDiameter / 2;
+
+    function createDrillHole(x, y) {
+        return [
+            [
+                {X: x * scale, Y: y * scale}
+            ]
+        ];
+    }
+
+    function drillCorners(path) {
+        var holes = [];
+        $.each(getPathLengths(path), function (i, l) {
+            if (path.node.pathSegList.getItem(i).pathSegType != SVGPathSeg.PATHSEG_CLOSEPATH) {
+                var point = path.node.getPointAtLength(l);
+                holes.push(createDrillHole(point.x, point.y));
+            }
+        });
+        return holes;
+    }
+
+    var plugHole = paper.path('M40,25l0,15l-15,0l0,-15z', true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: 'red'});
+    var cornerHoles = drillCorners(plugHole);
+
+    var plugHoleToolPath = contouring(plugHole, -toolRadius);
+    showClipperPolygon(paper, plugHoleToolPath, 'blue');
+
+    var circle = paper.path(createCircle(47 + 65 / 2, 40, 65 / 2), true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: 'red'});
+    var circleToolPath = contouring(circle, -toolRadius);
+    showClipperPolygon(paper, circleToolPath, 'blue');
+
+    var rectangle = paper.path('M0,0L120,0L120,80L0,80Z', true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: 'red'});
+    var rectangleToolPath = contouring(rectangle, toolRadius);
+    showClipperPolygon(paper, rectangleToolPath, 'blue');
+
+
+    var box = paper.bbox();
+    var m = paper.node.getCTM();
+    var newScale = Math.min(svg.node.width.baseVal.value / box.width, svg.node.height.baseVal.value / box.height) * 0.9;
+    m.a = newScale;
+    m.d = -newScale;
+    m.e = -box.x + box.width * 0.25;
+    m.f = -(-box.y + box.height * 0.5 - svg.node.height.baseVal.value);
+    setMatrix(paper, m);
+    var travelZ = 10;
+    var workZ = -5;
+    var ops = cornerHoles.concat([plugHoleToolPath, circleToolPath, rectangleToolPath]);
+    function pos(x, y, z) {
+        return 'X' + x + ' Y' + y + ' Z' + z;
+    }
+    var output = '';
+    function appendLine(l) {
+        output += l + '\n';
+    }
+    $.each(ops, function (_, operation) {
+        $.each(operation, function (_, polygon) {
+            appendLine('G0 ' + pos(getX(polygon[0]), getY(polygon[0]), travelZ));
+            appendLine('G1 ' + pos(getX(polygon[0]), getY(polygon[0]), workZ));
+            $.each(polygon, function (_, point) {
+                appendLine('G1 ' + pos(getX(point), getY(point), workZ));
+            });
+            //close the loop
+            appendLine('G1 ' + pos(getX(polygon[0]), getY(polygon[0]), workZ));
+            appendLine('G1 ' + pos(getX(polygon[0]), getY(polygon[0]), travelZ));
+        });
+    });
+    $('#code').text(output);
 </script>
 </body>
 </html>

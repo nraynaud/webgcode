@@ -14,6 +14,7 @@
 		DDAA52C75C4385D4E8E57C10 /* svg.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5A030F4462F1A261CEB0 /* svg.js */; };
 		DDAA53EB6E3F53DD1452FF40 /* contour.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA51DE17B96DCF612B22D5 /* contour.js */; };
 		DDAA5483FC94B19E4DDD5313 /* TrackballControls.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA55BD80E7C2D0A1E30C84 /* TrackballControls.js */; };
+		DDAA552C6267F3185C8CAC83 /* jquery.mousewheel.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA52A07CEEAC61D37C2583 /* jquery.mousewheel.js */; };
 		DDAA554DBA35296CDEFFBF7B /* csg.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C645D269334C0AA6957 /* csg.js */; };
 		DDAA59F8C14ADBE647A5FE41 /* cnc.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = DDAA5C39B59BE70527721DE7 /* cnc.h */; };
 		DDAA5A5E764293C2F41E01A8 /* morphology.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C805943B69550EFE55F /* morphology.js */; };
@@ -48,6 +49,7 @@
 		DDAA51B9F55C5AFD9629737D /* test_threejs.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_threejs.html; sourceTree = "<group>"; };
 		DDAA51DE17B96DCF612B22D5 /* contour.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = contour.js; path = webapp/cnc/contour.js; sourceTree = "<group>"; };
 		DDAA5223044005BFC70BD5DE /* usb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = usb.c; path = interpolator/usb.c; sourceTree = "<group>"; };
+		DDAA52A07CEEAC61D37C2583 /* jquery.mousewheel.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jquery.mousewheel.js; path = webapp/libs/jquery.mousewheel.js; sourceTree = "<group>"; };
 		DDAA53D0D9AE21EE52463EAE /* manual.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = manual.c; path = interpolator/manual.c; sourceTree = "<group>"; };
 		DDAA54F29F1F185A35EE1B8C /* jsparse.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jsparse.js; path = webapp/libs/jsparse.js; sourceTree = "<group>"; };
 		DDAA5518BC9939B7C36FE0B9 /* jquery.flot.resize.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jquery.flot.resize.js; path = assets/jquery.flot.resize.js; sourceTree = "<group>"; };
@@ -116,6 +118,7 @@
 				DDAA583C80A2932FBC42EED1 /* svg.memory.js */,
 				DDAA5C805943B69550EFE55F /* morphology.js */,
 				DDAA586ED3964DF7D3AB9C61 /* test_offset.html */,
+				DDAA52A07CEEAC61D37C2583 /* jquery.mousewheel.js */,
 			);
 			sourceTree = "<group>";
 		};
@@ -226,6 +229,7 @@
 				DDAA526EED67132597417007 /* svg.draggable.js in Sources */,
 				DDAA5EC3FA0A4CDF769718B8 /* svg.memory.js in Sources */,
 				DDAA5A5E764293C2F41E01A8 /* morphology.js in Sources */,
+				DDAA552C6267F3185C8CAC83 /* jquery.mousewheel.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

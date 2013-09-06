@@ -4029,7 +4029,7 @@
         // steps += Math.pow(scale, 0.2);
 
         if (steps < 6) steps = 6;
-        if (steps > 64) steps = ClipperLib.MaxSteps; // to avoid overload
+        if (steps > 222) steps = 222; // to avoid overload
 
         // if (steps > 1048576) steps = 1048576; // 0x100000
         // if (steps > ClipperLib.MaxSteps) steps = ClipperLib.MaxSteps; // 0x100000
