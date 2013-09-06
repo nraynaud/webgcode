@@ -22,7 +22,7 @@ volatile cnc_memory_t cncMemory = {
                 .stepsPerMillimeter=640,
                 .maxSpeed = 3000,
                 .maxAcceleration = 150,
-                .clockFrequency = 200000},
+                .clockFrequency = 100000},
         .state = READY,
         .lastEvent = {NULL_EVENT, 0, 0, 0},
         .running = 0,
@@ -43,14 +43,18 @@ static step_t nextProgramStep() {
     return (step_t) {
             .duration = nextDuration,
             .axes = {
-                    .xStep = binAxes & 0b000001,
-                    .xDirection = binAxes & 0b000010,
-                    .yStep = binAxes & 0b000100,
-                    .yDirection = binAxes & 0b001000,
-                    .zStep = binAxes & 0b010000,
-                    .zDirection = binAxes & 0b100000,
+                    .xStep = !!(binAxes & 0b000001),
+                    .xDirection = !!(binAxes & 0b000010),
+                    .yStep = !!(binAxes & 0b000100),
+                    .yDirection = !!(binAxes & 0b001000),
+                    .zStep = !!(binAxes & 0b010000),
+                    .zDirection = !!(binAxes & 0b100000),
             }
     };
+}
+
+static int xor(int a, int b) {
+    return (a && !b) || (!a && b);
 }
 
 static void executeStep(step_t step) {
@@ -63,11 +67,11 @@ static void executeStep(step_t step) {
     if (step.duration) {
         STM_EVAL_LEDOn(LED6);
         uint16_t directions = 0;
-        if (cncMemory.currentStep.axes.xDirection ^ motorDirection.x)
+        if (xor(cncMemory.currentStep.axes.xDirection, motorDirection.x))
             directions |= motorsPinout.xDirection;
-        if (cncMemory.currentStep.axes.yDirection ^ motorDirection.y)
+        if (xor(cncMemory.currentStep.axes.yDirection, motorDirection.y))
             directions |= motorsPinout.yDirection;
-        if (cncMemory.currentStep.axes.zDirection ^ motorDirection.z)
+        if (xor(cncMemory.currentStep.axes.zDirection, motorDirection.z))
             directions |= motorsPinout.zDirection;
         GPIO_SetBits(motorsPinout.gpio, directions);
         uint32_t duration = step.duration;
