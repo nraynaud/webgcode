@@ -157,10 +157,13 @@
             return x + ', ' + y;
         }
 
-        var arcPrefix = 'A' + coords(radius, radius) + ' 0 1 1 ';
-        var arc1 = arcPrefix + coords(centerX, centerY - radius);
-        var arc2 = arcPrefix + coords(centerX, centerY + radius);
-        return 'M' + coords(centerX, centerY + radius) + ' ' + arc1 + ' ' + arc2;
+        function arc(dx, dy) {
+            return 'A' + coords(radius, radius) + ' 0 0 0 ' + coords(centerX + dx * radius, centerY + dy * radius);
+        }
+
+        //avoid long arcs because webkit makes huge errors with them in getPointAtLength()
+        var arcs = [arc(1, 0), arc(0, -1), arc(-1, 0), arc(0, 1)];
+        return 'M' + coords(centerX, centerY + radius) + ' ' + arcs.join(' ');
     }
 
     var toolDiameter = 3;
@@ -185,13 +188,13 @@
         return holes;
     }
 
-    var plugHole = paper.path('M40,25l0,15l-15,0l0,-15z', true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: 'red'});
+    var plugHole = paper.path('M40,25l0,15.5l-15.5,0l0,-15.5z', true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: 'red'});
     var cornerHoles = drillCorners(plugHole);
 
     var plugHoleToolPath = contouring(plugHole, -toolRadius);
     showClipperPolygon(paper, plugHoleToolPath, 'blue');
 
-    var circle = paper.path(createCircle(47 + 65 / 2, 40, 65 / 2), true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: 'red'});
+    var circle = paper.path(createCircle(47 + 65.5 / 2, 40, 65.5 / 2), true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: 'red'});
     var circleToolPath = contouring(circle, -toolRadius);
     showClipperPolygon(paper, circleToolPath, 'blue');
 
