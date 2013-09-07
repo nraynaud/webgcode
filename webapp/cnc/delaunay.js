@@ -1,3 +1,4 @@
+"use strict";
 function circleForTriangle(a, b, c) {
     //stolen from https://github.com/ironwallaby/delaunay
     var result = {};
@@ -50,11 +51,11 @@ function createDelaunay(xmin, xmax, ymin, ymax) {
     var vertices = [];
 
     function triangleAroundRectangle(x1, y1, x2, y2) {
-        spanX = x2 - x1;
-        spanY = y2 - y1;
-        longestSide = Math.max(spanX, spanY);
-        midX = (x1 + x2) / 2;
-        midY = (y1 + y2) / 2;
+        var spanX = x2 - x1;
+        var spanY = y2 - y1;
+        var longestSide = Math.max(spanX, spanY);
+        var midX = (x1 + x2) / 2;
+        var midY = (y1 + y2) / 2;
         vertices.push({x: midX - 10 * longestSide, y: midY - longestSide, fromSuper: true});
         vertices.push({x: midX, y: midY + 10 * longestSide, fromSuper: true});
         vertices.push({x: midX + 10 * longestSide, y: midY - longestSide, fromSuper: true});

@@ -1,3 +1,4 @@
+"use strict";
 function contour(altitude, geom) {
     var verticesCount = geom.vertices.length;
     var triangles = [];

@@ -1,5 +1,5 @@
+"use strict";
 function filterPath(path, stepSize) {
-    "use strict";
     var newPath = [];
     var previousPoint = null;
     $.each(path, function (_, point) {
