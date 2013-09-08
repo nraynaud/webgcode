@@ -1,27 +1,49 @@
 "use strict";
-function createPlate(paper) {
-    function createPath(d) {
-        return paper.path(d, true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: 'red'});
-    }
-
+function createFixturePlate(paper) {
     var toolDiameter = 3;
     var toolRadius = toolDiameter / 2;
-    var plugHole = createPath('M40,25l0,15.5l-15.5,0l0,-15.5z');
+
+    var plugHole = createOutline('M40,25' + createRelativeRectangle(-15.5, 15.5));
     var cornerHoles = drillCorners(plugHole);
 
-    var plugHoleToolPath = contouring(plugHole, -toolRadius);
+    var plugHoleToolPath = contouring(plugHole, toolRadius, true, true);
     showClipperPolygon(paper, plugHoleToolPath, 'blue');
 
-    var circle = createPath(createCircle(47 + 65.5 / 2, 40, 65.5 / 2));
-    var circleToolPath = contouring(circle, -toolRadius);
+    var spindleRadius = 65.5 / 2;
+    var circle = createOutline(createCircle(47 + spindleRadius, 40, spindleRadius));
+    var circleToolPath = contouring(circle, toolRadius, true, true);
     showClipperPolygon(paper, circleToolPath, 'blue');
 
-    var rectangle = createPath('M0,0L120,0L120,80L0,80Z');
-    var rectangleToolPath = contouring(rectangle, toolRadius);
+    var rectangle = createOutline('M0,0' + createRelativeRectangle(120, 80));
+    var rectangleToolPath = contouring(rectangle, toolRadius, false, true);
     showClipperPolygon(paper, rectangleToolPath, 'blue');
 
     var ops = cornerHoles.concat([plugHoleToolPath, circleToolPath, rectangleToolPath]);
     var travelZ = 10;
     var workZ = -5;
     return createGCode(workZ, travelZ, ops);
+}
+
+function createZFixture(paper) {
+    var toolDiameter = 3.2;
+    var toolRadius = toolDiameter / 2;
+    var stockThickness = 19;
+    var travelZ = 10;
+    var workZ = -19;
+    var length = 43;
+    var width = 40;
+    var grooveToSide = 11.5;
+    var grooveDepth = 5.5;
+
+    function lineTo(x, y) {
+        return  'l' + x + ',' + y;
+    }
+
+    var shape = lineTo(0, grooveToSide) + lineTo(4, 0) + lineTo(0, width - 2 * grooveToSide) + lineTo(-4, 0) +
+        lineTo(0, grooveToSide) + lineTo(length, 0) + lineTo(0, -width) + 'z';
+    var rectangle = createOutline('M0,0' + shape);
+    var rectangleToolPath = contouring(rectangle, toolRadius, false, false);
+
+    showClipperPolygon(paper, rectangleToolPath, 'blue');
+    return rampToolPath(rectangleToolPath, 0, workZ, 5, travelZ);
 }

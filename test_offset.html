@@ -8,6 +8,7 @@
     <script src="webapp/libs/svg.memory.js"></script>
     <script src="webapp/libs/jquery.mousewheel.js"></script>
     <script src="webapp/libs/clipper_unminified.js"></script>
+    <script src="webapp/cnc/cam.js"></script>
 
     <script src="samples/joystick_plate.js"></script>
 
@@ -47,126 +48,6 @@
         setMatrix(paper, m);
         event.preventDefault();
     });
-
-    function showPolygon(path, points) {
-        $.each(points, function (index, point) {
-            var segment;
-            if (index == 0)
-                segment = path.node.createSVGPathSegMovetoAbs(point.x, point.y);
-            else
-                segment = path.node.createSVGPathSegLinetoAbs(point.x, point.y);
-            path.node.pathSegList.appendItem(segment);
-        });
-        path.node.pathSegList.appendItem(path.node.createSVGPathSegClosePath());
-    }
-
-    function showClipperPolygon(group, polygon, stroke) {
-        $.each(polygon, function (_, polygon) {
-            var path = group.path('', true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: stroke == null ? 'red' : stroke});
-            showPolygon(path, polygon);
-        });
-    }
-
-    var isStraightLine = function () {
-        var STRAIGHT_LINES = ['PATHSEG_CLOSEPATH', 'PATHSEG_LINETO_ABS', 'PATHSEG_LINETO_REL',
-            'PATHSEG_LINETO_HORIZONTAL_ABS', 'PATHSEG_LINETO_HORIZONTAL_REL', 'PATHSEG_LINETO_VERTICAL_ABS',
-            'PATHSEG_LINETO_VERTICAL_REL'];
-        var linePrefixes = [];
-        $.each(STRAIGHT_LINES, function (_, type) {
-            linePrefixes[SVGPathSeg[type]] = true;
-        });
-        return function isStraightLine(pathSeg) {
-            return !!linePrefixes[pathSeg.pathSegType];
-        };
-    }();
-
-    function getPathLengths(path) {
-        var shadowPath = paper.defs().path();
-        var segmentsLengths = [];
-        var clone = path.clone();
-        shadowPath.node.pathSegList.clear();
-        for (var i = 0; i < path.node.pathSegList.numberOfItems; i++) {
-            //explicitly remove it because append() in chrome removes it while ff leaves it
-            var item = clone.node.pathSegList.removeItem(0);
-            shadowPath.node.pathSegList.appendItem(item);
-            segmentsLengths[i] = shadowPath.node.getTotalLength();
-        }
-        shadowPath.remove();
-        return segmentsLengths;
-    }
-
-    function contouring(shapePath, toolRadius, translation) {
-        var scale = 10000;
-        var pointCount = 500;
-        if (translation == null)
-            translation = {x: 0, y: 0};
-        var totalLength = shapePath.node.getTotalLength();
-        var index = 0;
-        var clipperPoints = [];
-        var segmentsLengths = getPathLengths(shapePath);
-
-        for (var l = 0; l <= totalLength;) {
-            index++;
-            var segmentIndex = shapePath.node.getPathSegAtLength(l);
-            var pathSeg = shapePath.node.pathSegList.getItem(segmentIndex);
-            var p = shapePath.node.getPointAtLength(l);
-            if (isStraightLine(pathSeg)) {
-                //push the initial segment point
-                p = shapePath.node.getPointAtLength(segmentsLengths[segmentIndex - 1]);
-                //skip to slightly after the end of the segment
-                l = segmentsLengths[segmentIndex] + totalLength / pointCount * 0.01;
-            } else
-                l += totalLength / pointCount;
-            clipperPoints.push({X: (translation.x + p.x) * scale, Y: (translation.y + p.y) * scale});
-        }
-        clipperPoints = [clipperPoints];
-        clipperPoints = ClipperLib.Clean(clipperPoints, 0.0001 * scale);
-        var cpr = new ClipperLib.Clipper();
-        var offset = cpr.OffsetPolygons(clipperPoints, toolRadius * scale, ClipperLib.JoinType.jtRound, 0.25, true);
-        var result = [];
-        $.each(offset, function (_, polygon) {
-            var newPoly = []
-            $.each(polygon, function (_, point) {
-                newPoly.push({x: point.X / scale, y: point.Y / scale});
-            });
-            result.push(newPoly);
-        });
-        return result;
-    }
-
-    function createCircle(centerX, centerY, radius) {
-        function coords(x, y) {
-            return x + ', ' + y;
-        }
-
-        function arc(dx, dy) {
-            return 'A' + coords(radius, radius) + ' 0 0 0 ' + coords(centerX + dx * radius, centerY + dy * radius);
-        }
-
-        //avoid long arcs because webkit makes huge errors with them in getPointAtLength()
-        var arcs = [arc(1, 0), arc(0, -1), arc(-1, 0), arc(0, 1)];
-        return 'M' + coords(centerX, centerY + radius) + ' ' + arcs.join(' ');
-    }
-
-    function createDrillHole(x, y) {
-        return [
-            [
-                {x: x, y: y}
-            ]
-        ];
-    }
-
-    function drillCorners(path) {
-        var holes = [];
-        $.each(getPathLengths(path), function (i, l) {
-            if (path.node.pathSegList.getItem(i).pathSegType != SVGPathSeg.PATHSEG_CLOSEPATH) {
-                var point = path.node.getPointAtLength(l);
-                holes.push(createDrillHole(point.x, point.y));
-            }
-        });
-        return holes;
-    }
-
     function zoomExtent(paper) {
         var box = paper.bbox();
         var m = paper.node.getCTM();
@@ -177,34 +58,7 @@
         m.f = -(-box.y + box.height * 0.5 - svg.node.height.baseVal.value);
         setMatrix(paper, m);
     }
-
-    function createGCode(workZ, travelZ, ops) {
-        var output = '';
-
-        function appendLine(l) {
-            output += l + '\n';
-        }
-
-        function pos(point, z) {
-            return 'X' + point.x + ' Y' + point.y + ' Z' + z;
-        }
-
-        $.each(ops, function (_, operation) {
-            $.each(operation, function (_, polygon) {
-                appendLine('G0 ' + pos(polygon[0], travelZ));
-                appendLine('G1 ' + pos(polygon[0], workZ));
-                $.each(polygon, function (_, point) {
-                    appendLine('G1 ' + pos(point, workZ));
-                });
-                //close the loop
-                appendLine('G1 ' + pos(polygon[0], workZ));
-                appendLine('G1 ' + pos(polygon[0], travelZ));
-            });
-        });
-        return output;
-    }
-
-    $('#code').text(createPlate(paper));
+    $('#code').text(createZFixture(paper));
     zoomExtent(paper);
 </script>
 </body>
