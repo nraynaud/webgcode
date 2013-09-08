@@ -60,7 +60,7 @@ function toClipper(shapePath, scale, pointCount, translation) {
         if (isStraightLine(pathSeg)) {
             //push the initial segment point
             p = shapePath.node.getPointAtLength(segmentsLengths[segmentIndex - 1]);
-            //skip to slightly (on hundredth of a step) after the end of the segment
+            //skip to slightly (one hundredth of a step) after the end of the segment
             l = segmentsLengths[segmentIndex] + totalLength / pointCount * 0.01;
         } else
             l += totalLength / pointCount;
@@ -70,21 +70,13 @@ function toClipper(shapePath, scale, pointCount, translation) {
     return ClipperLib.Clean(clipperPoints, 0.0001 * scale);
 }
 
-function contouring(shapePath, toolRadius, inside, climbMilling, translation) {
-    if (inside)
-        toolRadius = -toolRadius;
-    var polygonAreaPositive = (!!climbMilling) ^ (!inside);
-    var scale = 10000;
-    var pointCount = 500;
-    var clipperPoints = toClipper(shapePath, scale, pointCount, translation);
-
-    var cpr = new ClipperLib.Clipper();
-    var offset = cpr.OffsetPolygons(clipperPoints, toolRadius * scale, ClipperLib.JoinType.jtRound, 0.25, true);
+function fromClipper(polygons, scale, reorder, areaPositive) {
     var result = [];
-    $.each(offset, function (_, polygon) {
-        var area = ClipperLib.Clipper.Area(polygon) / (scale * scale);
-        if (area >= 0 && !polygonAreaPositive || area < 0 && polygonAreaPositive) {
-            polygon.reverse();
+    $.each(polygons, function (_, polygon) {
+        if (reorder) {
+            var area = ClipperLib.Clipper.Area(polygon) / (scale * scale);
+            if (area >= 0 && !areaPositive || area < 0 && areaPositive)
+                polygon.reverse();
         }
         var newPoly = [];
         $.each(polygon, function (_, point) {
@@ -93,6 +85,39 @@ function contouring(shapePath, toolRadius, inside, climbMilling, translation) {
         result.push(newPoly);
     });
     return result;
+}
+
+function contouring(shapePath, toolRadius, inside, climbMilling, translation) {
+    if (inside)
+        toolRadius = -toolRadius;
+    var polygonAreaPositive = (!!climbMilling) ^ (!inside);
+    var scale = 10000;
+    var pointCount = 500;
+    var clipperPoints = toClipper(shapePath, scale, pointCount, translation);
+    var cpr = new ClipperLib.Clipper();
+    var offset = cpr.OffsetPolygons(clipperPoints, toolRadius * scale, ClipperLib.JoinType.jtRound, 0.25, true);
+    return fromClipper(offset, scale, true, polygonAreaPositive);
+}
+
+function polyOp(p1, p2, op) {
+    var cpr = new ClipperLib.Clipper();
+    var result = new ClipperLib.Polygons()
+    cpr.AddPolygons(p1, ClipperLib.PolyType.ptSubject);
+    cpr.AddPolygons(p2, ClipperLib.PolyType.ptClip);
+    cpr.Execute(op, result, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
+    return result
+}
+
+function filletWholePolygon(shapePath, radius) {
+    var scale = 10000;
+    var pointCount = 500;
+    var unclean = toClipper(shapePath, scale, pointCount);
+    var clipperPoints = ClipperLib.Clean(unclean, 0.0001 * scale);
+    var cpr = new ClipperLib.Clipper();
+    var eroded = cpr.OffsetPolygons(clipperPoints, -radius * scale, ClipperLib.JoinType.jtRound, 0.25, true);
+    var openedDilated = cpr.OffsetPolygons(eroded, 2 * radius * scale, ClipperLib.JoinType.jtRound, 0.25, true);
+    var rounded = cpr.OffsetPolygons(openedDilated, -radius * scale, ClipperLib.JoinType.jtRound, 0.25, true);
+    return fromClipper(rounded, scale);
 }
 
 function createCircle(centerX, centerY, radius) {

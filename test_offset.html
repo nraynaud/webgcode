@@ -10,7 +10,7 @@
     <script src="webapp/libs/clipper_unminified.js"></script>
     <script src="webapp/cnc/cam.js"></script>
 
-    <script src="samples/joystick_plate.js"></script>
+    <script src="samples/box.js"></script>
 
     <style>
         * {
@@ -58,7 +58,7 @@
         m.f = -(-box.y + box.height * 0.5 - svg.node.height.baseVal.value);
         setMatrix(paper, m);
     }
-    $('#code').text(createZFixture(paper));
+    $('#code').text(createJoinTestSystem(paper));
     zoomExtent(paper);
 </script>
 </body>
