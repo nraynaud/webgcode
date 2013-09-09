@@ -18,5 +18,8 @@
         "background": {
             "scripts": ["background.js"]
         }
+    },
+    "sandbox": {
+        "pages": ["CAM.html"]
     }
 }

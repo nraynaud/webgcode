@@ -86,7 +86,8 @@ function sendSpeed(device, speedData, callback) {
 $('#send').click(function () {
     if (currentDevice) {
         $('#send').attr('disabled', 'disabled');
-        webView.contentWindow.postMessage({type: 'gimme program'}, webviewProtocol());
+        $('#manualControl').attr('disabled', 'disabled');
+        webView.contentWindow.postMessage({type: 'gimme program'}, '*');
     } else
         closeDevice();
 });
@@ -105,21 +106,22 @@ function closeDevice(callback) {
         callback();
 }
 window.setInterval(fetchPosition, 50);
-//var intervalPositionFetcherID = null;
+var intervalPositionFetcherID = null;
 function interruptHandler(device) {
     return function (usbEvent) {
         if (!usbEvent.resultCode) {
             var event = new Int32Array(usbEvent.data);
             if (event[0] == EVENTS.PROGRAM_END) {
                 console.log('PROGRAM_END');
-                //window.clearInterval(intervalPositionFetcherID);
-                //intervalPositionFetcherID = null;
+                window.clearInterval(intervalPositionFetcherID);
+                intervalPositionFetcherID = null;
                 fetchPosition();
                 $('#spinner').hide();
+                $('#manualControl').removeAttr('disabled');
             } else if (event[0] == EVENTS.PROGRAM_START) {
                 console.log('PROGRAM_START');
                 $('#spinner').show();
-                //intervalPositionFetcherID = window.setInterval(fetchPosition, 200);
+                intervalPositionFetcherID = window.setInterval(fetchPosition, 200);
             } else if (event[0] == EVENTS.MOVED) {
                 console.log('MOVED');
                 handlePosition({data: usbEvent.data.slice(4)});
@@ -151,7 +153,7 @@ function handlePosition(usbEvent) {
     $('#xpos').text(x.toFixed(3));
     $('#ypos').text(y.toFixed(3));
     $('#zpos').text(z.toFixed(3));
-    webView.contentWindow.postMessage({type: 'toolPosition', position: parameters.position}, webviewProtocol());
+    webView.contentWindow.postMessage({type: 'toolPosition', position: parameters.position}, '*');
     return true;
 }
 
@@ -210,7 +212,6 @@ function bindDevice() {
                     parameters.maxSpeed = params[1];
                     parameters.maxAcceleration = params[2];
                     parameters.clockFrequency = params[3];
-                    console.log(parameters);
                 }
             });
             fetchPosition();
@@ -253,10 +254,9 @@ $('#manualControl').click(function () {
         index: 0,
         data: new ArrayBuffer(0)
     }, function (e) {
-        console.log(e);
     });
 });
-$('.zeroButton').click(function (eventevent) {
+$('.zeroButton').click(function (event) {
     var axis = $(event.target).data('axis');
     var value = parseInt({X: '001', Y: '010', Z: '100'}[axis], 2);
     chrome.usb.controlTransfer(currentDevice, {
@@ -268,6 +268,5 @@ $('.zeroButton').click(function (eventevent) {
         index: 0,
         data: new ArrayBuffer(0)
     }, function (e) {
-        console.log(e);
     });
 });
