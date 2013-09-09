@@ -189,6 +189,8 @@ void flushBuffer() {
 }
 
 static uint8_t cncDataOut(void *pdev, uint8_t epnum) {
+    if (cncMemory.state == MANUAL_CONTROL)
+        toggleManualMode();
     if (cncMemory.state == READY || cncMemory.state == RUNNING_PROGRAM) {
         circularBuffer.signaled = 1;
         flushBuffer();

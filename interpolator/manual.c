@@ -146,12 +146,14 @@ void zeroJoystick() {
 uint32_t toggleManualMode() {
     switch (cncMemory.state) {
         case READY:
+            STM_EVAL_LEDOn(LED3);
             zeroJoystick();
             cncMemory.state = MANUAL_CONTROL;
             executeNextStep();
             sendEvent(ENTER_MANUAL_MODE);
             return 1;
         case MANUAL_CONTROL:
+            STM_EVAL_LEDOff(LED3);
             cncMemory.state = READY;
             sendEvent(EXIT_MANUAL_MODE);
             return 1;
