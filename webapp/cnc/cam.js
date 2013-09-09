@@ -199,7 +199,6 @@ function rampToolPath(toolpath, startZ, stopZ, turns, travelZ) {
     });
     pushLine('G1', toolpath[0], stopZ);
     pushLine('G0', toolpath[0], travelZ);
-    console.log(codeLines.join('\n'));
     return codeLines.join('\n');
 }
 function createGCode(workZ, travelZ, ops) {
