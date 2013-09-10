@@ -57,6 +57,7 @@
 
         #drawing {
             flex: 1;
+            overflow: hidden;
         }
     </style>
 </head>
@@ -218,7 +219,6 @@
         m.f = -(-box.y + box.height * 0.5 - svg.node.height.baseVal.value);
         setMatrix(paper, m);
     }
-    zoomExtent(paper);
     $(window).resize(function resizeSVG() {
         svg.size(drawing.width(), drawing.height());
     });
@@ -227,7 +227,6 @@
         eval($('#codebox').val());
         zoomExtent(paper);
     });
-
     eval($('#codebox').val());
     zoomExtent(paper);
 </script>
