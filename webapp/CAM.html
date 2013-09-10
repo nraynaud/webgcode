@@ -9,6 +9,12 @@
     <script src="libs/Three.js"></script>
     <script src="libs/TrackballControls.js"></script>
     <script src="libs/jsparse.js"></script>
+    <script src="libs/svg.js"></script>
+    <script src="libs/svg.draggable.js"></script>
+    <script src="libs/svg.memory.js"></script>
+    <script src="libs/jquery.mousewheel.js"></script>
+    <script src="libs/clipper_unminified.js"></script>
+    <script src="cnc/cam.js"></script>
     <script src="cnc/geometry.js"></script>
     <script src="cnc/simulation.js"></script>
     <script src="cnc/parser.js"></script>
@@ -38,19 +44,53 @@
             align-self: flex-end;
         }
 
+        #views {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
         #container {
             background: #2F2F2F;
-            flex: 1
+            flex: 1;
+        }
+
+        #drawing {
+            flex: 1;
         }
     </style>
 </head>
 <body>
 <div class="editBlock">
-    <textarea id="codebox" placeholder="Paste your G-code here..."></textarea>
-    <button onclick="evaluateCode();">Simulate</button>
-</div>
-<div id="container"></div>
+    <textarea id="codebox" placeholder="Paste your javascript here...">
 
+        var toolDiameter = 3.2;
+        var toolRadius = toolDiameter / 2;
+        var stockThickness = 19;
+        var travelZ = 10;
+        var workZ = -19;
+        var length = 43;
+        var width = 40;
+        var grooveToSide = 11.5;
+        var grooveDepth = 5.5;
+
+        function lineTo(x, y) {
+        return 'l' + x + ',' + y;
+        }
+
+        var shape = lineTo(0, grooveToSide) + lineTo(4, 0) + lineTo(0, width - 2 * grooveToSide) + lineTo(-4, 0) +
+        lineTo(0, grooveToSide) + lineTo(length, 0) + lineTo(0, -width) + 'z';
+        var rectangle = createOutline('M0,0' + shape);
+        var rectangleToolPath = contouring(rectangle, toolRadius, false, false);
+
+        showClipperPolygon(paper, rectangleToolPath, 'blue');
+    </textarea>
+    <button id="simulationButton">Simulate</button>
+</div>
+<div id="views">
+    <div id="container"></div>
+    <div id="drawing"></div>
+</div>
 <script>
     var $container = $('#container');
     var WIDTH = $container.width();
@@ -140,7 +180,56 @@
             renderer.render(scene, camera);
         }
     }, false);
-    evaluateCode();
+    //evaluateCode();
+</script>
+<script>
+    var drawing = $('#drawing');
+    var svg = SVG(drawing[0]).size(drawing.width(), drawing.height());
+    var paper = svg.group().attr({id: 'root', 'vector-effect': 'non-scaling-stroke'});
+    function setMatrix(element, matrix) {
+        var components = $.map('abcdef'.split(''),function (c) {
+            return matrix[c];
+        }).join(',');
+        element.attr({transform: 'matrix(' + components + ')'});
+    }
+    drawing.mousewheel(function (event, delta) {
+        if (typeof event.offsetX === "undefined" || typeof event.offsetY === "undefined") {
+            var targetOffset = $(event.target).offset();
+            event.offsetX = event.pageX - targetOffset.left;
+            event.offsetY = event.pageY - targetOffset.top;
+        }
+        var svgRoot = paper.node;
+        var p = svg.node.createSVGPoint();
+        p.x = event.offsetX;
+        p.y = event.offsetY;
+        p = p.matrixTransform(svgRoot.getCTM().inverse());
+        var k = svg.node.createSVGMatrix().translate(p.x, p.y).scale(1 + delta / 360).translate(-p.x, -p.y);
+        var m = svgRoot.getCTM().multiply(k);
+        setMatrix(paper, m);
+        event.preventDefault();
+    });
+    function zoomExtent(paper) {
+        var box = paper.bbox();
+        var m = paper.node.getCTM();
+        var newScale = Math.min(svg.node.width.baseVal.value / box.width, svg.node.height.baseVal.value / box.height) * 0.9;
+        m.a = newScale;
+        m.d = -newScale;
+        m.e = -box.x + box.width * 0.25;
+        m.f = -(-box.y + box.height * 0.5 - svg.node.height.baseVal.value);
+        setMatrix(paper, m);
+    }
+    zoomExtent(paper);
+    $(window).resize(function resizeSVG() {
+        svg.size(drawing.width(), drawing.height());
+    });
+    var button = $('#simulationButton');
+    button.click(function () {
+        eval($('#codebox').val());
+        zoomExtent(paper);
+    });
+
+    eval($('#codebox').val());
+    zoomExtent(paper);
 </script>
 </body>
 </html>
