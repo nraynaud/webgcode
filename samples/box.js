@@ -1,9 +1,9 @@
 "use strict";
-function createJoinTestSystem(paper) {
+function createJoinTestSystem(machine) {
     var toolDiameter = 1.5;
     var toolRadius = toolDiameter / 2;
 
-    function createFilletedRectangle(xSpan, ySpan, direction) {
+    function crateJoiningShape(xSpan, ySpan, direction) {
         function op(l, x, y) {
             return  l + x + ',' + y;
         }
@@ -38,25 +38,26 @@ function createJoinTestSystem(paper) {
                 + op('l', straightSpan * dx, straightSpan * dy);
         }
 
-        return sideWithJoin(xSpan / 2, 1, 0) + sideWithJoin(xSpan / 2, 1, 0)
-            + sideWithJoin(ySpan, 0, 1)
+        return sideWithJoin(xSpan / 3, 1, 0) + sideWithJoin(xSpan / 3, 1, 0) + sideWithJoin(xSpan / 3, 1, 0)
+            + op('l', 0, ySpan)
             + sideWithJoin(xSpan, -1, 0)
-            + sideWithJoin(ySpan, 0, -1)
+            + op('l', 0, -ySpan)
             + 'z';
     }
 
     function createShape(joinOrientation, x, y) {
-        var outline = createOutline('M' + x + ',' + y + createFilletedRectangle(40, 20, joinOrientation)).attr({id: 'outline'});
-        var rectangle = filletWholePolygon(outline, 2);
+        var outline = machine.createOutline('M' + x + ',' + y + crateJoiningShape(45, 20, joinOrientation)).attr({id: 'outline'});
+        var rectangle = machine.filletWholePolygon(outline, 2);
         outline.node.pathSegList.clear();
-        pushPolygonOn(outline, rectangle[0]);
+        rectangle[0].pushOnPath(outline);
         var rectangleToolPath = contouring(outline, toolRadius, false, false);
         showClipperPolygon(paper, rectangleToolPath, 'blue');
         return rectangleToolPath;
     }
 
-    var ops = [createShape(1, 0, 0), createShape(-1, 50, 0)];
+    machine.registerToolPathArray(createShape(1, 0, 0));
+    machine.registerToolPathArray(createShape(-1, 50, 0));
     var travelZ = 5;
     var workZ = -5;
-    return 'F600\n' + createGCode(workZ, travelZ, ops);
+    machine.setParams(workZ, travelZ, 600);
 }

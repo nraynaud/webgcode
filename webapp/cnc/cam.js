@@ -1,4 +1,13 @@
 "use strict";
+
+function pushOnPath(path, toolpath) {
+    var firstPoint = toolpath.getStartPoint();
+    path.node.pathSegList.appendItem(path.node.createSVGPathSegMovetoAbs(firstPoint.x, firstPoint.y));
+    toolpath.forEachPoint(function (x, y, z) {
+        path.node.pathSegList.appendItem(path.node.createSVGPathSegLinetoAbs(x, y));
+    }, null);
+}
+
 function pushPolygonOn(path, points) {
     $.each(points, function (index, point) {
         var segment;
@@ -78,9 +87,9 @@ function fromClipper(polygons, scale, reorder, areaPositive) {
             if (area >= 0 && !areaPositive || area < 0 && areaPositive)
                 polygon.reverse();
         }
-        var newPoly = [];
+        var newPoly = new ConstantZPolygonToolpath();
         $.each(polygon, function (_, point) {
-            newPoly.push({x: point.X / scale, y: point.Y / scale});
+            newPoly.pushPoint(point.X / scale, point.Y / scale);
         });
         result.push(newPoly);
     });
@@ -135,11 +144,9 @@ function createCircle(centerX, centerY, radius) {
 }
 
 function createDrillHole(x, y) {
-    return [
-        [
-            {x: x, y: y}
-        ]
-    ];
+    var toolPath = new ConstantZPolygonToolpath();
+    toolPath.pushPoint(x, y);
+    return toolPath;
 }
 
 function drillCorners(path) {
@@ -164,8 +171,7 @@ function createRelativeRectangle(xSpan, ySpan) {
 
     return lineTo(xSpan, 0) + lineTo(0, ySpan) + lineTo(-xSpan, 0) + 'Z';
 }
-function rampToolPath(toolpath, startZ, stopZ, turns, travelZ) {
-    toolpath = toolpath[0];
+function rampToolPath(toolpath, startZ, stopZ, turns) {
     function len(x, y) {
         return Math.sqrt(x * x + y * y);
     }
@@ -175,32 +181,25 @@ function rampToolPath(toolpath, startZ, stopZ, turns, travelZ) {
     }
 
     var path = paper.defs().path('', true);
-    pushPolygonOn(path, toolpath);
+    toolpath.pushOnPath(path);
     var toolpathLength = path.node.getTotalLength();
     var segmentsLen = getPathLengths(path);
     path.remove();
-    var codeLines = [];
-
-    function pushLine(code, point, z) {
-        codeLines.push(code + ' X' + point.x + ' Y' + point.y + ' Z' + z);
-    }
-
-    pushLine('G0', toolpath[0], travelZ);
+    var resultPolyline = new GeneralPolylineToolpath();
     for (var i = 0; i < turns; i++) {
-        var xyLength = 0;
-        $.each(toolpath, function (index, point) {
-            xyLength = segmentsLen[index + 1];
+        toolpath.forEachPoint(function (x, y, z, index) {
+            var xyLength = segmentsLen[index + 2];
             var z = startZ + (stopZ - startZ) * ((i + xyLength / toolpathLength) / turns);
-            pushLine('G1', point, z);
-        });
+            resultPolyline.pushPoint(x, y, z);
+        }, null);
     }
-    $.each(toolpath, function (index, point) {
-        pushLine('G1', point, stopZ);
-    });
-    pushLine('G1', toolpath[0], stopZ);
-    pushLine('G0', toolpath[0], travelZ);
-    return codeLines.join('\n');
+    //push constant Z bottom loop
+    toolpath.forEachPoint(function (x, y, z, index) {
+        resultPolyline.pushPoint(x, y, stopZ);
+    }, null);
+    return resultPolyline;
 }
+
 function createGCode(workZ, travelZ, ops) {
     var output = '';
 
@@ -225,3 +224,110 @@ function createGCode(workZ, travelZ, ops) {
     });
     return output;
 }
+
+function ConstantZPolygonToolpath() {
+    this.path = [];
+}
+ConstantZPolygonToolpath.prototype.pushPoint = function (x, y) {
+    this.path.push([x, y]);
+}
+ConstantZPolygonToolpath.prototype.getStartPoint = function (defaultZ) {
+    var p = this.path[0];
+    return {x: p[0], y: p[1], z: defaultZ};
+}
+ConstantZPolygonToolpath.prototype.getStopPoint = function (defaultZ) {
+    return this.getStartPoint(defaultZ);
+}
+ConstantZPolygonToolpath.prototype.forEachPoint = function (pointHandler, defaultZ) {
+    $.each(this.path, function (index, point) {
+        pointHandler(point[0], point[1], defaultZ, index);
+    });
+    var lastPoint = this.getStopPoint(defaultZ);
+    pointHandler(lastPoint.x, lastPoint.y, lastPoint.z, this.path.length);
+}
+ConstantZPolygonToolpath.prototype.pushOnPath = function (path) {
+    pushOnPath(path, this);
+    path.node.pathSegList.appendItem(path.node.createSVGPathSegClosePath());
+}
+
+function GeneralPolylineToolpath() {
+    this.path = [];
+}
+
+GeneralPolylineToolpath.prototype.pushPoint = function (x, y, z) {
+    this.path.push([x, y, z]);
+};
+GeneralPolylineToolpath.prototype.getStartPoint = function (defaultZ) {
+    var p = this.path[0];
+    return {x: p[0], y: p[1], z: p[2]};
+};
+GeneralPolylineToolpath.prototype.getStopPoint = function (defaultZ) {
+    var p = this.path[this.path.length - 1];
+    return {x: p[0], y: p[1], z: p[2]};
+};
+GeneralPolylineToolpath.prototype.forEachPoint = function (pointHandler, defaultZ) {
+    $.each(this.path, function (index, point) {
+        pointHandler(point[0], point[1], point[2], index);
+    });
+    var lastPoint = this.getStopPoint(defaultZ);
+    pointHandler(lastPoint.x, lastPoint.y, lastPoint.z);
+}
+GeneralPolylineToolpath.prototype.pushOnPath = function (path) {
+    pushOnPath(path, this);
+}
+
+function Machine(paper) {
+    this.paper = paper;
+    this.operations = [];
+}
+
+Machine.prototype.setParams = function (workZ, travelZ, feedRate) {
+    this.workZ = workZ;
+    this.travelZ = travelZ;
+    this.feedRate = feedRate;
+};
+Machine.prototype.createOutline = function (defintion) {
+    return createOutline(defintion);
+};
+Machine.prototype.contouring = function (shapePath, toolRadius, inside, climbMilling, translation) {
+    return contouring(shapePath, toolRadius, inside, climbMilling, translation);
+};
+Machine.prototype.registerToolPath = function (toolpath) {
+    var path = this.paper.path('', true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: 'blue'});
+    toolpath.pushOnPath(path);
+    this.operations.push(toolpath);
+};
+Machine.prototype.registerToolPathArray = function (toolpathArray) {
+    var machine = this;
+    $.each(toolpathArray, function (_, toolpath) {
+        machine.registerToolPath(toolpath);
+    });
+}
+Machine.prototype.rampToolPath = function (toolpath, startZ, stopZ, turns) {
+    return rampToolPath(toolpath, startZ, stopZ, turns);
+};
+Machine.prototype.drillCorners = function (contour) {
+    return drillCorners(contour);
+}
+Machine.prototype.filletWholePolygon = function (shapePath, radius) {
+    return filletWholePolygon(shapePath, radius);
+};
+
+Machine.prototype.dumpGCode = function () {
+    var machine = this;
+
+    function pos(point, zOverride) {
+        return 'X' + point.x + ' Y' + point.y + ' Z' + ((zOverride != undefined) ? zOverride : point.z);
+    }
+
+    var code = ['F' + this.feedRate];
+    $.each(this.operations, function (_, op) {
+        code.push('G0' + pos(op.getStartPoint(machine.travelZ), machine.travelZ));
+        op.forEachPoint(function (x, y, z) {
+            code.push('G1' + pos({x: x, y: y, z: z}));
+        }, machine.workZ);
+        code.push('G0' + pos(op.getStopPoint(machine.travelZ), machine.travelZ));
+    });
+    return code.join('\n');
+}
+

@@ -1,30 +1,32 @@
 "use strict";
-function createFixturePlate(paper) {
+function createFixturePlate(machine) {
     var toolDiameter = 3;
     var toolRadius = toolDiameter / 2;
 
-    var plugHole = createOutline('M40,25' + createRelativeRectangle(-15.5, 15.5));
-    var cornerHoles = drillCorners(plugHole);
+    var plugHole = machine.createOutline('M40,25' + createRelativeRectangle(-15.5, 15.5));
+    var cornerHoles = machine.drillCorners(plugHole);
+    machine.registerToolPathArray(cornerHoles);
 
-    var plugHoleToolPath = contouring(plugHole, toolRadius, true, true);
-    showClipperPolygon(paper, plugHoleToolPath, 'blue');
+
+    var plugHoleToolPath = machine.contouring(plugHole, toolRadius, true, true);
+    machine.registerToolPathArray(plugHoleToolPath);
 
     var spindleRadius = 65.5 / 2;
-    var circle = createOutline(createCircle(47 + spindleRadius, 40, spindleRadius));
-    var circleToolPath = contouring(circle, toolRadius, true, true);
-    showClipperPolygon(paper, circleToolPath, 'blue');
+    var circle = machine.createOutline(createCircle(47 + spindleRadius, 40, spindleRadius));
+    var circleToolPath = machine.contouring(circle, toolRadius, true, true);
+    machine.registerToolPathArray(circleToolPath);
 
-    var rectangle = createOutline('M0,0' + createRelativeRectangle(120, 80));
-    var rectangleToolPath = contouring(rectangle, toolRadius, false, true);
-    showClipperPolygon(paper, rectangleToolPath, 'blue');
+    var rectangle = machine.createOutline('M0,0' + createRelativeRectangle(120, 80));
+    var rectangleToolPath = machine.contouring(rectangle, toolRadius, false, true);
+    machine.registerToolPathArray(rectangleToolPath);
 
-    var ops = cornerHoles.concat([plugHoleToolPath, circleToolPath, rectangleToolPath]);
     var travelZ = 10;
     var workZ = -5;
-    return createGCode(workZ, travelZ, ops);
+
+    machine.setParams(workZ, travelZ, 500);
 }
 
-function createZFixture(paper) {
+function createZFixture(machine) {
     var toolDiameter = 3.2;
     var toolRadius = toolDiameter / 2;
     var stockThickness = 19;
@@ -41,9 +43,9 @@ function createZFixture(paper) {
 
     var shape = lineTo(0, grooveToSide) + lineTo(4, 0) + lineTo(0, width - 2 * grooveToSide) + lineTo(-4, 0) +
         lineTo(0, grooveToSide) + lineTo(length, 0) + lineTo(0, -width) + 'z';
-    var rectangle = createOutline('M0,0' + shape);
-    var rectangleToolPath = contouring(rectangle, toolRadius, false, false);
-
-    showClipperPolygon(paper, rectangleToolPath, 'blue');
-    return rampToolPath(rectangleToolPath, 0, workZ, 5, travelZ);
+    var rectangle = machine.createOutline('M0,0' + shape);
+    var contours = machine.contouring(rectangle, toolRadius, false, false);
+    var toolPath = machine.rampToolPath(contours[0], 0, workZ, 5, travelZ);
+    machine.registerToolPath(toolPath);
+    machine.setParams(workZ, travelZ, 500);
 }
