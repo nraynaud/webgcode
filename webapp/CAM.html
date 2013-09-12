@@ -117,8 +117,7 @@
     <div id="drawing"></div>
 </div>
 <script>
-    var $container = $('#container');
-    var threeDView = new ThreeDView($container);
+    var threeDView = new ThreeDView($('#container'));
 </script>
 <script>
     window.addEventListener("message", function (event) {
@@ -142,14 +141,20 @@
     }, false);
 </script>
 <script>
-    var drawing = $('#drawing');
-    var twoDView = new TwoDView(drawing);
+    var twoDView = new TwoDView($('#drawing'));
+    var codebox = $('#codebox');
+    var code = localStorage.getItem('code');
+    if (code)
+        codebox.text(code);
+    codebox.change(function () {
+        localStorage.setItem('code', codebox.val());
+    });
     var button = $('#simulationButton');
     var machine = null;
     function refresh() {
         machine = new Machine(twoDView.paper);
         twoDView.clear();
-        eval($('#codebox').val());
+        eval(codebox.val());
         twoDView.zoomExtent();
         threeDView.displayPath(machine.dumpPath());
     }
