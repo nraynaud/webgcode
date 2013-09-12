@@ -19,6 +19,7 @@
     <script src="cnc/simulation.js"></script>
     <script src="cnc/parser.js"></script>
     <script src="cnc/threeDView.js"></script>
+    <script src="cnc/twoDView.js"></script>
     <style>
         html, body {
             height: 100%;
@@ -65,30 +66,49 @@
 <body>
 <div class="editBlock">
     <textarea id="codebox" placeholder="Paste your javascript here...">
-        var toolDiameter = 3;
+        var toolDiameter = 5.5;
         var toolRadius = toolDiameter / 2;
-
-        var plugHole = machine.createOutline('M40,25' + createRelativeRectangle(-15.5, 15.5));
-        var cornerHoles = machine.drillCorners(plugHole);
-        machine.registerToolPathArray(cornerHoles);
-
-
-        var plugHoleToolPath = machine.contouring(plugHole, toolRadius, true, true);
-        machine.registerToolPathArray(plugHoleToolPath);
-
-        var spindleRadius = 65.5 / 2;
-        var circle = machine.createOutline(createCircle(47 + spindleRadius, 40, spindleRadius));
-        var circleToolPath = machine.contouring(circle, toolRadius, true, true);
-        machine.registerToolPathArray(circleToolPath);
-
-        var rectangle = machine.createOutline('M0,0' + createRelativeRectangle(120, 80));
-        var rectangleToolPath = machine.contouring(rectangle, toolRadius, false, true);
-        machine.registerToolPathArray(rectangleToolPath);
-
-        var travelZ = 10;
-        var workZ = -5;
+        var stockThickness = 19;
+        var travelZ = 5;
+        var workZ = -19;
 
         machine.setParams(workZ, travelZ, 500);
+        var plateWidth = 155;
+        var plateHeight = 75;
+
+        var switchWidth = 22;
+        var switchHeight = 29;
+
+        var switchTopMargin = 11;
+
+        var plugHeight = 20.6;
+        var plugWidth = 28.5;
+
+        var plugCenterX = 40;
+
+        var plugSwitchSeparation = 2;
+
+        function cornerForCenter(centerCoord, width) {
+        return centerCoord - width / 2;
+        }
+
+        var plateOutline = machine.createOutline('M0,0' + createRelativeRectangle(plateWidth, plateHeight));
+        var switchBottom = plateHeight - switchTopMargin - switchHeight;
+        var switchOutline = machine.createOutline('M' + cornerForCenter(plugCenterX, switchWidth) + ',' + switchBottom +
+        createRelativeRectangle(switchWidth, switchHeight));
+        var plugBottom = switchBottom - plugSwitchSeparation - plugHeight;
+        var plugOutline = machine.createOutline('M' + cornerForCenter(plugCenterX, plugWidth) + ',' + plugBottom +
+        createRelativeRectangle(plugWidth, plugHeight));
+
+        function makeToolPath(outline, inside) {
+        var toolpath = machine.rampToolPath(machine.contouring(outline, toolRadius, inside, false)[0], 0, workZ, 3);
+        machine.registerToolPath(toolpath);
+
+        }
+
+        makeToolPath(switchOutline, true);
+        makeToolPath(plugOutline, true);
+        makeToolPath(plateOutline, false);
     </textarea>
     <button id="simulationButton">Simulate</button>
 </div>
@@ -120,54 +140,17 @@
             renderer.render(scene, camera);
         }
     }, false);
-    //evaluateCode();
 </script>
 <script>
     var drawing = $('#drawing');
-    var svg = SVG(drawing[0]).size(drawing.width(), drawing.height());
-    var paper = svg.group().attr({id: 'root', 'vector-effect': 'non-scaling-stroke'});
-    function setMatrix(element, matrix) {
-        var components = $.map('abcdef'.split(''),function (c) {
-            return matrix[c];
-        }).join(',');
-        element.attr({transform: 'matrix(' + components + ')'});
-    }
-    drawing.mousewheel(function (event, delta) {
-        if (typeof event.offsetX === "undefined" || typeof event.offsetY === "undefined") {
-            var targetOffset = $(event.target).offset();
-            event.offsetX = event.pageX - targetOffset.left;
-            event.offsetY = event.pageY - targetOffset.top;
-        }
-        var svgRoot = paper.node;
-        var p = svg.node.createSVGPoint();
-        p.x = event.offsetX;
-        p.y = event.offsetY;
-        p = p.matrixTransform(svgRoot.getCTM().inverse());
-        var k = svg.node.createSVGMatrix().translate(p.x, p.y).scale(1 + delta / 360).translate(-p.x, -p.y);
-        var m = svgRoot.getCTM().multiply(k);
-        setMatrix(paper, m);
-        event.preventDefault();
-    });
-    function zoomExtent(paper) {
-        var box = paper.bbox();
-        var m = paper.node.getCTM();
-        var newScale = Math.min(svg.node.width.baseVal.value / box.width, svg.node.height.baseVal.value / box.height) * 0.9;
-        m.a = newScale;
-        m.d = -newScale;
-        m.e = -box.x + box.width * 0.25;
-        m.f = -(-box.y + box.height * 0.5 - svg.node.height.baseVal.value);
-        setMatrix(paper, m);
-    }
-    $(window).resize(function resizeSVG() {
-        svg.size(drawing.width(), drawing.height());
-    });
+    var twoDView = new TwoDView(drawing);
     var button = $('#simulationButton');
     var machine = null;
     function refresh() {
-        machine = new Machine(paper);
-        paper.clear();
+        machine = new Machine(twoDView.paper);
+        twoDView.clear();
         eval($('#codebox').val());
-        zoomExtent(paper);
+        twoDView.zoomExtent();
         threeDView.displayPath(machine.dumpPath());
     }
     button.click(function () {

@@ -41,7 +41,8 @@ var isStraightLine = function () {
 }();
 
 function getPathLengths(path) {
-    var shadowPath = paper.defs().path();
+    var defs = path.parent.type == "defs" ? path.parent : path.parent.defs();
+    var shadowPath = defs.path();
     var segmentsLengths = [];
     var clone = path.clone();
     shadowPath.node.pathSegList.clear();
@@ -149,55 +150,12 @@ function createDrillHole(x, y) {
     return toolPath;
 }
 
-function drillCorners(path) {
-    var holes = [];
-    $.each(getPathLengths(path), function (i, l) {
-        if (path.node.pathSegList.getItem(i).pathSegType != SVGPathSeg.PATHSEG_CLOSEPATH) {
-            var point = path.node.getPointAtLength(l);
-            holes.push(createDrillHole(point.x, point.y));
-        }
-    });
-    return holes;
-}
-
-function createOutline(d) {
-    return paper.path(d, true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: 'red'});
-}
-
 function createRelativeRectangle(xSpan, ySpan) {
     function lineTo(x, y) {
         return  'l' + x + ',' + y;
     }
 
     return lineTo(xSpan, 0) + lineTo(0, ySpan) + lineTo(-xSpan, 0) + 'Z';
-}
-function rampToolPath(toolpath, startZ, stopZ, turns) {
-    function len(x, y) {
-        return Math.sqrt(x * x + y * y);
-    }
-
-    function dist(p1, p2) {
-        return len(p1.x - p2.x, p1.y - p2.y);
-    }
-
-    var path = paper.defs().path('', true);
-    toolpath.pushOnPath(path);
-    var toolpathLength = path.node.getTotalLength();
-    var segmentsLen = getPathLengths(path);
-    path.remove();
-    var resultPolyline = new GeneralPolylineToolpath();
-    for (var i = 0; i < turns; i++) {
-        toolpath.forEachPoint(function (x, y, z, index) {
-            var xyLength = segmentsLen[index + 2];
-            var z = startZ + (stopZ - startZ) * ((i + xyLength / toolpathLength) / turns);
-            resultPolyline.pushPoint(x, y, z);
-        }, null);
-    }
-    //push constant Z bottom loop
-    toolpath.forEachPoint(function (x, y, z, index) {
-        resultPolyline.pushPoint(x, y, stopZ);
-    }, null);
-    return resultPolyline;
 }
 
 function createGCode(workZ, travelZ, ops) {
@@ -287,7 +245,7 @@ Machine.prototype.setParams = function (workZ, travelZ, feedRate) {
     this.feedRate = feedRate;
 };
 Machine.prototype.createOutline = function (defintion) {
-    return createOutline(defintion);
+    return this.paper.path(defintion, true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: 'red'});
 };
 Machine.prototype.contouring = function (shapePath, toolRadius, inside, climbMilling, translation) {
     return contouring(shapePath, toolRadius, inside, climbMilling, translation);
@@ -304,10 +262,42 @@ Machine.prototype.registerToolPathArray = function (toolpathArray) {
     });
 }
 Machine.prototype.rampToolPath = function (toolpath, startZ, stopZ, turns) {
-    return rampToolPath(toolpath, startZ, stopZ, turns);
+    function len(x, y) {
+        return Math.sqrt(x * x + y * y);
+    }
+
+    function dist(p1, p2) {
+        return len(p1.x - p2.x, p1.y - p2.y);
+    }
+
+    var path = this.paper.defs().path('', true);
+    toolpath.pushOnPath(path);
+    var toolpathLength = path.node.getTotalLength();
+    var segmentsLen = getPathLengths(path);
+    path.remove();
+    var resultPolyline = new GeneralPolylineToolpath();
+    for (var i = 0; i < turns; i++) {
+        toolpath.forEachPoint(function (x, y, z, index) {
+            var xyLength = segmentsLen[index + 2];
+            var z = startZ + (stopZ - startZ) * ((i + xyLength / toolpathLength) / turns);
+            resultPolyline.pushPoint(x, y, z);
+        }, null);
+    }
+    //push constant Z bottom loop
+    toolpath.forEachPoint(function (x, y, z, index) {
+        resultPolyline.pushPoint(x, y, stopZ);
+    }, null);
+    return resultPolyline;
 };
 Machine.prototype.drillCorners = function (contour) {
-    return drillCorners(contour);
+    var holes = [];
+    $.each(getPathLengths(path), function (i, l) {
+        if (path.node.pathSegList.getItem(i).pathSegType != SVGPathSeg.PATHSEG_CLOSEPATH) {
+            var point = path.node.getPointAtLength(l);
+            holes.push(createDrillHole(point.x, point.y));
+        }
+    });
+    return holes;
 }
 Machine.prototype.filletWholePolygon = function (shapePath, radius) {
     return filletWholePolygon(shapePath, radius);
