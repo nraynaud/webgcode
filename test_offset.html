@@ -48,7 +48,7 @@
     var drawing = $('#drawing');
     var twoDView = new TwoDView(drawing);
     var machine = new Machine(twoDView.paper);
-    createFrontPowerPlate(machine);
+    createJoinTestSystem(machine);
     $('#code').text(machine.dumpGCode());
     twoDView.zoomExtent();
 </script>
