@@ -433,5 +433,5 @@ function evaluate(text, position) {
 function evaluateCode() {
     var text = $('#codebox').val();
     var simulatedPath = simulate(evaluate(text));
-    displayPath(simulatedPath, '0 0 0', 'toolpath');
+    return simulatedPath;
 }

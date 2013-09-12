@@ -331,3 +331,16 @@ Machine.prototype.dumpGCode = function () {
     return code.join('\n');
 }
 
+Machine.prototype.dumpPath = function () {
+    var points = [];
+    $.each(this.operations, function (_, op) {
+        var startPoint = op.getStartPoint(machine.travelZ);
+        points.push({x: startPoint.x, y: startPoint.y, z: machine.travelZ});
+        op.forEachPoint(function (x, y, z) {
+            points.push({x: x, y: y, z: z});
+        }, machine.workZ);
+        var stopPoint = op.getStopPoint(machine.travelZ);
+        points.push({x: stopPoint.x, y: stopPoint.y, z: machine.travelZ});
+    });
+    return points;
+}

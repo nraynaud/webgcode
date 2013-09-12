@@ -68,24 +68,6 @@ var COMPONENT_TYPES = {
     }
 };
 
-function displayPath(path, color, id) {
-    var lineGeometry = new THREE.Geometry();
-    for (var i = 0; i < path.length; i++) {
-        var p = path[i];
-        lineGeometry.vertices.push(new THREE.Vector3(p.x, p.y, p.z));
-    }
-    lineGeometry.verticesNeedUpdate = true;
-    if (window.toolpath)
-        scene.remove(window.toolpath);
-    window.toolpath = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({color: 0xCCCCCC}));
-    scene.add(window.toolpath);
-    renderer.render(scene, camera);
-}
-
-function displayVector(origin, vector, color, id) {
-    displayPath([origin, {x: origin.x + vector.x, y: origin.y + vector.y, z: origin.z + vector.z}], color, id);
-}
-
 function arcClampedSpeed(radius, speed, acceleration) {
     var maxRadialAcceleration = Math.pow(speed, 2) / radius;
     var reductionFactor = 0.8;
