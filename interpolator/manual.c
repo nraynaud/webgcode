@@ -12,9 +12,9 @@ static const struct {
         .xControl = GPIO_Pin_1,
         .yControl = GPIO_Pin_2,
         .zControl = GPIO_Pin_3,
-        .xOrientation = 1,
+        .xOrientation = -1,
         .yOrientation = 1,
-        .zOrientation = 1};
+        .zOrientation = -1};
 
 static volatile struct {
     float32_t x, y, z;
