@@ -13,6 +13,7 @@
     <script src="webapp/cnc/geometry.js"></script>
     <script src="webapp/cnc/simulation.js"></script>
     <script src="webapp/cnc/parser.js"></script>
+    <script src="webapp/cnc/threeDView.js"></script>
     <style>
         .editBlock {
             position: relative;
@@ -91,7 +92,7 @@
         G3 Z50 J0 K5
         G17 (back to X-Y plane)
     </textarea>
-    <button onclick="evaluateCode();">Simulate</button>
+    <button onclick="threeDView.displayPath(evaluateCode());">Simulate</button>
 </div>
 <div class="chart" id="chart1"></div>
 <div class="chart" id="chart2"></div>
@@ -102,72 +103,9 @@
     }
 </script>
 <script>
-    var WIDTH = 600;
-    var HEIGHT = 400;
-    var mouse = new THREE.Vector2(), INTERSECTED;
-    projector = new THREE.Projector();
-    raycaster = new THREE.Raycaster();
+
     var $container = $('#container');
-    var renderer = new THREE.WebGLRenderer({antialias: true});
-    var camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, 20000);
-    var scene = new THREE.Scene();
-    camera.position.x = 30;
-    camera.position.y = 30;
-    camera.position.z = 30;
-    camera.up.set(0, 0, 1);
-    renderer.setSize(WIDTH, HEIGHT);
-    $(window).resize(function () {
-        camera.aspect = $container.width() / $container.height();
-        camera.updateProjectionMatrix();
-        renderer.setSize($container.width(), $container.height());
-        renderer.render(scene, camera);
-    });
-    $container.append(renderer.domElement);
-    scene.add(camera);
-    controls = new THREE.TrackballControls(camera, $container[0]);
-    controls.rotateSpeed = 1.0;
-    controls.zoomSpeed = 1.2;
-    controls.panSpeed = 0.8;
-    controls.noZoom = false;
-    controls.noPan = false;
-    controls.staticMoving = true;
-    controls.dynamicDampingFactor = 0.3;
-    controls.minDistance = 3;
-    controls.keys = [ 65, 83, 68 ];
-    controls.addEventListener('change', function () {
-        renderer.render(scene, camera);
-    });
-    function animate() {
-        requestAnimationFrame(animate);
-        controls.update();
-    }
-    var mesh = null;
-    var contourMesh = null;
-    var contourLines = [];
-    var planeGeometry = new THREE.PlaneGeometry(10, 10, 5, 5);
-    scene.add(new THREE.Mesh(planeGeometry, new THREE.MeshBasicMaterial({wireframe: true, color: 0x00CC00})));
-    function createAxis(x, y, z, color) {
-        var geom = new THREE.Geometry();
-        geom.vertices.push(new THREE.Vector3(0, 0, 0));
-        geom.vertices.push(new THREE.Vector3(x, y, z));
-        return new THREE.Line(geom, new THREE.LineBasicMaterial({color: color}));
-    }
-    var axes = new THREE.Object3D();
-    axes.add(createAxis(10, 0, 0, 0xFF0000));
-    axes.add(createAxis(0, 10, 0, 0x00FF00));
-    axes.add(createAxis(0, 0, 10, 0x0000FF));
-    scene.add(axes);
-    var tool = new THREE.Object3D();
-    var toolbit = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 10, 20, 2, false), new THREE.MeshPhongMaterial({emissive: 0xEF0000, specular: 0x0F0000, shininess: 204, color: 0xF0F0F0, opacity: 0.5, transparent: true}));
-    toolbit.translateY(5);
-    var spindle = new THREE.Mesh(new THREE.CylinderGeometry(4, 4, 15, 25, 2, false), new THREE.MeshPhongMaterial({emissive: 0xEFEFEF, specular: 0x0F0F0F, shininess: 204, color: 0xF0F0F0, opacity: 0.5, transparent: true}));
-    spindle.translateY(17.5);
-    tool.applyMatrix(new THREE.Matrix4().makeRotationX(Math.PI / 2));
-    tool.add(toolbit);
-    tool.add(spindle);
-    tool.matrixAutoUpdate = true;
-    scene.add(tool);
-    animate();
+    var threeDView = new ThreeDView($container);
 </script>
 <script>
     window.addEventListener("message", function (event) {
@@ -188,7 +126,7 @@
             renderer.render(scene, camera);
         }
     }, false);
-    evaluateCode();
+    threeDView.displayPath(evaluateCode());
 </script>
 </body>
 </html>

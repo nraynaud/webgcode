@@ -45,7 +45,51 @@ function createZFixture(machine) {
         lineTo(0, grooveToSide) + lineTo(length, 0) + lineTo(0, -width) + 'z';
     var rectangle = machine.createOutline('M0,0' + shape);
     var contours = machine.contouring(rectangle, toolRadius, false, false);
-    var toolPath = machine.rampToolPath(contours[0], 0, workZ, 5, travelZ);
+    var toolPath = machine.rampToolPath(contours[0], 0, workZ, 5);
     machine.registerToolPath(toolPath);
     machine.setParams(workZ, travelZ, 500);
+}
+
+function createFrontPowerPlate(machine) {
+    var toolDiameter = 5.5;
+    var toolRadius = toolDiameter / 2;
+    var stockThickness = 19;
+    var travelZ = 5;
+    var workZ = -19;
+
+    machine.setParams(workZ, travelZ, 500);
+    var plateWidth = 155;
+    var plateHeight = 75;
+
+    var switchWidth = 22;
+    var switchHeight = 29;
+
+    var switchTopMargin = 11;
+
+    var plugHeight = 20.6;
+    var plugWidth = 28.5;
+
+    var plugCenterX = 40;
+
+    var plugSwitchSeparation = 2;
+
+    function cornerForCenter(centerCoord, width) {
+        return centerCoord - width / 2;
+    }
+
+    var plateOutline = machine.createOutline('M0,0' + createRelativeRectangle(plateWidth, plateHeight));
+    var switchBottom = plateHeight - switchTopMargin - switchHeight;
+    var switchOutline = machine.createOutline('M' + cornerForCenter(plugCenterX, switchWidth) + ',' + switchBottom + createRelativeRectangle(switchWidth, switchHeight));
+    var plugBottom = switchBottom - plugSwitchSeparation - plugHeight;
+    var plugOutline = machine.createOutline('M' + cornerForCenter(plugCenterX, plugWidth) + ',' + plugBottom + createRelativeRectangle(plugWidth, plugHeight));
+
+    function makeToolPath(outline, inside) {
+        var toolpath = machine.rampToolPath(machine.contouring(outline, toolRadius, inside, false)[0], 0, workZ, 3);
+        machine.registerToolPath(toolpath);
+
+    }
+
+    makeToolPath(switchOutline, true);
+    makeToolPath(plugOutline, true);
+    makeToolPath(plateOutline, false);
 }
