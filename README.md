@@ -10,14 +10,14 @@ I will try to remove the dependency on g-code, since that language is just a dis
 Controller Board
 ----------------
 
-The controller is a STM32F4-DISCOVERY board directly connected to the stepper drivers (open drain configuration).
+The controller is a STM32F4-DISCOVERY board directly connected to the stepper drivers isolators (open drain configuration).
 There is a USB cable between the board and the laptop, where a Chrome application controls the machine.
-The controller is quite dumb, it gets a list of steps and direction and their timing from the computer and executes them. The interpolation is entirely done offline on the computer.
+The controller is quite dumb, it gets a list of steps, direction and their timing from the computer and executes them. The interpolation is entirely done offline on the computer.
 
-There is a manual control system with joysticks, pushing the user button starts the manual mode, receiving a program on USB automatically stops the manual system.
-The orange LED is on when manual is on.
+Pushing the user button (blue) enter the manual control mode, receiving a program on USB automatically exits the manual mode.
+The orange LED is on when manual is on. The manual control is made through joysticks, I put mine directly on the spindle so that when I pull a joystick, the spindle comes.
 
-The wiring is described in the main.c file for the motors and the manual.c file describes the joystick wiring.
+The wiring is described in the main.c and manual.c files.
 
 
 Chrome Application
@@ -30,5 +30,7 @@ The USB protocol is custom since I couldn't find any standard. This is all Chrom
 Web Stuff
 ---------
 There is a g-code simulator here: http://nraynaud.github.io/webgcode/
-There is a preliminary CAM system for toolpath generation from JS using SVG and JS clipper.
+
+A preliminary CAM system for toolpath generation from JS using SVG and JS clipper is also present.
+
 Example: http://nraynaud.github.io/webgcode/test_offset.html
