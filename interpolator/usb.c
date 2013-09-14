@@ -65,6 +65,8 @@ void sendEvent(uint32_t event) {
     DCD_EP_Tx(&usbDevice, INTERRUPT_ENDPOINT, (uint8_t *) cncMemory.lastEvent, sizeof(cncMemory.lastEvent));
 }
 
+static volatile uint64_t state;
+
 static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
     bmRequest_t parsed =
             ((union {
@@ -83,7 +85,9 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                             USBD_CtlSendData(pdev, (uint8_t *) &cncMemory.parameters, (uint16_t) sizeof(cncMemory.parameters));
                             return USBD_OK;
                         case REQUEST_STATE:
-                            USBD_CtlSendData(pdev, (uint8_t *) &cncMemory.state, (uint16_t) sizeof(cncMemory.state));
+                            //won't transmit if size <=4
+                            state = cncMemory.state;
+                            USBD_CtlSendData(pdev, (uint8_t *) &state, (uint16_t) sizeof(state));
                             return USBD_OK;
                         default:
                             USBD_CtlError(pdev, req);
