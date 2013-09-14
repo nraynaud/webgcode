@@ -44,8 +44,10 @@ test("G2 evaluation", function () {
         },
         fromAngle: -Math.PI,
         plane: {
+            firstCenterCoord: "i",
             firstCoord: "x",
             lastCoord: "z",
+            secondCenterCoord: "j",
             secondCoord: "y"
         },
         radius: 5,
@@ -68,8 +70,10 @@ test("G3 evaluation", function () {
         },
         fromAngle: -Math.PI,
         plane: {
+            firstCenterCoord: "i",
             firstCoord: "x",
             lastCoord: "z",
+            secondCenterCoord: "j",
             secondCoord: "y"
         },
         radius: 5,
