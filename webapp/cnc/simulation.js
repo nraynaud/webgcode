@@ -323,32 +323,23 @@ function simulate(path) {
     return simulatedPath;
 }
 
-function planProgram(text, acceleration, stepSize, timebase, currentPosition) {
+function planProgram(text, acceleration, stepSize, timebase, currentPosition, stepCollector) {
     var input = evaluate(text, currentPosition);
     var groups = groupConnectedComponents(input, acceleration);
-    var program = [];
-    var path = [];
     $.each(groups, function (_, group) {
         planSpeed(group);
         $.each(group, function (_, segment) {
-            var p = plan(segment, stepSize, timebase);
-            program = program.concat(p.program);
-            path = path.concat(p.path);
+
+            function planningStepCollector(point) {
+                point.time = Math.round(Math.min(0.1, stepSize / dataForRatio(segment, point.l).speed) * timebase);
+                stepCollector(point);
+            }
+
+            COMPONENT_TYPES[segment.type].rasterize(segment, stepSize, planningStepCollector);
         });
     });
-    return {program: program, path: path};
 }
 
-function plan(segment, stepSize, timebase) {
-    var path = COMPONENT_TYPES[segment.type].rasterize(segment, stepSize);
-    var program = [];
-    $.each(path, function (idx, point) {
-        program.push({
-            time: Math.round(Math.min(0.1, stepSize / dataForRatio(segment, point.l).speed) * timebase),
-            dx: point.dx,
-            dy: point.dy,
-            dz: point.dz
-        });
-    });
-    return {program: program, path: path};
+function plan(segment, stepSize, timebase, stepCollector) {
+    COMPONENT_TYPES[segment.type].rasterize(segment, stepSize, stepCollector);
 }

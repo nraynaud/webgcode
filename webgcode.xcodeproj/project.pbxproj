@@ -24,6 +24,7 @@
 		DDAA5CDD5DCBC168FB293986 /* jquery.flot.resize.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5518BC9939B7C36FE0B9 /* jquery.flot.resize.js */; };
 		DDAA5D86ED26C5CD14D88228 /* jsparse.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54F29F1F185A35EE1B8C /* jsparse.js */; };
 		DDAA5DE77AE28CC3AFB885FA /* twoDView.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5828C64CB437858D52A4 /* twoDView.js */; };
+		DDAA5E22BC07E6E31ADB9B99 /* worker.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA55BC4AF31055E9F8A697 /* worker.js */; };
 		DDAA5E39B611B3CD37DFF97F /* geometry.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA507CC79F9033457329F7 /* geometry.js */; };
 		DDAA5E743FA52561B2B0FF84 /* manual.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53D0D9AE21EE52463EAE /* manual.c */; };
 		DDAA5E90BDFC07678EE201D3 /* delaunay.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C7DCC7731222576D7BA /* delaunay.js */; };
@@ -56,6 +57,8 @@
 		DDAA53D0D9AE21EE52463EAE /* manual.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = manual.c; path = interpolator/manual.c; sourceTree = "<group>"; };
 		DDAA54F29F1F185A35EE1B8C /* jsparse.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jsparse.js; path = webapp/libs/jsparse.js; sourceTree = "<group>"; };
 		DDAA5518BC9939B7C36FE0B9 /* jquery.flot.resize.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jquery.flot.resize.js; path = assets/jquery.flot.resize.js; sourceTree = "<group>"; };
+		DDAA557E11AAA24C9679FF7B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = file.md; path = README.md; sourceTree = "<group>"; };
+		DDAA55BC4AF31055E9F8A697 /* worker.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = worker.js; path = webapp/worker.js; sourceTree = "<group>"; };
 		DDAA55BD80E7C2D0A1E30C84 /* TrackballControls.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = TrackballControls.js; path = webapp/libs/TrackballControls.js; sourceTree = "<group>"; };
 		DDAA56B90C5F7FBE9FC0A534 /* usbdesc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = usbdesc.c; path = interpolator/usbdesc.c; sourceTree = "<group>"; };
 		DDAA56FDF85987C80CFAD40D /* tux.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngx; name = tux.ngc; path = samples/tux.ngc; sourceTree = "<group>"; };
@@ -133,6 +136,8 @@
 				DDAA5828C64CB437858D52A4 /* twoDView.js */,
 				DDAA59FEF17A22C1216B27DD /* .nojekyll */,
 				DDAA5D7A6E2A17AE4040107F /* oldCAM.html */,
+				DDAA557E11AAA24C9679FF7B /* README.md */,
+				DDAA55BC4AF31055E9F8A697 /* worker.js */,
 			);
 			sourceTree = "<group>";
 		};
@@ -246,6 +251,7 @@
 				DDAA552C6267F3185C8CAC83 /* jquery.mousewheel.js in Sources */,
 				DDAA5C2080793E5D20E60388 /* threeDView.js in Sources */,
 				DDAA5DE77AE28CC3AFB885FA /* twoDView.js in Sources */,
+				DDAA5E22BC07E6E31ADB9B99 /* worker.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

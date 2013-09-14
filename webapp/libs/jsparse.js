@@ -696,7 +696,9 @@
     } else if
         (typeof window === "object" && typeof window.document === "object") {
         window.jsparse = jsparse;
-
+    } else if
+        (typeof self === "object") {
+        self.jsparse = jsparse;
     } else {
         throw 'could not find valid method to export jsparse';
     }
