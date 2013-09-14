@@ -23,24 +23,19 @@ function ThreeDView($container) {
     $(window).resize(resize);
     $container.append(this.renderer.domElement);
     this.scene.add(this.camera);
-    var controls = new THREE.TrackballControls(this.camera, $container[0]);
-    controls.rotateSpeed = 1.0;
-    controls.zoomSpeed = 1.2;
-    controls.panSpeed = 0.8;
-    controls.noZoom = false;
-    controls.noPan = false;
-    controls.staticMoving = true;
-    controls.dynamicDampingFactor = 0.3;
-    controls.minDistance = 3;
-    controls.keys = [ 65, 83, 68 ];
-    controls.addEventListener('change', function () {
+    this.controls = new THREE.TrackballControls(this.camera, $container[0]);
+    this.controls.rotateSpeed = 1.0;
+    this.controls.zoomSpeed = 1.2;
+    this.controls.panSpeed = 0.8;
+    this.controls.noZoom = false;
+    this.controls.noPan = false;
+    this.controls.staticMoving = true;
+    this.controls.dynamicDampingFactor = 0.3;
+    this.controls.minDistance = 3;
+    this.controls.keys = [ 65, 83, 68 ];
+    this.controls.addEventListener('change', function () {
         self.renderer.render(self.scene, self.camera);
     });
-    function animate() {
-        requestAnimationFrame(animate);
-        controls.update();
-    }
-
     var planeGeometry = new THREE.PlaneGeometry(10, 10, 5, 5);
     this.scene.add(new THREE.Mesh(planeGeometry, new THREE.MeshBasicMaterial({wireframe: true, color: 0x00CC00})));
     function createAxis(x, y, z, color) {
@@ -55,16 +50,21 @@ function ThreeDView($container) {
     axes.add(createAxis(0, 10, 0, 0x00FF00));
     axes.add(createAxis(0, 0, 10, 0x0000FF));
     this.scene.add(axes);
-    var tool = new THREE.Object3D();
+    this.tool = new THREE.Object3D();
     var toolbit = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 10, 20, 2, false), new THREE.MeshPhongMaterial({emissive: 0xEF0000, specular: 0x0F0000, shininess: 204, color: 0xF0F0F0, opacity: 0.5, transparent: true}));
     toolbit.translateY(5);
     var spindle = new THREE.Mesh(new THREE.CylinderGeometry(4, 4, 15, 25, 2, false), new THREE.MeshPhongMaterial({emissive: 0xEFEFEF, specular: 0x0F0F0F, shininess: 204, color: 0xF0F0F0, opacity: 0.5, transparent: true}));
     spindle.translateY(17.5);
-    tool.applyMatrix(new THREE.Matrix4().makeRotationX(Math.PI / 2));
-    tool.add(toolbit);
-    tool.add(spindle);
-    tool.matrixAutoUpdate = true;
-    this.scene.add(tool);
+    this.tool.applyMatrix(new THREE.Matrix4().makeRotationX(Math.PI / 2));
+    this.tool.add(toolbit);
+    this.tool.add(spindle);
+    this.tool.matrixAutoUpdate = true;
+    this.scene.add(this.tool);
+    function animate() {
+        requestAnimationFrame(animate);
+        self.controls.update();
+    }
+
     animate();
 }
 
@@ -80,6 +80,7 @@ ThreeDView.prototype.displayPath = function (path) {
     this.toolpath = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({color: 0xCCCCCC}));
     this.scene.add(this.toolpath);
     this.renderer.render(this.scene, this.camera);
+    this.controls.update();
 };
 
 ThreeDView.prototype.displayVector = function (origin, vector, color, id) {
