@@ -26,7 +26,7 @@
  * Paper no. DETC2005-85513 pp. 565-575                                         *
  * ASME 2005 International Design Engineering Technical Conferences             *
  * and Computers and Information in Engineering Conference (IDETC/CIE2005)      *
- * September 24�28, 2005 , Long Beach, California, USA                          *
+ * September 24ñ28, 2005 , Long Beach, California, USA                          *
  * http://www.me.berkeley.edu/~mcmains/pubs/DAC05OffsetPolygon.pdf              *
  *                                                                              *
  *******************************************************************************/
@@ -34,8 +34,8 @@
 /*******************************************************************************
  *                                                                              *
  * Author    :  Timo                                                            *
- * Version   :  5.0.2.1                                                         *
- * Date      :  12 January 2013                                                 *
+ * Version   :  5.0.2.2                                                         *
+ * Date      :  11 September 2013                                               *
  *                                                                              *
  * This is a translation of the C# Clipper library to Javascript.               *
  * Int128 struct of C# is implemented using JSBN of Tom Wu.                     *
@@ -64,8 +64,8 @@
  * http://www-cs-students.stanford.edu/~tjw/jsbn/LICENSE                        *
  *                                                                              *
  *******************************************************************************/
-(function (window) {
-    "use strict";
+(function () {
+    // "use strict";
     // Browser test to speedup performance critical functions
     var nav = navigator.userAgent.toString().toLowerCase();
     var browser = {};
@@ -213,7 +213,7 @@
         this.t = 1;
         this.s = (x < 0) ? -1 : 0;
         if (x > 0) this[0] = x;
-        else if (x < -1) this[0] = x + DV;
+        else if (x < -1) this[0] = x + this.DV;
         else this.t = 0;
     }
 
@@ -1567,7 +1567,11 @@
 
     // end of Int128 section
 
-    //window.Int128 = Int128; // Uncomment this if you want to use Int128 outside ClipperLib
+    /*
+     // Uncomment the following two lines if you want to use Int128 outside ClipperLib
+     if (typeof(document) !== "undefined") window.Int128 = Int128;
+     else self.Int128 = Int128;
+     */
 
     // Here starts the actual Clipper library:
     ClipperLib.Math_Abs_Int64 = ClipperLib.Math_Abs_Int32 = ClipperLib.Math_Abs_Double = function (a) {
@@ -1663,10 +1667,13 @@
         return [];
     };
     ClipperLib.Polygons = function () {
-        return [
-            []
-        ];
+        return []; // Was previously [[]], but caused problems when pushed
     };
+    ClipperLib.ExPolygons = function () {
+        var a = [];
+        a.exPolygons = true; // this is needed to make "overloading" possible in Execute
+        return a;
+    }
     ClipperLib.ExPolygon = function () {
         this.outer = null;
         this.holes = null;
@@ -1828,7 +1835,7 @@
         }
         return result;
     };
-    ClipperLib.ClipperBase.prototype.SlopesEqual = function () {
+    ClipperLib.ClipperBase.prototype.SlopesEqual = ClipperLib.ClipperBase.SlopesEqual = function () {
         var a = arguments;
         var e1, e2, pt1, pt2, pt3, pt4, UseFullRange;
         if (a.length == 3) // function (e1, e2, UseFullRange)
@@ -2204,7 +2211,7 @@
             subjFillType = ClipperLib.PolyFillType.pftEvenOdd;
             clipFillType = ClipperLib.PolyFillType.pftEvenOdd;
         }
-        if (!solution.hasOwnProperty("outer")) // hacky way to test if solution is expolygon or not
+        if (typeof(solution.exPolygons) == "undefined") // hacky way to test if solution is not exPolygons
         {
             if (this.m_ExecuteLocked) return false;
             this.m_ExecuteLocked = true;
@@ -2822,15 +2829,16 @@
             return pt1.Value.Y > pt2.Value.Y;
         }
     };
-    ClipperLib.Clipper.prototype.FindSegment = function (pp, pt1, pt2) {
+    ClipperLib.Clipper.prototype.FindSegment = function (pp, UseFullInt64Range, pt1, pt2) {
         if (pp.Value == null) return false;
         var pp2 = pp.Value;
         var pt1a = new ClipperLib.IntPoint(pt1.Value);
         var pt2a = new ClipperLib.IntPoint(pt2.Value);
         do {
             // Timo's comment: for some reason calling SlopesEqual() below uses big integers
-            // So although coordinates low (eg. 900), big integers is used
-            if (this.SlopesEqual(pt1a, pt2a, pp.Value.pt, pp.Value.prev.pt, true) && this.SlopesEqual(pt1a, pt2a, pp.Value.pt, true) && this.GetOverlapSegment(pt1a, pt2a, pp.Value.pt, pp.Value.prev.pt, pt1, pt2)) return true;
+            // So although coordinates are low (eg. 900), big integers are sometimes used.
+            // => Fixed according to changes in original Clipper ver 5.1.2 (25 February 2013)
+            if (this.SlopesEqual(pt1a, pt2a, pp.Value.pt, pp.Value.prev.pt, UseFullInt64Range) && this.SlopesEqual(pt1a, pt2a, pp.Value.pt, UseFullInt64Range) && this.GetOverlapSegment(pt1a, pt2a, pp.Value.pt, pp.Value.prev.pt, pt1, pt2)) return true;
             pp.Value = pp.Value.next;
         }
         while (pp.Value != pp2);
@@ -3687,7 +3695,7 @@
             if (cnt < 3) continue;
             var pg = new ClipperLib.Polygon(cnt);
             for (var j = 0; j < cnt; j++) {
-                pg.push(p.pt);
+                pg.push(new ClipperLib.IntPoint(p.pt.X, p.pt.Y)); // Have to create new point, because the point can be a reference to other point
                 p = p.prev;
             }
             polyg.push(pg);
@@ -3706,7 +3714,7 @@
             epg.outer = new ClipperLib.Polygon();
             epg.holes = new ClipperLib.Polygons();
             for (var j = 0; j < cnt; j++) {
-                epg.outer.push(p.pt);
+                epg.outer.push(new ClipperLib.IntPoint(p.pt.X, p.pt.Y)); // Have to create new point, because the point can be a reference to other point
                 p = p.prev;
             }
             while (i < this.m_PolyOuts.length) {
@@ -3715,7 +3723,7 @@
                 var pg = new ClipperLib.Polygon();
                 p = outRec.pts;
                 do {
-                    pg.push(p.pt);
+                    pg.push(new ClipperLib.IntPoint(p.pt.X, p.pt.Y)); // Have to create new point, because the point can be a reference to other point
                     p = p.prev;
                 }
                 while (p != outRec.pts);
@@ -3779,7 +3787,7 @@
             pt2 = {
                 Value: pt2
             };
-            var $res = this.FindSegment(pp1a, pt1, pt2);
+            var $res = this.FindSegment(pp1a, this.m_UseFullRange, pt1, pt2);
             pp1a = pp1a.Value;
             pt1 = pt1.Value;
             pt2 = pt2.Value;
@@ -3798,7 +3806,7 @@
                 pt4 = {
                     Value: pt4
                 };
-                var $res = this.FindSegment(pp2a, pt3, pt4);
+                var $res = this.FindSegment(pp2a, this.m_UseFullRange, pt3, pt4);
                 pp2a = pp2a.Value;
                 pt3 = pt3.Value;
                 pt4 = pt4.Value;
@@ -3816,7 +3824,7 @@
             pt4 = {
                 Value: pt4
             };
-            var $res = this.FindSegment(pp2a, pt3, pt4);
+            var $res = this.FindSegment(pp2a, this.m_UseFullRange, pt3, pt4);
             pp2a = pp2a.Value;
             pt3 = pt3.Value;
             pt4 = pt4.Value;
@@ -4180,7 +4188,7 @@
         this.normals = [];
         var deltaSq = delta * delta;
         solution.Value = new ClipperLib.Polygons();
-        ClipperLib.Clear(solution.Value);
+        //ClipperLib.Clear(solution.Value);
         var len;
         for (this.m_i = 0; this.m_i < this.pts.length; this.m_i++) {
             len = this.pts[this.m_i].length;
@@ -4488,5 +4496,6 @@
         ];
         return results;
     }
-    window.ClipperLib = ClipperLib;
-})(window);
+    if (typeof(document) !== "undefined") window.ClipperLib = ClipperLib;
+    else self['ClipperLib'] = ClipperLib;
+})();
