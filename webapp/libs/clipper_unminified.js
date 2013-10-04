@@ -3345,6 +3345,7 @@
             e = e.nextInAEL;
         }
         var isModified = true;
+        var intersectArray = [];
         while (isModified && this.m_SortedEdges != null) {
             isModified = false;
             e = this.m_SortedEdges;
@@ -3364,8 +3365,8 @@
                         pt.Y = botY;
                         pt.X = ClipperLib.Clipper.TopX(e, pt.Y);
                     }
-                    this.AddIntersectNode(e, eNext, pt);
                     this.SwapPositionsInSEL(e, eNext);
+                    intersectArray.push(this.CreateIntersectNode(e, eNext, pt));
                     isModified = true;
                 }
                 else e = eNext;
@@ -3373,6 +3374,7 @@
             if (e.prevInSEL != null) e.prevInSEL.nextInSEL = null;
             else break;
         }
+        this.AddBulkIntersectNodes(intersectArray);
         this.m_SortedEdges = null;
     };
     ClipperLib.Clipper.prototype.FixupIntersections = function () {
@@ -3443,25 +3445,36 @@
         if (currentY == edge.ytop) return edge.xtop;
         return edge.xbot + ClipperLib.Clipper.Round(edge.dx * (currentY - edge.ybot));
     };
-    ClipperLib.Clipper.prototype.AddIntersectNode = function (e1, e2, pt) {
+    ClipperLib.Clipper.prototype.AddBulkIntersectNodes = function (intersectArray) {
+        intersectArray.sort(function (a, b) {
+            return ClipperLib.Clipper.prototype.ProcessParam1BeforeParam2(a, b) ? -1 : 1;
+        });
+        var startNode = this.m_IntersectNodes;
+        for (var i = 0; i < intersectArray.length; i++) {
+            var newNode = intersectArray[i];
+            if (this.m_IntersectNodes == null) this.m_IntersectNodes = newNode;
+            else if (this.ProcessParam1BeforeParam2(newNode, this.m_IntersectNodes)) {
+                newNode.next = this.m_IntersectNodes;
+                this.m_IntersectNodes = newNode;
+            }
+            else {
+                var iNode = startNode;
+                while (iNode.next != null && this.ProcessParam1BeforeParam2(iNode.next, newNode))
+                    iNode = iNode.next;
+                newNode.next = iNode.next;
+                iNode.next = newNode;
+            }
+            startNode = newNode;
+        }
+    }
+    ClipperLib.Clipper.prototype.CreateIntersectNode = function (e1, e2, pt) {
         var newNode = new ClipperLib.IntersectNode();
         newNode.edge1 = e1;
         newNode.edge2 = e2;
         newNode.pt = pt;
         newNode.next = null;
-        if (this.m_IntersectNodes == null) this.m_IntersectNodes = newNode;
-        else if (this.ProcessParam1BeforeParam2(newNode, this.m_IntersectNodes)) {
-            newNode.next = this.m_IntersectNodes;
-            this.m_IntersectNodes = newNode;
-        }
-        else {
-            var iNode = this.m_IntersectNodes;
-            while (iNode.next != null && this.ProcessParam1BeforeParam2(iNode.next, newNode))
-                iNode = iNode.next;
-            newNode.next = iNode.next;
-            iNode.next = newNode;
-        }
-    };
+        return newNode;
+    }
     ClipperLib.Clipper.prototype.ProcessParam1BeforeParam2 = function (node1, node2) {
         var result;
         if (node1.pt.Y == node2.pt.Y) {
