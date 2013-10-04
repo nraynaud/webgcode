@@ -51,6 +51,8 @@ function getPathLengths(path) {
         var item = clone.node.pathSegList.removeItem(0);
         shadowPath.node.pathSegList.appendItem(item);
         segmentsLengths[i] = shadowPath.node.getTotalLength();
+        if (i != path.node.pathSegList.numberOfItems - 1 && item.pathSegType == SVGPathSeg.PATHSEG_CLOSEPATH)
+            throw "path shouldn't be compound";
     }
     shadowPath.remove();
     return segmentsLengths;
@@ -60,16 +62,21 @@ function getPathLengths(path) {
 function toClipper(shapePath, scale, pointCount, translation) {
     if (translation == null)
         translation = {x: 0, y: 0};
-    var totalLength = shapePath.node.getTotalLength();
+    var node = shapePath.node;
+    var segList = node.pathSegList;
+    var lastSegment = segList.getItem(segList.numberOfItems - 1);
+    if (lastSegment.pathSegType != SVGPathSeg.PATHSEG_CLOSEPATH)
+        throw "shapePath should be closed. last element was " + lastSegment.pathSegType;
+    var totalLength = node.getTotalLength();
     var clipperPoints = [];
     var segmentsLengths = getPathLengths(shapePath);
     for (var l = 0; l <= totalLength;) {
-        var segmentIndex = shapePath.node.getPathSegAtLength(l);
-        var pathSeg = shapePath.node.pathSegList.getItem(segmentIndex);
-        var p = shapePath.node.getPointAtLength(l);
+        var segmentIndex = node.getPathSegAtLength(l);
+        var pathSeg = segList.getItem(segmentIndex);
+        var p = node.getPointAtLength(l);
         if (isStraightLine(pathSeg)) {
             //push the initial segment point
-            p = shapePath.node.getPointAtLength(segmentsLengths[segmentIndex - 1]);
+            p = node.getPointAtLength(segmentsLengths[segmentIndex - 1]);
             //skip to slightly (one hundredth of a step) after the end of the segment
             l = segmentsLengths[segmentIndex] + totalLength / pointCount * 0.01;
         } else
@@ -95,39 +102,6 @@ function fromClipper(polygons, scale, reorder, areaPositive) {
         result.push(newPoly);
     });
     return result;
-}
-
-function contouring(shapePath, toolRadius, inside, climbMilling, translation) {
-    if (inside)
-        toolRadius = -toolRadius;
-    var polygonAreaPositive = (!!climbMilling) ^ (!inside);
-    var scale = 10000;
-    var pointCount = 500;
-    var clipperPoints = toClipper(shapePath, scale, pointCount, translation);
-    var cpr = new ClipperLib.Clipper();
-    var offset = cpr.OffsetPolygons(clipperPoints, toolRadius * scale, ClipperLib.JoinType.jtRound, 0.25, true);
-    return fromClipper(offset, scale, true, polygonAreaPositive);
-}
-
-function polyOp(p1, p2, op) {
-    var cpr = new ClipperLib.Clipper();
-    var result = new ClipperLib.Polygons()
-    cpr.AddPolygons(p1, ClipperLib.PolyType.ptSubject);
-    cpr.AddPolygons(p2, ClipperLib.PolyType.ptClip);
-    cpr.Execute(op, result, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
-    return result
-}
-
-function filletWholePolygon(shapePath, radius) {
-    var scale = 10000;
-    var pointCount = 500;
-    var unclean = toClipper(shapePath, scale, pointCount);
-    var clipperPoints = ClipperLib.Clean(unclean, 0.0001 * scale);
-    var cpr = new ClipperLib.Clipper();
-    var eroded = cpr.OffsetPolygons(clipperPoints, -radius * scale, ClipperLib.JoinType.jtRound, 0.25, true);
-    var openedDilated = cpr.OffsetPolygons(eroded, 2 * radius * scale, ClipperLib.JoinType.jtRound, 0.25, true);
-    var rounded = cpr.OffsetPolygons(openedDilated, -radius * scale, ClipperLib.JoinType.jtRound, 0.25, true);
-    return fromClipper(rounded, scale);
 }
 
 function createCircle(centerX, centerY, radius) {
@@ -207,6 +181,12 @@ ConstantZPolygonToolpath.prototype.pushOnPath = function (path) {
     pushOnPath(path, this);
     path.node.pathSegList.appendItem(path.node.createSVGPathSegClosePath());
 }
+ConstantZPolygonToolpath.prototype.translate = function (dx, dy) {
+    $.each(this.path, function (index, point) {
+        point[0] += dx;
+        point[1] += dy;
+    });
+}
 
 function GeneralPolylineToolpath() {
     this.path = [];
@@ -233,10 +213,19 @@ GeneralPolylineToolpath.prototype.forEachPoint = function (pointHandler, default
 GeneralPolylineToolpath.prototype.pushOnPath = function (path) {
     pushOnPath(path, this);
 }
+GeneralPolylineToolpath.prototype.translated = function (dx, dy, dz) {
+    var newPath = new GeneralPolylineToolpath();
+    $.each(this.path, function (index, point) {
+        newPath.pushPoint(point[0] + dx, point[1] + dy, point[2] + dz);
+    });
+    return newPath;
+}
 
 function Machine(paper) {
     this.paper = paper;
     this.operations = [];
+    this.clipperScale = 10000;
+    this.clipperPointCount = 500;
 }
 
 Machine.prototype.setParams = function (workZ, travelZ, feedRate) {
@@ -244,12 +233,22 @@ Machine.prototype.setParams = function (workZ, travelZ, feedRate) {
     this.travelZ = travelZ;
     this.feedRate = feedRate;
 };
-Machine.prototype.createOutline = function (defintion) {
-    return this.paper.path(defintion, true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: 'red'});
+Machine.prototype.createOutline = function (defintion, color) {
+    return this.paper.path(defintion, true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: color == null ? 'red' : color});
 };
 Machine.prototype.contouring = function (shapePath, toolRadius, inside, climbMilling, translation) {
-    return contouring(shapePath, toolRadius, inside, climbMilling, translation);
+    var clipperPolygon = this.toClipper(shapePath);
+    var contourClipper = this.contourClipper(clipperPolygon, toolRadius, inside);
+    return this.fromClipper(contourClipper, true, this.contourAreaPositive(inside, climbMilling));
 };
+
+Machine.prototype.contourClipper = function (clipperPolygon, toolRadius, inside) {
+    if (inside)
+        toolRadius = -toolRadius;
+    var cpr = new ClipperLib.Clipper();
+    return cpr.OffsetPolygons(clipperPolygon, toolRadius * this.clipperScale, ClipperLib.JoinType.jtRound, 0.25, true);
+};
+
 Machine.prototype.registerToolPath = function (toolpath) {
     var path = this.paper.path('', true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: 'blue'});
     toolpath.pushOnPath(path);
@@ -291,16 +290,22 @@ Machine.prototype.rampToolPath = function (toolpath, startZ, stopZ, turns) {
 };
 Machine.prototype.drillCorners = function (contour) {
     var holes = [];
-    $.each(getPathLengths(path), function (i, l) {
-        if (path.node.pathSegList.getItem(i).pathSegType != SVGPathSeg.PATHSEG_CLOSEPATH) {
-            var point = path.node.getPointAtLength(l);
+    $.each(getPathLengths(contour), function (i, l) {
+        if (contour.node.pathSegList.getItem(i).pathSegType != SVGPathSeg.PATHSEG_CLOSEPATH) {
+            var point = contour.node.getPointAtLength(l);
             holes.push(createDrillHole(point.x, point.y));
         }
     });
     return holes;
 }
 Machine.prototype.filletWholePolygon = function (shapePath, radius) {
-    return filletWholePolygon(shapePath, radius);
+    var scaledRadius = radius * this.clipperScale;
+    var clipperPoints = this.toClipper(shapePath);
+    var cpr = new ClipperLib.Clipper();
+    var eroded = cpr.OffsetPolygons(clipperPoints, -scaledRadius, ClipperLib.JoinType.jtRound, 0.25, true);
+    var openedDilated = cpr.OffsetPolygons(eroded, 2 * scaledRadius, ClipperLib.JoinType.jtRound, 0.25, true);
+    var rounded = cpr.OffsetPolygons(openedDilated, -scaledRadius, ClipperLib.JoinType.jtRound, 0.25, true);
+    return this.fromClipper(rounded);
 };
 
 Machine.prototype.dumpGCode = function () {
@@ -311,6 +316,8 @@ Machine.prototype.dumpGCode = function () {
     }
 
     var code = ['F' + this.feedRate];
+    //avoid traveling to start point at unknown Z (yes, I did hit a screw)
+    code.push('G0 Z' + machine.travelZ);
     $.each(this.operations, function (_, op) {
         code.push('G0' + pos(op.getStartPoint(machine.travelZ), machine.travelZ));
         op.forEachPoint(function (x, y, z) {
@@ -319,7 +326,7 @@ Machine.prototype.dumpGCode = function () {
         code.push('G0' + pos(op.getStopPoint(machine.travelZ), machine.travelZ));
     });
     return code.join('\n');
-}
+};
 
 Machine.prototype.dumpPath = function () {
     var points = [];
@@ -333,4 +340,47 @@ Machine.prototype.dumpPath = function () {
         points.push({x: stopPoint.x, y: stopPoint.y, z: machine.travelZ});
     });
     return points;
-}
+};
+
+/**
+ *
+ * @param shapePath a SVG path
+ * @param translation optional
+ * @returns {a Clipper polygon array}
+ */
+Machine.prototype.toClipper = function (shapePath, translation) {
+    return toClipper(shapePath, this.clipperScale, this.clipperPointCount, translation);
+};
+
+/**
+ *
+ * @param polygon
+ * @param {optional} reorder
+ * @param {optional} areaPositive
+ * @returns {*}
+ */
+Machine.prototype.fromClipper = function (polygon, reorder, areaPositive) {
+    if (polygon[0] instanceof ConstantZPolygonToolpath)
+        throw 'oops';
+    var converted = fromClipper(polygon, this.clipperScale, reorder, areaPositive);
+    return  converted;
+};
+
+Machine.prototype.polyOp = function (clipperP1, clippreP2, clipperOp) {
+    var cpr = new ClipperLib.Clipper();
+    var result = new ClipperLib.Polygons()
+    cpr.AddPolygons(clipperP1, ClipperLib.PolyType.ptSubject);
+    cpr.AddPolygons(clippreP2, ClipperLib.PolyType.ptClip);
+    cpr.Execute(clipperOp, result, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
+    return result;
+};
+
+/**
+ * what sign should the area of a contour polygon be?
+ * it's positive for trigonometric direction (CCW)
+ * @param inside
+ * @param climbing
+ */
+Machine.prototype.contourAreaPositive = function (inside, climbMilling) {
+    return (!!climbMilling) ^ (!inside);
+};
