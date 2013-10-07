@@ -3,6 +3,7 @@ var $ = {each: function (array, func) {
     for (var i = 0; i < array.length; i++)
         func(i, array[i]);
 }, extend: function () {
+    /** stolen from JQUERY **/
     var src, copyIsArray, copy, name, options, clone,
         target = arguments[0] || {},
         i = 1,
@@ -64,6 +65,7 @@ var $ = {each: function (array, func) {
 
     // Return the modified object
     return target;
+    /** END stolen from JQUERY **/
 }
 };
 importScripts('libs/jsparse.js', 'cnc/geometry.js', 'cnc/parser.js', 'cnc/simulation.js');
