@@ -101,13 +101,9 @@
     function getURLParameter(name) {
         return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null;
     }
-</script>
-<script>
-
     var $container = $('#container');
+    var codebox = $('#codebox');
     var threeDView = new ThreeDView($container);
-</script>
-<script>
     window.addEventListener("message", function (event) {
         if (event.data['type'] == 'gimme program') {
             evaluateCode();
@@ -123,7 +119,14 @@
             });
             threeDView.renderer.render(threeDView.scene, threeDView.camera);
         }
+        if (event.data['type'] == 'setCode') {
+            codebox.text(event.data['code']);
+            threeDView.displayPath(evaluateCode());
+        }
     }, false);
+    codebox.change(function () {
+        parent.postMessage({type: 'codeChange', code: codebox.val()}, '*');
+    });
     threeDView.displayPath(evaluateCode());
 </script>
 </body>
