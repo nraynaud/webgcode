@@ -8,18 +8,34 @@ static const struct {
     GPIO_TypeDef *gpio;
     uint16_t xDirection, xStep, yDirection, yStep, zDirection, zStep;
 } motorsPinout = {
-        .gpio=GPIOE,
+        .gpio = GPIOE,
         .xStep = GPIO_Pin_3,
         .xDirection = GPIO_Pin_4,
-        .yStep=GPIO_Pin_5,
+        .yStep = GPIO_Pin_5,
         .yDirection = GPIO_Pin_6,
-        .zStep=GPIO_Pin_7,
-        .zDirection=GPIO_Pin_8};
+        .zStep = GPIO_Pin_7,
+        .zDirection = GPIO_Pin_8};
+
+static const struct {
+    GPIO_TypeDef *gpio;
+    uint16_t eStopButton, eStopLed;
+    uint16_t stopInterruptLine, stopIrqN;
+    uint8_t extiPortSource, extiPinSource;
+} eStopPinout = {
+        .gpio = GPIOE,
+        //pin, EXTI line and EXTI IRQn should be the same, it's just poor API design
+        .eStopButton = GPIO_Pin_14,
+        .eStopLed = GPIO_Pin_15,
+        .stopInterruptLine = EXTI_Line14,
+        .stopIrqN = EXTI15_10_IRQn,
+        .extiPortSource = EXTI_PortSourceGPIOE,
+        .extiPinSource = EXTI_PinSource14
+};
 
 volatile cnc_memory_t cncMemory = {
-        .position = {.x=0, .y=0, .z=0},
+        .position = {.x = 0, .y = 0, .z = 0},
         .parameters = {
-                .stepsPerMillimeter=640,
+                .stepsPerMillimeter = 640,
                 .maxSpeed = 3000,
                 .maxAcceleration = 150,
                 .clockFrequency = 200000},
@@ -43,12 +59,12 @@ static step_t nextProgramStep() {
     return (step_t) {
             .duration = nextDuration,
             .axes = {
-                    .xStep = !!(binAxes & 0b000001),
-                    .xDirection = !!(binAxes & 0b000010),
-                    .yStep = !!(binAxes & 0b000100),
-                    .yDirection = !!(binAxes & 0b001000),
-                    .zStep = !!(binAxes & 0b010000),
-                    .zDirection = !!(binAxes & 0b100000),
+                    .xStep = (binAxes & 0b000001) != 0,
+                    .xDirection = (binAxes & 0b000010) != 0,
+                    .yStep = (binAxes & 0b000100) != 0,
+                    .yDirection = (binAxes & 0b001000) != 0,
+                    .zStep = (binAxes & 0b010000) != 0,
+                    .zDirection = (binAxes & 0b100000) != 0,
             }
     };
 }
@@ -97,13 +113,15 @@ static void executeStep(step_t step) {
 }
 
 void executeNextStep() {
-    cncMemory.running = 1;
-    if (cncMemory.state == MANUAL_CONTROL)
-        executeStep(nextManualStep());
-    else if (cncMemory.state == RUNNING_PROGRAM)
-        executeStep(nextProgramStep());
-    else
-        cncMemory.running = 0;
+    if (GPIO_ReadInputDataBit(eStopPinout.gpio, eStopPinout.eStopButton)) {
+        cncMemory.running = 1;
+        if (cncMemory.state == MANUAL_CONTROL)
+            executeStep(nextManualStep());
+        else if (cncMemory.state == RUNNING_PROGRAM)
+            executeStep(nextProgramStep());
+        else
+            cncMemory.running = 0;
+    }
 }
 
 void updatePosition(step_t step) {
@@ -158,8 +176,28 @@ int main(void) {
             .GPIO_Speed = GPIO_Speed_2MHz,
             .GPIO_OType = GPIO_OType_PP,
             .GPIO_PuPd = GPIO_PuPd_NOPULL});
+    GPIO_Init(eStopPinout.gpio, &(GPIO_InitTypeDef) {
+            .GPIO_Pin = eStopPinout.eStopButton,
+            .GPIO_Mode = GPIO_Mode_IN,
+            .GPIO_Speed = GPIO_Speed_2MHz,
+            .GPIO_PuPd = GPIO_PuPd_DOWN
+    });
+
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+    SYSCFG_EXTILineConfig(eStopPinout.extiPortSource, eStopPinout.extiPinSource);
+    EXTI_Init(&(EXTI_InitTypeDef) {
+            .EXTI_Line = eStopPinout.stopInterruptLine,
+            .EXTI_Mode = EXTI_Mode_Interrupt,
+            .EXTI_Trigger = EXTI_Trigger_Rising,
+            .EXTI_LineCmd = ENABLE});
 
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
+    NVIC_Init(&(NVIC_InitTypeDef) {
+            .NVIC_IRQChannel = eStopPinout.stopIrqN,
+            .NVIC_IRQChannelPreemptionPriority = 0,
+            .NVIC_IRQChannelSubPriority = 0,
+            .NVIC_IRQChannelCmd = ENABLE});
+
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
     NVIC_Init(&(NVIC_InitTypeDef) {
             .NVIC_IRQChannel = TIM3_IRQn,
@@ -194,4 +232,12 @@ int main(void) {
 
 void SysTick_Handler(void) {
     cncMemory.tick++;
+}
+
+void EXTI15_10_IRQHandler() {
+    STM_EVAL_LEDToggle(LED5);
+    if (EXTI_GetITStatus(eStopPinout.stopInterruptLine) != RESET) {
+        EXTI_ClearITPendingBit(eStopPinout.stopInterruptLine);
+        executeNextStep();
+    }
 }

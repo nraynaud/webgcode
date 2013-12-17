@@ -1,6 +1,9 @@
 include /Users/nraynaud/dev/STM32F4.platform/Developer/Share/Makefile
-SRCS += *.c
-OBJS = $(SRCS:.c=.o)
+SRCS += $(wildcard *.c)
+OBJS += $(SRCS:.c=.o)
 
-main.elf: $(SRCS)
-	$(CC) $(CFLAGS) $^ -o $@ -L$(SDK)/usr/lib -nostdlib -lm -lstm32f4 -lUSB_Device -lUSB_OTG
+CFLAGS += -std=c99
+
+
+main.elf: $(OBJS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(SDK)/usr/lib/startup_stm32f4xx.s $^ -o $@  -nostdlib $(LDFLAGS) -lm -lstm32f4 -lUSB_Device -lUSB_OTG
