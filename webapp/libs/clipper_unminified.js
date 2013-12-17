@@ -1628,7 +1628,7 @@
     ClipperLib.Clear = function (a) {
         a.length = 0;
     };
-    ClipperLib.MaxSteps = 64; // How many steps at maximum in arc in BuildArc() function
+    ClipperLib.MaxSteps = 222; // How many steps at maximum in arc in BuildArc() function
     ClipperLib.PI = 3.141592653589793;
     ClipperLib.PI2 = 2 * 3.141592653589793;
     ClipperLib.IntPoint = function () {
@@ -2142,7 +2142,6 @@
         this.m_Scanbeam = null;
         this.m_ActiveEdges = null;
         this.m_SortedEdges = null;
-        this.m_IntersectNodes = null;
         this.m_ExecuteLocked = false;
         this.m_PolyOuts = [];
         this.m_Joins = [];
@@ -3396,9 +3395,8 @@
             if (e1.prevInSEL == int1.edge2) e2 = e1.prevInSEL;
             else if (e1.nextInSEL == int1.edge2) e2 = e1.nextInSEL;
             else {
-                while (int2 != null) {
-                    if (int2.edge1.nextInSEL == int2.edge2 || int2.edge1.prevInSEL == int2.edge2) break;
-                    else int2 = int2.next;
+                while (int2 != null && int2.edge2 != int2.edge1.nextInSEL && int2.edge2 != int2.edge1.prevInSEL) {
+                    int2 = int2.next;
                 }
                 if (int2 == null) return false;
                 this.SwapIntersectNodes(int1, int2);
@@ -4049,8 +4047,8 @@
         // It may be desirable, that bigger precision ( = bigger scaling factor) needs more steps.
         // steps += Math.pow(scale, 0.2);
 
-        if (steps < 6) steps = 6;
-        if (steps > 222) steps = 222; // to avoid overload
+        steps = Math.max(steps, 6);
+        steps = Math.min(steps, ClipperLib.MaxSteps);
 
         // if (steps > 1048576) steps = 1048576; // 0x100000
         // if (steps > ClipperLib.MaxSteps) steps = ClipperLib.MaxSteps; // 0x100000

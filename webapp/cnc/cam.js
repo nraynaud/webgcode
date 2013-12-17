@@ -104,32 +104,43 @@ function fromClipper(polygons, scale, reorder, areaPositive) {
     return result;
 }
 
-function createCircle(centerX, centerY, radius) {
-    function coords(x, y) {
-        return x + ', ' + y;
+var geom = (function () {
+    function op(l, x, y) {
+        return  l + x + ',' + y;
     }
 
-    function arc(dx, dy) {
-        return 'A' + coords(radius, radius) + ' 0 0 0 ' + coords(centerX + dx * radius, centerY + dy * radius);
+    function createCircle(centerX, centerY, radius) {
+        function coords(x, y) {
+            return x + ', ' + y;
+        }
+
+        function arc(dx, dy) {
+            return 'A' + coords(radius, radius) + ' 0 0 0 ' + coords(centerX + dx * radius, centerY + dy * radius);
+        }
+
+        //avoid long arcs because webkit makes huge errors with them in getPointAtLength()
+        var arcs = [arc(1, 0), arc(0, -1), arc(-1, 0), arc(0, 1)];
+        return 'M' + coords(centerX, centerY + radius) + ' ' + arcs.join(' ') + 'Z';
     }
 
-    //avoid long arcs because webkit makes huge errors with them in getPointAtLength()
-    var arcs = [arc(1, 0), arc(0, -1), arc(-1, 0), arc(0, 1)];
-    return 'M' + coords(centerX, centerY + radius) + ' ' + arcs.join(' ');
-}
+    function createRelativeRectangle(xSpan, ySpan) {
+        function lineTo(x, y) {
+            return  'l' + x + ',' + y;
+        }
+
+        return lineTo(xSpan, 0) + lineTo(0, ySpan) + lineTo(-xSpan, 0) + 'Z';
+    }
+
+    return {createCircle: createCircle,
+        createRelativeRectangle: createRelativeRectangle,
+        op: op};
+})();
+
 
 function createDrillHole(x, y) {
     var toolPath = new ConstantZPolygonToolpath();
     toolPath.pushPoint(x, y);
     return toolPath;
-}
-
-function createRelativeRectangle(xSpan, ySpan) {
-    function lineTo(x, y) {
-        return  'l' + x + ',' + y;
-    }
-
-    return lineTo(xSpan, 0) + lineTo(0, ySpan) + lineTo(-xSpan, 0) + 'Z';
 }
 
 function createGCode(workZ, travelZ, ops) {
@@ -224,7 +235,7 @@ GeneralPolylineToolpath.prototype.translated = function (dx, dy, dz) {
 function Machine(paper) {
     this.paper = paper;
     this.operations = [];
-    this.clipperScale = 10000;
+    this.clipperScale = 1000000;
     this.clipperPointCount = 500;
 }
 
@@ -288,6 +299,12 @@ Machine.prototype.rampToolPath = function (toolpath, startZ, stopZ, turns) {
     }, null);
     return resultPolyline;
 };
+Machine.prototype.rampToolPathArray = function (toolpath, startZ, stopZ, turns) {
+    var machine = this;
+    return $.map(toolpath, function (path) {
+        return machine.rampToolPath(path, startZ, stopZ, turns);
+    });
+};
 Machine.prototype.drillCorners = function (contour) {
     var holes = [];
     $.each(getPathLengths(contour), function (i, l) {
@@ -305,7 +322,12 @@ Machine.prototype.filletWholePolygon = function (shapePath, radius) {
     var eroded = cpr.OffsetPolygons(clipperPoints, -scaledRadius, ClipperLib.JoinType.jtRound, 0.25, true);
     var openedDilated = cpr.OffsetPolygons(eroded, 2 * scaledRadius, ClipperLib.JoinType.jtRound, 0.25, true);
     var rounded = cpr.OffsetPolygons(openedDilated, -scaledRadius, ClipperLib.JoinType.jtRound, 0.25, true);
-    return this.fromClipper(rounded);
+    var outline = this.createOutline('');
+    shapePath.node.pathSegList.clear();
+    $.each(this.fromClipper(rounded), function (index, poly) {
+        poly.pushOnPath(shapePath);
+    });
+    return shapePath;
 };
 
 Machine.prototype.dumpGCode = function () {
@@ -345,7 +367,7 @@ Machine.prototype.dumpPath = function () {
 /**
  *
  * @param shapePath a SVG path
- * @param translation optional
+ * @param {optional} translation
  * @returns {a Clipper polygon array}
  */
 Machine.prototype.toClipper = function (shapePath, translation) {
@@ -355,15 +377,15 @@ Machine.prototype.toClipper = function (shapePath, translation) {
 /**
  *
  * @param polygon
- * @param {optional} reorder
- * @param {optional} areaPositive
+ * @param {boolean} [reorder]
+ * @param {boolean} [areaPositive]
  * @returns {*}
  */
 Machine.prototype.fromClipper = function (polygon, reorder, areaPositive) {
     if (polygon[0] instanceof ConstantZPolygonToolpath)
         throw 'oops';
     var converted = fromClipper(polygon, this.clipperScale, reorder, areaPositive);
-    return  converted;
+    return converted;
 };
 
 Machine.prototype.polyOp = function (clipperP1, clippreP2, clipperOp) {
@@ -384,3 +406,12 @@ Machine.prototype.polyOp = function (clipperP1, clippreP2, clipperOp) {
 Machine.prototype.contourAreaPositive = function (inside, climbMilling) {
     return (!!climbMilling) ^ (!inside);
 };
+
+Machine.prototype.peckDrill = function (x, y, z, topZ, steps) {
+    var polyline = new GeneralPolylineToolpath();
+    for (var i = 1; i <= steps; i++) {
+        polyline.pushPoint(x, y, topZ);
+        polyline.pushPoint(x, y, topZ - (topZ - z) * i / steps);
+    }
+    return polyline;
+}

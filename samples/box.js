@@ -98,12 +98,12 @@ function surfaceBar(machine) {
 
     machine.setParams(workZ, travelZ, 3000);
 
-    var width = 40;
+    var width = 53;
     var height = 175;
     var stepOver = 0.8;
 
-    var startZ = -1;
-    var stopZ = -1;
+    var startZ = -6;
+    var stopZ = -6;
     var zStep = 1;
 
     var toolPath = [];
@@ -125,7 +125,6 @@ function surfaceBar(machine) {
         console.log(line);
     }
     machine.registerToolPathArray(toolPath);
-
 }
 
 var wallThickness = 8;
@@ -186,7 +185,7 @@ function createShortWall(workZ) {
         }
         var xMargin = xSign * margin;
         var yMargin = ySign * margin;
-        var slabOutline = createRelativeRectangle(xSpan + xMargin, ySpan + yMargin);
+        var slabOutline = geom.createRelativeRectangle(xSpan + xMargin, ySpan + yMargin);
         return machine.createOutline(op('M', xStart - xMargin, yStart) + slabOutline, 'rgb(255,200,200)');
     }
 
@@ -196,7 +195,7 @@ function createShortWall(workZ) {
 
     function createRectangleOfInterest(yDir) {
         var yStart = (yDir < 0 ? width : 0) + yDir * -5;
-        return machine.createOutline(op('M', -5, yStart) + createRelativeRectangle(length + 10, (grooveDepth + 10) * yDir), 'rgb(255,200,200)');
+        return machine.createOutline(op('M', -5, yStart) + geom.createRelativeRectangle(length + 10, (grooveDepth + 10) * yDir), 'rgb(255,200,200)');
     }
 
     var rectangleOfInterest1 = machine.toClipper(createRectangleOfInterest(1))[0];
@@ -213,8 +212,7 @@ function createShortWall(workZ) {
     });
     var slabbedOutline = machine.polyOp(clipperOutline, slabs, ClipperLib.ClipType.ctUnion);
     var diff1 = machine.polyOp([rectangleOfInterest1, rectangleOfInterest2], slabbedOutline, ClipperLib.ClipType.ctDifference);
-    var toolpath = machine.contouring(outline, toolRadius, false, false);
-    return toolpath;
+    return machine.contouring(outline, toolRadius, false, false);
 }
 
 function boxLongWall(machine) {
@@ -272,7 +270,7 @@ function boxLongWall(machine) {
         }
         var xMargin = xSign * margin;
         var yMargin = ySign * margin;
-        var slabOutline = createRelativeRectangle(xSpan + xMargin, ySpan + yMargin);
+        var slabOutline = geom.createRelativeRectangle(xSpan + xMargin, ySpan + yMargin);
         return machine.createOutline(op('M', xStart - xMargin, yStart) + slabOutline, 'rgb(255,200,200)');
     }
 
@@ -282,7 +280,7 @@ function boxLongWall(machine) {
 
     function createRectangleOfInterest(yDir) {
         var yStart = (yDir < 0 ? width : 0) + yDir * (grooveDepth - 5);
-        return machine.createOutline(op('M', -5, yStart) + createRelativeRectangle(length + 10, (-grooveDepth + 10) * yDir), 'rgb(255,200,200)');
+        return machine.createOutline(op('M', -5, yStart) + geom.createRelativeRectangle(length + 10, (-grooveDepth + 10) * yDir), 'rgb(255,200,200)');
     }
 
     var rectangleOfInterest1 = machine.toClipper(createRectangleOfInterest(1))[0];
@@ -299,8 +297,7 @@ function boxLongWall(machine) {
     });
     var slabbedOutline = machine.polyOp(clipperOutline, slabs, ClipperLib.ClipType.ctUnion);
     var diff1 = machine.polyOp([rectangleOfInterest1, rectangleOfInterest2], slabbedOutline, ClipperLib.ClipType.ctDifference);
-    var toolpath = machine.contouring(outline, toolRadius, false, false);
-    return toolpath;
+    return machine.contouring(outline, toolRadius, false, false);
 
 }
 

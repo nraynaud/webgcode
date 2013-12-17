@@ -317,9 +317,9 @@ function simulate(path) {
     }
 
     simulate2(path, pushPoint);
-    var chart1 = $.plot("#chart1", posData);
-    $.plot("#chart2", speedData, {xaxis: {max: chart1.getAxes().xaxis.max}});
-    $.plot("#chart3", accelerationData, {xaxis: {max: chart1.getAxes().xaxis.max}});
+    //var chart1 = $.plot("#chart1", posData);
+    //$.plot("#chart2", speedData, {xaxis: {max: chart1.getAxes().xaxis.max}});
+    //$.plot("#chart3", accelerationData, {xaxis: {max: chart1.getAxes().xaxis.max}});
     return simulatedPath;
 }
 

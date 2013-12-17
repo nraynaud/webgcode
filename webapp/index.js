@@ -261,6 +261,7 @@ function bindDevice() {
             currentDevice = device;
             connectButton.hide();
             sendButton.show();
+            manualControl.show();
             bodyElement.style.backgroundColor = 'blue';
             controlTransfer(currentDevice, {request: CONTROL_COMMANDS.REQUEST_PARAMETERS, length: 16 }, function (data) {
                 var params = new Int32Array(data);
@@ -288,6 +289,7 @@ chrome.permissions.contains(PERMISSIONS, function (result) {
     else {
         connectButton.show();
         sendButton.hide();
+        manualControl.hide();
     }
 });
 $('.paramField').bind('input', function () {

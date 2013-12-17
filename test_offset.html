@@ -12,6 +12,8 @@
     <script src="webapp/cnc/twoDView.js"></script>
 
     <script src="samples/box.js"></script>
+    <script src="samples/box2.js"></script>
+    <script src="samples/plug_plate.js"></script>
     <script src="samples/joystick_plate.js"></script>
 
     <style>
@@ -49,7 +51,7 @@
     var twoDView = new TwoDView(drawing);
     var machine = new Machine(twoDView.paper);
     console.time('creation');
-    createJoinTestSystem(machine);
+    box2.createWallSlice(machine);
     console.timeEnd('creation');
     $('#code').text(machine.dumpGCode());
     twoDView.zoomExtent();
