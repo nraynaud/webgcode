@@ -65,6 +65,22 @@ void sendEvent(uint32_t event) {
     DCD_EP_Tx(&usbDevice, INTERRUPT_ENDPOINT, (uint8_t *) cncMemory.lastEvent, sizeof(cncMemory.lastEvent));
 }
 
+#define CIRCULAR_BUFFER_SIZE    16384U
+static struct {
+    uint8_t buffer[CIRCULAR_BUFFER_SIZE];
+    uint16_t writeCount;
+    uint16_t readCount;
+    int signaled;
+    int flushing;
+    uint32_t programLength;
+} circularBuffer = {
+        .writeCount = 0,
+        .readCount = 0,
+        .signaled = 0,
+        .flushing = 0,
+        .programLength = 0
+};
+
 static volatile uint64_t state;
 
 static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
@@ -123,7 +139,25 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                             return USBD_FAIL;
                     }
             }
-        default:
+            break;
+        case STANDARD:
+            if (req->wIndex == BULK_ENDPOINT && req->wValue == USB_FEATURE_EP_HALT) {
+                //the stall/clear stall has been done by the lib.
+                if (req->bRequest == USB_REQ_SET_FEATURE ) {
+                    circularBuffer.programLength = 0;
+                    circularBuffer.flushing = 0;
+                    circularBuffer.writeCount = 0;
+                    circularBuffer.readCount = 0;
+                    circularBuffer.signaled = 0;
+                    cncMemory.state = ABORTING_PROGRAM;
+                    DCD_EP_Flush(pdev, BULK_ENDPOINT_NUM);
+                } else if (req->bRequest == USB_REQ_CLEAR_FEATURE ) {
+                    cncMemory.state = READY;
+                    sendEvent(PROGRAM_END);
+                    DCD_EP_Flush(pdev, BULK_ENDPOINT_NUM);
+                    DCD_EP_PrepareRx(&usbDevice, BULK_ENDPOINT, buffer, BUFFER_SIZE);
+                }
+            }
             break;
     }
     return USBD_OK;
@@ -137,22 +171,6 @@ void sendMovedEvent(position_t pos) {
     cncMemory.lastEvent[4] = pos.speed;
     DCD_EP_Tx(&usbDevice, INTERRUPT_ENDPOINT, (uint8_t *) cncMemory.lastEvent, sizeof(cncMemory.lastEvent));
 }
-
-#define CIRCULAR_BUFFER_SIZE    16384U
-static struct {
-    uint8_t buffer[CIRCULAR_BUFFER_SIZE];
-    uint16_t writeCount;
-    uint16_t readCount;
-    int signaled;
-    int flushing;
-    uint32_t programLength;
-} circularBuffer = {
-        .writeCount = 0,
-        .readCount = 0,
-        .signaled = 0,
-        .flushing = 0,
-        .programLength = 0
-};
 
 uint16_t fillLevel() {
     return (uint16_t) (circularBuffer.writeCount - circularBuffer.readCount);

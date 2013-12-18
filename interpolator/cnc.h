@@ -38,7 +38,8 @@ typedef enum {
 typedef enum {
     READY = 0,
     RUNNING_PROGRAM = 1,
-    MANUAL_CONTROL = 2
+    MANUAL_CONTROL = 2,
+    ABORTING_PROGRAM = 3
 } cnc_state_t;
 
 enum {
