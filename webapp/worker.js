@@ -87,10 +87,10 @@ function handleFragment(program) {
         var word = '00' + bin(point.dz) + bin(point.dy) + bin(point.dx);
         view.setUint8(i * 3 + 2, parseInt(word, 2), true);
     }
-    postMessage(formattedData);
+    self.postMessage(formattedData);
 }
-var onmessage = function (oEvent) {
-    var code = oEvent.data.plan;
+self.onmessage = function (event) {
+    var code = event.data.plan;
     var program = [];
 
     function stepCollector(point) {
@@ -101,7 +101,8 @@ var onmessage = function (oEvent) {
         }
     }
 
-    var parameters = oEvent.data.parameters;
-    planProgram(code, parameters.maxAcceleration, 1 / parameters.stepsPerMillimeter, parameters.clockFrequency, parameters.position, stepCollector);
+    var params = event.data.parameters;
+    planProgram(code, params.maxAcceleration, 1 / params.stepsPerMillimeter, params.clockFrequency, params.position, stepCollector);
     handleFragment(program);
+    self.postMessage(null);
 };
