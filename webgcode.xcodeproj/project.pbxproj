@@ -16,7 +16,9 @@
 		DDAA5483FC94B19E4DDD5313 /* TrackballControls.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA55BD80E7C2D0A1E30C84 /* TrackballControls.js */; };
 		DDAA552C6267F3185C8CAC83 /* jquery.mousewheel.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA52A07CEEAC61D37C2583 /* jquery.mousewheel.js */; };
 		DDAA554DBA35296CDEFFBF7B /* csg.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C645D269334C0AA6957 /* csg.js */; };
+		DDAA57C1DB0A19207E999D47 /* dremel_bracket.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C540B906C544541D05B /* dremel_bracket.js */; };
 		DDAA59F8C14ADBE647A5FE41 /* cnc.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = DDAA5C39B59BE70527721DE7 /* cnc.h */; };
+		DDAA5A394ECDD4FBAE424D40 /* opentype.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53AE873C0C682A2E275F /* opentype.js */; };
 		DDAA5A5E764293C2F41E01A8 /* morphology.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C805943B69550EFE55F /* morphology.js */; };
 		DDAA5B6641CFBF0C81D7B5CF /* usb.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5223044005BFC70BD5DE /* usb.c */; };
 		DDAA5B6E340CC8F09A389585 /* box2.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5FFAC7F227AF3A40874C /* box2.js */; };
@@ -25,6 +27,7 @@
 		DDAA5CA52329A23DE4500854 /* usbdesc.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA56B90C5F7FBE9FC0A534 /* usbdesc.c */; };
 		DDAA5CDD5DCBC168FB293986 /* jquery.flot.resize.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5518BC9939B7C36FE0B9 /* jquery.flot.resize.js */; };
 		DDAA5D86ED26C5CD14D88228 /* jsparse.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54F29F1F185A35EE1B8C /* jsparse.js */; };
+		DDAA5DE55277ED7870D14EDE /* beziers.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54C02B65138BA2BC4D67 /* beziers.js */; };
 		DDAA5DE77AE28CC3AFB885FA /* twoDView.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5828C64CB437858D52A4 /* twoDView.js */; };
 		DDAA5E22BC07E6E31ADB9B99 /* worker.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA55BC4AF31055E9F8A697 /* worker.js */; };
 		DDAA5E39B611B3CD37DFF97F /* geometry.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA507CC79F9033457329F7 /* geometry.js */; };
@@ -59,7 +62,9 @@
 		DDAA5268AB05089C411E0479 /* plug_plate.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = plug_plate.js; path = samples/plug_plate.js; sourceTree = "<group>"; };
 		DDAA52A07CEEAC61D37C2583 /* jquery.mousewheel.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jquery.mousewheel.js; path = webapp/libs/jquery.mousewheel.js; sourceTree = "<group>"; };
 		DDAA53A88FF1511A72FDAAE0 /* threeDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = threeDView.js; path = webapp/cnc/threeDView.js; sourceTree = "<group>"; };
+		DDAA53AE873C0C682A2E275F /* opentype.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = opentype.js; path = webapp/libs/opentype.js; sourceTree = "<group>"; };
 		DDAA53D0D9AE21EE52463EAE /* manual.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = manual.c; path = interpolator/manual.c; sourceTree = "<group>"; };
+		DDAA54C02B65138BA2BC4D67 /* beziers.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = beziers.js; path = webapp/cnc/beziers.js; sourceTree = "<group>"; };
 		DDAA54F29F1F185A35EE1B8C /* jsparse.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jsparse.js; path = webapp/libs/jsparse.js; sourceTree = "<group>"; };
 		DDAA5518BC9939B7C36FE0B9 /* jquery.flot.resize.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jquery.flot.resize.js; path = assets/jquery.flot.resize.js; sourceTree = "<group>"; };
 		DDAA557E11AAA24C9679FF7B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = file.md; path = README.md; sourceTree = "<group>"; };
@@ -79,6 +84,7 @@
 		DDAA5A030F4462F1A261CEB0 /* svg.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = svg.js; path = webapp/libs/svg.js; sourceTree = "<group>"; };
 		DDAA5A99ECD28BC66706A677 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = file.json; name = manifest.json; path = webapp/manifest.json; sourceTree = "<group>"; };
 		DDAA5C39B59BE70527721DE7 /* cnc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cnc.h; path = interpolator/cnc.h; sourceTree = "<group>"; };
+		DDAA5C540B906C544541D05B /* dremel_bracket.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = dremel_bracket.js; path = samples/dremel_bracket.js; sourceTree = "<group>"; };
 		DDAA5C645D269334C0AA6957 /* csg.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = csg.js; path = webapp/libs/csg.js; sourceTree = "<group>"; };
 		DDAA5C7DCC7731222576D7BA /* delaunay.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = delaunay.js; path = webapp/cnc/delaunay.js; sourceTree = "<group>"; };
 		DDAA5C805943B69550EFE55F /* morphology.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = morphology.js; path = webapp/cnc/morphology.js; sourceTree = "<group>"; };
@@ -147,6 +153,9 @@
 				DDAA5FFAC7F227AF3A40874C /* box2.js */,
 				DDAA5268AB05089C411E0479 /* plug_plate.js */,
 				DDAA50F3E153B90B949FB125 /* runner.js */,
+				DDAA5C540B906C544541D05B /* dremel_bracket.js */,
+				DDAA53AE873C0C682A2E275F /* opentype.js */,
+				DDAA54C02B65138BA2BC4D67 /* beziers.js */,
 			);
 			sourceTree = "<group>";
 		};
@@ -264,6 +273,9 @@
 				DDAA5B6E340CC8F09A389585 /* box2.js in Sources */,
 				DDAA5F165CE6F3C04CED10DA /* plug_plate.js in Sources */,
 				DDAA5B897C73C91C52BD8792 /* runner.js in Sources */,
+				DDAA57C1DB0A19207E999D47 /* dremel_bracket.js in Sources */,
+				DDAA5A394ECDD4FBAE424D40 /* opentype.js in Sources */,
+				DDAA5DE55277ED7870D14EDE /* beziers.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

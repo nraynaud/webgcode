@@ -8,12 +8,16 @@
     <script src="webapp/libs/svg.memory.js"></script>
     <script src="webapp/libs/jquery.mousewheel.js"></script>
     <script src="webapp/libs/clipper_unminified.js"></script>
+    <script src="webapp/libs/opentype.js"></script>
+    <script src="webapp/libs/extractedRaphael.js"></script>
+    <script src="webapp/cnc/beziers.js"></script>
     <script src="webapp/cnc/cam.js"></script>
     <script src="webapp/cnc/twoDView.js"></script>
 
     <script src="samples/box.js"></script>
     <script src="samples/box2.js"></script>
     <script src="samples/plug_plate.js"></script>
+    <script src="samples/dremel_bracket.js"></script>
     <script src="samples/joystick_plate.js"></script>
 
     <style>
@@ -51,7 +55,11 @@
     var twoDView = new TwoDView(drawing);
     var machine = new Machine(twoDView.paper);
     console.time('creation');
-    box2.createWallSlice(machine);
+    box2.testFont(machine, function () {
+        console.timeEnd('creation');
+        $('#code').text(machine.dumpGCode());
+        twoDView.zoomExtent();
+    });
     console.timeEnd('creation');
     $('#code').text(machine.dumpGCode());
     twoDView.zoomExtent();

@@ -1,16 +1,16 @@
 "use strict";
 var plugPlate = (function () {
-    var toolRadius = 2;
+    var toolRadius = 3;
 
     var holeDiameter = 15.70;
-    var flatsSeparations = 14.75;
+    var flatsSeparations = 14.50;
 
     var holePatternSeparation = 25;
-    var holeCount = 4;
+    var holeCount = 1;
     var holeBottom = 4;
     var holesCenters = [];
 
-    for (var i = 1; i < holeCount; i++)
+    for (var i = 0; i < holeCount; i++)
         holesCenters.push({x: 0, y: i * holePatternSeparation});
 
     function drillHoles(machine) {
@@ -25,13 +25,13 @@ var plugPlate = (function () {
         var circle = geom.createCircle(x, y, holeDiameter / 2);
         var rectangle = geom.op('M', x - flatsSeparations / 2, y - holeDiameter) + geom.createRelativeRectangle(flatsSeparations, holeDiameter * 2);
 
-        machine.setParams(-3, 10, 280);
+        machine.setParams(-3, 10, 600);
         machine.createOutline(rectangle);
         var clipperCircle = machine.toClipper(machine.createOutline(circle), null);
         var clipperRectangle = machine.toClipper(machine.createOutline(rectangle), null);
         var polygon = machine.polyOp(clipperCircle, clipperRectangle, ClipperLib.ClipType.ctIntersection);
         polygon = machine.contourClipper(polygon, toolRadius, true);
-        machine.registerToolPathArray(machine.rampToolPathArray(machine.fromClipper(polygon, true, machine.contourAreaPositive(true, false)), 0, -3, 12));
+        machine.registerToolPathArray(machine.rampToolPathArray(machine.fromClipper(polygon, true, machine.contourAreaPositive(true, false)), 0, -4, 2));
     }
 
     function makeShape(machine) {

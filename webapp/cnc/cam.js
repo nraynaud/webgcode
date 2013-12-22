@@ -51,41 +51,11 @@ function getPathLengths(path) {
         var item = clone.node.pathSegList.removeItem(0);
         shadowPath.node.pathSegList.appendItem(item);
         segmentsLengths[i] = shadowPath.node.getTotalLength();
-        if (i != path.node.pathSegList.numberOfItems - 1 && item.pathSegType == SVGPathSeg.PATHSEG_CLOSEPATH)
-            throw "path shouldn't be compound";
     }
     shadowPath.remove();
     return segmentsLengths;
 }
 
-//don't send a compound or non-closed path to this function, it won't end well
-function toClipper(shapePath, scale, pointCount, translation) {
-    if (translation == null)
-        translation = {x: 0, y: 0};
-    var node = shapePath.node;
-    var segList = node.pathSegList;
-    var lastSegment = segList.getItem(segList.numberOfItems - 1);
-    if (lastSegment.pathSegType != SVGPathSeg.PATHSEG_CLOSEPATH)
-        throw "shapePath should be closed. last element was " + lastSegment.pathSegType;
-    var totalLength = node.getTotalLength();
-    var clipperPoints = [];
-    var segmentsLengths = getPathLengths(shapePath);
-    for (var l = 0; l <= totalLength;) {
-        var segmentIndex = node.getPathSegAtLength(l);
-        var pathSeg = segList.getItem(segmentIndex);
-        var p = node.getPointAtLength(l);
-        if (isStraightLine(pathSeg)) {
-            //push the initial segment point
-            p = node.getPointAtLength(segmentsLengths[segmentIndex - 1]);
-            //skip to slightly (one hundredth of a step) after the end of the segment
-            l = segmentsLengths[segmentIndex] + totalLength / pointCount * 0.01;
-        } else
-            l += totalLength / pointCount;
-        clipperPoints.push({X: (translation.x + p.x) * scale, Y: (translation.y + p.y) * scale});
-    }
-    clipperPoints = [clipperPoints];
-    return ClipperLib.Clean(clipperPoints, 0.0001 * scale);
-}
 
 function fromClipper(polygons, scale, reorder, areaPositive) {
     var result = [];
@@ -171,6 +141,7 @@ function createGCode(workZ, travelZ, ops) {
 function ConstantZPolygonToolpath() {
     this.path = [];
 }
+
 ConstantZPolygonToolpath.prototype.pushPoint = function (x, y) {
     this.path.push([x, y]);
 }
@@ -318,12 +289,14 @@ Machine.prototype.drillCorners = function (contour) {
 Machine.prototype.filletWholePolygon = function (shapePath, radius) {
     var scaledRadius = radius * this.clipperScale;
     var clipperPoints = this.toClipper(shapePath);
+    console.log(clipperPoints);
     var cpr = new ClipperLib.Clipper();
     var eroded = cpr.OffsetPolygons(clipperPoints, -scaledRadius, ClipperLib.JoinType.jtRound, 0.25, true);
     var openedDilated = cpr.OffsetPolygons(eroded, 2 * scaledRadius, ClipperLib.JoinType.jtRound, 0.25, true);
     var rounded = cpr.OffsetPolygons(openedDilated, -scaledRadius, ClipperLib.JoinType.jtRound, 0.25, true);
     var outline = this.createOutline('');
     shapePath.node.pathSegList.clear();
+    console.log(rounded);
     $.each(this.fromClipper(rounded), function (index, poly) {
         poly.pushOnPath(shapePath);
     });
@@ -367,11 +340,19 @@ Machine.prototype.dumpPath = function () {
 /**
  *
  * @param shapePath a SVG path
- * @param {optional} translation
+ * @param [translation]
  * @returns {a Clipper polygon array}
  */
 Machine.prototype.toClipper = function (shapePath, translation) {
-    return toClipper(shapePath, this.clipperScale, this.clipperPointCount, translation);
+    var polygons = bezier.pathToPolygons(R.path2curve(shapePath.node.getAttribute('d')), {a: 1, b: 0, c: 0, d: 1, e: 0, f: 0}, 0.0001);
+    var machine = this;
+    $.each(polygons, function (_, poly) {
+        $.each(poly, function (_, point) {
+            point.X *= machine.clipperScale;
+            point.Y *= machine.clipperScale
+        });
+    });
+    return polygons;
 };
 
 /**
