@@ -5,8 +5,6 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <title>g-code simulator</title>
     <script src="libs/jquery.min.js"></script>
-    <script src="libs/jquery.flot.min.js"></script>
-    <script src="libs/jquery.flot.resize.js"></script>
     <script src="libs/Three.js"></script>
     <script src="libs/TrackballControls.js"></script>
     <script src="libs/jsparse.js"></script>
@@ -92,23 +90,30 @@
         G3 Z50 J0 K5
         G17 (back to X-Y plane)
     </textarea>
-    <button onclick="threeDView.displayPath(evaluateCode());">Simulate</button>
+    <button id="simulateButton">Simulate</button>
 </div>
-<div class="chart" id="chart1"></div>
-<div class="chart" id="chart2"></div>
-<div class="chart" id="chart3"></div>
 <script>
     function getURLParameter(name) {
         return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null;
     }
-    var $container = $('#container');
+
     var codebox = $('#codebox');
+    function refreshView() {
+        var simulatedPath = [];
+        var lastT = null;
+        simulate2(evaluate(codebox.val()), function (x, y, z, t) {
+            simulatedPath.push({x: x, y: y, z: z});
+            lastT = t;
+        });
+        console.log('total duration', lastT);
+        threeDView.displayPath(simulatedPath);
+    }
+    $('#simulateButton').click(refreshView);
+    var $container = $('#container');
     var threeDView = new ThreeDView($container);
     window.addEventListener("message", function (event) {
-        if (event.data['type'] == 'gimme program') {
-            evaluateCode();
+        if (event.data['type'] == 'gimme program')
             event.source.postMessage({type: 'program', program: $('#codebox').val()}, event.origin);
-        }
         if (event.data['type'] == 'toolPosition') {
             var pos = event.data['position'];
             threeDView.tool.position.setX(pos.x);
@@ -121,13 +126,13 @@
         }
         if (event.data['type'] == 'setCode') {
             codebox.text(event.data['code']);
-            threeDView.displayPath(evaluateCode());
+            refreshView();
         }
     }, false);
     codebox.change(function () {
         parent.postMessage({type: 'codeChange', code: codebox.val()}, '*');
     });
-    threeDView.displayPath(evaluateCode());
+    refreshView();
 </script>
 </body>
 </html>

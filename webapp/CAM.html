@@ -14,6 +14,9 @@
     <script src="libs/svg.memory.js"></script>
     <script src="libs/jquery.mousewheel.js"></script>
     <script src="libs/clipper_unminified.js"></script>
+    <script src="libs/opentype.js"></script>
+    <script src="libs/extractedRaphael.js"></script>
+    <script src="cnc/beziers.js"></script>
     <script src="cnc/cam.js"></script>
     <script src="cnc/geometry.js"></script>
     <script src="cnc/simulation.js"></script>
@@ -122,8 +125,7 @@
 <script>
     window.addEventListener("message", function (event) {
         if (event.data['type'] == 'gimme program') {
-            evaluateCode();
-            event.source.postMessage({type: 'program', program: $('#codebox').val()}, event.origin);
+            //event.source.postMessage({type: 'program', program: $('#codebox').val()}, event.origin);
         }
         if (event.data['type'] == 'toolPosition') {
             var pos = event.data['position'];
@@ -148,12 +150,20 @@
     });
     var button = $('#simulationButton');
     var machine = null;
+    function whenDone() {
+        twoDView.zoomExtent();
+        threeDView.displayPath(machine.dumpPath());
+        var lastT = null;
+        simulate2(machine.simulablePath(), function (x, y, z, t) {
+            lastT = t;
+        });
+        console.log('total duration', lastT);
+    }
     function refresh() {
         machine = new Machine(twoDView.paper);
         twoDView.clear();
         eval(codebox.val());
-        twoDView.zoomExtent();
-        threeDView.displayPath(machine.dumpPath());
+        whenDone();
     }
     button.click(function () {
         refresh();

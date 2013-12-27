@@ -54,15 +54,15 @@
     var drawing = $('#drawing');
     var twoDView = new TwoDView(drawing);
     var machine = new Machine(twoDView.paper);
-    console.time('creation');
-    box2.testFont(machine, function () {
+    function whenDone() {
         console.timeEnd('creation');
         $('#code').text(machine.dumpGCode());
         twoDView.zoomExtent();
-    });
-    console.timeEnd('creation');
-    $('#code').text(machine.dumpGCode());
-    twoDView.zoomExtent();
+    }
+    console.time('creation');
+    var res = box2.testFont(machine, whenDone);
+    if (!res)
+        whenDone();
 </script>
 </body>
 </html>

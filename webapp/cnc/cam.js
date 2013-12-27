@@ -206,7 +206,7 @@ GeneralPolylineToolpath.prototype.translated = function (dx, dy, dz) {
 function Machine(paper) {
     this.paper = paper;
     this.operations = [];
-    this.clipperScale = 1000000;
+    this.clipperScale = Math.pow(2, 20);
     this.clipperPointCount = 500;
 }
 
@@ -289,39 +289,88 @@ Machine.prototype.drillCorners = function (contour) {
 Machine.prototype.filletWholePolygon = function (shapePath, radius) {
     var scaledRadius = radius * this.clipperScale;
     var clipperPoints = this.toClipper(shapePath);
-    console.log(clipperPoints);
     var cpr = new ClipperLib.Clipper();
     var eroded = cpr.OffsetPolygons(clipperPoints, -scaledRadius, ClipperLib.JoinType.jtRound, 0.25, true);
     var openedDilated = cpr.OffsetPolygons(eroded, 2 * scaledRadius, ClipperLib.JoinType.jtRound, 0.25, true);
     var rounded = cpr.OffsetPolygons(openedDilated, -scaledRadius, ClipperLib.JoinType.jtRound, 0.25, true);
     var outline = this.createOutline('');
     shapePath.node.pathSegList.clear();
-    console.log(rounded);
     $.each(this.fromClipper(rounded), function (index, poly) {
         poly.pushOnPath(shapePath);
     });
     return shapePath;
 };
 
-Machine.prototype.dumpGCode = function () {
+Machine.prototype.dumpOnCollector = function (pathCollector) {
     var machine = this;
 
     function pos(point, zOverride) {
-        return 'X' + point.x + ' Y' + point.y + ' Z' + ((zOverride != undefined) ? zOverride : point.z);
+        return {x: point.x, y: point.y, z: (zOverride != undefined) ? zOverride : point.z};
+    }
+
+    //avoid traveling to start point at unknown Z (yes, I did hit a screw)
+    pathCollector.goToTravelSpeed({z: machine.travelZ});
+    $.each(this.operations, function (_, op) {
+        pathCollector.goToTravelSpeed(pos(op.getStartPoint(machine.travelZ), machine.travelZ));
+        op.forEachPoint(function (x, y, z) {
+            pathCollector.goToWorkSpeed(pos({x: x, y: y, z: z}));
+        }, machine.workZ);
+        pathCollector.goToTravelSpeed(pos(op.getStopPoint(machine.travelZ), machine.travelZ));
+    });
+}
+
+Machine.prototype.dumpGCode = function () {
+    var machine = this;
+
+    function pos(point) {
+        var res = '';
+        if (point['x'] != null)
+            res += 'X' + point.x;
+        if (point['y'] != null)
+            res += 'Y' + point.y;
+        if (point['z'] != null)
+            res += 'Z' + point.z;
+        return res;
     }
 
     var code = ['F' + this.feedRate];
-    //avoid traveling to start point at unknown Z (yes, I did hit a screw)
-    code.push('G0 Z' + machine.travelZ);
-    $.each(this.operations, function (_, op) {
-        code.push('G0' + pos(op.getStartPoint(machine.travelZ), machine.travelZ));
-        op.forEachPoint(function (x, y, z) {
-            code.push('G1' + pos({x: x, y: y, z: z}));
-        }, machine.workZ);
-        code.push('G0' + pos(op.getStopPoint(machine.travelZ), machine.travelZ));
+    machine.dumpOnCollector({
+        goToTravelSpeed: function (point) {
+            code.push('G0 ' + pos(point));
+        },
+        goToWorkSpeed: function (point) {
+            code.push('G1 ' + pos(point));
+        }
     });
     return code.join('\n');
 };
+
+
+Machine.prototype.simulablePath = function () {
+    var machine = this;
+    var path = [];
+    var position = {x: 0, y: 0, z: 0};
+
+    function positionEquals(p1, p2) {
+        return p1.x == p2.x && p1.y == p2.y && p1.z == p2.z;
+    }
+
+    function createSpeedHandler(speed) {
+        return function (point) {
+            var newPos = $.extend({}, position, point);
+            if (positionEquals(newPos, position))
+                return;
+            path.push({type: 'line', from: position, to: newPos, feedRate: speed});
+            position = newPos;
+        }
+    }
+
+    machine.dumpOnCollector({
+        goToTravelSpeed: createSpeedHandler(3000),
+        goToWorkSpeed: createSpeedHandler(machine.feedRate)
+    });
+    return path;
+}
 
 Machine.prototype.dumpPath = function () {
     var points = [];
@@ -348,8 +397,8 @@ Machine.prototype.toClipper = function (shapePath, translation) {
     var machine = this;
     $.each(polygons, function (_, poly) {
         $.each(poly, function (_, point) {
-            point.X *= machine.clipperScale;
-            point.Y *= machine.clipperScale
+            point.X = Math.round(machine.clipperScale * point.X);
+            point.Y = Math.round(machine.clipperScale * point.Y);
         });
     });
     return polygons;

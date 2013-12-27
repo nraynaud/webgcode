@@ -429,9 +429,3 @@ function evaluate(text, position) {
     });
     return machineState.path;
 }
-
-function evaluateCode() {
-    var text = $('#codebox').val();
-    var simulatedPath = simulate(evaluate(text));
-    return simulatedPath;
-}
