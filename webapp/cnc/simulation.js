@@ -1,5 +1,7 @@
 "use strict";
-
+function scaledLine(axis, line, ratio) {
+    return line.from[axis] + ratio * (line.to[axis] - line.from[axis]);
+}
 var COMPONENT_TYPES = {
     line: {
         length: function (line) {
@@ -23,11 +25,10 @@ var COMPONENT_TYPES = {
             return COMPONENT_TYPES.line.entryDirection(line);
         },
         pointAtRatio: function (line, ratio, asObject) {
-            function scaled(axis) {
-                return line.from[axis] + ratio * (line.to[axis] - line.from[axis]);
-            }
-
-            return asObject ? scaled : [scaled('x'), scaled('y'), scaled('z')];
+            var x = scaledLine('x', line, ratio);
+            var y = scaledLine('y', line, ratio);
+            var z = scaledLine('z', line, ratio);
+            return asObject ? {x: x, y: y, z: z} : [x, y, z];
         },
         simulationSteps: function () {
             return 40;
@@ -150,9 +151,8 @@ function planSpeed(data) {
         });
     }
 }
-function dataForRatio(segment, ratio) {
-    var acceleration = segment.maxAcceleration;
 
+var FRAGMENT_EQUATIONS = (function () {
     function accelerateFragment(fragment, ratio, acceleration) {
         var x2 = 2 * (fragment.segment.acceleration.length + fragment.length * ratio);
         return {speed: Math.sqrt(acceleration * x2),
@@ -169,7 +169,11 @@ function dataForRatio(segment, ratio) {
         return {speed: Math.sqrt(fragment.squaredSpeed), time: fragment.duration * ratio};
     }
 
-    var equations = {acceleration: accelerateFragment, deceleration: decelerateFragment, constant: runFragment};
+    return {acceleration: accelerateFragment, deceleration: decelerateFragment, constant: runFragment};
+})();
+
+function dataForRatio(segment, ratio) {
+    var acceleration = segment.maxAcceleration;
     var x = segment.length * ratio;
     var timeOffset = 0;
     var xOffset = 0;
@@ -181,7 +185,7 @@ function dataForRatio(segment, ratio) {
         fragmentIndex++;
         fragment = segment.fragments[fragmentIndex];
     }
-    var result = equations[fragment.type](fragment, (x - xOffset) / fragment.length, acceleration);
+    var result = FRAGMENT_EQUATIONS[fragment.type](fragment, (x - xOffset) / fragment.length, acceleration);
     return {speed: result.speed, time: timeOffset + result.time};
 }
 function groupConnectedComponents(path, acceleration) {
