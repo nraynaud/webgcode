@@ -16,6 +16,7 @@
     <script src="libs/clipper_unminified.js"></script>
     <script src="libs/opentype.js"></script>
     <script src="libs/extractedRaphael.js"></script>
+    <script src="libs/ace/src-noconflict/ace.js"></script>
     <script src="cnc/beziers.js"></script>
     <script src="cnc/cam.js"></script>
     <script src="cnc/geometry.js"></script>
@@ -37,11 +38,10 @@
         .editBlock {
             display: flex;
             flex-direction: column;
-            text-align: right;
             flex: 1;
         }
 
-        .editBlock textarea {
+        .editBlock pre {
             flex: 1;
         }
 
@@ -64,55 +64,36 @@
             flex: 1;
             overflow: hidden;
         }
+
+        #codebox {
+            margin: 0;
+        }
     </style>
 </head>
 <body>
 <div class="editBlock">
-    <textarea id="codebox" placeholder="Paste your javascript here...">
-        var toolDiameter = 5.5;
-        var toolRadius = toolDiameter / 2;
-        var stockThickness = 19;
-        var travelZ = 5;
-        var workZ = -19;
-
-        machine.setParams(workZ, travelZ, 500);
-        var plateWidth = 155;
-        var plateHeight = 75;
-
-        var switchWidth = 22;
-        var switchHeight = 29;
-
-        var switchTopMargin = 11;
-
-        var plugHeight = 20.6;
-        var plugWidth = 28.5;
-
-        var plugCenterX = 40;
-
-        var plugSwitchSeparation = 2;
-
-        function cornerForCenter(centerCoord, width) {
-        return centerCoord - width / 2;
-        }
-
-        var plateOutline = machine.createOutline('M0,0' + createRelativeRectangle(plateWidth, plateHeight));
-        var switchBottom = plateHeight - switchTopMargin - switchHeight;
-        var switchOutline = machine.createOutline('M' + cornerForCenter(plugCenterX, switchWidth) + ',' + switchBottom +
-        createRelativeRectangle(switchWidth, switchHeight));
-        var plugBottom = switchBottom - plugSwitchSeparation - plugHeight;
-        var plugOutline = machine.createOutline('M' + cornerForCenter(plugCenterX, plugWidth) + ',' + plugBottom +
-        createRelativeRectangle(plugWidth, plugHeight));
-
-        function makeToolPath(outline, inside) {
-        var toolpath = machine.rampToolPath(machine.contouring(outline, toolRadius, inside, false)[0], 0, workZ, 3);
-        machine.registerToolPath(toolpath);
-
-        }
-
-        makeToolPath(switchOutline, true);
-        makeToolPath(plugOutline, true);
-        makeToolPath(plateOutline, false);
-    </textarea>
+    <pre id="codebox">
+        opentype.load('libs/fonts/miss_fajardose/MissFajardose-Regular.ttf', function (err, font) {
+            var path = font.getPath('Test');
+            var res = '';
+            for (var i = 0; i < path.commands.length; i++) {
+                var command = path.commands[i];
+                res += ' ' + command.type;
+                if (command.type == 'M' || command.type == 'L')
+                    res += ' ' + command.x + ',' + -command.y;
+                else if (command.type == 'Q')
+                    res += command.x1 + ',' + -command.y1 + ' ' + command.x + ',' + -command.y;
+                else if (command.type == 'C')
+                    res += command.x1 + ',' + -command.y1 + ' ' + command.x2 + ',' + -command.y2
+                        + ' ' + command.x + ',' + -command.y;
+            }
+            var poly = machine.toClipper(machine.createOutline(res));
+            poly = machine.polyOp(poly, [], ClipperLib.ClipType.ctUnion);
+            machine.setParams(-19, 10, 1000);
+            machine.registerToolPathArray(machine.fromClipper(machine.contourClipper(poly, 0.5, false)));
+            whenDone();
+        });
+    </pre>
     <button id="simulationButton">Simulate</button>
 </div>
 <div id="views">
@@ -120,6 +101,9 @@
     <div id="drawing"></div>
 </div>
 <script>
+    var editor = ace.edit("codebox");
+    editor.setTheme("ace/theme/twilight");
+    editor.session.setMode("ace/mode/javascript");
     var threeDView = new ThreeDView($('#container'));
 </script>
 <script>
@@ -144,9 +128,9 @@
     var codebox = $('#codebox');
     var code = localStorage.getItem('code');
     if (code)
-        codebox.text(code);
-    codebox.change(function () {
-        localStorage.setItem('code', codebox.val());
+        editor.setValue(code);
+    editor.getSession().on('change', function () {
+        localStorage.setItem('code', editor.getValue());
     });
     var button = $('#simulationButton');
     var machine = null;
@@ -162,7 +146,7 @@
     function refresh() {
         machine = new Machine(twoDView.paper);
         twoDView.clear();
-        eval(codebox.val());
+        eval(editor.getValue());
         whenDone();
     }
     button.click(function () {
