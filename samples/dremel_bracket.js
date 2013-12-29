@@ -9,7 +9,6 @@ var dremelBracket = (function () {
     var ratio = Math.tan(angleRadian / 2);
     var slopeDX = (outerHeight - backsideMinWidth) * ratio;
     var topDx = outerWidth / 2 - (outerHeight - virtualMeetingPointY) * ratio;
-    console.log('topdx', topDx);
     var plankThickness = 18;
 
     function createBracket(machine) {

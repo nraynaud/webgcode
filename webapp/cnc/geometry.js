@@ -16,7 +16,7 @@ function differentiator(stepSize, stepCollector) {
 
 function unaryOp(input, op) {
     var result = {};
-    $.each(AXES, function (_, coord) {
+    $.each(util.AXES, function (_, coord) {
         result[coord] = op(input[coord]);
     });
     return result;
@@ -25,7 +25,7 @@ function rasterizeLine(line, stepSize, stepCollector) {
     function findBiggestAxis(dv) {
         var max = -Infinity;
         var biggestAxis;
-        $.each(AXES, function (_, axis) {
+        $.each(util.AXES, function (_, axis) {
             var l = Math.abs(dv[axis]);
             if (l > max) {
                 max = l;

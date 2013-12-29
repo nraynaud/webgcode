@@ -92,9 +92,10 @@ var box2 = (function () {
             var poly = machine.toClipper(machine.createOutline(res));
             poly = machine.polyOp(poly, [], ClipperLib.ClipType.ctUnion);
             machine.setParams(-19, 10, 1000);
-            machine.registerToolPathArray(machine.fromClipper(machine.contourClipper(poly, 0.1, true)));
+            machine.registerToolPathArray(machine.fromClipper(machine.contourClipper(poly, 0.5, false)));
             whenDone();
         });
+        return true;
     }
 
     return {createWallSlice: createWallSlice,

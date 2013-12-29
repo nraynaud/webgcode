@@ -77,7 +77,7 @@ window.addEventListener("message", function (event) {
 sendButton.click(function () {
     if (currentDevice) {
         sendButton.attr('disabled', 'disabled');
-        webView.contentWindow.postMessage({type: 'gimme program'}, '*');
+        webView.contentWindow.postMessage({type: 'gimme program', parameters: parameters}, '*', [runner.getCodeChannel()]);
     } else
         closeDevice();
 });
@@ -273,7 +273,7 @@ $('.paramField').bind('input', function () {
 });
 $('.axisButton').click(function (event) {
     var text = "G91 G1 F" + $('#feedRateField').val() + " " + $(event.target).data('axis') + $('#incrementField').val();
-    runner.sendPlan(text, parameters);
+    runner.getCodeChannel().postMessage({type: 'gcode', program: text, parameters: parameters});
 });
 manualControl.click(function () {
     controlTransfer({direction: 'out', request: CONTROL_COMMANDS.REQUEST_TOGGLE_MANUAL_STATE, data: new ArrayBuffer(0)});

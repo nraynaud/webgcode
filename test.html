@@ -24,13 +24,11 @@
 
 <div class="chart" id="chart2"></div>
 
-<h2>Encoding Error</h2>
-
-<div class="chart" id="chart3"></div>
 <script src="webapp/libs/qunit.js"></script>
 <script src="webapp/libs/jquery.min.js"></script>
 <script src="webapp/libs/jquery.flot.min.js"></script>
 <script src="webapp/libs/jsparse.js"></script>
+<script src="webapp/cnc/util.js"></script>
 <script src="webapp/cnc/geometry.js"></script>
 <script src="webapp/cnc/simulation.js"></script>
 <script src="webapp/cnc/parser.js"></script>
@@ -103,52 +101,6 @@
     }
     var chart1 = $.plot("#chart1", speedData);
     var chart2 = $.plot("#chart2", positionData);
-
-    var h0 = parseInt('1111000000000000', 2);
-    var h1 = parseInt('1111111100000000', 2);
-    var h2 = parseInt('1111111111110000', 2);
-    var h3 = parseInt('1111111111111111', 2);
-    var array = [
-        [h0, 3, 10],
-        [h1, 2, 6],
-        [h2, 1, 2],
-        [h3, 0, 0]
-    ];
-
-    function encode(input) {
-        for (var i = 0; i < array.length; i++)
-            if ((array[i][0] & input) != 0)
-                return array[i][1] << 6 | (input >>> array[i][2]);
-        return input;
-    }
-
-    function decode(input) {
-        var index = 3 - (input >> 6);
-        var shift = array[index][2];
-        var significant = (input & parseInt('00111111', 2));
-        if (!shift)
-            return significant;
-        return ( (significant << 1) | 1) << (shift - 1);
-    }
-
-    var collected = [];
-    for (i = 0; i < 65535; i++) {
-        var encoded = encode(i);
-        var decoded = decode(encode(i));
-        //console.log(i, encoded, decoded, i.toString(2), encoded.toString(2), decoded.toString(2));
-        collected.push([i, (i - decoded) / i * 100]);
-    }
-
-    $.plot('#chart3', [
-        {data: collected}
-    ], {xaxis: {
-        transform: function (v) {
-            return Math.log(v + 1);
-        },
-        inverseTransform: function (v) {
-            return Math.exp(v);
-        }
-    }});
 </script>
 </body>
 </html>

@@ -34,7 +34,8 @@ var runner = (function () {
         chrome.usb.bulkTransfer(device, transfer2, genericErrorFilter(callback));
     }
 
-    function startWorker(plan, parameters) {
+    function startWorker() {
+        $(runner).trigger('running');
         worker = new Worker("worker.js");
         var workQueue = [];
         var running = false;
@@ -76,26 +77,15 @@ var runner = (function () {
             if (!running)
                 loop();
         };
-        worker.postMessage({plan: plan, parameters: parameters});
-        return worker;
+        var channel = new MessageChannel();
+        worker.postMessage(null, [channel.port1]);
+        return channel.port2;
     }
-
-    function sendProgram(plan, parameters) {
-        if (!worker) {
-            $(runner).trigger('running');
-            startWorker(plan, parameters);
-        }
-    }
-
-    window.addEventListener("message", function (event) {
-        var message = event.data;
-        if (message['type'] == 'program' && currentDevice)
-            sendProgram(message['program'], parameters);
-    });
 
     return {
-        sendPlan: sendProgram,
+        getCodeChannel: startWorker,
         stop: function () {
+            terminateWorker();
             haltRestartEndPoint(SET_FEATURE, worker ? null : restartEndPoint);
         }
     };

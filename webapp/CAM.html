@@ -17,6 +17,7 @@
     <script src="libs/opentype.js"></script>
     <script src="libs/extractedRaphael.js"></script>
     <script src="libs/ace/src-noconflict/ace.js"></script>
+    <script src="cnc/util.js"></script>
     <script src="cnc/beziers.js"></script>
     <script src="cnc/cam.js"></script>
     <script src="cnc/geometry.js"></script>
@@ -73,26 +74,30 @@
 <body>
 <div class="editBlock">
     <pre id="codebox">
-        opentype.load('libs/fonts/miss_fajardose/MissFajardose-Regular.ttf', function (err, font) {
-            var path = font.getPath('Test');
-            var res = '';
-            for (var i = 0; i < path.commands.length; i++) {
-                var command = path.commands[i];
-                res += ' ' + command.type;
-                if (command.type == 'M' || command.type == 'L')
-                    res += ' ' + command.x + ',' + -command.y;
-                else if (command.type == 'Q')
-                    res += command.x1 + ',' + -command.y1 + ' ' + command.x + ',' + -command.y;
-                else if (command.type == 'C')
-                    res += command.x1 + ',' + -command.y1 + ' ' + command.x2 + ',' + -command.y2
-                        + ' ' + command.x + ',' + -command.y;
-            }
-            var poly = machine.toClipper(machine.createOutline(res));
-            poly = machine.polyOp(poly, [], ClipperLib.ClipType.ctUnion);
-            machine.setParams(-19, 10, 1000);
-            machine.registerToolPathArray(machine.fromClipper(machine.contourClipper(poly, 0.5, false)));
-            whenDone();
-        });
+    var outerWidth = 100;
+    var angle = 100;
+    var angleRadian = angle * Math.PI / 180;
+    var backsideMinWidth = 4;
+    var outerHeight = 25;
+    var virtualMeetingPointY = -1;
+    var ratio = Math.tan(angleRadian / 2);
+    var slopeDX = (outerHeight - backsideMinWidth) * ratio;
+    var topDx = outerWidth / 2 - (outerHeight - virtualMeetingPointY) * ratio;
+    var plankThickness = 18;
+
+    function createBracket(machine) {
+        var toolRadius = 3 / 2;
+        var shape = geom.op('M', 0, 0) + geom.op('l', outerWidth, 0) + geom.op('l', 0, outerHeight)
+            + geom.op('l', -topDx, 0)
+            + geom.op('l', -slopeDX, -(outerHeight - backsideMinWidth))
+            + geom.op('l', -(outerWidth - topDx * 2 - slopeDX * 2), 0)
+            + geom.op('l', -slopeDX, outerHeight - backsideMinWidth)
+            + geom.op('l', -topDx, 0) + 'Z';
+        var outline = machine.createOutline(shape);
+        machine.setParams(-17, 10, 1000);
+        machine.registerToolPathArray(machine.rampToolPathArray(machine.contouring(outline, toolRadius, false, true), -0, -plankThickness, 3));
+    }
+    createBracket(machine);
     </pre>
     <button id="simulationButton">Simulate</button>
 </div>
@@ -101,15 +106,23 @@
     <div id="drawing"></div>
 </div>
 <script>
+    var inChromeApp = window.location.hash == '#fromApp';
     var editor = ace.edit("codebox");
     editor.setTheme("ace/theme/twilight");
+    if (inChromeApp) //https://code.google.com/p/chromium/issues/detail?id=159303
+        editor.session.setUseWorker(false);
     editor.session.setMode("ace/mode/javascript");
     var threeDView = new ThreeDView($('#container'));
 </script>
 <script>
     window.addEventListener("message", function (event) {
         if (event.data['type'] == 'gimme program') {
-            //event.source.postMessage({type: 'program', program: $('#codebox').val()}, event.origin);
+            var port = event.ports[0];
+            refresh(function (machine) {
+                refreshViews(machine);
+                var parameters = event.data.parameters;
+                port.postMessage({type: 'toolpath', toolPath: machine.getToolPath(parameters), parameters: parameters});
+            });
         }
         if (event.data['type'] == 'toolPosition') {
             var pos = event.data['position'];
@@ -125,34 +138,38 @@
 </script>
 <script>
     var twoDView = new TwoDView($('#drawing'));
-    var codebox = $('#codebox');
-    var code = localStorage.getItem('code');
-    if (code)
-        editor.setValue(code);
-    editor.getSession().on('change', function () {
-        localStorage.setItem('code', editor.getValue());
-    });
-    var button = $('#simulationButton');
-    var machine = null;
-    function whenDone() {
+    if (!inChromeApp) {
+        var code = localStorage.getItem('JSCode');
+        if (code)
+            editor.setValue(code);
+        editor.getSession().on('change', function () {
+            localStorage.setItem('JSCode', editor.getValue());
+        });
+    }
+    function refreshViews(machine) {
         twoDView.zoomExtent();
         threeDView.displayPath(machine.dumpPath());
-        var lastT = null;
-        simulate2(machine.simulablePath(), function (x, y, z, t) {
-            lastT = t;
-        });
-        console.log('total duration', lastT);
     }
-    function refresh() {
-        machine = new Machine(twoDView.paper);
+    function refresh(callback) {
+        var machine = new Machine(twoDView.paper);
+        var whenDone = callback || function () {
+        };
         twoDView.clear();
-        eval(editor.getValue());
-        whenDone();
+        var resWasFalse;
+        var res = new Function(['machine', 'whenDone'], editor.getValue())(machine, function () {
+            if (resWasFalse)
+                throw new Error('you called whenDone() also you didn\'t return true in your code.');
+            whenDone(machine);
+        });
+        if (!res) {
+            resWasFalse = true;
+            whenDone(machine);
+        }
     }
-    button.click(function () {
-        refresh();
+    $('#simulationButton').click(function () {
+        refresh(refreshViews);
     });
-    refresh();
+    refresh(refreshViews);
 </script>
 </body>
 </html>

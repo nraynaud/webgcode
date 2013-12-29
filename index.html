@@ -10,6 +10,7 @@
     <script src="webapp/libs/Three.js"></script>
     <script src="webapp/libs/TrackballControls.js"></script>
     <script src="webapp/libs/jsparse.js"></script>
+    <script src="webapp/cnc/util.js"></script>
     <script src="webapp/cnc/geometry.js"></script>
     <script src="webapp/cnc/simulation.js"></script>
     <script src="webapp/cnc/parser.js"></script>
@@ -156,7 +157,7 @@
                 speedData[0].data.push([speedDate, sx]);
                 speedData[1].data.push([speedDate, sy]);
                 speedData[2].data.push([speedDate, sz]);
-                speedData[3].data.push([speedDate, length(dx, dy, dz) / dt]);
+                speedData[3].data.push([speedDate, util.length(dx, dy, dz) / dt]);
                 if (previous >= 1) {
                     var previousSpeedDate = speedData[0].data[previous - 1][0];
                     var pDSx = sx - speedData[0].data[previous - 1][1];
@@ -166,12 +167,12 @@
                     accelerationData[0].data.push([accelerationDate, pDSx / (speedDate - previousSpeedDate)]);
                     accelerationData[1].data.push([accelerationDate, pDSy / (speedDate - previousSpeedDate)]);
                     accelerationData[2].data.push([accelerationDate, pDSz / (speedDate - previousSpeedDate)]);
-                    accelerationData[3].data.push([accelerationDate, length(pDSx, pDSy, pDSz) / (speedDate - previousSpeedDate)]);
+                    accelerationData[3].data.push([accelerationDate, util.length(pDSx, pDSy, pDSz) / (speedDate - previousSpeedDate)]);
                 }
             }
         }
 
-        simulate2(evaluate(text), pushPoint);
+        simulate2(parser.evaluate(text), pushPoint);
         threeDView.displayPath(simulatedPath);
         var chart1 = $.plot("#chart1", posData);
         $.plot("#chart2", speedData, {xaxis: {max: chart1.getAxes().xaxis.max}});

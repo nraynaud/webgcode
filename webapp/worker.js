@@ -68,7 +68,7 @@ var $ = {each: function (array, func) {
     /** END stolen from JQUERY **/
 }
 };
-importScripts('libs/jsparse.js', 'cnc/geometry.js', 'cnc/parser.js', 'cnc/simulation.js');
+importScripts('libs/jsparse.js', 'cnc/util.js', 'cnc/geometry.js', 'cnc/parser.js', 'cnc/simulation.js');
 function handleFragment(program) {
     var programLength = program.length * 3;
     var formattedData = new ArrayBuffer(programLength + 4);
@@ -87,22 +87,22 @@ function handleFragment(program) {
         var word = '00' + bin(point.dz) + bin(point.dy) + bin(point.dx);
         view.setUint8(i * 3 + 2, parseInt(word, 2), true);
     }
-    self.postMessage(formattedData);
+    self.postMessage(formattedData, [formattedData]);
 }
 self.onmessage = function (event) {
-    var code = event.data.plan;
-    var program = [];
+    event.ports[0].onmessage = function (event) {
+        var params = event.data.parameters;
+        var toolPath = event.data.type == 'gcode' ? parser.evaluate(event.data.program, params.position) : event.data.toolPath;
+        var program = [];
+        planProgram(toolPath, params.maxAcceleration, 1 / params.stepsPerMillimeter, params.clockFrequency, function stepCollector(point) {
+            program.push(point);
+            if (program.length >= 30000) {
+                handleFragment(program);
+                program = [];
+            }
+        });
+        handleFragment(program);
+        self.postMessage(null);
+    };
 
-    function stepCollector(point) {
-        program.push(point);
-        if (program.length >= 30000) {
-            handleFragment(program);
-            program = [];
-        }
-    }
-
-    var params = event.data.parameters;
-    planProgram(code, params.maxAcceleration, 1 / params.stepsPerMillimeter, params.clockFrequency, params.position, stepCollector);
-    handleFragment(program);
-    self.postMessage(null);
 };

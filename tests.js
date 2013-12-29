@@ -1,7 +1,7 @@
 "use strict";
 test("G0 evaluation", function () {
     var code = 'G0 X10';
-    var result = evaluate(code);
+    var result = parser.evaluate(code);
     equal(result.length, 1, '"' + code + '" code length');
     deepEqual(result[0], {
         feedRate: 3000,
@@ -11,7 +11,7 @@ test("G0 evaluation", function () {
 });
 test("G0 evaluation with expression", function () {
     var code = 'G0 X[5+5]';
-    var result = evaluate(code);
+    var result = parser.evaluate(code);
     equal(result.length, 1, '"' + code + '" code length');
     deepEqual(result[0], {
         feedRate: 3000,
@@ -21,7 +21,7 @@ test("G0 evaluation with expression", function () {
 });
 test("G1 evaluation", function () {
     var code = 'G1 X10';
-    var result = evaluate(code);
+    var result = parser.evaluate(code);
     equal(result.length, 1, '"' + code + '" code length');
     deepEqual(result[0], {
         feedRate: 200,
@@ -31,7 +31,7 @@ test("G1 evaluation", function () {
 });
 test("G2 evaluation", function () {
     var code = 'G2 X10 Y0 Z0 I5 J0 F200';
-    var result = evaluate(code);
+    var result = parser.evaluate(code);
     equal(result.length, 1, '"' + code + '" code length');
     deepEqual(result[0], {
         angularDistance: -Math.PI,
@@ -57,7 +57,7 @@ test("G2 evaluation", function () {
 });
 test("G3 evaluation", function () {
     var code = 'G3 X5 Y5 Z0 I5 J0 F200';
-    var result = evaluate(code);
+    var result = parser.evaluate(code);
     equal(result.length, 1, '"' + code + '" code length');
     deepEqual(result[0], {
         angularDistance: 3 * Math.PI / 2,
@@ -86,7 +86,7 @@ test("jsparse number evaluation", function () {
 
     function testValue(str, expected, parser) {
         if (parser == undefined)
-            parser = createParser();
+            parser = window.parser.createParser();
         var parsed = jp.wsequence(parser.expression, jp.expect(jp.end))(jp.ps(str));
         deepEqual(parsed.ast[0], expected, str + ' = ' + expected);
     }
@@ -177,7 +177,7 @@ test("jsparse number evaluation", function () {
         ['ATAN[-1] / [1]', -Math.PI / 4],
         ['ATAN[-1] / [1] / [-0.5]', Math.PI / 2]
     ]);
-    var p1 = createParser();
+    var p1 = window.parser.createParser();
     p1.memory['var1'] = 3;
     testValues([
         ['#3 + 5', 5],
@@ -186,7 +186,7 @@ test("jsparse number evaluation", function () {
         ['#<VAR1>', 3]
     ], p1);
 
-    var p2 = createParser();
+    var p2 = window.parser.createParser();
     p2.line(jp.ps('#54 = [COS[0]]'));
     p2.line(jp.ps('#<lol>=12\n'));
     //check that affectation are done after reading on the same line
@@ -198,16 +198,16 @@ test("jsparse number evaluation", function () {
         ['#<v2>', 1],
         ['#<v1>', 10]
     ], p2);
-    deepEqual(createParser().parseLine("#4 = 4.000000 #5 = 5.000000 G1 X10 F[3000] X [12+#4]").ast, {
+    deepEqual(window.parser.createParser().parseLine("#4 = 4.000000 #5 = 5.000000 G1 X10 F[3000] X [12+#4]").ast, {
         f: [3000],
         g: [1],
         x: [10, 12]});
-    deepEqual(createParser().parseLine('G02X10Y30R10 ').ast, {
+    deepEqual(window.parser.createParser().parseLine('G02X10Y30R10 ').ast, {
         g: [2],
         r: [10],
         x: [10],
         y: [30]});
-    deepEqual(createParser().parseLine('G01Z[-1.000000*#7+#10]F#4 ').ast, {
+    deepEqual(window.parser.createParser().parseLine('G01Z[-1.000000*#7+#10]F#4 ').ast, {
         g: [1],
         f: [0],
         z: [0]});
@@ -378,14 +378,3 @@ test("E(phi,m)", function () {
     equal(incompleteEllipticIntegralSecondKind(-Math.PI / 2, 0.7), -1.2416705679458233);
     equal(incompleteEllipticIntegralSecondKind(-3 * Math.PI + 0.5, 0.5), -7.613952326493532);
 });
-
-function testSimulation(path) {
-    var simulated = [];
-
-    function pushPoint(x, y, z, t) {
-        simulated.push([x, y, z, t]);
-    }
-
-    simulate2(path, pushPoint);
-    return simulated;
-}

@@ -9,7 +9,7 @@ var COMPONENT_TYPES = {
                 return line.to[axis] - line.from[axis];
             }
 
-            return length(dist('x'), dist('y'), dist('z'));
+            return util.length(dist('x'), dist('y'), dist('z'));
         },
         speed: function (line, acceleration) {
             return {speed: line.feedRate / 60, acceleration: acceleration};
@@ -18,7 +18,7 @@ var COMPONENT_TYPES = {
             var dx = line.to.x - line.from.x;
             var dy = line.to.y - line.from.y;
             var dz = line.to.z - line.from.z;
-            var len = length(dx, dy, dz);
+            var len = util.length(dx, dy, dz);
             return {x: dx / len, y: dy / len, z: dz / len};
         },
         exitDirection: function (line) {
@@ -41,7 +41,7 @@ var COMPONENT_TYPES = {
             var lastCoordDistance = arc.to[lastCoord] - arc.from[lastCoord];
             var radius = arc.radius;
             var planarArcLength = arc.angularDistance * radius;
-            return length(planarArcLength, lastCoordDistance);
+            return util.length(planarArcLength, lastCoordDistance);
         },
         speed: function (arc, acceleration) {
             return arcClampedSpeed(arc.radius, arc.feedRate / 60, acceleration);
@@ -82,7 +82,7 @@ function arcClampedSpeed(radius, speed, acceleration) {
 }
 
 function areMostlyContinuous(v1, v2) {
-    return length(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z) >= 1.95;
+    return util.length(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z) >= 1.95;
 }
 
 function getArcSpeedDirection(arc, angle) {
@@ -90,7 +90,7 @@ function getArcSpeedDirection(arc, angle) {
     var rx = Math.cos(arc.fromAngle + angle);
     var ry = Math.sin(arc.fromAngle + angle);
     var dz = (arc.to[p.lastCoord] - arc.from[p.lastCoord]) / Math.abs(arc.angularDistance) / arc.radius;
-    var len = length(rx, ry, dz);
+    var len = util.length(rx, ry, dz);
     var direction = arc.angularDistance >= 0 ? 1 : -1;
     return {x: -direction * ry / len, y: direction * rx / len, z: dz / len};
 }
@@ -165,7 +165,7 @@ var FRAGMENT_EQUATIONS = (function () {
             time: Math.sqrt(fragment.toSqSpeed) / acceleration + fragment.duration - Math.sqrt(x2 / acceleration)};
     }
 
-    function runFragment(fragment, ratio, acceleration) {
+    function runFragment(fragment, ratio) {
         return {speed: Math.sqrt(fragment.squaredSpeed), time: fragment.duration * ratio};
     }
 
@@ -210,10 +210,9 @@ function groupConnectedComponents(path, acceleration) {
     return groups;
 }
 
-function simulate2(path, pushPoint) {
+function simulate2(toolPath, pushPoint) {
     var acceleration = 200; //mm.s^-2
-    var i;
-    var groups = groupConnectedComponents(path, acceleration);
+    var groups = groupConnectedComponents(toolPath, acceleration);
     var currentTime = 0;
     var lastPosition;
 
@@ -240,16 +239,15 @@ function simulate2(path, pushPoint) {
         $.each(group, function (_, segment) {
             discretize(segment);
         });
-        for (i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
             currentTime += 0.001;
             internalPushPoint.apply(null, lastPosition);
         }
     });
 }
 
-function planProgram(text, acceleration, stepSize, timebase, currentPosition, stepCollector) {
-    var input = evaluate(text, currentPosition);
-    var groups = groupConnectedComponents(input, acceleration);
+function planProgram(toolPath, acceleration, stepSize, timebase, stepCollector) {
+    var groups = groupConnectedComponents(toolPath, acceleration);
     $.each(groups, function (_, group) {
         planSpeed(group);
         $.each(group, function (_, segment) {
@@ -262,8 +260,4 @@ function planProgram(text, acceleration, stepSize, timebase, currentPosition, st
             COMPONENT_TYPES[segment.type].rasterize(segment, stepSize, planningStepCollector);
         });
     });
-}
-
-function plan(segment, stepSize, timebase, stepCollector) {
-    COMPONENT_TYPES[segment.type].rasterize(segment, stepSize, stepCollector);
 }

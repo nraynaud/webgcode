@@ -8,6 +8,7 @@
     <script src="libs/Three.js"></script>
     <script src="libs/TrackballControls.js"></script>
     <script src="libs/jsparse.js"></script>
+    <script src="cnc/util.js"></script>
     <script src="cnc/geometry.js"></script>
     <script src="cnc/simulation.js"></script>
     <script src="cnc/parser.js"></script>
@@ -29,13 +30,6 @@
             -moz-box-sizing: border-box;
             box-sizing: border-box;
             height: 350px;
-        }
-
-        .chart {
-            position: relative;
-            clear: both;
-            width: 100%;
-            height: 200px;
         }
 
         #container {
@@ -101,7 +95,7 @@
     function refreshView() {
         var simulatedPath = [];
         var lastT = null;
-        simulate2(evaluate(codebox.val()), function (x, y, z, t) {
+        simulate2(parser.evaluate(codebox.val()), function (x, y, z, t) {
             simulatedPath.push({x: x, y: y, z: z});
             lastT = t;
         });
@@ -113,7 +107,7 @@
     var threeDView = new ThreeDView($container);
     window.addEventListener("message", function (event) {
         if (event.data['type'] == 'gimme program')
-            event.source.postMessage({type: 'program', program: $('#codebox').val()}, event.origin);
+            event.ports[0].postMessage({type: 'gcode', program: $('#codebox').val(), parameters: event.data.parameters});
         if (event.data['type'] == 'toolPosition') {
             var pos = event.data['position'];
             threeDView.tool.position.setX(pos.x);
