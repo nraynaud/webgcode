@@ -10,6 +10,7 @@
     <script src="webapp/libs/Three.js"></script>
     <script src="webapp/libs/TrackballControls.js"></script>
     <script src="webapp/libs/jsparse.js"></script>
+    <script src="webapp/libs/ace/src-noconflict/ace.js"></script>
     <script src="webapp/cnc/util.js"></script>
     <script src="webapp/cnc/geometry.js"></script>
     <script src="webapp/cnc/simulation.js"></script>
@@ -23,10 +24,9 @@
             height: 400px;
             padding: 1px;
             margin: 0;
-            text-align: right;
         }
 
-        .editBlock textarea {
+        .editBlock pre {
             width: 100%;
             -webkit-box-sizing: border-box;
             -moz-box-sizing: border-box;
@@ -64,7 +64,7 @@
 
 <div id="container"></div>
 <div class="editBlock">
-    <textarea id="codebox">
+    <pre id="codebox">
         G0 Y10 Z-5
         G1 Z-10
         G1 Y20
@@ -92,15 +92,18 @@
         G19 (Y-Z plane)
         G3 Z50 J0 K5
         G17 (back to X-Y plane)
-    </textarea>
+    </pre>
     <button id="simulateButton">Simulate</button>
 </div>
 <div class="chart" id="chart1"></div>
 <div class="chart" id="chart2"></div>
 <div class="chart" id="chart3"></div>
 <script>
+    var editor = ace.edit("codebox");
+    editor.setTheme("ace/theme/twilight");
+
     function refreshView() {
-        var text = $('#codebox').val();
+        var text = editor.getValue();
 
         var simulatedPath = [];
         var posData = [
