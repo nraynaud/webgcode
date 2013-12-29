@@ -90,7 +90,7 @@ function closeDevice(callback) {
     }
     connectButton.show();
     sendButton.hide();
-    spinner.hide();
+    spinner.css('visibility', 'hidden');
     manualControl.hide();
     if (currentDevice) {
         var savedDevice = currentDevice;
@@ -134,7 +134,7 @@ function handleInterrupt(data) {
         console.log('PROGRAM_END');
     else if (event == EVENTS.PROGRAM_START) {
         console.log('PROGRAM_START');
-        spinner.show();
+        spinner.css('visibility', 'visible');
     } else if (event == EVENTS.MOVED)
         console.log('MOVED');
     else if (event == EVENTS.ENTER_MANUAL_MODE)
@@ -161,18 +161,18 @@ function fetchState() {
         if (state == currentState)
             return;
         if (state == STATES.READY) {
-            spinner.hide();
+            spinner.css('visibility', 'hidden');
             manualControl.removeAttr('disabled');
             stopButton.hide();
             manualControl.text('Manual Control');
             console.log('state: READY');
         } else if (state == STATES.MANUAL_CONTROL) {
-            spinner.hide();
+            spinner.css('visibility', 'hidden');
             manualControl.removeAttr('disabled');
             manualControl.text('Stop Manual Control');
             console.log('state: MANUAL_CONTROL');
         } else if (state == STATES.RUNNING_PROGRAM) {
-            spinner.show();
+            spinner.css('visibility', 'visible');
             manualControl.attr('disabled', 'disabled');
             console.log('state: RUNNING_PROGRAM');
         }

@@ -10,20 +10,14 @@
 		DDAA5112A98CF57045D5EC46 /* index.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5952187ECA2FF5B96420 /* index.js */; };
 		DDAA5219D9583110B392E36B /* elliptic.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA58FBD65B40549EC27922 /* elliptic.js */; };
 		DDAA524E6774021C15E7F044 /* background.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA58422CF9EADC8397599D /* background.js */; };
-		DDAA526EED67132597417007 /* svg.draggable.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5E7A80E2949416A2BA67 /* svg.draggable.js */; };
 		DDAA52C23A7DF5F1AE0B65CF /* tests.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA550CF317C3168B90577A /* tests.js */; };
-		DDAA52C75C4385D4E8E57C10 /* svg.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5A030F4462F1A261CEB0 /* svg.js */; };
 		DDAA52DD7EA09B5A976CAF7C /* simulation.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA528A36E3B7DFBD1BE050 /* simulation.js */; };
 		DDAA52E155F43FEF754302E3 /* cam.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5E5BE56C40B964FEF1B4 /* cam.js */; };
 		DDAA53EB6E3F53DD1452FF40 /* contour.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA51DE17B96DCF612B22D5 /* contour.js */; };
 		DDAA53F8EC144A6CD65CB9E3 /* util.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54B37F49D0A2AC135D5A /* util.js */; };
 		DDAA5454FACBFE8A1B4DFEA0 /* joystick_plate.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5BB0BDD7C28C1DC1A15F /* joystick_plate.js */; };
-		DDAA5483FC94B19E4DDD5313 /* TrackballControls.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA55BD80E7C2D0A1E30C84 /* TrackballControls.js */; };
-		DDAA552C6267F3185C8CAC83 /* jquery.mousewheel.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA52A07CEEAC61D37C2583 /* jquery.mousewheel.js */; };
-		DDAA554DBA35296CDEFFBF7B /* csg.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C645D269334C0AA6957 /* csg.js */; };
 		DDAA57C1DB0A19207E999D47 /* dremel_bracket.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C540B906C544541D05B /* dremel_bracket.js */; };
 		DDAA59F8C14ADBE647A5FE41 /* cnc.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = DDAA5C39B59BE70527721DE7 /* cnc.h */; };
-		DDAA5A394ECDD4FBAE424D40 /* opentype.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53AE873C0C682A2E275F /* opentype.js */; };
 		DDAA5A5E764293C2F41E01A8 /* morphology.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C805943B69550EFE55F /* morphology.js */; };
 		DDAA5B6641CFBF0C81D7B5CF /* usb.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5223044005BFC70BD5DE /* usb.c */; };
 		DDAA5B6E340CC8F09A389585 /* box2.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5FFAC7F227AF3A40874C /* box2.js */; };
@@ -32,14 +26,12 @@
 		DDAA5C2080793E5D20E60388 /* threeDView.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53A88FF1511A72FDAAE0 /* threeDView.js */; };
 		DDAA5CA52329A23DE4500854 /* usbdesc.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA56B90C5F7FBE9FC0A534 /* usbdesc.c */; };
 		DDAA5CDD5DCBC168FB293986 /* jquery.flot.resize.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5518BC9939B7C36FE0B9 /* jquery.flot.resize.js */; };
-		DDAA5D86ED26C5CD14D88228 /* jsparse.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54F29F1F185A35EE1B8C /* jsparse.js */; };
 		DDAA5DE55277ED7870D14EDE /* beziers.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54C02B65138BA2BC4D67 /* beziers.js */; };
 		DDAA5DE77AE28CC3AFB885FA /* twoDView.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5828C64CB437858D52A4 /* twoDView.js */; };
 		DDAA5E22BC07E6E31ADB9B99 /* worker.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA55BC4AF31055E9F8A697 /* worker.js */; };
 		DDAA5E39B611B3CD37DFF97F /* geometry.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA507CC79F9033457329F7 /* geometry.js */; };
 		DDAA5E743FA52561B2B0FF84 /* manual.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53D0D9AE21EE52463EAE /* manual.c */; };
 		DDAA5E90BDFC07678EE201D3 /* delaunay.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C7DCC7731222576D7BA /* delaunay.js */; };
-		DDAA5EC3FA0A4CDF769718B8 /* svg.memory.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA583C80A2932FBC42EED1 /* svg.memory.js */; };
 		DDAA5F165CE6F3C04CED10DA /* plug_plate.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5268AB05089C411E0479 /* plug_plate.js */; };
 		EE86132C172A02F7008B2029 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = EE86132B172A02F7008B2029 /* main.c */; };
 		EE861334172A0501008B2029 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = EE861332172A0501008B2029 /* main.c */; };
@@ -68,45 +60,39 @@
 		DDAA5223044005BFC70BD5DE /* usb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = usb.c; path = interpolator/usb.c; sourceTree = "<group>"; };
 		DDAA5268AB05089C411E0479 /* plug_plate.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = plug_plate.js; path = samples/plug_plate.js; sourceTree = "<group>"; };
 		DDAA528A36E3B7DFBD1BE050 /* simulation.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = simulation.js; path = webapp/cnc/simulation.js; sourceTree = "<group>"; };
-		DDAA52A07CEEAC61D37C2583 /* jquery.mousewheel.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jquery.mousewheel.js; path = webapp/libs/jquery.mousewheel.js; sourceTree = "<group>"; };
 		DDAA53A88FF1511A72FDAAE0 /* threeDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = threeDView.js; path = webapp/cnc/threeDView.js; sourceTree = "<group>"; };
-		DDAA53AE873C0C682A2E275F /* opentype.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = opentype.js; path = webapp/libs/opentype.js; sourceTree = "<group>"; };
 		DDAA53D0D9AE21EE52463EAE /* manual.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = manual.c; path = interpolator/manual.c; sourceTree = "<group>"; };
 		DDAA54B37F49D0A2AC135D5A /* util.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = util.js; path = webapp/cnc/util.js; sourceTree = "<group>"; };
 		DDAA54C02B65138BA2BC4D67 /* beziers.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = beziers.js; path = webapp/cnc/beziers.js; sourceTree = "<group>"; };
-		DDAA54F29F1F185A35EE1B8C /* jsparse.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jsparse.js; path = webapp/libs/jsparse.js; sourceTree = "<group>"; };
 		DDAA550CF317C3168B90577A /* tests.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = tests.js; sourceTree = "<group>"; };
 		DDAA5518BC9939B7C36FE0B9 /* jquery.flot.resize.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jquery.flot.resize.js; path = assets/jquery.flot.resize.js; sourceTree = "<group>"; };
 		DDAA557E11AAA24C9679FF7B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = file.md; path = README.md; sourceTree = "<group>"; };
 		DDAA55BC4AF31055E9F8A697 /* worker.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = worker.js; path = webapp/worker.js; sourceTree = "<group>"; };
-		DDAA55BD80E7C2D0A1E30C84 /* TrackballControls.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = TrackballControls.js; path = webapp/libs/TrackballControls.js; sourceTree = "<group>"; };
 		DDAA568D3480E5D010BB2D93 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		DDAA56B90C5F7FBE9FC0A534 /* usbdesc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = usbdesc.c; path = interpolator/usbdesc.c; sourceTree = "<group>"; };
 		DDAA56FDF85987C80CFAD40D /* tux.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngx; name = tux.ngc; path = samples/tux.ngc; sourceTree = "<group>"; };
 		DDAA5718DDD9B2705A3B6819 /* test_delaunay.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_delaunay.html; sourceTree = "<group>"; };
 		DDAA5828C64CB437858D52A4 /* twoDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = twoDView.js; path = webapp/cnc/twoDView.js; sourceTree = "<group>"; };
-		DDAA583C80A2932FBC42EED1 /* svg.memory.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = svg.memory.js; path = webapp/libs/svg.memory.js; sourceTree = "<group>"; };
 		DDAA58422CF9EADC8397599D /* background.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = background.js; path = webapp/background.js; sourceTree = "<group>"; };
+		DDAA5846BE331E69A0311E40 /* ajax-loader.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = "ajax-loader.gif"; path = "webapp/ajax-loader.gif"; sourceTree = "<group>"; };
 		DDAA586ED3964DF7D3AB9C61 /* test_offset.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_offset.html; sourceTree = "<group>"; };
 		DDAA58FBD65B40549EC27922 /* elliptic.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = elliptic.js; path = webapp/cnc/elliptic.js; sourceTree = "<group>"; };
 		DDAA59038852D4F76BE9925A /* test_raphael.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_raphael.html; sourceTree = "<group>"; };
 		DDAA5952187ECA2FF5B96420 /* index.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = index.js; path = webapp/index.js; sourceTree = "<group>"; };
 		DDAA59FEF17A22C1216B27DD /* .nojekyll */ = {isa = PBXFileReference; lastKnownFileType = file.nojekyll; path = .nojekyll; sourceTree = "<group>"; };
-		DDAA5A030F4462F1A261CEB0 /* svg.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = svg.js; path = webapp/libs/svg.js; sourceTree = "<group>"; };
 		DDAA5A99ECD28BC66706A677 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = file.json; name = manifest.json; path = webapp/manifest.json; sourceTree = "<group>"; };
 		DDAA5BAA5E8C9CECE461BD53 /* test_voronoi.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_voronoi.html; sourceTree = "<group>"; };
 		DDAA5BB0BDD7C28C1DC1A15F /* joystick_plate.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = joystick_plate.js; path = samples/joystick_plate.js; sourceTree = "<group>"; };
 		DDAA5C13154AE7ADC61D5403 /* test.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test.html; sourceTree = "<group>"; };
 		DDAA5C39B59BE70527721DE7 /* cnc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cnc.h; path = interpolator/cnc.h; sourceTree = "<group>"; };
 		DDAA5C540B906C544541D05B /* dremel_bracket.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = dremel_bracket.js; path = samples/dremel_bracket.js; sourceTree = "<group>"; };
-		DDAA5C645D269334C0AA6957 /* csg.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = csg.js; path = webapp/libs/csg.js; sourceTree = "<group>"; };
 		DDAA5C7DCC7731222576D7BA /* delaunay.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = delaunay.js; path = webapp/cnc/delaunay.js; sourceTree = "<group>"; };
 		DDAA5C805943B69550EFE55F /* morphology.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = morphology.js; path = webapp/cnc/morphology.js; sourceTree = "<group>"; };
 		DDAA5D7A6E2A17AE4040107F /* oldCAM.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = oldCAM.html; path = webapp/oldCAM.html; sourceTree = "<group>"; };
 		DDAA5DAA497AA174431D8606 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = index.html; path = webapp/index.html; sourceTree = "<group>"; };
 		DDAA5E1979B9A72E31B3FBFE /* box.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = box.js; path = samples/box.js; sourceTree = "<group>"; };
+		DDAA5E4E5A44413C0E0942C6 /* test_pycam.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngc; name = test_pycam.ngc; path = samples/test_pycam.ngc; sourceTree = "<group>"; };
 		DDAA5E5BE56C40B964FEF1B4 /* cam.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = cam.js; path = webapp/cnc/cam.js; sourceTree = "<group>"; };
-		DDAA5E7A80E2949416A2BA67 /* svg.draggable.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = svg.draggable.js; path = webapp/libs/svg.draggable.js; sourceTree = "<group>"; };
 		DDAA5F376DB68FEFFF7FC133 /* CAM.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = CAM.html; path = webapp/CAM.html; sourceTree = "<group>"; };
 		DDAA5FFAC7F227AF3A40874C /* box2.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = box2.js; path = samples/box2.js; sourceTree = "<group>"; };
 		EE861323172A0232008B2029 /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = ../STM32F4.platform/Developer/SDKs/STM34F4.sdk/usr/include; sourceTree = "<group>"; };
@@ -139,25 +125,18 @@
 				DDAA5223044005BFC70BD5DE /* usb.c */,
 				DDAA5518BC9939B7C36FE0B9 /* jquery.flot.resize.js */,
 				DDAA507CC79F9033457329F7 /* geometry.js */,
-				DDAA54F29F1F185A35EE1B8C /* jsparse.js */,
 				DDAA56FDF85987C80CFAD40D /* tux.ngc */,
 				DDAA5C39B59BE70527721DE7 /* cnc.h */,
 				DDAA56B90C5F7FBE9FC0A534 /* usbdesc.c */,
 				DDAA51B9F55C5AFD9629737D /* test_threejs.html */,
-				DDAA55BD80E7C2D0A1E30C84 /* TrackballControls.js */,
 				DDAA5718DDD9B2705A3B6819 /* test_delaunay.html */,
 				DDAA5C7DCC7731222576D7BA /* delaunay.js */,
 				DDAA51DE17B96DCF612B22D5 /* contour.js */,
 				DDAA53D0D9AE21EE52463EAE /* manual.c */,
 				DDAA59038852D4F76BE9925A /* test_raphael.html */,
 				DDAA58FBD65B40549EC27922 /* elliptic.js */,
-				DDAA5A030F4462F1A261CEB0 /* svg.js */,
-				DDAA5C645D269334C0AA6957 /* csg.js */,
-				DDAA5E7A80E2949416A2BA67 /* svg.draggable.js */,
-				DDAA583C80A2932FBC42EED1 /* svg.memory.js */,
 				DDAA5C805943B69550EFE55F /* morphology.js */,
 				DDAA586ED3964DF7D3AB9C61 /* test_offset.html */,
-				DDAA52A07CEEAC61D37C2583 /* jquery.mousewheel.js */,
 				DDAA5E1979B9A72E31B3FBFE /* box.js */,
 				DDAA5F376DB68FEFFF7FC133 /* CAM.html */,
 				DDAA53A88FF1511A72FDAAE0 /* threeDView.js */,
@@ -170,7 +149,6 @@
 				DDAA5268AB05089C411E0479 /* plug_plate.js */,
 				DDAA50F3E153B90B949FB125 /* runner.js */,
 				DDAA5C540B906C544541D05B /* dremel_bracket.js */,
-				DDAA53AE873C0C682A2E275F /* opentype.js */,
 				DDAA54C02B65138BA2BC4D67 /* beziers.js */,
 				DDAA51E33CE9846FF5A24C02 /* parser.js */,
 				DDAA528A36E3B7DFBD1BE050 /* simulation.js */,
@@ -182,6 +160,8 @@
 				DDAA5C13154AE7ADC61D5403 /* test.html */,
 				DDAA568D3480E5D010BB2D93 /* index.html */,
 				DDAA550CF317C3168B90577A /* tests.js */,
+				DDAA5846BE331E69A0311E40 /* ajax-loader.gif */,
+				DDAA5E4E5A44413C0E0942C6 /* test_pycam.ngc */,
 			);
 			sourceTree = "<group>";
 		};
@@ -280,19 +260,12 @@
 				DDAA5B6641CFBF0C81D7B5CF /* usb.c in Sources */,
 				DDAA5CDD5DCBC168FB293986 /* jquery.flot.resize.js in Sources */,
 				DDAA5E39B611B3CD37DFF97F /* geometry.js in Sources */,
-				DDAA5D86ED26C5CD14D88228 /* jsparse.js in Sources */,
 				DDAA5CA52329A23DE4500854 /* usbdesc.c in Sources */,
-				DDAA5483FC94B19E4DDD5313 /* TrackballControls.js in Sources */,
 				DDAA5E90BDFC07678EE201D3 /* delaunay.js in Sources */,
 				DDAA53EB6E3F53DD1452FF40 /* contour.js in Sources */,
 				DDAA5E743FA52561B2B0FF84 /* manual.c in Sources */,
 				DDAA5219D9583110B392E36B /* elliptic.js in Sources */,
-				DDAA52C75C4385D4E8E57C10 /* svg.js in Sources */,
-				DDAA554DBA35296CDEFFBF7B /* csg.js in Sources */,
-				DDAA526EED67132597417007 /* svg.draggable.js in Sources */,
-				DDAA5EC3FA0A4CDF769718B8 /* svg.memory.js in Sources */,
 				DDAA5A5E764293C2F41E01A8 /* morphology.js in Sources */,
-				DDAA552C6267F3185C8CAC83 /* jquery.mousewheel.js in Sources */,
 				DDAA5C2080793E5D20E60388 /* threeDView.js in Sources */,
 				DDAA5DE77AE28CC3AFB885FA /* twoDView.js in Sources */,
 				DDAA5E22BC07E6E31ADB9B99 /* worker.js in Sources */,
@@ -300,7 +273,6 @@
 				DDAA5F165CE6F3C04CED10DA /* plug_plate.js in Sources */,
 				DDAA5B897C73C91C52BD8792 /* runner.js in Sources */,
 				DDAA57C1DB0A19207E999D47 /* dremel_bracket.js in Sources */,
-				DDAA5A394ECDD4FBAE424D40 /* opentype.js in Sources */,
 				DDAA5DE55277ED7870D14EDE /* beziers.js in Sources */,
 				DDAA5C03CDB11E25A0F96047 /* parser.js in Sources */,
 				DDAA52DD7EA09B5A976CAF7C /* simulation.js in Sources */,

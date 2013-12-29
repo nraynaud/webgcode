@@ -11,6 +11,9 @@
         body {
             display: flex;
             flex-direction: column;
+            background-color: black;
+            padding: 0;
+            margin: 0;
         }
 
         input:invalid {
@@ -69,6 +72,11 @@
             vertical-align: bottom;
             text-align: right;
             font-size: 60%;
+            min-height: 18px;
+        }
+
+        #spinner {
+            visibility: hidden;
         }
 
         th {
@@ -82,7 +90,7 @@
         }
     </style>
 </head>
-<body id="body" style="background-color: black;  padding: 0;  margin: 0;">
+<body id="body">
 <div id="header">
     <button id='connect'>Connect</button>
     <button id='send'>Send Program</button>
@@ -151,7 +159,8 @@
                     <td><span id="currentFeedrate" title="mm/min">--</span></td>
                 </tr>
             </table>
-            <div class="units"><span id="spinner" style="display: none;"><img src="ajax-loader.gif"></span>mm</div>
+            <div class="units"><span id="spinner"><img src="ajax-loader.gif"></span><span title="ISO units">mm</span>
+            </div>
         </div>
     </div>
 </div>
