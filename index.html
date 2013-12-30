@@ -175,7 +175,7 @@
             }
         }
 
-        simulate2(parser.evaluate(text), pushPoint);
+        simulation.simulate2(parser.evaluate(text), pushPoint);
         threeDView.displayPath(simulatedPath);
         var chart1 = $.plot("#chart1", posData);
         $.plot("#chart2", speedData, {xaxis: {max: chart1.getAxes().xaxis.max}});

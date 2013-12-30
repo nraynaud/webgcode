@@ -94,7 +94,7 @@ self.onmessage = function (event) {
         var params = event.data.parameters;
         var toolPath = event.data.type == 'gcode' ? parser.evaluate(event.data.program, params.maxFeedrate, params.maxFeedrate, params.position) : event.data.toolPath;
         var program = [];
-        planProgram(toolPath, params.maxAcceleration, 1 / params.stepsPerMillimeter, params.clockFrequency, function stepCollector(point) {
+        simulation.planProgram(toolPath, params.maxAcceleration, 1 / params.stepsPerMillimeter, params.clockFrequency, function stepCollector(point) {
             program.push(point);
             if (program.length >= 30000) {
                 handleFragment(program);

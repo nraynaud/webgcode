@@ -216,7 +216,7 @@ test("simple speed planning", function () {
     var data = [
         {length: 3, maxAcceleration: 8, squaredSpeed: 16, originalSpeed: 4}
     ];
-    planSpeed(data);
+    simulation.planSpeed(data);
     var segment = {
         acceleration: {length: 0},
         deceleration: {length: 0},
@@ -260,7 +260,7 @@ test("short distance speed planning", function () {
     var data = [
         {length: 2, maxAcceleration: 8, squaredSpeed: 25, originalSpeed: 5}
     ];
-    planSpeed(data);
+    simulation.planSpeed(data);
     var segment = {
         acceleration: {length: 0},
         deceleration: {length: 0},
@@ -298,7 +298,7 @@ test("two segments speed planning", function () {
         {length: 3, maxAcceleration: 8, squaredSpeed: 16, originalSpeed: 4},
         {length: 3, maxAcceleration: 8, squaredSpeed: 16, originalSpeed: 4}
     ];
-    planSpeed(data);
+    simulation.planSpeed(data);
     var segment1 = {
         acceleration: {length: 0},
         deceleration: {length: 1},

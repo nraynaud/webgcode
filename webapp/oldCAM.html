@@ -86,7 +86,7 @@
     function refreshView() {
         var simulatedPath = [];
         var lastT = null;
-        simulate2(parser.evaluate(editor.getValue()), function (x, y, z, t) {
+        simulation.simulate2(parser.evaluate(editor.getValue()), function (x, y, z, t) {
             simulatedPath.push({x: x, y: y, z: z});
             lastT = t;
         });

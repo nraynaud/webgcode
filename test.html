@@ -15,15 +15,6 @@
 <body>
 <div id="qunit"></div>
 <div id="qunit-fixture"></div>
-<h1>Testing random speed planning</h1>
-
-<h2>Speed/position</h2>
-
-<div class="chart" id="chart1"></div>
-<h2>Position/time</h2>
-
-<div class="chart" id="chart2"></div>
-
 <script src="webapp/libs/qunit.js"></script>
 <script src="webapp/libs/jquery.min.js"></script>
 <script src="webapp/libs/jquery.flot.min.js"></script>
@@ -34,73 +25,6 @@
 <script src="webapp/cnc/parser.js"></script>
 <script src="webapp/cnc/elliptic.js"></script>
 <script src="tests.js"></script>
-<script>
-    rawData = [];
-    for (i = 0; i < 20; i++)
-        rawData.push([Math.random() * 10, Math.random() * 10]);
 
-    var acceleration = 4;
-    data = [];
-    for (i = 0; i < rawData.length; i++) {
-        var dataAcceleration = rawData[i].length > 2 ? rawData[i][2] : acceleration;
-        data.push({length: rawData[i][1], maxAcceleration: dataAcceleration, squaredSpeed: rawData[i][0] * rawData[i][0], originalSpeed: rawData[i][0]});
-    }
-    var i;
-    var speedData = [
-        {label: 'reference speed(mm->mm/s)', points: {show: true, radius: 1, fill: false, symbol: "circle"}, lines: {show: true}, shadowSize: 0, color: 'red', data: []},
-        {label: 'planned speed(mm->mm/s)', shadowSize: 0, color: 'blue', data: []},
-        {points: {show: true, radius: 4, fill: false, symbol: "circle"}, color: 'rgba(0, 255, 0, 0.5)', lines: {show: false}, data: []},
-        {points: {show: true, radius: 2, fill: false, symbol: "circle"}, color: 'rgba(150, 150, 0, 0.95)', lines: {show: false}, data: []},
-        {points: {show: true, radius: 5, fill: false, symbol: "circle"}, color: 'rgba(255, 127, 80, 0.5)', lines: {show: false}, data: []},
-        {label: 'planned max(mm->mm/s)', shadowSize: 0, color: 'rgba(0, 128, 0, 0.5)', data: []}
-    ];
-    var positionData = [
-        {label: 'position/time(s->mm)', lines: {show: true}, shadowSize: 0, color: 'red', data: []},
-        {points: {show: true, radius: 4, fill: false, symbol: "circle"}, color: 'rgba(0, 255, 0, 0.5)', lines: {show: false}, data: []},
-        {points: {show: true, radius: 2, fill: false, symbol: "circle"}, color: 'rgba(150, 150, 0, 1)', lines: {show: false}, data: []},
-        {points: {show: true, radius: 5, fill: false, symbol: "circle"}, color: 'rgba(255, 127, 80, 0.5)', lines: {show: false}, data: []},
-        {points: {show: true, radius: 1, fill: false, symbol: "circle"}, lines: {show: false}, shadowSize: 0, color: 'red', data: []}
-    ];
-    planSpeed(data);
-    speedData[1].data.push([0, 0]);
-    positionData[0].data.push([0, 0]);
-    positionData[4].data.push([0, 0]);
-
-    var steps = 100;
-    var t = 0;
-    var st = 0;
-    var position = 0;
-    for (i = 0; i < data.length; i++) {
-        var segment = data[i];
-        for (var r = 0; r <= steps; r++) {
-            var point = dataForRatio(segment, r / steps);
-            var x = (position + segment.length * r / steps);
-            speedData[1].data.push([x, point.speed]);
-            positionData[0].data.push([st + point.time, x]);
-        }
-        $.each(segment.fragments, function (_, fragment) {
-            if (fragment.type == 'acceleration' || fragment.type == 'deceleration') {
-                if (fragment.type == 'acceleration') {
-                    speedData[3].data.push([position + fragment.stopX, Math.sqrt(fragment.toSqSpeed)]);
-                    positionData[2].data.push([t + fragment.duration, position + fragment.stopX]);
-                }
-                if (fragment.type == 'deceleration') {
-                    speedData[4].data.push([position + fragment.startX, Math.sqrt(fragment.fromSqSpeed)]);
-                    positionData[3].data.push([t, position + fragment.startX]);
-                }
-            }
-            t += fragment.duration;
-        });
-        speedData[0].data.push([position, segment.originalSpeed]);
-        speedData[5].data.push([position, Math.sqrt(segment.squaredSpeed)]);
-        position += segment.length;
-        speedData[0].data.push([position, segment.originalSpeed]);
-        speedData[5].data.push([position, Math.sqrt(segment.squaredSpeed)]);
-        st += segment.duration;
-        positionData[4].data.push([st, position]);
-    }
-    var chart1 = $.plot("#chart1", speedData);
-    var chart2 = $.plot("#chart2", positionData);
-</script>
 </body>
 </html>
