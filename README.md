@@ -17,7 +17,7 @@ The controller is quite dumb, it gets a list of steps, direction and their timin
 Pushing the user button (blue) enter the manual control mode, receiving a program on USB automatically exits the manual mode.
 The orange LED is on when manual is on. The manual control is made through joysticks, I put mine directly on the spindle so that when I pull a joystick, the spindle comes.
 
-The wiring is described in the main.c and manual.c files.
+The wiring is described in the [main.c](interpolator/main.c#L10) and [manual.c](interpolator/manual.c#L11) files.
 
 
 Chrome Application
@@ -33,4 +33,4 @@ There is a g-code simulator here: http://nraynaud.github.io/webgcode/
 
 A preliminary CAM system for toolpath generation from JS using SVG and JS clipper is also present.
 
-Example: http://nraynaud.github.io/webgcode/test_offset.html
+Example: http://nraynaud.github.io/webgcode/webapp/CAM.html
