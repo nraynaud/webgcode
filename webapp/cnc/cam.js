@@ -316,7 +316,7 @@ Machine.prototype.getToolPath = function (parameters) {
     }
 
     this.dumpOnCollector({
-        goToTravelSpeed: createSpeedHandler(parameters.maxSpeed),
+        goToTravelSpeed: createSpeedHandler(parameters.maxFeedrate),
         goToWorkSpeed: createSpeedHandler(this.feedRate)
     });
     return path;

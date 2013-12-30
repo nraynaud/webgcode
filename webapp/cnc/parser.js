@@ -29,7 +29,6 @@ var parser = (function () {
         secondCenterCoord: 'k'
     };
 
-    var TRAVERSE_RATE = 3000;
     var GROUPS_TRANSITIONS = {
         0: {motionMode: moveTraverseRate},
         1: {motionMode: moveFeedrate},
@@ -86,7 +85,7 @@ var parser = (function () {
     }
 
     function moveTraverseRate(line, machineState) {
-        moveStraightLine(line, machineState, TRAVERSE_RATE);
+        moveStraightLine(line, machineState, machineState.travelFeedRate);
     }
 
     function moveStraightLine(line, machineState, speed) {
@@ -198,7 +197,7 @@ var parser = (function () {
         machineState.position = targetPos;
     }
 
-    function createMachine(initialPosition) {
+    function createMachine(travelFeedRate, maxFeedRate, initialPosition) {
         if (initialPosition === undefined) {
             initialPosition = {};
             $.each(util.AXES, function (_, axis) {
@@ -210,7 +209,8 @@ var parser = (function () {
             motionMode: moveTraverseRate,
             unitMode: mmConverter,
             planeMode: XY_PLANE,
-            feedRate: 200,
+            feedRate: Math.min(200, maxFeedRate),
+            travelFeedRate: Math.min(travelFeedRate, maxFeedRate),
             pathControl: 61,
             path: [],
             parser: createParser()};
@@ -385,8 +385,16 @@ var parser = (function () {
             }};
     }
 
-    function evaluate(text, initialPosition) {
-        var machineState = createMachine(initialPosition);
+    function evaluate(text, travelFeedRate, maxFeedRate, initialPosition) {
+        if (travelFeedRate == null)
+            travelFeedRate = maxFeedRate;
+        if (maxFeedRate == null)
+            maxFeedRate = travelFeedRate;
+        if (maxFeedRate == null && travelFeedRate == null) {
+            maxFeedRate = 3000;
+            travelFeedRate = 3000;
+        }
+        var machineState = createMachine(travelFeedRate, maxFeedRate, initialPosition);
         var arrayOfLines = text.match(/[^\r\n]+/g);
         $.each(arrayOfLines, function (lineNo, originalLine) {
             if (originalLine.match(/[\t ]*%[\t ]*/))
@@ -403,7 +411,7 @@ var parser = (function () {
                 console.log('could not parse ', line);
             var fCode = parsed['f'];
             if (fCode != undefined && fCode.length)
-                machineState.feedRate = machineState.unitMode(fCode[0]);
+                machineState.feedRate = Math.min(machineState.unitMode(fCode[0]), maxFeedRate);
             var gCode = parsed['g'];
             for (var i = 0; gCode !== undefined && i < gCode.length; i++) {
                 var codeNum = gCode[i];

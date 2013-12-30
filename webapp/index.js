@@ -20,7 +20,7 @@ var stopButton = $('#stop');
 
 var parameters = {
     stepsPerMillimeter: 640,
-    maxSpeed: 2000,
+    maxFeedrate: 2000,
     maxAcceleration: 100,
     clockFrequency: 200000,
     position: {x: 0, y: 0, z: 0}
@@ -236,7 +236,7 @@ function bindDevice() {
             controlTransfer({request: CONTROL_COMMANDS.REQUEST_PARAMETERS, length: 16 }, function (data) {
                 var params = new Int32Array(data);
                 parameters.stepsPerMillimeter = params[0];
-                parameters.maxSpeed = params[1];
+                parameters.maxFeedrate = params[1];
                 parameters.maxAcceleration = params[2];
                 parameters.clockFrequency = params[3];
             });

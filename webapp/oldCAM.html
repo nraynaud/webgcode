@@ -8,6 +8,7 @@
     <script src="libs/Three.js"></script>
     <script src="libs/TrackballControls.js"></script>
     <script src="libs/jsparse.js"></script>
+    <script src="libs/ace/src-noconflict/ace.js"></script>
     <script src="cnc/util.js"></script>
     <script src="cnc/geometry.js"></script>
     <script src="cnc/simulation.js"></script>
@@ -21,15 +22,15 @@
             height: 400px;
             padding: 1px;
             margin: 0;
-            text-align: right;
         }
 
-        .editBlock textarea {
+        .editBlock pre {
             width: 100%;
             -webkit-box-sizing: border-box;
             -moz-box-sizing: border-box;
             box-sizing: border-box;
-            height: 350px;
+            height: 400px;
+            margin: 0;
         }
 
         #container {
@@ -42,20 +43,10 @@
 </head>
 <body>
 
-<h1>G-Code Q'n'dirty toolpath simulator</h1>
-
-<p>
-    Paste your g-code in the left window and see the 3D preview of your toolpath on the right.<br>
-    The right pane is interactive, drag it to change the point of view.
-</p>
-
-<p>
-    <a href="https://github.com/nraynaud/webgcode/tree/gh-pages">https://github.com/nraynaud/webgcode/tree/gh-pages</a>
-</p>
 
 <div id="container"></div>
 <div class="editBlock">
-    <textarea id="codebox">
+    <pre id="codebox">
         G0 Y10 Z-5
         G1 Z-10
         G1 Y20
@@ -83,19 +74,19 @@
         G19 (Y-Z plane)
         G3 Z50 J0 K5
         G17 (back to X-Y plane)
-    </textarea>
+    </pre>
     <button id="simulateButton">Simulate</button>
 </div>
 <script>
     function getURLParameter(name) {
         return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null;
     }
-
-    var codebox = $('#codebox');
+    var editor = ace.edit("codebox");
+    editor.setTheme("ace/theme/twilight");
     function refreshView() {
         var simulatedPath = [];
         var lastT = null;
-        simulate2(parser.evaluate(codebox.val()), function (x, y, z, t) {
+        simulate2(parser.evaluate(editor.getValue()), function (x, y, z, t) {
             simulatedPath.push({x: x, y: y, z: z});
             lastT = t;
         });
@@ -107,7 +98,7 @@
     var threeDView = new ThreeDView($container);
     window.addEventListener("message", function (event) {
         if (event.data['type'] == 'gimme program')
-            event.ports[0].postMessage({type: 'gcode', program: $('#codebox').val(), parameters: event.data.parameters});
+            event.ports[0].postMessage({type: 'gcode', program: editor.getValue(), parameters: event.data.parameters});
         if (event.data['type'] == 'toolPosition') {
             var pos = event.data['position'];
             threeDView.tool.position.setX(pos.x);
@@ -119,12 +110,12 @@
             threeDView.renderer.render(threeDView.scene, threeDView.camera);
         }
         if (event.data['type'] == 'setCode') {
-            codebox.text(event.data['code']);
+            editor.setValue(event.data['code']);
             refreshView();
         }
     }, false);
-    codebox.change(function () {
-        parent.postMessage({type: 'codeChange', code: codebox.val()}, '*');
+    editor.getSession().on('change', function () {
+        parent.postMessage({type: 'codeChange', code: editor.getValue()}, '*');
     });
     refreshView();
 </script>
