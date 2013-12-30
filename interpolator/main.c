@@ -93,12 +93,11 @@ static void executeStep(step_t step) {
         uint32_t duration = step.duration;
         int32_t axesCount = step.axes.xStep + step.axes.yStep + step.axes.zStep;
         float32_t stepFactor = axesCount == 2 ? sqrt2 : (axesCount == 3 ? sqrt3 : 1);
-        duration *= stepFactor;
         if (duration < 2)
             duration = 2;
         if (duration > 65535)
             duration = 65535;
-        cncMemory.position.speed = (int32_t) (cncMemory.parameters.clockFrequency / (duration / stepFactor) / cncMemory.parameters.stepsPerMillimeter);
+        cncMemory.position.speed = (int32_t) (cncMemory.parameters.clockFrequency * stepFactor / duration / cncMemory.parameters.stepsPerMillimeter);
         TIM3->ARR = duration;
         TIM3->CNT = 0;
         TIM_SelectOnePulseMode(TIM3, TIM_OPMode_Single);

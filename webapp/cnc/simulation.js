@@ -252,13 +252,16 @@ var simulation = (function () {
     }
 
     function planProgram(toolPath, acceleration, stepSize, timebase, stepCollector) {
+        var speedFactors = [0, 1, Math.SQRT2, Math.sqrt(3)];
         var groups = groupConnectedComponents(toolPath, acceleration);
         $.each(groups, function (_, group) {
             planSpeed(group);
             $.each(group, function (_, segment) {
 
                 function planningStepCollector(point) {
-                    point.time = Math.round(Math.min(0.1, stepSize / dataForRatio(segment, point.l).speed) * timebase);
+                    //go slower if we are stepping in diagonals
+                    var speedFactor = speedFactors[!!point.dx + !!point.dy + !!point.dz];
+                    point.time = Math.ceil(Math.min(0.1, speedFactor * stepSize / dataForRatio(segment, point.l).speed) * timebase);
                     stepCollector(point);
                 }
 
