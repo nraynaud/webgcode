@@ -26,10 +26,9 @@ static volatile struct {
     uint8_t zeroX, zeroY, zeroZ;
     uint32_t steps;
     uint64_t lastTick;
+    vec3f_t lastSpeed;
     volatile __attribute__((aligned (4))) uint8_t adcValue[3];
 } manualControlStatus = {
-        .x = 0, .y = 0, .z = 0,
-        .lastTick = 0,
         .deadzoneRadius = 0.12F,
         .snapOnAxisRadius = 0.70F,
         .maxAcceleration = 150,
@@ -39,37 +38,46 @@ static volatile struct {
         .zeroY = 128,
         .zeroZ = 128,
         .lastTick = 0,
+        .lastSpeed = {0, 0, 0},
         .adcValue = {0, 0, 0}};
 
-float32_t hypotf3d(float32_t x, float32_t y, float32_t z) {
+static float32_t norm(vec3f_t vector) {
     //fuck [golberg91]
-    return sqrtf(x * x + y * y + z * z);
+    return sqrtf(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
 }
 
-void snapAxes(float32_t magnitude, char majorAxis, float32_t *x, float32_t *y, float32_t *z) {
+static char findMajorAxis(vec3f_t vector) {
+    double absX = fabs(vector.x);
+    double absY = fabs(vector.y);
+    double absZ = fabs(vector.z);
+    return absX >= absY && absX >= absZ ? 'x' : (absY >= absX && absY >= absZ ? 'y' : 'z');
+}
+
+static vec3f_t snapAxes(vec3f_t speedVector) {
+    float32_t magnitude = norm(speedVector);
     if (magnitude < manualControlStatus.snapOnAxisRadius) {
-        if (majorAxis == 'x') {
-            *y = 0;
-            *z = 0;
-        }
-        else if (majorAxis == 'y') {
-            *x = 0;
-            *z = 0;
-        }
+        vec3f_t result = {0, 0, 0};
+        char majorAxis = findMajorAxis(speedVector);
+        if (majorAxis == 'x')
+            result.x = speedVector.x;
+        else if (majorAxis == 'y')
+            result.y = speedVector.y;
+        else if (majorAxis == 'z')
+            result.z = speedVector.z;
+        return result;
     }
-    if (majorAxis == 'z') {
-        *x = 0;
-        *y = 0;
-    }
+    return speedVector;
 }
 
-static float32_t computeSpeed(float32_t magnitude) {
+static vec3f_t joystick2speed(vec3f_t joystickPosition) {
+    float32_t magnitude = norm(joystickPosition);
     if (magnitude == 0)
-        return 0;
+        return joystickPosition;
     float32_t minSpeed = manualControlStatus.minFeed / 60.0F;
     float32_t maxSpeed = manualControlStatus.maxFeed / 60.0F;
     float32_t speed = powf(maxSpeed, magnitude) * powf(minSpeed, (1 - magnitude));
-    return speed;
+    float32_t ratio = speed / magnitude;
+    return (vec3f_t) {joystickPosition.x * ratio, joystickPosition.y * ratio, joystickPosition.z * ratio};
 }
 
 static void computeStep(float32_t majorAxis, float32_t axis1, uint8_t *majorStep, uint8_t *step1) {
@@ -80,57 +88,42 @@ static void computeStep(float32_t majorAxis, float32_t axis1, uint8_t *majorStep
     *step1 = (uint8_t) (fmodf(manualControlStatus.steps * slope, 1) < fmodf((manualControlStatus.steps - 1) * slope, 1));
 }
 
-void computeSpeedVector(float32_t speedNorm, float32_t *x, float32_t *y, float32_t *z) {
-    float32_t factor = speedNorm / hypotf3d(*x, *y, *z);
-    if (!isfinite(factor))
-        return;
-    *x *= factor;
-    *y *= factor;
-    *z *= factor;
-}
-
-char findMajorAxis(float32_t x, float32_t y, float32_t z) {
-    return fabs(x) >= fabs(y) && fabs(x) >= fabs(z) ? 'x' : (fabs(y) >= fabs(x) && fabs(y) >= fabs(z) ? 'y' : 'z');
-}
-
-step_t nextManualStep() {
-    uint64_t currentTick = cncMemory.tick;
-    float32_t x = (manualControlStatus.adcValue[0] - manualControlStatus.zeroX) / 128.0F * uiPinout.xOrientation;
-    float32_t y = (manualControlStatus.adcValue[1] - manualControlStatus.zeroY) / 128.0F * uiPinout.yOrientation;
-    float32_t z = (manualControlStatus.adcValue[2] - manualControlStatus.zeroZ) / 128.0F * uiPinout.zOrientation;
-    float32_t magnitude = hypotf3d(x, y, z);
+static vec3f_t conditionJoystickPosition(vec3f_t joystickPosition) {
+    float32_t magnitude = norm(joystickPosition);
     if (magnitude > 1)
         magnitude = 1;
     float32_t factor = (magnitude - manualControlStatus.deadzoneRadius) / ((1 - manualControlStatus.deadzoneRadius) * magnitude);
     if (factor <= 0 || !isfinite(factor))
         factor = 0;
-    x *= factor;
-    y *= factor;
-    z *= factor;
-    magnitude *= factor;
-    char majorAxis = findMajorAxis(x, y, z);
-    snapAxes(magnitude, majorAxis, &x, &y, &z);
-    float32_t speed = computeSpeed(magnitude);
-    computeSpeedVector(speed, &x, &y, &z);
+    return (vec3f_t) {joystickPosition.x * factor, joystickPosition.y * factor, joystickPosition.z * factor};
+}
+
+step_t nextManualStep() {
+    uint64_t currentTick = cncMemory.tick;
+    vec3f_t joystickPosition = {
+            .x = (manualControlStatus.adcValue[0] - manualControlStatus.zeroX) / 128.0F * uiPinout.xOrientation,
+            .y = (manualControlStatus.adcValue[1] - manualControlStatus.zeroY) / 128.0F * uiPinout.yOrientation,
+            .z = (manualControlStatus.adcValue[2] - manualControlStatus.zeroZ) / 128.0F * uiPinout.zOrientation};
+    joystickPosition = conditionJoystickPosition(joystickPosition);
+    joystickPosition = snapAxes(joystickPosition);
+    vec3f_t speedVector = joystick2speed(joystickPosition);
+    char majorAxis = findMajorAxis(speedVector);
+    manualControlStatus.lastSpeed = speedVector;
+    float32_t speed = norm(speedVector);
     uint16_t duration = (uint16_t) (cncMemory.parameters.clockFrequency / speed / cncMemory.parameters.stepsPerMillimeter);
     step_t result = {
             .duration = speed ? duration : 0,
             .axes = {
-                    .xDirection = (unsigned int) (x >= 0),
-                    .yDirection = (unsigned int) (y >= 0),
-                    .zDirection = (unsigned int) (z >= 0)}};
-    if (x != manualControlStatus.x || y != manualControlStatus.y || z != manualControlStatus.z) {
-        manualControlStatus.x = x;
-        manualControlStatus.y = y;
-        manualControlStatus.z = z;
-    }
+                    .xDirection = (unsigned int) (speedVector.x >= 0),
+                    .yDirection = (unsigned int) (speedVector.y >= 0),
+                    .zDirection = (unsigned int) (speedVector.z >= 0)}};
     manualControlStatus.steps++;
     manualControlStatus.lastTick = currentTick;
-    if (x || y || z) {
+    if (speedVector.x || speedVector.y || speedVector.z) {
         if (majorAxis == 'x')
-            computeStep(x, y, &result.axes.xStep, &result.axes.yStep);
+            computeStep(speedVector.x, speedVector.y, &result.axes.xStep, &result.axes.yStep);
         else if (majorAxis == 'y')
-            computeStep(y, x, &result.axes.yStep, &result.axes.xStep);
+            computeStep(speedVector.y, speedVector.x, &result.axes.yStep, &result.axes.xStep);
         else
             result.axes.zStep = 1;
     }
@@ -209,7 +202,7 @@ void initManualControls() {
     STM_EVAL_PBInit(BUTTON_USER, BUTTON_MODE_EXTI);
 }
 
-void EXTI0_IRQHandler(void) {
+__attribute__ ((used)) void EXTI0_IRQHandler(void) {
     if (EXTI_GetITStatus(USER_BUTTON_EXTI_LINE) != RESET) {
         EXTI_ClearITPendingBit(USER_BUTTON_EXTI_LINE);
         toggleManualMode();

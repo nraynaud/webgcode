@@ -159,17 +159,10 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                 }
             }
             break;
+        default:
+            return USBD_OK;
     }
     return USBD_OK;
-}
-
-void sendMovedEvent(position_t pos) {
-    cncMemory.lastEvent[0] = MOVED;
-    cncMemory.lastEvent[1] = pos.x;
-    cncMemory.lastEvent[2] = pos.y;
-    cncMemory.lastEvent[3] = pos.z;
-    cncMemory.lastEvent[4] = pos.speed;
-    DCD_EP_Tx(&usbDevice, INTERRUPT_ENDPOINT, (uint8_t *) cncMemory.lastEvent, sizeof(cncMemory.lastEvent));
 }
 
 uint16_t fillLevel() {

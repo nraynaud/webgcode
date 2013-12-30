@@ -153,7 +153,7 @@ __attribute__ ((used)) void TIM3_IRQHandler(void) {
     }
 }
 
-int main(void) {
+__attribute__ ((noreturn)) int main(void) {
     //enable FPU
     SCB->CPACR |= 0b000000000111100000000000000000000UL;
 
@@ -230,11 +230,11 @@ int main(void) {
     while (1);
 }
 
-void SysTick_Handler(void) {
+__attribute__ ((used)) void SysTick_Handler(void) {
     cncMemory.tick++;
 }
 
-void EXTI15_10_IRQHandler() {
+__attribute__ ((used)) void EXTI15_10_IRQHandler() {
     STM_EVAL_LEDToggle(LED5);
     if (EXTI_GetITStatus(eStopPinout.stopInterruptLine) != RESET) {
         EXTI_ClearITPendingBit(eStopPinout.stopInterruptLine);

@@ -19,6 +19,11 @@ typedef struct {
     axes_t axes;
 } step_t;
 
+typedef struct {
+    float32_t x;
+    float32_t y;
+    float32_t z;
+} vec3f_t;
 
 typedef struct {
     position_t position;
