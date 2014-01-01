@@ -188,8 +188,7 @@ Machine.prototype.contouring = function (shapePath, toolRadius, inside, climbMil
 Machine.prototype.contourClipper = function (clipperPolygon, toolRadius, inside) {
     if (inside)
         toolRadius = -toolRadius;
-    var cpr = new ClipperLib.Clipper();
-    return cpr.OffsetPolygons(clipperPolygon, toolRadius * this.clipperScale, ClipperLib.JoinType.jtRound, 0.25, true);
+    return this._offsetPolygon(clipperPolygon, toolRadius);
 };
 
 Machine.prototype.registerToolPath = function (toolpath) {
@@ -240,13 +239,20 @@ Machine.prototype.drillCorners = function (contour) {
     });
     return holes;
 };
+
+Machine.prototype._offsetPolygon = function (polygon, radius) {
+    var result = [];
+    var co = new ClipperLib.ClipperOffset(2, 0.0001 * this.clipperScale);
+    co.AddPaths(polygon, ClipperLib.JoinType.jtRound, ClipperLib.EndType.etClosedPolygon);
+    co.Execute(result, radius * this.clipperScale);
+    return result;
+};
+
 Machine.prototype.filletWholePolygon = function (shapePath, radius) {
-    var scaledRadius = radius * this.clipperScale;
     var clipperPoints = this.toClipper(shapePath);
-    var cpr = new ClipperLib.Clipper();
-    var eroded = cpr.OffsetPolygons(clipperPoints, -scaledRadius, ClipperLib.JoinType.jtRound, 0.25, true);
-    var openedDilated = cpr.OffsetPolygons(eroded, 2 * scaledRadius, ClipperLib.JoinType.jtRound, 0.25, true);
-    var rounded = cpr.OffsetPolygons(openedDilated, -scaledRadius, ClipperLib.JoinType.jtRound, 0.25, true);
+    var eroded = this._offsetPolygon(clipperPoints, -radius);
+    var openedDilated = this._offsetPolygon(eroded, 2 * radius);
+    var rounded = this._offsetPolygon(openedDilated, -radius);
     shapePath.node.pathSegList.clear();
     $.each(this.fromClipper(rounded), function (index, poly) {
         poly.pushOnPath(shapePath);
@@ -369,9 +375,9 @@ Machine.prototype.fromClipper = function (polygon, reorder, areaPositive) {
 
 Machine.prototype.polyOp = function (clipperP1, clippreP2, clipperOp) {
     var cpr = new ClipperLib.Clipper();
-    var result = new ClipperLib.Polygons();
-    cpr.AddPolygons(clipperP1, ClipperLib.PolyType.ptSubject);
-    cpr.AddPolygons(clippreP2, ClipperLib.PolyType.ptClip);
+    var result = [];
+    cpr.AddPaths(clipperP1, ClipperLib.PolyType.ptSubject, true);
+    cpr.AddPaths(clippreP2, ClipperLib.PolyType.ptClip, true);
     cpr.Execute(clipperOp, result, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
     return result;
 };
