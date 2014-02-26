@@ -16,7 +16,7 @@ var manualControl = $('#manualControl');
 var spinner = $('#spinner');
 var connectButton = $('#connect');
 var sendButton = $('#send');
-var stopButton = $('#stop');
+var abortButton = $('#abort');
 
 var parameters = {
     stepsPerMillimeter: 640,
@@ -32,7 +32,7 @@ var currentDevice = null;
 var currentState = null;
 
 $(runner).on('running', function () {
-    stopButton.show();
+    abortButton.show();
     sendButton.attr('disabled', 'disabled');
 });
 $(runner).on('available', function () {
@@ -163,7 +163,7 @@ function fetchState() {
         if (state == STATES.READY) {
             spinner.css('visibility', 'hidden');
             manualControl.removeAttr('disabled');
-            stopButton.hide();
+            abortButton.hide();
             manualControl.text('Manual Control');
             console.log('state: READY');
         } else if (state == STATES.MANUAL_CONTROL) {
@@ -218,7 +218,7 @@ function bindDevice() {
             console.log('no device found');
             connectButton.show();
             sendButton.hide();
-            stopButton.hide();
+            abortButton.hide();
             manualControl.hide();
             return;
         }
@@ -231,7 +231,7 @@ function bindDevice() {
             connectButton.hide();
             sendButton.show();
             manualControl.show();
-            stopButton.hide();
+            abortButton.hide();
             bodyElement.style.backgroundColor = 'blue';
             controlTransfer({request: CONTROL_COMMANDS.REQUEST_PARAMETERS, length: 16 }, function (data) {
                 var params = new Int32Array(data);
@@ -253,10 +253,10 @@ connectButton.click(function () {
             console.log('App was not granted the "usbDevices" permission.', chrome.runtime.lastError);
     });
 });
-stopButton.click(function () {
+abortButton.click(function () {
     runner.stop();
     sendButton.removeAttr('disabled');
-    stopButton.hide();
+    abortButton.hide();
 });
 chrome.permissions.contains(PERMISSIONS, function (result) {
     if (result)
@@ -264,7 +264,7 @@ chrome.permissions.contains(PERMISSIONS, function (result) {
     else {
         connectButton.show();
         sendButton.hide();
-        stopButton.hide();
+        abortButton.hide();
         manualControl.hide();
     }
 });
