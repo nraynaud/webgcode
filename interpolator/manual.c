@@ -32,7 +32,7 @@ static volatile struct {
         .snapOnAxisRadius = 0.70F,
         .maxAcceleration = 150,
         .minFeed = 5,
-        .maxFeed = 9000,
+        .maxFeed = 8000,
         .zeroX = 128,
         .zeroY = 128,
         .zeroZ = 128,
@@ -68,7 +68,7 @@ static vec3f_t joystick2speed(vec3f_t joystickPosition) {
         return joystickPosition;
     float32_t minSpeed = manualControlStatus.minFeed / 60.0F;
     float32_t maxSpeed = manualControlStatus.maxFeed / 60.0F;
-    float32_t ratio = powf(maxSpeed, magnitude) * powf(minSpeed, (1 - magnitude)) / magnitude;
+    float32_t ratio = powf(maxSpeed, magnitude) * powf(minSpeed, (1 - magnitude));
     return (vec3f_t) {joystickPosition.x * ratio, joystickPosition.y * ratio, joystickPosition.z * ratio};
 }
 
@@ -134,9 +134,9 @@ step_t nextManualStep() {
     joystickPosition = clampPositionTo1(joystickPosition);
     joystickPosition = deadZoneJoystick(joystickPosition);
     joystickPosition = snapAxes(joystickPosition);
-    vec3f_t speedVector = joystick2speed(joystickPosition);
-    manualControlStatus.lastSpeed = speedVector;
-    step_t result = nextStep(speedVector, currentTick);
+    vec3f_t speed = joystick2speed(joystickPosition);
+    step_t result = nextStep(speed, currentTick);
+    manualControlStatus.lastSpeed = speed;
     manualControlStatus.lastTick = currentTick;
     return result;
 }
@@ -176,9 +176,9 @@ void initManualControls() {
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
     ADC_CommonInit(&(ADC_CommonInitTypeDef) {
             .ADC_Mode = ADC_Mode_Independent,
-            .ADC_Prescaler = ADC_Prescaler_Div2,
+            .ADC_Prescaler = ADC_Prescaler_Div8,
             .ADC_DMAAccessMode = ADC_DMAAccessMode_Disabled,
-            .ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_5Cycles});
+            .ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_20Cycles});
     ADC_Init(ADC1, &(ADC_InitTypeDef) {
             .ADC_Resolution = ADC_Resolution_8b,
             .ADC_ScanConvMode = ENABLE,
