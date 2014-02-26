@@ -61,7 +61,7 @@
         twoDView.zoomExtent();
     }
     console.time('creation');
-    var res = box2.testFont(machine, whenDone);
+    var res = box2.createWallSlice(machine, whenDone);
     if (!res)
         whenDone();
 </script>

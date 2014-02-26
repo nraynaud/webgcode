@@ -1,46 +1,46 @@
 "use strict";
 
 var box2 = (function () {
-
-    var plankThickness = 5;
-    var wallThickness = 10;
+    var plankThickness = 19;
+    var wallThickness = 6;
     var outLength = 150;
     var outWidth = 90;
     var bottomWallThickness = 3;
     var bottomPlankThickness = 4.20;
 
+    var toolDiameter = 3;
+    var toolRadius = toolDiameter / 2;
+
     var cornerRadius = 3.14;
 
-    function createWallSlice(machine) {
-        var toolDiameter = 3;
-        var toolRadius = toolDiameter / 2;
+    function createOutlines(machine) {
         var outsideShape = geom.op('M', 0, 0) + geom.createRelativeRectangle(outWidth, outLength);
         var insideShape = geom.op('M', wallThickness, wallThickness) + geom.createRelativeRectangle(outWidth - 2 * wallThickness, outLength - 2 * wallThickness);
         var outsideOutline = machine.filletWholePolygon(machine.createOutline(outsideShape), cornerRadius);
         var insideOutline = machine.filletWholePolygon(machine.createOutline(insideShape), cornerRadius);
-        machine.createOutline(geom.createCircle(-3, 3, 3));
-        machine.setParams(-10, 10, 900);
-        machine.registerToolPathArray(machine.rampToolPathArray(machine.contouring(outsideOutline, toolRadius, false, false), -0, -plankThickness, 1));
-        //machine.registerToolPathArray(machine.rampToolPathArray(machine.contouring(insideOutline, toolRadius, true, false), -0, -plankThickness, 4));
+        return {outsideOutline: outsideOutline, insideOutline: insideOutline};
     }
 
-    function createBottomWall(machine) {
-        var toolDiameter = 3;
-        var toolRadius = toolDiameter / 2;
-        var outsideShape = geom.op('M', 0, 0) + geom.createRelativeRectangle(outWidth, outLength);
-        var insideShape = geom.op('M', wallThickness, wallThickness) + geom.createRelativeRectangle(outWidth - 2 * wallThickness, outLength - 2 * wallThickness);
-        var outsideOutline = machine.filletWholePolygon(machine.createOutline(outsideShape), cornerRadius);
-        var insideOutline = machine.filletWholePolygon(machine.createOutline(insideShape), cornerRadius);
-
+    function createBottomOutline(machine) {
         var bottomWallShape = geom.op('M', bottomWallThickness, bottomWallThickness) + geom.createRelativeRectangle(outWidth - 2 * bottomWallThickness, outLength - 2 * bottomWallThickness);
-        var bottomWallOutline = machine.filletWholePolygon(machine.createOutline(bottomWallShape), cornerRadius);
-        machine.setParams(-bottomPlankThickness, 10, 900);
-        machine.registerToolPathArray(machine.contouring(bottomWallOutline, toolRadius, true, true));
+        return machine.filletWholePolygon(machine.createOutline(bottomWallShape), cornerRadius);
+    }
+
+    function cutInnerWallAndBottomRecess(machine) {
+        machine.setParams(-plankThickness, 10, 900);
+        var outlines = createOutlines(machine);
+        var bottomWallOutline = createBottomOutline(machine);
+        machine.registerToolPathArray(machine.rampToolPathArray(machine.contouring(outlines.insideOutline, toolRadius, true, false), -0, -plankThickness, 4));
+        machine.registerToolPathArray(machine.rampToolPathArray(machine.contouring(bottomWallOutline, toolRadius, true, true), -0, -bottomPlankThickness, 1));
+    }
+
+    function cutOuterWall(machine) {
+        machine.setParams(-plankThickness, 10, 900);
+        var outlines = createOutlines(machine);
+        machine.registerToolPathArray(machine.rampToolPathArray(machine.contouring(outlines.outsideOutline, toolRadius, false, false), -0, -plankThickness, 4));
     }
 
     function createBoxFloor(machine) {
-        var toolDiameter = 3;
-        var toolRadius = toolDiameter / 2;
         var floorShape = geom.op('M', -outWidth + bottomWallThickness, bottomWallThickness) + geom.createRelativeRectangle(outWidth - 2 * bottomWallThickness, outLength - 2 * bottomWallThickness);
         var bottomWallOutline = machine.filletWholePolygon(machine.createOutline(floorShape), cornerRadius);
         machine.setParams(-bottomPlankThickness, 10, 900);
@@ -50,7 +50,7 @@ var box2 = (function () {
     function drillStructuralHoles(machine) {
         var holeDepthInsupport = 7;
         var holeBottom = -plankThickness - holeDepthInsupport;
-        machine.setParams(-19, 10, 1000);
+        machine.setParams(holeBottom, 10, 1000);
 
         function drillCenterWall(xRatio, yRatio) {
             var xMin = wallThickness / 2;
@@ -72,36 +72,24 @@ var box2 = (function () {
         drillCenterWall(0, 3 / 4);
         drillCenterWall(0, 2 / 4);
         drillCenterWall(0, 1 / 4);
+
+        function drillCornerHole(xRatio, yRatio) {
+            var margin = 4;
+            var xMin = wallThickness + toolDiameter + margin;
+            var yMin = wallThickness + toolDiameter + margin;
+            var xSpan = outWidth - 2 * xMin;
+            var ySpan = outLength - 2 * yMin;
+            machine.registerToolPath(machine.peckDrill(xMin + xRatio * xSpan, yMin + yRatio * ySpan, holeBottom, 0, 2));
+        }
+
+        drillCornerHole(0, 0);
+        drillCornerHole(1, 0);
+        drillCornerHole(1, 1);
+        drillCornerHole(0, 1);
     }
 
-    function testFont(machine, whenDone) {
-        opentype.load('webapp/libs/fonts/miss_fajardose/MissFajardose-Regular.ttf', function (err, font) {
-            var path = font.getPath('Test');
-            var res = '';
-            for (var i = 0; i < path.commands.length; i++) {
-                var command = path.commands[i];
-                res += ' ' + command.type;
-                if (command.type == 'M' || command.type == 'L')
-                    res += ' ' + command.x + ',' + -command.y;
-                else if (command.type == 'Q')
-                    res += command.x1 + ',' + -command.y1 + ' ' + command.x + ',' + -command.y;
-                else if (command.type == 'C')
-                    res += command.x1 + ',' + -command.y1 + ' ' + command.x2 + ',' + -command.y2
-                        + ' ' + command.x + ',' + -command.y;
-            }
-            var poly = machine.toClipper(machine.createOutline(res));
-            poly = machine.polyOp(poly, [], ClipperLib.ClipType.ctUnion);
-            machine.setParams(-19, 10, 1000);
-            machine.registerToolPathArray(machine.fromClipper(machine.contourClipper(poly, 0.5, false)));
-            whenDone();
-        });
-        return true;
-    }
-
-    return {createWallSlice: createWallSlice,
-        drillStructuralHoles: drillStructuralHoles,
-        createBottomWall: createBottomWall,
-        createBoxFloor: createBoxFloor,
-        testFont: testFont
-    };
+    return {
+        cutInnerWallAndBottomRecess: cutInnerWallAndBottomRecess,
+        cutOuterWall: cutOuterWall,
+        drillStructuralHoles: drillStructuralHoles};
 })();
