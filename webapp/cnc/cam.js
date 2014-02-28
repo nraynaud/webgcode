@@ -118,8 +118,6 @@ ConstantZPolygonToolpath.prototype.forEachPoint = function (pointHandler, defaul
     $.each(this.path, function (index, point) {
         pointHandler(point[0], point[1], defaultZ, index);
     });
-    var lastPoint = this.getStopPoint(defaultZ);
-    pointHandler(lastPoint.x, lastPoint.y, lastPoint.z, this.path.length);
 };
 ConstantZPolygonToolpath.prototype.pushOnPath = function (path) {
     pushOnPath(path, this);
@@ -188,7 +186,7 @@ Machine.prototype.contouring = function (shapePath, toolRadius, inside, climbMil
 Machine.prototype.contourClipper = function (clipperPolygon, toolRadius, inside) {
     if (inside)
         toolRadius = -toolRadius;
-    return this._offsetPolygon(clipperPolygon, toolRadius);
+    return this.offsetPolygon(clipperPolygon, toolRadius);
 };
 
 Machine.prototype.registerToolPath = function (toolpath) {
@@ -240,7 +238,7 @@ Machine.prototype.drillCorners = function (contour) {
     return holes;
 };
 
-Machine.prototype._offsetPolygon = function (polygon, radius) {
+Machine.prototype.offsetPolygon = function (polygon, radius) {
     var result = [];
     var co = new ClipperLib.ClipperOffset(2, 0.0001 * this.clipperScale);
     co.AddPaths(polygon, ClipperLib.JoinType.jtRound, ClipperLib.EndType.etClosedPolygon);
@@ -250,9 +248,9 @@ Machine.prototype._offsetPolygon = function (polygon, radius) {
 
 Machine.prototype.filletWholePolygon = function (shapePath, radius) {
     var clipperPoints = this.toClipper(shapePath);
-    var eroded = this._offsetPolygon(clipperPoints, -radius);
-    var openedDilated = this._offsetPolygon(eroded, 2 * radius);
-    var rounded = this._offsetPolygon(openedDilated, -radius);
+    var eroded = this.offsetPolygon(clipperPoints, -radius);
+    var openedDilated = this.offsetPolygon(eroded, 2 * radius);
+    var rounded = this.offsetPolygon(openedDilated, -radius);
     shapePath.node.pathSegList.clear();
     $.each(this.fromClipper(rounded), function (index, poly) {
         poly.pushOnPath(shapePath);

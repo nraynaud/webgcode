@@ -895,7 +895,6 @@
 		DDAA56FDF85987C80CFAD40D /* tux.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngx; name = tux.ngc; path = samples/tux.ngc; sourceTree = "<group>"; };
 		DDAA56FE897E0890F992BE60 /* theme-solarized_dark.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-solarized_dark.js"; sourceTree = "<group>"; };
 		DDAA570CF9517242B8E5E39D /* mode-verilog.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-verilog.js"; sourceTree = "<group>"; };
-		DDAA5718DDD9B2705A3B6819 /* test_delaunay.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_delaunay.html; sourceTree = "<group>"; };
 		DDAA571EA9877B447B82A9BB /* ace.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = ace.js; sourceTree = "<group>"; };
 		DDAA5724D8276AD9990D6B67 /* mode-coffee.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-coffee.js"; sourceTree = "<group>"; };
 		DDAA572F77B201065CB57BFA /* icon_fraise.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; path = icon_fraise.svg; sourceTree = "<group>"; };
@@ -1068,7 +1067,6 @@
 		DDAA5BA07B18D105D4F87EC2 /* ext-whitespace.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-whitespace.js"; sourceTree = "<group>"; };
 		DDAA5BA21A5E569A27BBF09E /* mode-objectivec.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-objectivec.js"; sourceTree = "<group>"; };
 		DDAA5BA706F3B30C7D31658E /* ext-emmet.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-emmet.js"; sourceTree = "<group>"; };
-		DDAA5BAA5E8C9CECE461BD53 /* test_voronoi.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_voronoi.html; sourceTree = "<group>"; };
 		DDAA5BABADD210E38C9D7918 /* mode-tex.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-tex.js"; sourceTree = "<group>"; };
 		DDAA5BB0BDD7C28C1DC1A15F /* joystick_plate.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = joystick_plate.js; path = samples/joystick_plate.js; sourceTree = "<group>"; };
 		DDAA5BB95BAF62C12588DA2C /* mode-php.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-php.js"; sourceTree = "<group>"; };
@@ -1998,7 +1996,6 @@
 				DDAA5C39B59BE70527721DE7 /* cnc.h */,
 				DDAA56B90C5F7FBE9FC0A534 /* usbdesc.c */,
 				DDAA51B9F55C5AFD9629737D /* test_threejs.html */,
-				DDAA5718DDD9B2705A3B6819 /* test_delaunay.html */,
 				DDAA5C7DCC7731222576D7BA /* delaunay.js */,
 				DDAA51DE17B96DCF612B22D5 /* contour.js */,
 				DDAA53D0D9AE21EE52463EAE /* manual.c */,
@@ -2025,7 +2022,6 @@
 				DDAA5BB0BDD7C28C1DC1A15F /* joystick_plate.js */,
 				DDAA5DAA497AA174431D8606 /* index.html */,
 				DDAA54B37F49D0A2AC135D5A /* util.js */,
-				DDAA5BAA5E8C9CECE461BD53 /* test_voronoi.html */,
 				DDAA5C13154AE7ADC61D5403 /* test.html */,
 				DDAA568D3480E5D010BB2D93 /* index.html */,
 				DDAA550CF317C3168B90577A /* tests.js */,

@@ -61,7 +61,7 @@
         twoDView.zoomExtent();
     }
     console.time('creation');
-    var res = box2.createWallSlice(machine, whenDone);
+    var res = dremelBracket.createBracketPocket(machine, whenDone);
     if (!res)
         whenDone();
 </script>
