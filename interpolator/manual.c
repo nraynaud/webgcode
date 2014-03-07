@@ -5,10 +5,11 @@
 
 static const struct {
     GPIO_TypeDef *gpio;
-    uint16_t xControl, yControl, zControl;
+    uint16_t manualButton, xControl, yControl, zControl;
     int8_t xOrientation, yOrientation, zOrientation;
 } uiPinout = {
         .gpio = GPIOA,
+        .manualButton = GPIO_Pin_0,
         .xControl = GPIO_Pin_1,
         .yControl = GPIO_Pin_2,
         .zControl = GPIO_Pin_3,
@@ -169,6 +170,10 @@ uint32_t toggleManualMode() {
 void initManualControls() {
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
     GPIO_Init(uiPinout.gpio, &(GPIO_InitTypeDef) {
+            .GPIO_Pin = uiPinout.manualButton,
+            .GPIO_Mode = GPIO_Mode_IN,
+            .GPIO_PuPd = GPIO_PuPd_NOPULL});
+    GPIO_Init(uiPinout.gpio, &(GPIO_InitTypeDef) {
             .GPIO_Pin = uiPinout.xControl | uiPinout.yControl | uiPinout.zControl,
             .GPIO_Mode = GPIO_Mode_AN,
             .GPIO_PuPd = GPIO_PuPd_NOPULL});
@@ -210,12 +215,27 @@ void initManualControls() {
     ADC_DMACmd(ADC1, ENABLE);
     ADC_Cmd(ADC1, ENABLE);
     ADC_SoftwareStartConv(ADC1);
-    STM_EVAL_PBInit(BUTTON_USER, BUTTON_MODE_EXTI);
 }
 
-__attribute__ ((used)) void EXTI0_IRQHandler(void) {
-    if (EXTI_GetITStatus(USER_BUTTON_EXTI_LINE) != RESET) {
-        EXTI_ClearITPendingBit(USER_BUTTON_EXTI_LINE);
-        toggleManualMode();
+#define UI_DEBOUNCE_MAX_CHECKS 50
+#define SYSTICK_UI_DEBOUNCE_SCALING_FACTOR 50
+
+void periodicUICallback(void) {
+    static uint8_t previousDebouncedValue;
+    static uint8_t stableValueTicks = 0;
+    static uint8_t lastRawValue;
+    if (cncMemory.tick % SYSTICK_UI_DEBOUNCE_SCALING_FACTOR == 0) {
+        uint8_t rawValue = GPIO_ReadInputDataBit(uiPinout.gpio, uiPinout.manualButton);
+        if (rawValue == lastRawValue) {
+            if (stableValueTicks < UI_DEBOUNCE_MAX_CHECKS )
+                stableValueTicks++;
+            else {
+                if (rawValue && !previousDebouncedValue)
+                    toggleManualMode();
+                previousDebouncedValue = rawValue;
+            }
+        } else
+            stableValueTicks = 1;
+        lastRawValue = rawValue;
     }
 }

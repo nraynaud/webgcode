@@ -85,3 +85,5 @@ extern step_t nextManualStep();
 extern void initManualControls();
 
 extern uint32_t toggleManualMode();
+
+extern void periodicUICallback();

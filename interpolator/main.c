@@ -231,6 +231,7 @@ __attribute__ ((noreturn)) int main(void) {
 
 __attribute__ ((used)) void SysTick_Handler(void) {
     cncMemory.tick++;
+    periodicUICallback();
 }
 
 __attribute__ ((used)) void EXTI15_10_IRQHandler() {
