@@ -40,5 +40,40 @@ var plugPlate = (function () {
         });
     }
 
+    function createZLimitSwitchPusher(machine) {
+        var ySpan = 9.5;
+        var xSpan = 25;
+        var circleRadius = ySpan / 2;
+
+        var toolDiameter = 4;
+        var toolRadius = toolDiameter / 2;
+
+        function createBracket(machine) {
+            var op = geom.op;
+            var shape = machine.createOutline(op('M', 0, 0) + op('l', xSpan, 0)
+                + 'a ' + circleRadius + ',' + circleRadius + ' 0 0 1 0,' + ySpan + op('l', -xSpan, 0) + 'Z');
+            machine.setParams(-3.1, 5, 300);
+            var contour = machine.contouring(shape, toolRadius, false, true);
+            machine.registerToolPathArray(machine.rampToolPathArray(contour, 0, -3.1, 6));
+        }
+
+        createBracket(machine);
+    }
+
+    function createZLimitSwitchBracket(machine) {
+        var xSpan = 17;
+        var ySpan = 55;
+        var stockThickness = 3.1;
+
+        var cornerRadius = 2;
+        var toolDiameter = 4;
+        var toolRadius = toolDiameter / 2;
+
+        var shape = machine.filletWholePolygon(machine.createOutline(geom.op('M', 0, 0) + geom.createRelativeRectangle(xSpan, ySpan)), cornerRadius);
+        var contour = machine.contouring(shape, toolRadius, false, true);
+        machine.setParams(-stockThickness, 5, 300);
+        machine.registerToolPathArray(machine.rampToolPathArray(contour, 0, -stockThickness, 6));
+    }
+
     return {drillHoles: drillHoles, makeShape: makeShape};
 })();

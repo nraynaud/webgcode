@@ -201,7 +201,6 @@ Machine.prototype.registerToolPathArray = function (toolpathArray) {
     });
 };
 Machine.prototype.rampToolPath = function (toolpath, startZ, stopZ, turns) {
-
     var path = this.paper.defs().path('', true);
     toolpath.pushOnPath(path);
     var toolpathLength = path.node.getTotalLength();
@@ -219,6 +218,8 @@ Machine.prototype.rampToolPath = function (toolpath, startZ, stopZ, turns) {
     toolpath.forEachPoint(function (x, y) {
         resultPolyline.pushPoint(x, y, stopZ);
     }, null);
+    var startPoint = toolpath.getStartPoint(stopZ);
+    resultPolyline.pushPoint(startPoint.x, startPoint.y, startPoint.z);
     return resultPolyline;
 };
 Machine.prototype.rampToolPathArray = function (toolpath, startZ, stopZ, turns) {

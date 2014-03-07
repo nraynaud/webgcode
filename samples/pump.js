@@ -40,21 +40,17 @@ function makefixture(machine) {
     }
     machine.registerToolPathArray(machine.rampToolPathArray(machine.contouring(cylinder, toolRadius * 1.5, false, true), 0, -chamberHeight - 2, 4));
     machine.registerToolPathArray(machine.rampToolPathArray(machine.contouring(cylinder, toolRadius, false, true), 0, -chamberHeight - 2, 4));
-
 }
 
 function makeCeiling(machine) {
-
     machine.setParams(-chamberHeight - 1, 5, 800);
     var ceilingThinckness = chamberHeight - impellerHeight;
     machine.setParams(ceilingThinckness, ceilingThinckness + 15, 1000);
-
     var outerWall = machine.createOutline(geom.createCircle(0, 0, chamberDiameter / 2));
     var radius = 0;
     while (chamberDiameter / 2 - radius > 0) {
         machine.registerToolPathArray(machine.rampToolPathArray(machine.contouring(outerWall, -radius, false, true), ceilingThinckness + 10, ceilingThinckness, 5));
         radius += toolDiameter * 0.5;
     }
-
 }
 makeInside(machine);
