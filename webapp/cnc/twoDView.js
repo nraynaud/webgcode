@@ -6,28 +6,32 @@ define(['../libs/svg.js'], function () {
         //https://bugzilla.mozilla.org/show_bug.cgi?id=479058
         //http://stackoverflow.com/questions/15629183/svg-offset-issue-in-firefox
         var inserted = $('<div></div>');
+        inserted.addClass('TwoDView');
         inserted.css('top', '0');
         drawing.append(inserted);
         this.svg = SVG(inserted[0]).size(drawing.width(), drawing.height());
-        this.root = this.svg.group().attr({id: 'root', 'vector-effect': 'non-scaling-stroke'});
-        this.background = this.root.group().attr({id: 'background', 'vector-effect': 'non-scaling-stroke'});
-        this.paper = this.root.group().attr({id: 'paper', 'vector-effect': 'non-scaling-stroke'});
-        var origin = this.background.group().attr({id: 'origin'});
+        this.root = this.svg.group().attr({class: 'root', 'vector-effect': 'non-scaling-stroke'});
+        this.background = this.root.group().attr({class: 'background', 'vector-effect': 'non-scaling-stroke'});
+        this.paper = this.root.group().attr({class: 'paper', 'vector-effect': 'non-scaling-stroke'});
+        var origin = this.background.group().attr({class: 'origin'});
         origin.path('M0,0 L0,10 A 10,10 90 0 0 10,0 Z M0,0 L0,-10 A 10,10 90 0 0 -10,0 Z').attr({stroke: 'none', fill: 'red', transform: null});
         origin.ellipse(20, 20).cx(0).cy(0).attr({stroke: 'red', fill: 'none', transform: null});
-        var grid = this.background.group().attr({id: 'grid'});
-        var dmGrid = grid.group().attr({id: 'dmGrid'});
-        var halfDmGrid = dmGrid.group().attr({id: 'halfDmGrid'});
-        var cmGrid = halfDmGrid.group().attr({id: 'cmGrid'});
-        var halfCmGrid = cmGrid.group().attr({id: 'halfCmGrid'});
-        var mmGrid = cmGrid.group().attr({id: 'mmGrid'});
+        var grid = this.background.group().attr({class: 'grid'});
+        var dmGrid = grid.group().attr({class: 'dmGrid'});
+        var halfDmGrid = dmGrid.group().attr({class: 'halfDmGrid'});
+        var cmGrid = halfDmGrid.group().attr({class: 'cmGrid'});
+        var halfCmGrid = cmGrid.group().attr({class: 'halfCmGrid'});
+        var mmGrid = cmGrid.group().attr({class: 'mmGrid'});
         this.gridStack = [
             [20, $(mmGrid.node)],
             [15, $(halfCmGrid.node)],
             [5, $(cmGrid.node)],
             [2.5, $(halfDmGrid.node)]
         ];
-        for (var i = -600; i <= 600; i += 1) {
+        var xSpan = 400;
+        var ySpan = 600;
+        var bigestSpan = Math.max(ySpan, xSpan);
+        for (var i = -bigestSpan; i <= bigestSpan; i += 1) {
             var group = mmGrid;
             if (i % 100 == 0)
                 group = dmGrid;
@@ -37,12 +41,16 @@ define(['../libs/svg.js'], function () {
                 group = cmGrid;
             else if (i % 5 == 0)
                 group = halfCmGrid;
+            if (Math.abs(i) <= ySpan)
+                group.line(xSpan, i, -xSpan, i);
+            if (Math.abs(i) <= xSpan)
+                group.line(i, ySpan, i, -ySpan);
             if (i % 10 == 0) {
-                group.text('' + i).transform({scaleY: -1}).attr({class: 'gridText '}).x(i).y(0);
-                group.text('' + i).transform({scaleY: -1}).attr({class: 'gridText '}).x(0).y(i);
+                if (Math.abs(i) <= xSpan)
+                    group.text('' + i).transform({scaleY: -1}).attr({class: 'gridText '}).x(i).y(0);
+                if (Math.abs(i) <= ySpan)
+                    group.text('' + i).transform({scaleY: -1}).attr({class: 'gridText '}).x(0).y(i);
             }
-            group.line(600, i, -600, i);
-            group.line(i, 600, i, -600);
         }
         var self = this;
         drawing.mousewheel(function (event, delta, deltaX, deltaY) {

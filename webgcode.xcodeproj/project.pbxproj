@@ -911,6 +911,7 @@
 		DDAA576D5DCAE40E9F6E2C1D /* mode-lua.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-lua.js"; sourceTree = "<group>"; };
 		DDAA5781D163BA1486DF100C /* mode-text.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-text.js"; sourceTree = "<group>"; };
 		DDAA5786D58158F3ED2ADB5D /* icon_fraise_128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_fraise_128.png; sourceTree = "<group>"; };
+		DDAA578CF1A78A375FB0D041 /* twoDView.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = twoDView.css; sourceTree = "<group>"; };
 		DDAA579A473ECCE8C0A73A74 /* mode-prolog.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-prolog.js"; sourceTree = "<group>"; };
 		DDAA579B047CBC9FF58DFAA5 /* mode-d.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-d.js"; sourceTree = "<group>"; };
 		DDAA579CE5691D8A2FAEAEE1 /* mode-javascript.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-javascript.js"; sourceTree = "<group>"; };
@@ -1994,6 +1995,7 @@
 				DDAA593347EC813B12F6ABB6 /* background.js */,
 				DDAA5BD4D3436F114AB6921D /* manifest.json */,
 				DDAA5C4F4476F0E52C5B5B0B /* ajax-loader.gif */,
+				DDAA578CF1A78A375FB0D041 /* twoDView.css */,
 			);
 			path = webapp;
 			sourceTree = "<group>";

@@ -1,0 +1,48 @@
+
+.TwoDView .background {
+    opacity: 0.3;
+}
+
+.TwoDView .grid * {
+    vector-effect: non-scaling-stroke;
+}
+
+.TwoDView .mmGrid {
+    stroke: yellow;
+    stroke-dasharray: 5, 2;
+}
+
+.TwoDView .halfCmGrid {
+    stroke: yellow;
+    stroke-width: 2;
+}
+
+.TwoDView .cmGrid {
+    stroke: orange;
+    stroke-dasharray: 5, 1;
+    font-size: 2px;
+}
+
+.TwoDView .halfDmGrid {
+    stroke: orange;
+    stroke-width: 1.5;
+    font-size: 7px;
+}
+
+.TwoDView .dmGrid {
+    stroke: red;
+    stroke-width: 1.5;
+    font-size: 10px;
+}
+
+.TwoDView .gridText {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    text-anchor: middle;
+    cursor: default;
+    stroke: none;
+}
