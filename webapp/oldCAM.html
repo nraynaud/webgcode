@@ -9,11 +9,12 @@
     <script src="libs/TrackballControls.js"></script>
     <script src="libs/jsparse.js"></script>
     <script src="libs/ace/src-noconflict/ace.js"></script>
+    <script src="libs/require.js"></script>
+
     <script src="cnc/util.js"></script>
     <script src="cnc/geometry.js"></script>
     <script src="cnc/simulation.js"></script>
     <script src="cnc/parser.js"></script>
-    <script src="cnc/threeDView.js"></script>
     <style>
         .editBlock {
             position: relative;
@@ -81,43 +82,47 @@
     function getURLParameter(name) {
         return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null;
     }
-    var editor = ace.edit("codebox");
-    editor.setTheme("ace/theme/twilight");
-    function refreshView() {
-        var simulatedPath = [];
-        var lastT = null;
-        simulation.simulate2(parser.evaluate(editor.getValue()), function (x, y, z, t) {
-            simulatedPath.push({x: x, y: y, z: z});
-            lastT = t;
-        });
-        console.log('total duration', lastT);
-        threeDView.displayPath(simulatedPath);
-    }
-    $('#simulateButton').click(refreshView);
-    var $container = $('#container');
-    var threeDView = new ThreeDView($container);
-    window.addEventListener("message", function (event) {
-        if (event.data['type'] == 'gimme program')
-            event.ports[0].postMessage({type: 'gcode', program: editor.getValue(), parameters: event.data.parameters});
-        if (event.data['type'] == 'toolPosition') {
-            var pos = event.data['position'];
-            threeDView.tool.position.setX(pos.x);
-            threeDView.tool.position.setY(pos.y);
-            threeDView.tool.position.setZ(pos.z);
-            threeDView.tool.traverse(function (child) {
-                child.visible = true;
+
+    require(['cnc/threeDView.js'], function (threeD) {
+        var editor = ace.edit("codebox");
+        editor.setTheme("ace/theme/twilight");
+        function refreshView() {
+            var simulatedPath = [];
+            var lastT = null;
+            simulation.simulate2(parser.evaluate(editor.getValue()), function (x, y, z, t) {
+                simulatedPath.push({x: x, y: y, z: z});
+                lastT = t;
             });
-            threeDView.renderer.render(threeDView.scene, threeDView.camera);
+            console.log('total duration', lastT);
+            threeDView.displayPath(simulatedPath);
         }
-        if (event.data['type'] == 'setCode') {
-            editor.setValue(event.data['code']);
-            refreshView();
-        }
-    }, false);
-    editor.getSession().on('change', function () {
-        parent.postMessage({type: 'codeChange', code: editor.getValue()}, '*');
+
+        $('#simulateButton').click(refreshView);
+        var $container = $('#container');
+        var threeDView = new threeD.ThreeDView($container);
+        window.addEventListener("message", function (event) {
+            if (event.data['type'] == 'gimme program')
+                event.ports[0].postMessage({type: 'gcode', program: editor.getValue(), parameters: event.data.parameters});
+            if (event.data['type'] == 'toolPosition') {
+                var pos = event.data['position'];
+                threeDView.tool.position.setX(pos.x);
+                threeDView.tool.position.setY(pos.y);
+                threeDView.tool.position.setZ(pos.z);
+                threeDView.tool.traverse(function (child) {
+                    child.visible = true;
+                });
+                threeDView.renderer.render(threeDView.scene, threeDView.camera);
+            }
+            if (event.data['type'] == 'setCode') {
+                editor.setValue(event.data['code']);
+                refreshView();
+            }
+        }, false);
+        editor.getSession().on('change', function () {
+            parent.postMessage({type: 'codeChange', code: editor.getValue()}, '*');
+        });
+        refreshView();
     });
-    refreshView();
 </script>
 </body>
 </html>

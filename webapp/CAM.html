@@ -17,14 +17,13 @@
     <script src="libs/opentype.js"></script>
     <script src="libs/extractedRaphael.js"></script>
     <script src="libs/ace/src-noconflict/ace.js"></script>
+    <script src="libs/require.js"></script>
+
     <script src="cnc/util.js"></script>
     <script src="cnc/beziers.js"></script>
-    <script src="cnc/cam.js"></script>
     <script src="cnc/geometry.js"></script>
     <script src="cnc/simulation.js"></script>
     <script src="cnc/parser.js"></script>
-    <script src="cnc/threeDView.js"></script>
-    <script src="cnc/twoDView.js"></script>
     <style>
         html, body {
             height: 100%;
@@ -69,6 +68,51 @@
         #codebox {
             margin: 0;
         }
+
+        #grid * {
+            vector-effect: non-scaling-stroke;
+        }
+
+        .mmGrid {
+            stroke: yellow;
+            stroke-dasharray: 5, 1;
+        }
+
+        .halfCmGrid {
+            stroke: yellow;
+            stroke-width: 1.5;
+        }
+
+        .cmGrid {
+            stroke: orange;
+            stroke-dasharray: 5, 1;
+            font-size: 2px;
+        }
+
+        .halfDmGrid {
+            stroke: orange;
+            stroke-width: 1.5;
+            font-size: 7px;
+        }
+
+        .dmGrid {
+            stroke: red;
+            stroke-width: 1.5;
+            font-size: 10px;
+        }
+
+        .gridText {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            fill: rgba(50, 50, 50, 0.3);
+            text-anchor: middle;
+            cursor: default;
+            stroke: none;
+        }
     </style>
 </head>
 <body>
@@ -87,12 +131,12 @@
 
     function createBracket(machine) {
         var toolRadius = 3 / 2;
-        var shape = geom.op('M', 0, 0) + geom.op('l', outerWidth, 0) + geom.op('l', 0, outerHeight)
-            + geom.op('l', -topDx, 0)
-            + geom.op('l', -slopeDX, -(outerHeight - backsideMinWidth))
-            + geom.op('l', -(outerWidth - topDx * 2 - slopeDX * 2), 0)
-            + geom.op('l', -slopeDX, outerHeight - backsideMinWidth)
-            + geom.op('l', -topDx, 0) + 'Z';
+        var shape = cam.geom.op('M', 0, 0) + cam.geom.op('l', outerWidth, 0) + cam.geom.op('l', 0, outerHeight)
+            + cam.geom.op('l', -topDx, 0)
+            + cam.geom.op('l', -slopeDX, -(outerHeight - backsideMinWidth))
+            + cam.geom.op('l', -(outerWidth - topDx * 2 - slopeDX * 2), 0)
+            + cam.geom.op('l', -slopeDX, outerHeight - backsideMinWidth)
+            + cam. geom.op('l', -topDx, 0) + 'Z';
         var outline = machine.createOutline(shape);
         machine.setParams(-17, 10, 1000);
         machine.registerToolPathArray(machine.rampToolPathArray(machine.contouring(outline, toolRadius, false, true), -0, -plankThickness, 3));
@@ -112,64 +156,64 @@
     if (inChromeApp) //https://code.google.com/p/chromium/issues/detail?id=159303
         editor.session.setUseWorker(false);
     editor.session.setMode("ace/mode/javascript");
-    var threeDView = new ThreeDView($('#container'));
-</script>
-<script>
-    window.addEventListener("message", function (event) {
-        if (event.data['type'] == 'gimme program') {
-            var port = event.ports[0];
-            refresh(function (machine) {
-                refreshViews(machine);
-                var parameters = event.data.parameters;
-                port.postMessage({type: 'toolpath', toolPath: machine.getToolPath(parameters), parameters: parameters});
+    require(['cnc/twoDView.js', 'cnc/threeDView.js', 'cnc/cam.js'], function (twoD, threeD, cam) {
+        var threeDView = new threeD.ThreeDView($('#container'));
+        window.addEventListener("message", function (event) {
+            if (event.data['type'] == 'gimme program') {
+                var port = event.ports[0];
+                refresh(function (machine) {
+                    refreshViews(machine);
+                    var parameters = event.data.parameters;
+                    port.postMessage({type: 'toolpath', toolPath: machine.getToolPath(parameters), parameters: parameters});
+                });
+            }
+            if (event.data['type'] == 'toolPosition') {
+                var pos = event.data['position'];
+                threeDView.tool.position.setX(pos.x);
+                threeDView.tool.position.setY(pos.y);
+                threeDView.tool.position.setZ(pos.z);
+                threeDView.tool.traverse(function (child) {
+                    child.visible = true;
+                });
+                threeDView.renderer.render(threeDView.scene, threeDView.camera);
+            }
+        }, false);
+        var twoDView = new twoD.TwoDView($('#drawing'));
+        if (!inChromeApp) {
+            var code = localStorage.getItem('JSCode');
+            if (code)
+                editor.setValue(code);
+            editor.getSession().on('change', function () {
+                localStorage.setItem('JSCode', editor.getValue());
             });
         }
-        if (event.data['type'] == 'toolPosition') {
-            var pos = event.data['position'];
-            threeDView.tool.position.setX(pos.x);
-            threeDView.tool.position.setY(pos.y);
-            threeDView.tool.position.setZ(pos.z);
-            threeDView.tool.traverse(function (child) {
-                child.visible = true;
-            });
-            threeDView.renderer.render(threeDView.scene, threeDView.camera);
+        function refreshViews(machine) {
+            twoDView.zoomExtent();
+            threeDView.displayPath(machine.dumpPath());
         }
-    }, false);
-</script>
-<script>
-    var twoDView = new TwoDView($('#drawing'));
-    if (!inChromeApp) {
-        var code = localStorage.getItem('JSCode');
-        if (code)
-            editor.setValue(code);
-        editor.getSession().on('change', function () {
-            localStorage.setItem('JSCode', editor.getValue());
-        });
-    }
-    function refreshViews(machine) {
-        twoDView.zoomExtent();
-        threeDView.displayPath(machine.dumpPath());
-    }
-    function refresh(callback) {
-        var machine = new Machine(twoDView.paper);
-        var whenDone = callback || function () {
-        };
-        twoDView.clear();
-        var resWasFalse;
-        var res = new Function(['machine', 'whenDone'], editor.getValue())(machine, function () {
-            if (resWasFalse)
-                throw new Error('you called whenDone() also you didn\'t return true in your code.');
-            whenDone(machine);
-        });
-        if (!res) {
-            resWasFalse = true;
-            whenDone(machine);
+
+        function refresh(callback) {
+            var machine = new cam.Machine(twoDView.paper);
+            var whenDone = callback || function () {
+            };
+            twoDView.clear();
+            var resWasFalse;
+            var res = new Function(['machine', 'whenDone', 'cam'], editor.getValue())(machine, function () {
+                if (resWasFalse)
+                    throw new Error('you called whenDone() also you didn\'t return true in your code.');
+                whenDone(machine);
+            }, cam);
+            if (!res) {
+                resWasFalse = true;
+                whenDone(machine);
+            }
         }
-    }
-    $('#simulationButton').click(function () {
+
+        $('#simulationButton').click(function () {
+            refresh(refreshViews);
+        });
         refresh(refreshViews);
     });
-    refresh(refreshViews);
 </script>
 </body>
 </html>

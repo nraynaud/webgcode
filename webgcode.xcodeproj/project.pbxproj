@@ -153,6 +153,7 @@
 		DDAA53A6D78134A646F7907F /* ace.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5E26DC7454168D3419DC /* ace.js */; };
 		DDAA53ACEAEFE21072003E4D /* threeDView.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA505EBA7A9908C0974B77 /* threeDView.js */; };
 		DDAA53B4FD823BB196128AFB /* mode-toml.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA554BF5B73CFBCF2F7E21 /* mode-toml.js */; };
+		DDAA53CA92C553449E9DC4C6 /* pocket.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5814D4884F3B31A1A4B8 /* pocket.js */; };
 		DDAA53E1E1EB277A58EF0080 /* mode-haml.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA567474C25C75CB1DF6C5 /* mode-haml.js */; };
 		DDAA53E34E2E3A05C21230BF /* theme-chrome.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54E082CD42F9317354DA /* theme-chrome.js */; };
 		DDAA53EB6E3F53DD1452FF40 /* contour.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA51DE17B96DCF612B22D5 /* contour.js */; };
@@ -266,8 +267,10 @@
 		DDAA5734FBE4B51AC5D8F46A /* opentype.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA59CEB6DEF826C808ACEC /* opentype.js */; };
 		DDAA573738209A33725258EA /* mode-lisp.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA51D0B85BE135DD123ACA /* mode-lisp.js */; };
 		DDAA573A8A22018FEFA0C891 /* svg.memory.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54C7AA9918BED48179B3 /* svg.memory.js */; };
+		DDAA573C57FDBECCED4BDA36 /* require.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA534B19EA1BB5E708603D /* require.js */; };
 		DDAA57409B9CBE573709C9AC /* mode-jade.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5D08CDD09CDA23452943 /* mode-jade.js */; };
 		DDAA574DBCD1C81076483507 /* mode-typescript.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5B00DD28B685088B1F14 /* mode-typescript.js */; };
+		DDAA57525CA61BC1A12B46E7 /* fontExample.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA57FC83E3C32A4390BC45 /* fontExample.js */; };
 		DDAA575AD78271F000A8EC62 /* mode-rust.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5E98DDD8A2056B28F40E /* mode-rust.js */; };
 		DDAA575E417E0F3F665B1465 /* mode-rdoc.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA58A1CB7DFE0D403DB293 /* mode-rdoc.js */; };
 		DDAA576D3CB67F67389BFEEF /* manual.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA52CB6FF22E7DE12133D8 /* manual.c */; };
@@ -290,6 +293,7 @@
 		DDAA57D7EA3CC1BAB5DEDE50 /* mode-sql.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA57D96ECC3B0E815CFD02 /* mode-sql.js */; };
 		DDAA57DAA921A231A294ACAB /* mode-lua.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA59B865A083E2F6F99F4C /* mode-lua.js */; };
 		DDAA57E5F523F57C0A1844E6 /* ace.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA59FBB1DC7A258BD30B50 /* ace.js */; };
+		DDAA57ECED4730ACF1EACDB2 /* pocket_worker.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5D3D3A19D02AD78A28A4 /* pocket_worker.js */; };
 		DDAA57ED7D8390A6EACB12E5 /* mode-html.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5251EEB9C992E2568A56 /* mode-html.js */; };
 		DDAA57F4E54ADAAE269146BD /* theme-xcode.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA58BEB40B712B7093B8C9 /* theme-xcode.js */; };
 		DDAA57FF5D33AD4A936D9690 /* theme-tomorrow_night.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5F7F6333BA473520A6D7 /* theme-tomorrow_night.js */; };
@@ -542,6 +546,7 @@
 		DDAA5EC324351EA2737D519E /* mode-haskell.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5AD2C44DF1B6C0CFD86F /* mode-haskell.js */; };
 		DDAA5EC8032D8F31C9638EAC /* mode-yaml.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5D2C948B60B091AE382C /* mode-yaml.js */; };
 		DDAA5ECCD5B80FD0D8834EC4 /* ext-modelist.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5F2746DAE20BF0804C6F /* ext-modelist.js */; };
+		DDAA5ED1428EFCA6CB33610B /* rsvp-latest.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5D857D89E03A3279BD61 /* rsvp-latest.js */; };
 		DDAA5ED2548F2C83D1C4C0BC /* theme-eclipse.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5BDC590AD8BFE489199C /* theme-eclipse.js */; };
 		DDAA5ED2D4AD53B51C202CD8 /* mode-prolog.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA579A473ECCE8C0A73A74 /* mode-prolog.js */; };
 		DDAA5ED7C25D380EAEBDB7C5 /* mode-tmsnippet.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5480860D1151DC7844EC /* mode-tmsnippet.js */; };
@@ -739,6 +744,7 @@
 		DDAA533BF7637C6E507869F0 /* mode-html.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-html.js"; sourceTree = "<group>"; };
 		DDAA533DF299518744B4F61A /* icon_fraise.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; path = icon_fraise.svg; sourceTree = "<group>"; };
 		DDAA5349C02C5A023A64B4BC /* mode-scad.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-scad.js"; sourceTree = "<group>"; };
+		DDAA534B19EA1BB5E708603D /* require.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = require.js; sourceTree = "<group>"; };
 		DDAA535445E76AA46A654C73 /* mode-markdown.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-markdown.js"; sourceTree = "<group>"; };
 		DDAA5357D39A53BEE239C450 /* theme-dreamweaver.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-dreamweaver.js"; sourceTree = "<group>"; };
 		DDAA535DB3D0512B11FE2033 /* manual.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; name = manual.o; path = interpolator/manual.o; sourceTree = SOURCE_ROOT; };
@@ -922,11 +928,13 @@
 		DDAA57DFCFBB92B1670CD410 /* theme-solarized_light.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-solarized_light.js"; sourceTree = "<group>"; };
 		DDAA57ECDA508D55B86A4413 /* mode-livescript.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-livescript.js"; sourceTree = "<group>"; };
 		DDAA57F9D455ACD442ECCF46 /* theme-tomorrow_night_blue.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-tomorrow_night_blue.js"; sourceTree = "<group>"; };
+		DDAA57FC83E3C32A4390BC45 /* fontExample.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = fontExample.js; sourceTree = "<group>"; };
 		DDAA580641C92063DA287AA3 /* mode-dot.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-dot.js"; sourceTree = "<group>"; };
 		DDAA580836B68B119AF8A9C5 /* theme-github.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-github.js"; sourceTree = "<group>"; };
 		DDAA58091D03F4BBE2CE4509 /* mode-abap.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-abap.js"; sourceTree = "<group>"; };
 		DDAA580AEA9050E8971DABA7 /* mode-dart.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-dart.js"; sourceTree = "<group>"; };
 		DDAA580B83384A5B3FC32644 /* cnc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cnc.h; path = interpolator/cnc.h; sourceTree = SOURCE_ROOT; };
+		DDAA5814D4884F3B31A1A4B8 /* pocket.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = pocket.js; sourceTree = "<group>"; };
 		DDAA5821B6BA919EEBBA46E0 /* theme-ambiance.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-ambiance.js"; sourceTree = "<group>"; };
 		DDAA582290686F5150739A5D /* worker-css.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "worker-css.js"; sourceTree = "<group>"; };
 		DDAA5828C64CB437858D52A4 /* twoDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = twoDView.js; path = webapp/cnc/twoDView.js; sourceTree = "<group>"; };
@@ -1144,6 +1152,7 @@
 		DDAA5D2C948B60B091AE382C /* mode-yaml.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-yaml.js"; sourceTree = "<group>"; };
 		DDAA5D30B597998BDF0DB885 /* theme-ambiance.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-ambiance.js"; sourceTree = "<group>"; };
 		DDAA5D37F338EFA7F254F708 /* handlebars-1.0.0-rc.4.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "handlebars-1.0.0-rc.4.js"; sourceTree = "<group>"; };
+		DDAA5D3D3A19D02AD78A28A4 /* pocket_worker.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = pocket_worker.js; sourceTree = "<group>"; };
 		DDAA5D3FDB61213238442732 /* mode-golang.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-golang.js"; sourceTree = "<group>"; };
 		DDAA5D6124B41AD6DD5DDB6F /* ext-static_highlight.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-static_highlight.js"; sourceTree = "<group>"; };
 		DDAA5D675D414DC8548C15CF /* mode-abap.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-abap.js"; sourceTree = "<group>"; };
@@ -1151,6 +1160,7 @@
 		DDAA5D70704E7B9083EF5615 /* svg.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svg.js; sourceTree = "<group>"; };
 		DDAA5D7A6E2A17AE4040107F /* oldCAM.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = oldCAM.html; path = webapp/oldCAM.html; sourceTree = "<group>"; };
 		DDAA5D7BAB691DDF29F6436F /* MissFajardose-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file.ttf; path = "MissFajardose-Regular.ttf"; sourceTree = "<group>"; };
+		DDAA5D857D89E03A3279BD61 /* rsvp-latest.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "rsvp-latest.js"; sourceTree = "<group>"; };
 		DDAA5D89E024F5DD84D31467 /* ext-elastic_tabstops_lite.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-elastic_tabstops_lite.js"; sourceTree = "<group>"; };
 		DDAA5D91FE3FE4888D787189 /* mode-pascal.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-pascal.js"; sourceTree = "<group>"; };
 		DDAA5D9DB82E8F101DF1FD7D /* theme-solarized_dark.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-solarized_dark.js"; sourceTree = "<group>"; };
@@ -1302,6 +1312,8 @@
 				DDAA5C4D298ECCA00A214D21 /* jquery.flot.resize.js */,
 				DDAA5A44472B927702931CDD /* ember-data-0.13.min.js */,
 				DDAA5A0E89B7E6A3D22B585C /* handlebars-1.0.0-rc.4.js */,
+				DDAA5D857D89E03A3279BD61 /* rsvp-latest.js */,
+				DDAA534B19EA1BB5E708603D /* require.js */,
 			);
 			name = libs;
 			path = webapp/libs;
@@ -1791,6 +1803,9 @@
 				DDAA5152DBB51A6D971036B6 /* dremel_bracket.js */,
 				DDAA5314A242089CA63F9039 /* joystick_plate.js */,
 				DDAA5527CBB1CAC105BF8642 /* pump.js */,
+				DDAA57FC83E3C32A4390BC45 /* fontExample.js */,
+				DDAA5D3D3A19D02AD78A28A4 /* pocket_worker.js */,
+				DDAA5814D4884F3B31A1A4B8 /* pocket.js */,
 			);
 			path = samples;
 			sourceTree = "<group>";
@@ -2773,6 +2788,11 @@
 				DDAA522CA8F3FAABCDD82929 /* manual.c in Sources */,
 				DDAA55495EDEC257AEB6A067 /* usbdesc.c in Sources */,
 				DDAA51DF97D598CE7F4220A9 /* pump.js in Sources */,
+				DDAA57525CA61BC1A12B46E7 /* fontExample.js in Sources */,
+				DDAA57ECED4730ACF1EACDB2 /* pocket_worker.js in Sources */,
+				DDAA53CA92C553449E9DC4C6 /* pocket.js in Sources */,
+				DDAA5ED1428EFCA6CB33610B /* rsvp-latest.js in Sources */,
+				DDAA573C57FDBECCED4BDA36 /* require.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

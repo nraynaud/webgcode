@@ -10,12 +10,10 @@
     <script src="webapp/libs/clipper_unminified.js"></script>
     <script src="webapp/libs/opentype.js"></script>
     <script src="webapp/libs/extractedRaphael.js"></script>
-    <script src="webapp/cnc/util.js"></script>
-    <script src="webapp/cnc/beziers.js"></script>
-    <script src="webapp/cnc/cam.js"></script>
-    <script src="webapp/cnc/twoDView.js"></script>
+    <script src="webapp/libs/require.js"></script>
 
-    <script src="samples/box.js"></script>
+    <script src="webapp/cnc/beziers.js"></script>
+
     <script src="samples/box2.js"></script>
     <script src="samples/plug_plate.js"></script>
     <script src="samples/dremel_bracket.js"></script>
@@ -46,6 +44,51 @@
             padding: 0;
             margin: 0;
         }
+
+        #grid * {
+            vector-effect: non-scaling-stroke;
+        }
+
+        .mmGrid {
+            stroke: yellow;
+            stroke-dasharray: 5, 1;
+        }
+
+        .halfCmGrid {
+            stroke: yellow;
+            stroke-width: 1.5;
+        }
+
+        .cmGrid {
+            stroke: orange;
+            stroke-dasharray: 5, 1;
+            font-size: 2px;
+        }
+
+        .halfDmGrid {
+            stroke: orange;
+            stroke-width: 1.5;
+            font-size: 7px;
+        }
+
+        .dmGrid {
+            stroke: red;
+            stroke-width: 1.5;
+            font-size: 10px;
+        }
+
+        .gridText {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            fill: rgba(50, 50, 50, 0.3);
+            text-anchor: middle;
+            cursor: default;
+            stroke: none;
+        }
     </style>
 </head>
 <body>
@@ -53,17 +96,22 @@
 <textarea id="code"></textarea>
 <script>
     var drawing = $('#drawing');
-    var twoDView = new TwoDView(drawing);
-    var machine = new Machine(twoDView.paper);
-    function whenDone() {
-        console.timeEnd('creation');
-        $('#code').text(machine.dumpGCode());
+    require(['webapp/cnc/twoDView.js', 'webapp/cnc/cam.js', 'samples/fontExample.js', 'samples/box.js'], function (twoD, cam, fontExample, box) {
+        var twoDView = new twoD.TwoDView(drawing);
+        var machine = new cam.Machine(twoDView.paper);
+
+        function whenDone() {
+            console.timeEnd('creation');
+            $('#code').text(machine.dumpGCode());
+            twoDView.zoomExtent();
+        }
+
+        console.time('creation');
         twoDView.zoomExtent();
-    }
-    console.time('creation');
-    var res = dremelBracket.createBracketPocket(machine, whenDone);
-    if (!res)
-        whenDone();
+        var res = fontExample.testFont(machine, whenDone, twoDView);
+        if (!res)
+            whenDone();
+    })
 </script>
 </body>
 </html>

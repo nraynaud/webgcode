@@ -11,15 +11,13 @@ var dremelBracket = (function () {
     var topDx = outerWidth / 2 - (outerHeight - virtualMeetingPointY) * ratio;
     var plankThickness = 18;
 
-    function createOutline(machine) {
-        var shape = geom.op('M', 0, 0) + geom.op('l', outerWidth, 0) + geom.op('l', 0, outerHeight)
+    function createOutline(machine, color) {
+        return  machine.createOutline(geom.op('M', 0, 0) + geom.op('l', outerWidth, 0) + geom.op('l', 0, outerHeight)
             + geom.op('l', -topDx, 0)
             + geom.op('l', -slopeDX, -(outerHeight - backsideMinWidth))
             + geom.op('l', -(outerWidth - topDx * 2 - slopeDX * 2), 0)
             + geom.op('l', -slopeDX, outerHeight - backsideMinWidth)
-            + geom.op('l', -topDx, 0) + 'Z';
-        return  machine.createOutline(shape, 'gray');
-
+            + geom.op('l', -topDx, 0) + 'Z', color);
     }
 
     function createBracket(machine) {
@@ -30,10 +28,9 @@ var dremelBracket = (function () {
     }
 
     function createBracketPocket(machine) {
-        var toolRadius = 1.5 / 2;
+        var toolRadius = 3 / 2;
         var radialEngagementRatio = 1;
-        var roughingMargin = 0;
-
+        var roughingMargin = 0.2;
         var minimalCornerRadius = toolRadius * 1.5;
 
         function displayClipper(clipperPoly, color, polyline) {
@@ -48,7 +45,6 @@ var dremelBracket = (function () {
                     machine.createOutline(geom.createCircle(startPoint.x, startPoint.y, 0.5), color)
                 }
             });
-
         }
 
         function polylineIntersection(line, polygon) {
@@ -60,30 +56,56 @@ var dremelBracket = (function () {
             return ClipperLib.Clipper.PolyTreeToPaths(result);
         }
 
-        var outline = createOutline(machine);
+        var outline = createOutline(machine, 'gray');
         var cPoly = machine.toClipper(outline);
-        var toolCorrectedRoughOutline = machine.offsetPolygon(machine.offsetPolygon(cPoly, -toolRadius - roughingMargin), toolRadius);
+        var outlineAtToolCenter = machine.offsetPolygon(cPoly, -toolRadius - roughingMargin);
+        var toolCorrectedRoughOutline = machine.offsetPolygon(outlineAtToolCenter, toolRadius);
         displayClipper(toolCorrectedRoughOutline, 'blue');
-        var i = 1;
-        var parent = toolCorrectedRoughOutline;
-        do {
-            var offset = machine.offsetPolygon(toolCorrectedRoughOutline, -i * toolRadius * radialEngagementRatio - minimalCornerRadius);
-            var offset1 = machine.offsetPolygon(offset, minimalCornerRadius);
-            //var diff = machine.offsetPolygon(offset1, toolRadius * radialEngagementRatio*1.001);
-            //var res = machine.polyOp(parent, diff, ClipperLib.ClipType.ctIntersection);
-            displayClipper(offset1);
-            var j = 1;
-            do {
-                var buffered = machine.offsetPolygon(offset1, j * toolRadius * radialEngagementRatio * 1.001);
-                var cornersPicker = polylineIntersection(buffered, parent);
-                if (cornersPicker.length)
-                    displayClipper(cornersPicker, 'green', true);
-                j++;
-            } while (cornersPicker.length);
 
-            i++;
-            parent = offset1;
-        } while (offset.length);
+        recursivelyGoDown(outlineAtToolCenter);
+        function recursivelyGoDown(shape) {
+            displayClipper(shape, 'red');
+            var offset = machine.offsetPolygon(shape, -toolRadius * radialEngagementRatio - minimalCornerRadius);
+            for (var childIndex = 0; childIndex < offset.length; childIndex++) {
+                var child = [offset[childIndex]];
+                var offset1 = machine.offsetPolygon(child, minimalCornerRadius);
+
+                var j = 1;
+                do {
+                    var buffered = machine.offsetPolygon(offset1, j * toolRadius * radialEngagementRatio * 1.001);
+                    var cornersPicker = polylineIntersection(buffered, shape);
+                    if (cornersPicker.length)
+                        displayClipper(cornersPicker, 'green', true);
+                    j++;
+                } while (cornersPicker.length);
+                recursivelyGoDown(offset1);
+                shape = machine.polyOp(shape, machine.offsetPolygon(offset1, j * toolRadius * radialEngagementRatio * 1.001), ClipperLib.ClipType.ctDifference)
+            }
+        }
+
+        /*
+         var i = 0;
+         var parent = outlineAtToolCenter;
+         do {
+         var offset = machine.offsetPolygon(outlineAtToolCenter, -i * toolRadius * radialEngagementRatio - minimalCornerRadius);
+         console.log(offset.length);
+         for (var childIndex = 0; childIndex < offset.length; childIndex++) {
+         var child = [offset[childIndex]];
+         var offset1 = machine.offsetPolygon(child, minimalCornerRadius);
+         displayClipper(offset1, 'red');
+         var j = 1;
+         do {
+         var buffered = machine.offsetPolygon(offset1, j * toolRadius * radialEngagementRatio * 1.001);
+         var cornersPicker = polylineIntersection(buffered, parent);
+         if (cornersPicker.length)
+         displayClipper(cornersPicker, 'rgb(255, 0, 255)', true);
+         j++;
+         } while (cornersPicker.length);
+         i++;
+         parent = offset1;
+         }
+         } while (offset.length);
+         */
     }
 
     return {createBracket: createBracket,
