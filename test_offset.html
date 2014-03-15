@@ -1,6 +1,8 @@
 <!doctype html>
 <html>
 <head>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <title>Contouring Test</title>
     <script src="webapp/libs/jquery.min.js"></script>
     <script src="webapp/libs/svg.js"></script>
@@ -28,6 +30,9 @@
 
         body {
             display: flex;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: -ms-flexbox;
         }
 
         html, body {
@@ -39,6 +44,7 @@
         #drawing, #code {
             display: block;
             flex: 1;
+            -webkit-flex: 1;
             align-items: center;
             border: solid;
             padding: 0;
@@ -49,29 +55,29 @@
             vector-effect: non-scaling-stroke;
         }
 
-        .mmGrid {
+        #mmGrid {
             stroke: yellow;
-            stroke-dasharray: 5, 1;
+            stroke-dasharray: 5, 2;
         }
 
-        .halfCmGrid {
+        #halfCmGrid {
             stroke: yellow;
             stroke-width: 1.5;
         }
 
-        .cmGrid {
+        #cmGrid {
             stroke: orange;
             stroke-dasharray: 5, 1;
             font-size: 2px;
         }
 
-        .halfDmGrid {
+        #halfDmGrid {
             stroke: orange;
             stroke-width: 1.5;
             font-size: 7px;
         }
 
-        .dmGrid {
+        #dmGrid {
             stroke: red;
             stroke-width: 1.5;
             font-size: 10px;

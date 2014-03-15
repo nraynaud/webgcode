@@ -91,6 +91,7 @@
 		DDAA5257D2298240E4CB7F9B /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5D2402669063AA53E836 /* Makefile */; };
 		DDAA52637F13CC7A686F8067 /* mode-java.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5462CF0E9D7F995C5446 /* mode-java.js */; };
 		DDAA5263F67F7868A0F913B7 /* mode-rust.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA52AC511B68FA1D1EEB38 /* mode-rust.js */; };
+		DDAA526444021FC980D78EF4 /* jquery-1.7.2-unminified.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5B5C960BCD9C02F8E159 /* jquery-1.7.2-unminified.js */; };
 		DDAA52646AD1BB80C7BC5679 /* jquery.flot.resize.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA56622298ADD318B81F55 /* jquery.flot.resize.js */; };
 		DDAA52656E72BE67085DB4A7 /* mode-groovy.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA55C9C91C38C7D86797CC /* mode-groovy.js */; };
 		DDAA5269D2DF2995EA2FD93B /* mode-markdown.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA535445E76AA46A654C73 /* mode-markdown.js */; };
@@ -1062,6 +1063,7 @@
 		DDAA5B4BF987E31DB360F64C /* ext-keybinding_menu.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-keybinding_menu.js"; sourceTree = "<group>"; };
 		DDAA5B5416E689D08BB43339 /* svg.draggable.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svg.draggable.js; sourceTree = "<group>"; };
 		DDAA5B56FDBADA4E25BC4B18 /* morphology.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = morphology.js; sourceTree = "<group>"; };
+		DDAA5B5C960BCD9C02F8E159 /* jquery-1.7.2-unminified.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "jquery-1.7.2-unminified.js"; sourceTree = "<group>"; };
 		DDAA5B6026418E8CDAE8053F /* plug_plate.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = plug_plate.js; sourceTree = "<group>"; };
 		DDAA5B61F3708080B5127F87 /* extractedRaphael.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = extractedRaphael.js; sourceTree = "<group>"; };
 		DDAA5B6685C3C891643BBEEC /* mode-haskell.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-haskell.js"; sourceTree = "<group>"; };
@@ -1314,6 +1316,7 @@
 				DDAA5A0E89B7E6A3D22B585C /* handlebars-1.0.0-rc.4.js */,
 				DDAA5D857D89E03A3279BD61 /* rsvp-latest.js */,
 				DDAA534B19EA1BB5E708603D /* require.js */,
+				DDAA5B5C960BCD9C02F8E159 /* jquery-1.7.2-unminified.js */,
 			);
 			name = libs;
 			path = webapp/libs;
@@ -2793,6 +2796,7 @@
 				DDAA53CA92C553449E9DC4C6 /* pocket.js in Sources */,
 				DDAA5ED1428EFCA6CB33610B /* rsvp-latest.js in Sources */,
 				DDAA573C57FDBECCED4BDA36 /* require.js in Sources */,
+				DDAA526444021FC980D78EF4 /* jquery-1.7.2-unminified.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
