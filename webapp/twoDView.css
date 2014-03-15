@@ -1,6 +1,6 @@
 
 .TwoDView .background {
-    opacity: 0.3;
+    opacity: 0.4;
 }
 
 .TwoDView .grid * {
@@ -8,30 +8,33 @@
 }
 
 .TwoDView .mmGrid {
-    stroke: yellow;
+    stroke: #FF7F2A;
     stroke-dasharray: 5, 2;
+    stroke-width: 0.5;
 }
 
 .TwoDView .halfCmGrid {
-    stroke: yellow;
-    stroke-width: 2;
+    stroke: #FF7F2A;
+    stroke-width: 0.5;
+    stroke-dasharray: none;
 }
 
 .TwoDView .cmGrid {
-    stroke: orange;
-    stroke-dasharray: 5, 1;
+    stroke: #FF7F2A;
+    stroke-dasharray: 5, 2;
+    stroke-width: 2;
     font-size: 2px;
 }
 
 .TwoDView .halfDmGrid {
-    stroke: orange;
-    stroke-width: 1.5;
+    stroke: #FF7F2A;
+    stroke-width: 2;
     font-size: 7px;
 }
 
 .TwoDView .dmGrid {
-    stroke: red;
-    stroke-width: 1.5;
+    stroke: #FF7F2A;
+    stroke-width: 4;
     font-size: 10px;
 }
 

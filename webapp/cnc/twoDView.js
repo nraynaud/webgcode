@@ -21,7 +21,7 @@ define(['../libs/svg.js'], function () {
         var halfDmGrid = dmGrid.group().attr({class: 'halfDmGrid'});
         var cmGrid = halfDmGrid.group().attr({class: 'cmGrid'});
         var halfCmGrid = cmGrid.group().attr({class: 'halfCmGrid'});
-        var mmGrid = cmGrid.group().attr({class: 'mmGrid'});
+        var mmGrid = halfCmGrid.group().attr({class: 'mmGrid'});
         this.gridStack = [
             [20, $(mmGrid.node)],
             [15, $(halfCmGrid.node)],
