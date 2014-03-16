@@ -53,23 +53,49 @@ define(['../libs/svg.js'], function () {
             }
         }
         var self = this;
-        drawing.mousewheel(function (event, delta, deltaX, deltaY) {
+
+        function getModelPositionForPageXY(x, y, matrix) {
+            if (matrix == null)
+                matrix = self.root.node.getCTM();
             //can't use offset with SVG in FF  http://stackoverflow.com/questions/15629183/svg-offset-issue-in-firefox
             var targetOffset = inserted.offset();
-            var px = event.pageX - targetOffset.left;
-            var py = event.pageY - targetOffset.top;
-            var svgRoot = self.root.node;
+            var px = x - targetOffset.left;
+            var py = y - targetOffset.top;
             var p = self.svg.node.createSVGPoint();
             p.x = px;
             p.y = py;
-            p = p.matrixTransform(svgRoot.getCTM().inverse());
-            var k = self.svg.node.createSVGMatrix().translate(p.x, p.y).scale(1 + deltaY / 360).translate(-p.x, -p.y);
-            var m = svgRoot.getCTM().multiply(k);
+            p = p.matrixTransform(matrix.inverse());
+            return {x: p.x, y: p.y};
+        }
+
+        drawing.mousewheel(function (event, delta, deltaX, deltaY) {
+            var pos = getModelPositionForPageXY(event.pageX, event.pageY);
+            var k = self.svg.node.createSVGMatrix().translate(pos.x, pos.y).scale(1 + deltaY / 360).translate(-pos.x, -pos.y);
+            var m = self.root.node.getCTM().multiply(k);
             if (m.a > 0.4)
                 self.setMatrix(self.root, m);
             event.preventDefault();
         });
 
+        drawing.mousedown(function (event) {
+            var m = self.root.node.getCTM();
+            var pos = getModelPositionForPageXY(event.pageX, event.pageY, m);
+            self.mouseDownStartCondition = {x: event.pageX, y: event.pageY, matrix: m, modelPos: pos};
+        });
+        drawing.mouseup(function (event) {
+            self.mouseDownStartCondition = null;
+        });
+        drawing.mouseleave(function (event) {
+            self.mouseDownStartCondition = null;
+        });
+        drawing.mousemove(function (event) {
+            if (self.mouseDownStartCondition) {
+                var oldPos = self.mouseDownStartCondition.modelPos;
+                var newPos = getModelPositionForPageXY(event.pageX, event.pageY, self.mouseDownStartCondition.matrix);
+                var k = self.mouseDownStartCondition.matrix.translate(newPos.x - oldPos.x, newPos.y - oldPos.y);
+                self.setMatrix(self.root, k);
+            }
+        });
         $(window).resize(function resizeSVG() {
             self.svg.size(drawing.width(), drawing.height());
         });
