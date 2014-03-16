@@ -26,7 +26,25 @@ define(['../webapp/libs/rsvp-latest', '../webapp/cnc/cam'], function (rsvp, cam)
         };
     }
 
-    function createPocket(machine, shapePoly) {
+    function getRandomColor() {
+        var color = '#' + Math.floor(Math.random() * 16777215).toString(16);
+        //sometimes the color is one number short.
+        if (color.length < 7)
+            color += '0';
+        return color;
+    }
+
+    function createPocket(machine, shapePoly, displayClipper) {
+        var toolRadius = 0.3 / 2;
+        var radialEngagementRatio = 0.9;
+        var polygons = cam.decomposePolytreeInTopLevelPolygons(shapePoly);
+        return RSVP.all(polygons.map(function (poly) {
+            displayClipper(poly, getRandomColor());
+            return new RSVP.Promise(computePocketInWorkers(poly, toolRadius, radialEngagementRatio, displayClipper));
+        }));
+    }
+
+    function testFont(machine, whenDone, twoDView) {
         function displayClipper(clipperPoly, color, polyline) {
             var res1 = machine.createOutline(null, color);
             machine.fromClipper(clipperPoly).map(function (poly) {
@@ -41,20 +59,6 @@ define(['../webapp/libs/rsvp-latest', '../webapp/cnc/cam'], function (rsvp, cam)
             });
         }
 
-        var toolRadius = .1 / 2;
-        var radialEngagementRatio = 0.9;
-        var polygons = cam.decomposePolytreeInTopLevelPolygons(shapePoly);
-        return RSVP.all(polygons.map(function (poly) {
-            var color = '#' + Math.floor(Math.random() * 16777215).toString(16);
-            //sometimes the color is one number short.
-            if (color.length < 7)
-                color += '0';
-            displayClipper(poly, color);
-            return new RSVP.Promise(computePocketInWorkers(poly, toolRadius, radialEngagementRatio, displayClipper));
-        }));
-    }
-
-    function testFont(machine, whenDone, twoDView) {
         machine.setParams(-1, 10, 1000);
         require(['webapp/libs/rsvp-latest'], function () {
             var getFont = function (url) {
@@ -69,7 +73,7 @@ define(['../webapp/libs/rsvp-latest', '../webapp/cnc/cam'], function (rsvp, cam)
             };
 
             getFont('webapp/libs/fonts/miss_fajardose/MissFajardose-Regular.ttf').then(function (font) {
-                var path = font.getPath("test text", 0, 0, 30);
+                var path = font.getPath("Long text", 0, 0, 30);
                 var res = '';
                 for (var i = 0; i < path.commands.length; i++) {
                     var command = path.commands[i];
@@ -92,9 +96,20 @@ define(['../webapp/libs/rsvp-latest', '../webapp/cnc/cam'], function (rsvp, cam)
                 return result;
             })
                 .then(function (textGeometry) {
-                    return createPocket(machine, textGeometry)
+                    return createPocket(machine, textGeometry, displayClipper)
                 })
                 .then(function (pocketToolPaths) {
+                    function chainPocketRings(pocket) {
+                        for (var j = 0; j < pocket.children.length; j++)
+                            chainPocketRings(pocket.children[j]);
+                        if (pocket.children.length == 1) {
+                            var child = (pocket.children[0].contour)[0];
+                            var newContour = child.concat(pocket.contour[0], [pocket.contour[0][0]]);
+                            displayClipper(newContour, getRandomColor());
+                            pocket.children = [];
+                            pocket.contour = [newContour];
+                        }
+                    }
 
                     function registerPocket(pocket) {
                         for (var j = 0; j < pocket.children.length; j++)
@@ -103,8 +118,10 @@ define(['../webapp/libs/rsvp-latest', '../webapp/cnc/cam'], function (rsvp, cam)
                     }
 
                     for (var i = 0; i < pocketToolPaths.length; i++)
-                        for (var j = 0; j < pocketToolPaths[i].length; j++)
+                        for (var j = 0; j < pocketToolPaths[i].length; j++) {
+                            chainPocketRings(pocketToolPaths[i][j]);
                             registerPocket(pocketToolPaths[i][j]);
+                        }
 
                     whenDone();
                 }).catch(function (reason) {
