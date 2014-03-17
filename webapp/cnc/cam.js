@@ -301,7 +301,6 @@ define(function () {
         return code.join('\n');
     };
 
-
     Machine.prototype.getToolPath = function (parameters) {
         var path = [];
         var position = parameters.position;

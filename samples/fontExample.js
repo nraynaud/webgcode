@@ -46,7 +46,7 @@ define(['../webapp/libs/rsvp-latest', '../webapp/cnc/cam'], function (rsvp, cam)
 
     function testFont(machine, whenDone, twoDView) {
         function displayClipper(clipperPoly, color, polyline) {
-            var res1 = machine.createOutline(null, color);
+            var res1 = machine.createOutline(null, color).attr({'stroke-width': 3});
             machine.fromClipper(clipperPoly).map(function (poly) {
                 if (poly.path.length > 1)
                     cam.pushOnPath(res1, poly);
@@ -59,7 +59,7 @@ define(['../webapp/libs/rsvp-latest', '../webapp/cnc/cam'], function (rsvp, cam)
             });
         }
 
-        machine.setParams(-1, 10, 1000);
+        machine.setParams(-1, 1, 1000);
         require(['webapp/libs/rsvp-latest'], function () {
             var getFont = function (url) {
                 return new RSVP.Promise(function (resolve, reject) {
@@ -73,7 +73,7 @@ define(['../webapp/libs/rsvp-latest', '../webapp/cnc/cam'], function (rsvp, cam)
             };
 
             getFont('webapp/libs/fonts/miss_fajardose/MissFajardose-Regular.ttf').then(function (font) {
-                var path = font.getPath("Long text", 0, 0, 30);
+                var path = font.getPath("o", 0, 0, 300);
                 var res = '';
                 for (var i = 0; i < path.commands.length; i++) {
                     var command = path.commands[i];
@@ -99,15 +99,40 @@ define(['../webapp/libs/rsvp-latest', '../webapp/cnc/cam'], function (rsvp, cam)
                     return createPocket(machine, textGeometry, displayClipper)
                 })
                 .then(function (pocketToolPaths) {
+                    function sqDist(p1, p2) {
+                        var dx = p1.X - p2.X;
+                        var dy = p1.Y - p2.Y;
+                        return dx * dx + dy * dy;
+                    }
+
+                    function rotatePolygonSoThatStartPointIsClosestTo(point, polygon) {
+                        var minDist = Infinity;
+                        var minIndex = 0;
+                        for (var i = 0; i < polygon.length; i++) {
+                            var dist = sqDist(point, polygon[i]);
+                            if (dist < minDist) {
+                                minIndex = i;
+                                minDist = dist;
+                            }
+                        }
+                        return polygon.slice(minIndex).concat(polygon.slice(0, minIndex));
+                    }
+
                     function chainPocketRings(pocket) {
                         for (var j = 0; j < pocket.children.length; j++)
                             chainPocketRings(pocket.children[j]);
-                        if (pocket.children.length == 1) {
-                            var child = (pocket.children[0].contour)[0];
-                            var newContour = child.concat(pocket.contour[0], [pocket.contour[0][0]]);
-                            displayClipper(newContour, getRandomColor());
-                            pocket.children = [];
-                            pocket.contour = [newContour];
+                        //the contour.length == 1 ensures that the contour doesn't have secondary "hole" toolpaths
+                        if (pocket.children.length == 1 && pocket.contour.length == 1) {
+                            var child = pocket.children[0];
+                            if (child.contour.length == 1) {
+                                var childContour = child.contour[0];
+                                var currentContour = rotatePolygonSoThatStartPointIsClosestTo(childContour[0], pocket.contour[0]);
+                                //the lowest chainable child might itself have non-chainable children
+                                pocket.children = child.children;
+                                var closingPoint = currentContour[0];
+                                //push first point at the end to force polygon closing
+                                pocket.contour = [childContour.concat(currentContour, [closingPoint])];
+                            }
                         }
                     }
 
@@ -119,10 +144,11 @@ define(['../webapp/libs/rsvp-latest', '../webapp/cnc/cam'], function (rsvp, cam)
 
                     for (var i = 0; i < pocketToolPaths.length; i++)
                         for (var j = 0; j < pocketToolPaths[i].length; j++) {
-                            chainPocketRings(pocketToolPaths[i][j]);
-                            registerPocket(pocketToolPaths[i][j]);
+                            var pocket = pocketToolPaths[i][j];
+                            chainPocketRings(pocket);
+                            registerPocket(pocket);
                         }
-
+                    console.log('done');
                     whenDone();
                 }).catch(function (reason) {
                     console.log('error', reason.stack);
