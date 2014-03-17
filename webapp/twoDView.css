@@ -48,4 +48,5 @@
     text-anchor: middle;
     cursor: default;
     stroke: none;
+    fill: rgb(128, 128, 128);
 }

@@ -5,7 +5,6 @@ if (!self['console'])
     }};
 var work = [];
 self.onmessage = function (event) {
-    console.log('message received');
     work.push(event.data);
 };
 
@@ -13,7 +12,6 @@ require(['../webapp/cnc/cam.js'], function (cam) {
     console.log('in worker');
 
     self.onmessage = function (event) {
-        console.log('message received');
         var data = event.data;
         handlePocket(data.poly, data.toolRadius, data.radialEngagementRatio);
     };
@@ -21,6 +19,7 @@ require(['../webapp/cnc/cam.js'], function (cam) {
         handlePocket(work[i].poly, work[i].toolRadius, work[i].radialEngagementRatio);
 
     function handlePocket(shapePoly, toolRadius, radialEngagementRatio) {
+        console.log('start worker computation');
         function displayClipper(clipperPoly, color, polyline) {
             self.postMessage({
                 polygon: clipperPoly,
@@ -29,9 +28,11 @@ require(['../webapp/cnc/cam.js'], function (cam) {
             });
         }
 
+        var result = cam.createPocket(shapePoly, toolRadius, radialEngagementRatio, displayClipper);
+        console.log('worker computation done');
         self.postMessage({
             finished: true,
-            result: cam.createPocket(shapePoly, toolRadius, radialEngagementRatio, displayClipper)
+            result: result
         });
     }
 });

@@ -16,36 +16,41 @@
     <script src="cnc/simulation.js"></script>
     <script src="cnc/parser.js"></script>
     <style>
-        .editBlock {
+        html, body {
+            height: 100%;
             position: relative;
-            float: left;
-            width: 49%;
-            height: 400px;
-            padding: 1px;
+            background: #000;
+        }
+
+        body {
+            display: flex;
+            flex-direction: row;
             margin: 0;
         }
 
-        .editBlock pre {
-            width: 100%;
-            -webkit-box-sizing: border-box;
-            -moz-box-sizing: border-box;
-            box-sizing: border-box;
-            height: 400px;
+        .editBlock {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        #codebox {
             margin: 0;
+            flex: 1;
+        }
+
+        .editBlock button {
+            align-self: flex-end;
         }
 
         #container {
-            float: right;
-            background: #000;
-            width: 50%;
-            height: 400px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
     </style>
 </head>
 <body>
-
-
-<div id="container"></div>
 <div class="editBlock">
     <pre id="codebox">
         G0 Y10 Z-5
@@ -78,6 +83,8 @@
     </pre>
     <button id="simulateButton">Simulate</button>
 </div>
+
+<div id="container"></div>
 <script>
     function getURLParameter(name) {
         return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null;

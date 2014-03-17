@@ -71,14 +71,14 @@ function rasterizeArc(arc, stepSize, stepCollector) {
     }
 
     var arcSteps = Math.ceil(arc.radius * Math.abs(arc.angularDistance) / stepSize);
-    var startPoint = COMPONENT_TYPES.arc.pointAtRatio(arc, 0, true);
-    var endPoint = COMPONENT_TYPES.arc.pointAtRatio(arc, 1, true);
+    var startPoint = simulation.COMPONENT_TYPES.arc.pointAtRatio(arc, 0, true);
+    var endPoint = simulation.COMPONENT_TYPES.arc.pointAtRatio(arc, 1, true);
     var linearSteps = Math.ceil(Math.abs(endPoint[arc.plane.lastCoord] - startPoint[arc.plane.lastCoord]) / stepSize);
     var steps = Math.max(arcSteps, linearSteps);
     var filter = differentiator(stepSize, stepCollector);
     for (var i = 0; i <= steps; i++) {
         var ratio = i / steps;
-        var point = COMPONENT_TYPES.arc.pointAtRatio(arc, ratio, true);
+        var point = simulation.COMPONENT_TYPES.arc.pointAtRatio(arc, ratio, true);
         point = unaryOp(point, clampToGrid);
         point.l = ratio;
         filter(point);

@@ -273,6 +273,7 @@ var simulation = (function () {
     return {
         planSpeed: planSpeed,
         simulate2: simulate2,
-        planProgram: planProgram
+        planProgram: planProgram,
+        COMPONENT_TYPES: COMPONENT_TYPES
     }
 })();

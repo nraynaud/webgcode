@@ -26,20 +26,12 @@ define(['../webapp/libs/rsvp-latest', '../webapp/cnc/cam'], function (rsvp, cam)
         };
     }
 
-    function getRandomColor() {
-        var color = '#' + Math.floor(Math.random() * 16777215).toString(16);
-        //sometimes the color is one number short.
-        if (color.length < 7)
-            color += '0';
-        return color;
-    }
-
-    function createPocket(machine, shapePoly, displayClipper) {
+    function createPocket(shapePoly, displayClipper) {
         var toolRadius = 0.3 / 2;
         var radialEngagementRatio = 0.9;
         var polygons = cam.decomposePolytreeInTopLevelPolygons(shapePoly);
         return RSVP.all(polygons.map(function (poly) {
-            displayClipper(poly, getRandomColor());
+            displayClipper(poly, 'gray');
             return new RSVP.Promise(computePocketInWorkers(poly, toolRadius, radialEngagementRatio, displayClipper));
         }));
     }
@@ -73,7 +65,7 @@ define(['../webapp/libs/rsvp-latest', '../webapp/cnc/cam'], function (rsvp, cam)
             };
 
             getFont('webapp/libs/fonts/miss_fajardose/MissFajardose-Regular.ttf').then(function (font) {
-                var path = font.getPath("o", 0, 0, 300);
+                var path = font.getPath("Text", 0, 0, 30);
                 var res = '';
                 for (var i = 0; i < path.commands.length; i++) {
                     var command = path.commands[i];
@@ -94,11 +86,9 @@ define(['../webapp/libs/rsvp-latest', '../webapp/cnc/cam'], function (rsvp, cam)
                 cpr.AddPaths([], ClipperLib.PolyType.ptClip, true);
                 cpr.Execute(ClipperLib.ClipType.ctUnion, result, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
                 return result;
-            })
-                .then(function (textGeometry) {
-                    return createPocket(machine, textGeometry, displayClipper)
-                })
-                .then(function (pocketToolPaths) {
+            }).then(function (textGeometry) {
+                    return createPocket(textGeometry, displayClipper)
+                }).then(function (pocketToolPaths) {
                     function sqDist(p1, p2) {
                         var dx = p1.X - p2.X;
                         var dy = p1.Y - p2.Y;
@@ -148,7 +138,6 @@ define(['../webapp/libs/rsvp-latest', '../webapp/cnc/cam'], function (rsvp, cam)
                             chainPocketRings(pocket);
                             registerPocket(pocket);
                         }
-                    console.log('done');
                     whenDone();
                 }).catch(function (reason) {
                     console.log('error', reason.stack);

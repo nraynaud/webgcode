@@ -9,7 +9,7 @@ var EVENTS = {PROGRAM_END: 1, PROGRAM_START: 2, MOVED: 3, ENTER_MANUAL_MODE: 4, 
 var STATES = {READY: 0, RUNNING_PROGRAM: 1, MANUAL_CONTROL: 2};
 var DEFAULT_TRANSFER_INFO = {requestType: 'vendor', recipient: 'interface', direction: 'in', value: 0, index: 0};
 
-var bodyElement = document.getElementById("body");
+var coloredElement = document.getElementById("header");
 var webView = document.getElementById("webView");
 
 var manualControl = $('#manualControl');
@@ -30,6 +30,10 @@ var positionFetcherIntervalID = null;
 var usbObservers = {};
 var currentDevice = null;
 var currentState = null;
+$('.inputLanguageCheckbox').click(function (event) {
+    var url = $(event.target).data('url');
+    $('#webView').attr('src', url);
+});
 
 $(runner).on('running', function () {
     abortButton.show();
@@ -83,7 +87,7 @@ sendButton.click(function () {
 });
 
 function closeDevice(callback) {
-    bodyElement.style.backgroundColor = 'black';
+    coloredElement.style.backgroundColor = 'black';
     if (positionFetcherIntervalID) {
         window.clearInterval(positionFetcherIntervalID);
         positionFetcherIntervalID = null;
@@ -232,7 +236,7 @@ function bindDevice() {
             sendButton.show();
             manualControl.show();
             abortButton.hide();
-            bodyElement.style.backgroundColor = 'blue';
+            coloredElement.style.backgroundColor = 'blue';
             controlTransfer({request: CONTROL_COMMANDS.REQUEST_PARAMETERS, length: 16 }, function (data) {
                 var params = new Int32Array(data);
                 parameters.stepsPerMillimeter = params[0];
