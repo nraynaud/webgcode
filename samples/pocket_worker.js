@@ -1,5 +1,8 @@
 "use strict";
-importScripts('../webapp/libs/clipper_unminified.js', '../webapp/libs/require.js');
+importScripts('../webapp/libs/require.js');
+requirejs.config({
+    baseUrl: '../webapp'
+});
 if (!self['console'])
     var console = {log: function () {
     }};
@@ -8,7 +11,7 @@ self.onmessage = function (event) {
     work.push(event.data);
 };
 
-require(['../webapp/cnc/cam.js'], function (cam) {
+require(['cnc/cam'], function (cam) {
     console.log('in worker');
 
     self.onmessage = function (event) {

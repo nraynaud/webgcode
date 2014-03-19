@@ -135,7 +135,7 @@
 		DDAA533F10E117132B34362A /* csg.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53BC2DF0C9B74F250819 /* csg.js */; };
 		DDAA534C6C99D08900BE0770 /* theme-vibrant_ink.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54AD8E5139C841BBA32A /* theme-vibrant_ink.js */; };
 		DDAA534EADFD54215682C632 /* keybinding-emacs.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA574B073061BABDAB81C9 /* keybinding-emacs.js */; };
-		DDAA535A09CA8ECFEF222BB2 /* beziers.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA587EC27F95C78E5D93C2 /* beziers.js */; };
+		DDAA535A09CA8ECFEF222BB2 /* bezier.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA587EC27F95C78E5D93C2 /* bezier.js */; };
 		DDAA53636F8CF818848E777E /* mode-dot.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5F47529150833F141BFA /* mode-dot.js */; };
 		DDAA5367556024DC138EF5B9 /* joystick_plate.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5314A242089CA63F9039 /* joystick_plate.js */; };
 		DDAA537545D01E06134802DC /* mode-ocaml.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5F1041A4FC516D4461E5 /* mode-ocaml.js */; };
@@ -238,7 +238,7 @@
 		DDAA5660284AD78E316010DF /* theme-chaos.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5B415DF64C53C7DC0DA6 /* theme-chaos.js */; };
 		DDAA5660A1797BFCA5C3108D /* mode-lsl.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA590DA3E7B03B84F9A00F /* mode-lsl.js */; };
 		DDAA56652A99C8A22AD0B4AE /* mode-matlab.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5381CD33151305E34F64 /* mode-matlab.js */; };
-		DDAA567F81C6F3DC888C2653 /* beziers.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5B9DC9B92B70673AA0BE /* beziers.js */; };
+		DDAA567F81C6F3DC888C2653 /* bezier.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5B9DC9B92B70673AA0BE /* bezier.js */; };
 		DDAA56810159E34D753604F0 /* theme-cobalt.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA52528CE2E9656B8607EA /* theme-cobalt.js */; };
 		DDAA56894B6ECECBB1DAC92C /* mode-jade.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5AF52635BF6AA33B0735 /* mode-jade.js */; };
 		DDAA568D98FF7FAD08C36386 /* mode-objectivec.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5D097A450AA46102FD59 /* mode-objectivec.js */; };
@@ -513,13 +513,14 @@
 		DDAA5DBF3F19116D82A220C2 /* mode-ejs.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5EEA46271B5A14E9EFA1 /* mode-ejs.js */; };
 		DDAA5DCA38185DC313CCC3E8 /* mode-verilog.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53748F7C4E9A392B296A /* mode-verilog.js */; };
 		DDAA5DCA83DFF2A3538B5E9D /* theme-merbivore_soft.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5CDC55A7F6BEB7766AB2 /* theme-merbivore_soft.js */; };
+		DDAA5DD3BD0324CD47B87A8B /* clipper.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5EB341C9FC384E6D6A89 /* clipper.js */; };
 		DDAA5DD6714D7AC14FBB2EC0 /* mode-javascript.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5D2AAA4585A9B3C14445 /* mode-javascript.js */; };
 		DDAA5DD6DD7C236E7A499177 /* mode-snippets.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5F50F36E301639F3855A /* mode-snippets.js */; };
 		DDAA5DD9BC6DC10F292202ED /* theme-kr.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5D21052805ECA62C9F9C /* theme-kr.js */; };
 		DDAA5DD9CE551B4567CB81AB /* svg.draggable.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5AF82430C4F077E37931 /* svg.draggable.js */; };
 		DDAA5DE2C276A4E17ECE5015 /* mode-glsl.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C7E74F73301E2625A6D /* mode-glsl.js */; };
 		DDAA5DE51617FAF7382C1198 /* mode-markdown.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5330A424C40B0E138F7F /* mode-markdown.js */; };
-		DDAA5DE55277ED7870D14EDE /* beziers.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54C02B65138BA2BC4D67 /* beziers.js */; };
+		DDAA5DE55277ED7870D14EDE /* bezier.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54C02B65138BA2BC4D67 /* bezier.js */; };
 		DDAA5DE77AE28CC3AFB885FA /* twoDView.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5828C64CB437858D52A4 /* twoDView.js */; };
 		DDAA5DE7C50D7A22DCE05872 /* mode-prolog.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53070EE0B5C27DA8A768 /* mode-prolog.js */; };
 		DDAA5DFF635F442659D99F5F /* mode-vbscript.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5A399CE1A7EBEC3B6D80 /* mode-vbscript.js */; };
@@ -808,7 +809,7 @@
 		DDAA54B37F49D0A2AC135D5A /* util.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = util.js; path = webapp/cnc/util.js; sourceTree = "<group>"; };
 		DDAA54B8902BC87DE0AD6BA7 /* mode-less.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-less.js"; sourceTree = "<group>"; };
 		DDAA54BA1DAEF090C053F55F /* mode-snippets.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-snippets.js"; sourceTree = "<group>"; };
-		DDAA54C02B65138BA2BC4D67 /* beziers.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = beziers.js; path = webapp/cnc/beziers.js; sourceTree = "<group>"; };
+		DDAA54C02B65138BA2BC4D67 /* bezier.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = bezier.js; path = webapp/cnc/bezier.js; sourceTree = "<group>"; };
 		DDAA54C7AA9918BED48179B3 /* svg.memory.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svg.memory.js; sourceTree = "<group>"; };
 		DDAA54D10FFBF5C7CBC90513 /* theme-solarized_dark.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-solarized_dark.js"; sourceTree = "<group>"; };
 		DDAA54D4084BA53EAE100827 /* mode-livescript.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-livescript.js"; sourceTree = "<group>"; };
@@ -950,7 +951,7 @@
 		DDAA586F6DBF760EB89D45F2 /* ext-options.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-options.js"; sourceTree = "<group>"; };
 		DDAA5871F32AE72FC99CFFCB /* usbdesc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = usbdesc.c; path = interpolator/usbdesc.c; sourceTree = SOURCE_ROOT; };
 		DDAA587C66E36A6A71DDB2FB /* mode-ftl.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-ftl.js"; sourceTree = "<group>"; };
-		DDAA587EC27F95C78E5D93C2 /* beziers.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = beziers.js; sourceTree = "<group>"; };
+		DDAA587EC27F95C78E5D93C2 /* bezier.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = bezier.js; sourceTree = "<group>"; };
 		DDAA588A1440385705954962 /* mode-sass.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-sass.js"; sourceTree = "<group>"; };
 		DDAA588CD63126A02EBCDD18 /* morphology.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = morphology.js; sourceTree = "<group>"; };
 		DDAA588DA0682E40CDF5B55C /* theme-eclipse.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-eclipse.js"; sourceTree = "<group>"; };
@@ -1074,7 +1075,7 @@
 		DDAA5B7D5814D04FABE616AE /* theme-merbivore_soft.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-merbivore_soft.js"; sourceTree = "<group>"; };
 		DDAA5B7D8BB18828103E9FFF /* mode-ada.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-ada.js"; sourceTree = "<group>"; };
 		DDAA5B9C6FE319AD6BB4099D /* mode-powershell.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-powershell.js"; sourceTree = "<group>"; };
-		DDAA5B9DC9B92B70673AA0BE /* beziers.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = beziers.js; sourceTree = "<group>"; };
+		DDAA5B9DC9B92B70673AA0BE /* bezier.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = bezier.js; sourceTree = "<group>"; };
 		DDAA5BA07B18D105D4F87EC2 /* ext-whitespace.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-whitespace.js"; sourceTree = "<group>"; };
 		DDAA5BA21A5E569A27BBF09E /* mode-objectivec.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-objectivec.js"; sourceTree = "<group>"; };
 		DDAA5BA706F3B30C7D31658E /* ext-emmet.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-emmet.js"; sourceTree = "<group>"; };
@@ -1213,6 +1214,7 @@
 		DDAA5E9874E6DFABA4E02B42 /* mode-tcl.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-tcl.js"; sourceTree = "<group>"; };
 		DDAA5E98DDD8A2056B28F40E /* mode-rust.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-rust.js"; sourceTree = "<group>"; };
 		DDAA5EA14B5A48C7011A029D /* theme-pastel_on_dark.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-pastel_on_dark.js"; sourceTree = "<group>"; };
+		DDAA5EB341C9FC384E6D6A89 /* clipper.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = clipper.js; sourceTree = "<group>"; };
 		DDAA5EB526E30303AC280DCC /* mode-pgsql.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-pgsql.js"; sourceTree = "<group>"; };
 		DDAA5EBDD13C5AE6ABA9EE49 /* mode-haml.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-haml.js"; sourceTree = "<group>"; };
 		DDAA5EC24A0C297C0AA98174 /* mode-ftl.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-ftl.js"; sourceTree = "<group>"; };
@@ -1606,7 +1608,7 @@
 				DDAA5646268DBD0C1FEF3018 /* cam.js */,
 				DDAA523D7A9109D74C7BA499 /* util.js */,
 				DDAA524C2453225E6A0DEB24 /* parser.js */,
-				DDAA587EC27F95C78E5D93C2 /* beziers.js */,
+				DDAA587EC27F95C78E5D93C2 /* bezier.js */,
 				DDAA5141D73409AE9F8FF6D9 /* contour.js */,
 				DDAA59240776C46200C93D09 /* delaunay.js */,
 				DDAA560A454AFC2E09FD860F /* elliptic.js */,
@@ -1615,6 +1617,7 @@
 				DDAA5B56FDBADA4E25BC4B18 /* morphology.js */,
 				DDAA564C2FBE78706409C739 /* simulation.js */,
 				DDAA52CAC3926B8B4F4B829A /* threeDView.js */,
+				DDAA5EB341C9FC384E6D6A89 /* clipper.js */,
 			);
 			path = cnc;
 			sourceTree = "<group>";
@@ -1782,7 +1785,7 @@
 				DDAA543B63247C244F3138E0 /* cam.js */,
 				DDAA5DBED23BB93B2FA59786 /* util.js */,
 				DDAA565B87C730ABFFB31DCA /* parser.js */,
-				DDAA5B9DC9B92B70673AA0BE /* beziers.js */,
+				DDAA5B9DC9B92B70673AA0BE /* bezier.js */,
 				DDAA5DA7202D3250BD94C922 /* contour.js */,
 				DDAA561E868824DA17BCB9AA /* delaunay.js */,
 				DDAA5367902362964A0915C2 /* elliptic.js */,
@@ -2035,7 +2038,7 @@
 				DDAA5268AB05089C411E0479 /* plug_plate.js */,
 				DDAA50F3E153B90B949FB125 /* runner.js */,
 				DDAA5C540B906C544541D05B /* dremel_bracket.js */,
-				DDAA54C02B65138BA2BC4D67 /* beziers.js */,
+				DDAA54C02B65138BA2BC4D67 /* bezier.js */,
 				DDAA51E33CE9846FF5A24C02 /* parser.js */,
 				DDAA528A36E3B7DFBD1BE050 /* simulation.js */,
 				DDAA5E5BE56C40B964FEF1B4 /* cam.js */,
@@ -2230,7 +2233,7 @@
 				DDAA5F165CE6F3C04CED10DA /* plug_plate.js in Sources */,
 				DDAA5B897C73C91C52BD8792 /* runner.js in Sources */,
 				DDAA57C1DB0A19207E999D47 /* dremel_bracket.js in Sources */,
-				DDAA5DE55277ED7870D14EDE /* beziers.js in Sources */,
+				DDAA5DE55277ED7870D14EDE /* bezier.js in Sources */,
 				DDAA5C03CDB11E25A0F96047 /* parser.js in Sources */,
 				DDAA52DD7EA09B5A976CAF7C /* simulation.js in Sources */,
 				DDAA52E155F43FEF754302E3 /* cam.js in Sources */,
@@ -2583,7 +2586,7 @@
 				DDAA5CB4375378EBA86C5C36 /* cam.js in Sources */,
 				DDAA5697D8F7684366F24018 /* util.js in Sources */,
 				DDAA5654909C5FCF3844108D /* parser.js in Sources */,
-				DDAA535A09CA8ECFEF222BB2 /* beziers.js in Sources */,
+				DDAA535A09CA8ECFEF222BB2 /* bezier.js in Sources */,
 				DDAA5D2F75F04489F197A80C /* contour.js in Sources */,
 				DDAA592CE143F93F5D214920 /* delaunay.js in Sources */,
 				DDAA5A80B590F73D124F1CDA /* elliptic.js in Sources */,
@@ -2768,7 +2771,7 @@
 				DDAA5D9D44C784E1191617BA /* cam.js in Sources */,
 				DDAA5A8CE27B6D4D2A53A300 /* util.js in Sources */,
 				DDAA569FBDD72F64A3F26A03 /* parser.js in Sources */,
-				DDAA567F81C6F3DC888C2653 /* beziers.js in Sources */,
+				DDAA567F81C6F3DC888C2653 /* bezier.js in Sources */,
 				DDAA59E5BD604F20F4F3EA38 /* contour.js in Sources */,
 				DDAA5A767582AAED8D06A869 /* delaunay.js in Sources */,
 				DDAA580B449779665EC9B1BB /* elliptic.js in Sources */,
@@ -2799,6 +2802,7 @@
 				DDAA5ED1428EFCA6CB33610B /* rsvp-latest.js in Sources */,
 				DDAA573C57FDBECCED4BDA36 /* require.js in Sources */,
 				DDAA526444021FC980D78EF4 /* jquery-1.7.2-unminified.js in Sources */,
+				DDAA5DD3BD0324CD47B87A8B /* clipper.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -689,7 +689,7 @@
         module.exports = jsparse;
 
     } else if (typeof define === "function" && define.amd) {
-        define("jsparse", [], function () {
+        define([], function () {
             return jsparse;
         });
 

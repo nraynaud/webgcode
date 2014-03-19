@@ -1,6 +1,6 @@
 "use strict";
 
-define(['../libs/svg.js'], function () {
+define(['libs/svg'], function () {
     function TwoDView(drawing) {
         //for firefox reason I added that
         //https://bugzilla.mozilla.org/show_bug.cgi?id=479058

@@ -1,6 +1,5 @@
 "use strict";
-
-var simulation = (function () {
+define(['cnc/util', 'cnc/geometry'], function (util, geometry) {
 
     function scaledLine(axis, line, ratio) {
         return line.from[axis] + ratio * (line.to[axis] - line.from[axis]);
@@ -37,7 +36,7 @@ var simulation = (function () {
             simulationSteps: function () {
                 return 40;
             },
-            rasterize: rasterizeLine
+            rasterize: geometry.rasterizeLine
         },
         arc: {
             length: function (arc) {
@@ -69,7 +68,7 @@ var simulation = (function () {
             simulationSteps: function (arc) {
                 return Math.round(Math.abs(arc.angularDistance) / (2 * Math.PI) * 50);
             },
-            rasterize: rasterizeArc
+            rasterize: geometry.rasterizeArc
         }
     };
 
@@ -276,4 +275,4 @@ var simulation = (function () {
         planProgram: planProgram,
         COMPONENT_TYPES: COMPONENT_TYPES
     }
-})();
+});

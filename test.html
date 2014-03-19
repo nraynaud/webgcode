@@ -11,11 +11,14 @@
 <script src="webapp/libs/qunit.js"></script>
 <script src="webapp/libs/jquery.min.js"></script>
 <script src="webapp/libs/jquery.flot.min.js"></script>
-<script src="webapp/libs/jsparse.js"></script>
-<script src="webapp/cnc/util.js"></script>
-<script src="webapp/cnc/geometry.js"></script>
-<script src="webapp/cnc/simulation.js"></script>
-<script src="webapp/cnc/parser.js"></script>
+<script src="webapp/libs/require.js"></script>
+
+<script>
+    requirejs.config({
+        baseUrl: 'webapp'
+    });
+</script>
+
 <script src="webapp/cnc/elliptic.js"></script>
 <script src="tests.js"></script>
 

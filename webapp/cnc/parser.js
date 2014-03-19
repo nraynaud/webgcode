@@ -4,8 +4,8 @@
 // feedrate in mm/min
 // speed in mm/s
 // angles in radians
+define(['libs/jsparse', 'cnc/util'], function (jp, util) {
 
-var parser = (function () {
     var XY_PLANE = {
         firstCoord: 'x',
         secondCoord: 'y',
@@ -221,7 +221,6 @@ var parser = (function () {
     }
 
     function createParser() {
-        var jp = jsparse;
         var memory = {};
         var number = jp.join_action(jp.repeat1(jp.range('0', '9')), '');
         var decimalPart = jp.join_action(jp.sequence('.', number), '');
@@ -431,4 +430,4 @@ var parser = (function () {
     return {
         evaluate: evaluate,
         createParser: createParser};
-})();
+});

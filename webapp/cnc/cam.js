@@ -1,6 +1,6 @@
 "use strict";
 
-define(function () {
+define(['cnc/bezier', 'cnc/clipper'], function (bezier, clipper) {
     function pushOnPath(path, toolpath) {
         var firstPoint = toolpath.getStartPoint();
         path.node.pathSegList.appendItem(path.node.createSVGPathSegMovetoAbs(firstPoint.x, firstPoint.y));
@@ -49,7 +49,7 @@ define(function () {
         var result = [];
         $.each(polygons, function (_, polygon) {
             if (reorder) {
-                var area = ClipperLib.Clipper.Area(polygon) / (scale * scale);
+                var area = clipper.Clipper.Area(polygon) / (scale * scale);
                 if (area >= 0 && !areaPositive || area < 0 && areaPositive)
                     polygon.reverse();
             }
@@ -241,8 +241,8 @@ define(function () {
 
     Machine.prototype.offsetPolygon = function (polygon, radius) {
         var result = [];
-        var co = new ClipperLib.ClipperOffset(2, 0.0001 * this.clipperScale);
-        co.AddPaths(polygon, ClipperLib.JoinType.jtRound, ClipperLib.EndType.etClosedPolygon);
+        var co = new clipper.ClipperOffset(2, 0.0001 * this.clipperScale);
+        co.AddPaths(polygon, clipper.JoinType.jtRound, clipper.EndType.etClosedPolygon);
         co.Execute(result, radius * this.clipperScale);
         return result;
     };
@@ -372,11 +372,11 @@ define(function () {
     };
 
     Machine.prototype.polyOp = function (clipperP1, clippreP2, clipperOp) {
-        var cpr = new ClipperLib.Clipper();
+        var cpr = new clipper.Clipper();
         var result = [];
-        cpr.AddPaths(clipperP1, ClipperLib.PolyType.ptSubject, true);
-        cpr.AddPaths(clippreP2, ClipperLib.PolyType.ptClip, true);
-        cpr.Execute(clipperOp, result, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
+        cpr.AddPaths(clipperP1, clipper.PolyType.ptSubject, true);
+        cpr.AddPaths(clippreP2, clipper.PolyType.ptClip, true);
+        cpr.Execute(clipperOp, result, clipper.PolyFillType.pftNonZero, clipper.PolyFillType.pftNonZero);
         return result;
     };
 
@@ -421,9 +421,9 @@ define(function () {
         var clipperScale = Math.pow(2, 20);
 
         function offsetPolygon(polygon, radius) {
-            var result = new ClipperLib.PolyTree();
-            var co = new ClipperLib.ClipperOffset(2, 0.0001 * clipperScale);
-            co.AddPaths(polygon, ClipperLib.JoinType.jtRound, ClipperLib.EndType.etClosedPolygon);
+            var result = new clipper.PolyTree();
+            var co = new clipper.ClipperOffset(2, 0.0001 * clipperScale);
+            co.AddPaths(polygon, clipper.JoinType.jtRound, clipper.EndType.etClosedPolygon);
             co.Execute(result, radius * clipperScale);
             return result;
         }

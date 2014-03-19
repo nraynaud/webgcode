@@ -6,15 +6,16 @@
     <title>Contouring Test</title>
     <script src="webapp/libs/jquery.min.js"></script>
     <script src="webapp/libs/svg.js"></script>
-    <script src="webapp/libs/svg.draggable.js"></script>
-    <script src="webapp/libs/svg.memory.js"></script>
     <script src="webapp/libs/jquery.mousewheel.js"></script>
-    <script src="webapp/libs/clipper_unminified.js"></script>
     <script src="webapp/libs/opentype.js"></script>
     <script src="webapp/libs/extractedRaphael.js"></script>
     <script src="webapp/libs/require.js"></script>
 
-    <script src="webapp/cnc/beziers.js"></script>
+    <script>
+        requirejs.config({
+            baseUrl: 'webapp'
+        });
+    </script>
 
     <script src="samples/box2.js"></script>
     <script src="samples/plug_plate.js"></script>
@@ -59,7 +60,7 @@
 <textarea id="code"></textarea>
 <script>
     var drawing = $('#drawing');
-    require(['webapp/cnc/twoDView.js', 'webapp/cnc/cam.js', 'samples/fontExample.js', 'samples/box.js'], function (twoD, cam, fontExample, box) {
+    require(['cnc/twoDView', 'cnc/cam', 'samples/fontExample.js', 'samples/box.js'], function (twoD, cam, fontExample, box) {
         var twoDView = new twoD.TwoDView(drawing);
         var machine = new cam.Machine(twoDView.paper);
 

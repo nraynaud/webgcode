@@ -1,5 +1,5 @@
 "use strict";
-var bezier = (function () {
+define(function () {
 
     function subdivide(a, t) {
 
@@ -117,6 +117,6 @@ var bezier = (function () {
     }
 
     return {cubicToPoints: cubicToPoints, pathToPolygons: pathToPolygons};
-})();
+});
 
 

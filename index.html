@@ -9,14 +9,15 @@
     <script src="webapp/libs/jquery.flot.resize.js"></script>
     <script src="webapp/libs/Three.js"></script>
     <script src="webapp/libs/TrackballControls.js"></script>
-    <script src="webapp/libs/jsparse.js"></script>
     <script src="webapp/libs/ace/src-noconflict/ace.js"></script>
     <script src="webapp/libs/require.js"></script>
 
-    <script src="webapp/cnc/util.js"></script>
-    <script src="webapp/cnc/geometry.js"></script>
-    <script src="webapp/cnc/simulation.js"></script>
-    <script src="webapp/cnc/parser.js"></script>
+    <script>
+        requirejs.config({
+            baseUrl: 'webapp'
+        });
+    </script>
+
     <style>
         .editBlock {
             position: relative;
@@ -100,8 +101,8 @@
 <div class="chart" id="chart2"></div>
 <div class="chart" id="chart3"></div>
 <script>
-
-    require(['webapp/cnc/threeDView.js'], function (threeD) {
+    require(['cnc/threeDView', 'cnc/util', 'cnc/parser', 'cnc/simulation'], function (threeD, util, parser, simulation) {
+        console.log(parser);
         var editor = ace.edit("codebox");
         editor.setTheme("ace/theme/twilight");
 

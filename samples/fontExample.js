@@ -1,5 +1,5 @@
 "use strict";
-define(['../webapp/libs/rsvp-latest', '../webapp/cnc/cam'], function (rsvp, cam) {
+define(['libs/rsvp-latest', 'cnc/cam', 'cnc/clipper', 'libs/opentype'], function (rsvp, cam, clipper, opentype) {
     RSVP.on('error', function (reason) {
         console.log(reason);
     });
@@ -27,7 +27,7 @@ define(['../webapp/libs/rsvp-latest', '../webapp/cnc/cam'], function (rsvp, cam)
     }
 
     function createPocket(shapePoly, displayClipper) {
-        var toolRadius = 0.3 / 2;
+        var toolRadius = 1 / 2;
         var radialEngagementRatio = 0.9;
         var polygons = cam.decomposePolytreeInTopLevelPolygons(shapePoly);
         return RSVP.all(polygons.map(function (poly) {
@@ -52,20 +52,31 @@ define(['../webapp/libs/rsvp-latest', '../webapp/cnc/cam'], function (rsvp, cam)
         }
 
         machine.setParams(-1, 1, 1000);
-        require(['webapp/libs/rsvp-latest'], function () {
-            var getFont = function (url) {
-                return new RSVP.Promise(function (resolve, reject) {
-                    opentype.load(url, function (err, font) {
-                        if (err)
-                            reject(this);
-                        else
-                            resolve(font);
-                    });
+        var getFont = function (url) {
+            return new RSVP.Promise(function (resolve, reject) {
+                opentype.load(url, function (err, font) {
+                    if (err)
+                        reject(this);
+                    else
+                        resolve(font);
                 });
-            };
-
-            getFont('webapp/libs/fonts/miss_fajardose/MissFajardose-Regular.ttf').then(function (font) {
-                var path = font.getPath("Text", 0, 0, 30);
+            });
+        };
+        new RSVP.Promise(function (resolve, reject) {
+            $.get('https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyC9qzOvN5FgIPj-xDohd64xz0kxW1dcTB8',function (result) {
+                for (var i = 0; i < result.items.length; i++) {
+                    var o = result.items[i];
+                    if (o.family == 'Ubuntu Mono') {
+                        resolve(o);
+                        return;
+                    }
+                }
+                reject('font not found');
+            }).fail(reject);
+        }).then(function (font) {
+                return getFont(font.files['regular']);
+            }).then(function (font) {
+                var path = font.getPath("Text m", 0, 0, 30);
                 var res = '';
                 for (var i = 0; i < path.commands.length; i++) {
                     var command = path.commands[i];
@@ -80,70 +91,69 @@ define(['../webapp/libs/rsvp-latest', '../webapp/cnc/cam'], function (rsvp, cam)
                 }
                 var poly2 = machine.toClipper(machine.createOutline(res, 'gray'));
                 twoDView.zoomExtent();
-                var cpr = new ClipperLib.Clipper();
-                var result = new ClipperLib.PolyTree();
-                cpr.AddPaths(poly2, ClipperLib.PolyType.ptSubject, true);
-                cpr.AddPaths([], ClipperLib.PolyType.ptClip, true);
-                cpr.Execute(ClipperLib.ClipType.ctUnion, result, ClipperLib.PolyFillType.pftNonZero, ClipperLib.PolyFillType.pftNonZero);
+                var cpr = new clipper.Clipper();
+                var result = new clipper.PolyTree();
+                cpr.AddPaths(poly2, clipper.PolyType.ptSubject, true);
+                cpr.AddPaths([], clipper.PolyType.ptClip, true);
+                cpr.Execute(clipper.ClipType.ctUnion, result, clipper.PolyFillType.pftNonZero, clipper.PolyFillType.pftNonZero);
                 return result;
             }).then(function (textGeometry) {
-                    return createPocket(textGeometry, displayClipper)
-                }).then(function (pocketToolPaths) {
-                    function sqDist(p1, p2) {
-                        var dx = p1.X - p2.X;
-                        var dy = p1.Y - p2.Y;
-                        return dx * dx + dy * dy;
-                    }
+                return createPocket(textGeometry, displayClipper)
+            }).then(function (pocketToolPaths) {
+                function sqDist(p1, p2) {
+                    var dx = p1.X - p2.X;
+                    var dy = p1.Y - p2.Y;
+                    return dx * dx + dy * dy;
+                }
 
-                    function rotatePolygonSoThatStartPointIsClosestTo(point, polygon) {
-                        var minDist = Infinity;
-                        var minIndex = 0;
-                        for (var i = 0; i < polygon.length; i++) {
-                            var dist = sqDist(point, polygon[i]);
-                            if (dist < minDist) {
-                                minIndex = i;
-                                minDist = dist;
-                            }
-                        }
-                        return polygon.slice(minIndex).concat(polygon.slice(0, minIndex));
-                    }
-
-                    function chainPocketRings(pocket) {
-                        for (var j = 0; j < pocket.children.length; j++)
-                            chainPocketRings(pocket.children[j]);
-                        //the contour.length == 1 ensures that the contour doesn't have secondary "hole" toolpaths
-                        if (pocket.children.length == 1 && pocket.contour.length == 1) {
-                            var child = pocket.children[0];
-                            if (child.contour.length == 1) {
-                                var childContour = child.contour[0];
-                                var currentContour = rotatePolygonSoThatStartPointIsClosestTo(childContour[0], pocket.contour[0]);
-                                //the lowest chainable child might itself have non-chainable children
-                                pocket.children = child.children;
-                                var closingPoint = currentContour[0];
-                                //push first point at the end to force polygon closing
-                                pocket.contour = [childContour.concat(currentContour, [closingPoint])];
-                            }
+                function rotatePolygonSoThatStartPointIsClosestTo(point, polygon) {
+                    var minDist = Infinity;
+                    var minIndex = 0;
+                    for (var i = 0; i < polygon.length; i++) {
+                        var dist = sqDist(point, polygon[i]);
+                        if (dist < minDist) {
+                            minIndex = i;
+                            minDist = dist;
                         }
                     }
+                    return polygon.slice(minIndex).concat(polygon.slice(0, minIndex));
+                }
 
-                    function registerPocket(pocket) {
-                        for (var j = 0; j < pocket.children.length; j++)
-                            registerPocket(pocket.children[j]);
-                        machine.registerToolPathArray(machine.fromClipper(pocket.contour));
-                    }
-
-                    for (var i = 0; i < pocketToolPaths.length; i++)
-                        for (var j = 0; j < pocketToolPaths[i].length; j++) {
-                            var pocket = pocketToolPaths[i][j];
-                            chainPocketRings(pocket);
-                            registerPocket(pocket);
+                function chainPocketRings(pocket) {
+                    for (var j = 0; j < pocket.children.length; j++)
+                        chainPocketRings(pocket.children[j]);
+                    //the contour.length == 1 ensures that the contour doesn't have secondary "hole" toolpaths
+                    if (pocket.children.length == 1 && pocket.contour.length == 1) {
+                        var child = pocket.children[0];
+                        if (child.contour.length == 1) {
+                            var childContour = child.contour[0];
+                            var currentContour = rotatePolygonSoThatStartPointIsClosestTo(childContour[0], pocket.contour[0]);
+                            //the lowest chainable child might itself have non-chainable children
+                            pocket.children = child.children;
+                            var closingPoint = currentContour[0];
+                            //push first point at the end to force polygon closing
+                            pocket.contour = [childContour.concat(currentContour, [closingPoint])];
                         }
-                    whenDone();
-                }).catch(function (reason) {
-                    console.log('error', reason.stack);
-                    throw reason;
-                });
-        });
+                    }
+                }
+
+                function registerPocket(pocket) {
+                    for (var j = 0; j < pocket.children.length; j++)
+                        registerPocket(pocket.children[j]);
+                    machine.registerToolPathArray(machine.fromClipper(pocket.contour));
+                }
+
+                for (var i = 0; i < pocketToolPaths.length; i++)
+                    for (var j = 0; j < pocketToolPaths[i].length; j++) {
+                        var pocket = pocketToolPaths[i][j];
+                        chainPocketRings(pocket);
+                        registerPocket(pocket);
+                    }
+                whenDone();
+            }).catch(function (reason) {
+                console.log('error', reason.stack);
+                throw reason;
+            });
         return true;
     }
 
