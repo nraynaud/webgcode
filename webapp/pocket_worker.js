@@ -33,6 +33,5 @@ require(['cnc/cam', 'cnc/pocket'], function (cam, pocket) {
             finished: true,
             result: result
         });
-        self.close();
     }
 });

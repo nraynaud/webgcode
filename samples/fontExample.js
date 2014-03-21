@@ -16,8 +16,8 @@ define(['libs/rsvp-latest', 'cnc/cam', 'cnc/clipper', 'libs/opentype', 'cnc/text
             }
 
             machine.setParams(-1, 1, 1000);
-            text.getText('Sofadi One', 'Quite Long text', 50).then(function (textOutline) {
-                var toolRadius = 1 / 2;
+            text.getText('Sofadi One', 'Text', 50).then(function (textOutline) {
+                var toolRadius = 2 / 2;
                 var radialEngagementRatio = 0.9;
                 var outline = machine.createOutline(textOutline, 'gray');
                 var poly2 = machine.toClipper(outline);
@@ -33,7 +33,7 @@ define(['libs/rsvp-latest', 'cnc/cam', 'cnc/clipper', 'libs/opentype', 'cnc/text
                         return res1;
                     }
                 };
-                return pocket.createPocket(poly2, toolRadius * machine.clipperScale, radialEngagementRatio, window.location.hash == '#worker', display);
+                return pocket.createPocket(poly2, toolRadius * machine.clipperScale, radialEngagementRatio, display);
             }).then(function (pocketToolPaths) {
                     function registerPocket(pocket) {
                         for (var j = 0; j < pocket.children.length; j++)

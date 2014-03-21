@@ -1,9 +1,13 @@
 "use strict";
 
 define(['cnc/clipper', 'cnc/cam', 'libs/queue'], function (clipper, cam, queue) {
+
+    var cpr = new clipper.Clipper();
+    var co = new clipper.ClipperOffset();
+
     function offsetPolygon(polygon, radius) {
         var result = new clipper.PolyTree();
-        var co = new clipper.ClipperOffset();
+        co.Clear();
         co.AddPaths(polygon, clipper.JoinType.jtRound, clipper.EndType.etClosedPolygon);
         co.Execute(result, radius);
         return result;
@@ -90,46 +94,68 @@ define(['cnc/clipper', 'cnc/cam', 'libs/queue'], function (clipper, cam, queue) 
         }
     }
 
-    function computePocketInWorkers(polygon, scaledToolRadius, radialEngagementRatio, display) {
+    function createWorkerPool(workerUrl, workArray, maxWorkers) {
+        var workersCount = Math.min(maxWorkers, workArray.length);
+        var workers = [];
+        var workIndex = 0;
+
+        function createWorkerListener(workStructure) {
+            return function (event) {
+                workStructure.work.whenDone(event.data);
+                workStructure.work = null;
+                if (workIndex < workArray.length) {
+                    workStructure.work = workArray[workIndex];
+                    workStructure.worker.postMessage(workStructure.work.message);
+                    workIndex++;
+                } else {
+                    workStructure.worker.terminate();
+                    workStructure.worker = null;
+                }
+            }
+        }
+
+        for (workIndex = 0; workIndex < workersCount; workIndex++) {
+            var worker = new Worker(workerUrl);
+            workers[workIndex] = {worker: worker, work: workArray[workIndex]};
+            worker.onmessage = createWorkerListener(workers[workIndex]);
+            worker.postMessage(workArray[workIndex].message);
+        }
+        return workers;
+    }
+
+    function createWork(polygon, scaledToolRadius, radialEngagementRatio, display) {
         var handle = display.displayClipperComputingPoly(polygon);
-        return function (resolve) {
-            var worker = new Worker('webapp/pocket_worker.js');
-            worker.onclose = function () {
-                console.log('worker closed');
-            };
-            worker.onerror = function (event) {
-                console.log('worker error', event);
-            };
-            worker.onmessage = function (event) {
-                var data = event.data;
-                console.log('received message');
-                if (data['finished']) {
+        var deferred = RSVP.defer();
+        return {message: {poly: polygon, scaledToolRadius: scaledToolRadius, radialEngagementRatio: radialEngagementRatio},
+            whenDone: function (data) {
+                if (
+                    data['finished']) {
                     var result = data['result'];
                     console.log('got result');
                     handle.remove();
-                    console.log('removed', handle);
-                    resolve(result);
+                    deferred.resolve(result);
                 }
-            };
-            worker.postMessage({poly: polygon, scaledToolRadius: scaledToolRadius, radialEngagementRatio: radialEngagementRatio});
-        };
+            },
+            promise: deferred.promise};
     }
 
-    function createPocket(clipperPoly, scaledToolRadius, radialEngagementRatio, computeInWorker, display) {
-        var cpr = new clipper.Clipper();
+    function createPocket(clipperPoly, scaledToolRadius, radialEngagementRatio, display) {
         var result = new clipper.PolyTree();
         cpr.AddPaths(clipperPoly, clipper.PolyType.ptSubject, true);
         cpr.AddPaths([], clipper.PolyType.ptClip, true);
         cpr.Execute(clipper.ClipType.ctUnion, result, clipper.PolyFillType.pftNonZero, clipper.PolyFillType.pftNonZero);
         var polygons = cam.decomposePolytreeInTopLevelPolygons(result);
-        return RSVP.all(polygons.map(function (poly) {
-            var resolver = computeInWorker ? computePocketInWorkers(poly, scaledToolRadius, radialEngagementRatio, display) :
-                computePocketImmediately(poly, scaledToolRadius, radialEngagementRatio, display);
-            return new RSVP.Promise(resolver);
+        var workArray = polygons.map(function (poly) {
+            return createWork(poly, scaledToolRadius, radialEngagementRatio, display);
+        });
+        window.workerPool = createWorkerPool('webapp/pocket_worker.js', workArray, 3);
+        return RSVP.all(workArray.map(function (work) {
+            return work.promise;
         }));
     }
 
     return {
         createPocket: createPocket,
-        doCreatePocket: doCreatePocket};
+        doCreatePocket: doCreatePocket
+    };
 });
