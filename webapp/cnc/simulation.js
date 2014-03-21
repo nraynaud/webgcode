@@ -68,7 +68,11 @@ define(['cnc/util', 'cnc/geometry'], function (util, geometry) {
             simulationSteps: function (arc) {
                 return Math.round(Math.abs(arc.angularDistance) / (2 * Math.PI) * 50);
             },
-            rasterize: geometry.rasterizeArc
+            rasterize: function (arc, stepSize, stepCollector) {
+                geometry.rasterizeArc(arc, stepSize, stepCollector, function (ratio) {
+                    return COMPONENT_TYPES.arc.pointAtRatio(arc, ratio, true);
+                })
+            }
         }
     };
 

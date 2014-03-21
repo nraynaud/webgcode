@@ -50,3 +50,36 @@
     stroke: none;
     fill: rgb(128, 128, 128);
 }
+
+.computingPolygon {
+    fill: url(#computingFill);
+}
+
+#computingFill * {
+    opacity: 0.5;
+}
+
+#computingFill rect {
+    stroke: none;
+    fill: yellow;
+}
+
+#computingFill line {
+    stroke: black;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    -webkit-animation-duration: 1s;
+    -webkit-animation-name: slidein;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: ease-in-out;
+    -webkit-animation-direction: alternate;
+}
+
+@-webkit-keyframes slidein {
+    0% {
+        -webkit-transform: translate(0, -1px);
+    }
+    100% {
+        -webkit-transform: translate(0, 2px);
+    }
+}

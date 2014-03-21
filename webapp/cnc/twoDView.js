@@ -13,6 +13,17 @@ define(['libs/svg'], function () {
         this.root = this.svg.group().attr({class: 'root', 'vector-effect': 'non-scaling-stroke'});
         this.background = this.root.group().attr({class: 'background', 'vector-effect': 'non-scaling-stroke'});
         this.paper = this.root.group().attr({class: 'paper', 'vector-effect': 'non-scaling-stroke'});
+        var defs = this.svg.defs();
+        var pattern = defs.pattern(6, 6,function () {
+            var group = this.group();
+            group.rect(6, 6).x(0).y(0);
+            group.line(-1, 5, 7, 13);
+            group.line(-1, 2, 7, 10);
+            group.line(-1, -1, 7, 7);
+            group.line(-1, -4, 7, 4);
+            group.line(-1, -7, 7, 1);
+        }).attr({id: 'computingFill'});
+        $(defs.node).append(pattern);
         var origin = this.background.group().attr({class: 'origin'});
         origin.path('M0,0 L0,10 A 10,10 90 0 0 10,0 Z M0,0 L0,-10 A 10,10 90 0 0 -10,0 Z').attr({stroke: 'none', fill: 'red', transform: null});
         origin.ellipse(20, 20).cx(0).cy(0).attr({stroke: 'red', fill: 'none', transform: null});
@@ -78,6 +89,8 @@ define(['libs/svg'], function () {
         });
 
         drawing.mousedown(function (event) {
+            if (event.which != 1)
+                return;
             var m = self.root.node.getCTM();
             var pos = getModelPositionForPageXY(event.pageX, event.pageY, m);
             self.mouseDownStartCondition = {x: event.pageX, y: event.pageY, matrix: m, modelPos: pos};

@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+    <title>CNC Text Tool</title>
+    <script src="webapp/libs/jquery.min.js"></script>
+    <script src="webapp/libs/svg.js"></script>
+    <script src="webapp/libs/jquery.mousewheel.js"></script>
+    <script src="webapp/libs/opentype.js"></script>
+    <script src="webapp/libs/extractedRaphael.js"></script>
+    <script src="webapp/libs/require.js"></script>
+
+    <script>
+        requirejs.config({
+            baseUrl: 'webapp'
+        });
+    </script>
+
+    <link rel="stylesheet" href="webapp/twoDView.css" type="text/css">
+    <style>
+        * {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: -ms-flexbox;
+        }
+
+        html, body {
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        #drawing, #code {
+            display: block;
+            flex: 1;
+            -webkit-flex: 1;
+            align-items: center;
+            border: solid;
+            padding: 0;
+            margin: 0;
+        }
+
+    </style>
+</head>
+<body>
+<div id="drawing"></div>
+<textarea id="code"></textarea>
+<script>
+    var drawing = $('#drawing');
+    require(['cnc/twoDView', 'cnc/cam', 'samples/fontExample.js'], function (twoD, cam, fontExample) {
+        var twoDView = new twoD.TwoDView(drawing);
+        var machine = new cam.Machine(twoDView.paper);
+
+        function whenDone() {
+            console.timeEnd('creation');
+            $('#code').text(machine.dumpGCode());
+            twoDView.zoomExtent();
+        }
+
+        console.time('creation');
+        twoDView.zoomExtent();
+        var res = fontExample.testFont(machine, whenDone, twoDView);
+        if (!res)
+            whenDone();
+    })
+</script>
+</body>
+</html>

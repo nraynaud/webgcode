@@ -89,9 +89,18 @@ define(['cnc/bezier', 'cnc/clipper'], function (bezier, clipper) {
             return lineTo(xSpan, 0) + lineTo(0, ySpan) + lineTo(-xSpan, 0) + 'Z';
         }
 
+        function closePolygons(polygon) {
+            for (var i = 0; i < polygon.length; i++) {
+                var poly = polygon[i];
+                poly.push(poly[0]);
+            }
+            return polygon;
+        }
+
         return {createCircle: createCircle,
             createRelativeRectangle: createRelativeRectangle,
-            op: op};
+            op: op,
+            closePolygons: closePolygons};
     })();
 
     function createDrillHole(x, y) {
@@ -112,7 +121,8 @@ define(['cnc/bezier', 'cnc/clipper'], function (bezier, clipper) {
         return {x: p[0], y: p[1], z: defaultZ};
     };
     ConstantZPolygonToolpath.prototype.getStopPoint = function (defaultZ) {
-        return this.getStartPoint(defaultZ);
+        var p = this.path[this.path.length - 1];
+        return {x: p[0], y: p[1], z: defaultZ};
     };
     ConstantZPolygonToolpath.prototype.forEachPoint = function (pointHandler, defaultZ) {
         $.each(this.path, function (index, point) {
@@ -417,39 +427,10 @@ define(['cnc/bezier', 'cnc/clipper'], function (bezier, clipper) {
         return result;
     }
 
-    function createPocket(shapePoly, toolRadius, radialEngagementRatio) {
-        var clipperScale = Math.pow(2, 20);
-
-        function offsetPolygon(polygon, radius) {
-            var result = new clipper.PolyTree();
-            var co = new clipper.ClipperOffset(2, 0.0001 * clipperScale);
-            co.AddPaths(polygon, clipper.JoinType.jtRound, clipper.EndType.etClosedPolygon);
-            co.Execute(result, radius * clipperScale);
-            return result;
-        }
-
-        function handlePocket(shapePoly, toolRadius, radialEngagementRatio) {
-            var outlineAtToolCenter = offsetPolygon(shapePoly, -toolRadius);
-
-            function recursivelyOffset(shape, depth) {
-                var children = decomposePolytreeInTopLevelPolygons(shape);
-                return children.map(function (child) {
-                    var offset = offsetPolygon(child, -toolRadius * radialEngagementRatio);
-                    return {contour: child, children: recursivelyOffset(offset, depth + 1)};
-                });
-            }
-
-            return recursivelyOffset(outlineAtToolCenter, 0);
-        }
-
-        return handlePocket(shapePoly, toolRadius, radialEngagementRatio);
-    }
-
     return {
         geom: geom,
         pushOnPath: pushOnPath,
         Machine: Machine,
-        decomposePolytreeInTopLevelPolygons: decomposePolytreeInTopLevelPolygons,
-        createPocket: createPocket
+        decomposePolytreeInTopLevelPolygons: decomposePolytreeInTopLevelPolygons
     };
 });

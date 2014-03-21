@@ -1,5 +1,5 @@
 "use strict";
-define(function () {
+define(['cnc/util'], function (util) {
     function differentiator(stepSize, stepCollector) {
         var previousPoint = null;
         return function (point) {
@@ -66,20 +66,20 @@ define(function () {
         }
     }
 
-    function rasterizeArc(arc, stepSize, stepCollector) {
+    function rasterizeArc(arc, stepSize, stepCollector, pointAtRatio) {
         function clampToGrid(val) {
             return Math.round(val / stepSize) * stepSize;
         }
 
         var arcSteps = Math.ceil(arc.radius * Math.abs(arc.angularDistance) / stepSize);
-        var startPoint = simulation.COMPONENT_TYPES.arc.pointAtRatio(arc, 0, true);
-        var endPoint = simulation.COMPONENT_TYPES.arc.pointAtRatio(arc, 1, true);
+        var startPoint = pointAtRatio(0);
+        var endPoint = pointAtRatio(1);
         var linearSteps = Math.ceil(Math.abs(endPoint[arc.plane.lastCoord] - startPoint[arc.plane.lastCoord]) / stepSize);
         var steps = Math.max(arcSteps, linearSteps);
         var filter = differentiator(stepSize, stepCollector);
         for (var i = 0; i <= steps; i++) {
             var ratio = i / steps;
-            var point = simulation.COMPONENT_TYPES.arc.pointAtRatio(arc, ratio, true);
+            var point = pointAtRatio(ratio);
             point = unaryOp(point, clampToGrid);
             point.l = ratio;
             filter(point);
