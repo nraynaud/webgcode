@@ -24,7 +24,7 @@ define(['libs/rsvp-latest', 'cnc/cam', 'cnc/clipper', 'libs/opentype', 'cnc/text
                 twoDView.zoomExtent();
                 var display = {
                     displayClipperComputingPoly: function (clipperPoly) {
-                        var res1 = machine.createOutline(null).attr({class: 'computingPolygon'});
+                        var res1 = machine.createOutline(null).attr({class: 'computingPolygon', fill: 'url(#computingFill)'});
                         machine.fromClipper(clipperPoly).map(function (poly) {
                             if (poly.path.length > 1)
                                 cam.pushOnPath(res1, poly);
@@ -57,10 +57,8 @@ define(['libs/rsvp-latest', 'cnc/cam', 'cnc/clipper', 'libs/opentype', 'cnc/text
                     }
 
                     for (var i = 0; i < pocketToolPaths.length; i++)
-                        for (var j = 0; j < pocketToolPaths[i].length; j++) {
-                            var pocket = pocketToolPaths[i][j];
-                            registerPocket(pocket);
-                        }
+                        for (var j = 0; j < pocketToolPaths[i].length; j++)
+                            registerPocket(pocketToolPaths[i][j]);
                     whenDone();
                 }).catch(function (reason) {
                     console.log('error', reason.stack);

@@ -52,7 +52,6 @@
 }
 
 .computingPolygon {
-    fill: url(#computingFill);
     stroke: none;
 }
 

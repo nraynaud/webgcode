@@ -166,7 +166,6 @@
 		DDAA541696763A79D1A28E01 /* mode-php.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5289B5CAE0C42ED6FBBF /* mode-php.js */; };
 		DDAA541CA63CF55BE9930E28 /* text.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5502A0380F5DA1F2E16B /* text.js */; };
 		DDAA5433D4A43436672A7883 /* theme-idle_fingers.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5B757FB3676A51900ED6 /* theme-idle_fingers.js */; };
-		DDAA543E358E4BF8069C186A /* queue.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5E6BF9E242F3BF143DB0 /* queue.js */; };
 		DDAA54443183FD1F3CC7C77C /* worker-xquery.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA52CA23E7C9E2511B674A /* worker-xquery.js */; };
 		DDAA54485F7EE404A0BB717D /* mode-typescript.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5123BB7887FC75E9F33D /* mode-typescript.js */; };
 		DDAA544AFE32E4106F60ED8D /* mode-coldfusion.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5E7E53A41AA2C6CE2738 /* mode-coldfusion.js */; };
@@ -1211,7 +1210,6 @@
 		DDAA5E6A835FCB7F3913BF32 /* mode-assembly_x86.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-assembly_x86.js"; sourceTree = "<group>"; };
 		DDAA5E6B4A23516051779808 /* mode-mysql.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-mysql.js"; sourceTree = "<group>"; };
 		DDAA5E6B4E7008D75FA4C29A /* mode-jsoniq.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-jsoniq.js"; sourceTree = "<group>"; };
-		DDAA5E6BF9E242F3BF143DB0 /* queue.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = queue.js; sourceTree = "<group>"; };
 		DDAA5E6DC9E39A770193B400 /* mode-d.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-d.js"; sourceTree = "<group>"; };
 		DDAA5E70E8831DB5DCBDC7AD /* mode-velocity.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-velocity.js"; sourceTree = "<group>"; };
 		DDAA5E77AD3A6A7DA2EB1C92 /* mode-tex.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-tex.js"; sourceTree = "<group>"; };
@@ -1327,7 +1325,6 @@
 				DDAA5D857D89E03A3279BD61 /* rsvp-latest.js */,
 				DDAA534B19EA1BB5E708603D /* require.js */,
 				DDAA5B5C960BCD9C02F8E159 /* jquery-1.7.2-unminified.js */,
-				DDAA5E6BF9E242F3BF143DB0 /* queue.js */,
 			);
 			name = libs;
 			path = webapp/libs;
@@ -2816,7 +2813,6 @@
 				DDAA541CA63CF55BE9930E28 /* text.js in Sources */,
 				DDAA5B3BF805ECF7897A9F36 /* pocket.js in Sources */,
 				DDAA54CC60DF245D707A1063 /* pocket_worker.js in Sources */,
-				DDAA543E358E4BF8069C186A /* queue.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

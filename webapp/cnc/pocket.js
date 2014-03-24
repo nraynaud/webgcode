@@ -1,6 +1,6 @@
 "use strict";
 
-define(['cnc/clipper', 'cnc/cam', 'libs/queue'], function (clipper, cam, queue) {
+define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
 
     var cpr = new clipper.Clipper();
     var co = new clipper.ClipperOffset();
