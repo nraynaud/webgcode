@@ -24,10 +24,17 @@ require(['cnc/cam', 'cnc/pocket'], function (cam, pocket) {
     for (var i = 0; i < work.length; i++)
         handlePocket(work[i].poly, work[i].scaledToolRadius, work[i].radialEngagementRatio);
 
-    function handlePocket(shapePoly, scaledToolRadius, radialEngagementRatio) {
-        console.log('start worker computation');
+    function displayUndercutPoly(polygon) {
+        self.postMessage({
+            operation: 'displayUndercutPoly',
+            polygon: polygon
+        });
+    }
 
-        var result = pocket.doCreatePocket(shapePoly, scaledToolRadius, radialEngagementRatio);
+    function handlePocket(shapePoly, scaledToolRadius, radialEngagementRatio) {
+        var display = {displayUndercutPoly: displayUndercutPoly};
+        console.log('start worker computation');
+        var result = pocket.doCreatePocket2(shapePoly, scaledToolRadius, radialEngagementRatio, display);
         console.log('worker computation done');
         self.postMessage({
             finished: true,

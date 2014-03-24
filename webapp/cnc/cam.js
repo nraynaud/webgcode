@@ -92,7 +92,11 @@ define(['cnc/bezier', 'cnc/clipper'], function (bezier, clipper) {
         function closePolygons(polygon) {
             for (var i = 0; i < polygon.length; i++) {
                 var poly = polygon[i];
-                poly.push(poly[0]);
+                if (poly.length != 0) {
+                    var lastPoint = poly[poly.length - 1];
+                    if (lastPoint.X != poly[0].X && lastPoint.Y != poly[0].Y)
+                        poly.push(poly[0]);
+                }
             }
             return polygon;
         }
@@ -427,10 +431,20 @@ define(['cnc/bezier', 'cnc/clipper'], function (bezier, clipper) {
         return result;
     }
 
+    function polyOp(op1, op2, operation, treeResult) {
+        var cpr = new clipper.Clipper();
+        var result = treeResult ? new clipper.PolyTree() : [];
+        cpr.AddPaths(op1, clipper.PolyType.ptSubject, true);
+        cpr.AddPaths(op2, clipper.PolyType.ptClip, true);
+        cpr.Execute(operation, result, clipper.PolyFillType.pftNonZero, clipper.PolyFillType.pftNonZero);
+        return result;
+    }
+
     return {
         geom: geom,
         pushOnPath: pushOnPath,
         Machine: Machine,
-        decomposePolytreeInTopLevelPolygons: decomposePolytreeInTopLevelPolygons
+        decomposePolytreeInTopLevelPolygons: decomposePolytreeInTopLevelPolygons,
+        polyOp: polyOp
     };
 });

@@ -53,6 +53,7 @@
 
 .computingPolygon {
     fill: url(#computingFill);
+    stroke: none;
 }
 
 #computingFill * {
@@ -82,4 +83,8 @@
     100% {
         -webkit-transform: translate(0, 2px);
     }
+}
+
+.undercutPolygon {
+    fill: red;
 }

@@ -16,7 +16,7 @@ define(['libs/rsvp-latest', 'cnc/cam', 'cnc/clipper', 'libs/opentype', 'cnc/text
             }
 
             machine.setParams(-1, 1, 1000);
-            text.getText('Sofadi One', 'Text', 50).then(function (textOutline) {
+            text.getText('Seymour One', 'Quite long text', 30).then(function (textOutline) {
                 var toolRadius = 2 / 2;
                 var radialEngagementRatio = 0.9;
                 var outline = machine.createOutline(textOutline, 'gray');
@@ -25,6 +25,16 @@ define(['libs/rsvp-latest', 'cnc/cam', 'cnc/clipper', 'libs/opentype', 'cnc/text
                 var display = {
                     displayClipperComputingPoly: function (clipperPoly) {
                         var res1 = machine.createOutline(null).attr({class: 'computingPolygon'});
+                        machine.fromClipper(clipperPoly).map(function (poly) {
+                            if (poly.path.length > 1)
+                                cam.pushOnPath(res1, poly);
+                            res1.node.pathSegList.appendItem(res1.node.createSVGPathSegClosePath());
+                        });
+                        return res1;
+                    },
+                    displayUndercutPoly: function (clipperPoly) {
+                        console.log('undercut');
+                        var res1 = machine.createOutline(null).attr({class: 'undercutPolygon'});
                         machine.fromClipper(clipperPoly).map(function (poly) {
                             if (poly.path.length > 1)
                                 cam.pushOnPath(res1, poly);
