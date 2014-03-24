@@ -122,6 +122,10 @@ define(['cnc/clipper', 'cnc/cam', 'libs/queue'], function (clipper, cam, queue) 
         throw new Error('no parent found for point');
     }
 
+    function plugChildIntoCorrectParent(parentList, child) {
+        parentList[findParent(parentList, child.contour[0][0])].children.push(child);
+    }
+
     function doCreatePocket2(shapePoly, scaledToolRadius, radialEngagementRatio, display) {
         var outlineAtToolCenter = offsetPolygon(shapePoly, -scaledToolRadius, true);
         var pocket = outlineAtToolCenter;
@@ -143,16 +147,15 @@ define(['cnc/clipper', 'cnc/cam', 'libs/queue'], function (clipper, cam, queue) 
         } while (pocket.ChildCount());
         do {
             var children = stack.pop();
-            var parentList = stack[stack.length - 1];
             for (var j = 0; j < children.length; j++) {
                 var child = children[j];
                 cam.geom.closePolygons(child.contour);
                 chainOneStagePocketRing(child);
-                var m = findParent(parentList, child.contour[0][0]);
-                parentList[m].children.push(child);
+                if (stack.length)
+                    plugChildIntoCorrectParent(stack[stack.length - 1], child);
             }
-        } while (stack.length - 1 > 0);
-        return stack[0];
+        } while (stack.length > 0);
+        return children;
     }
 
     function computePocketImmediately(polygon, toolRadius, radialEngagementRatio, display) {
