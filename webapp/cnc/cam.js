@@ -292,14 +292,29 @@ define(['cnc/bezier', 'cnc/clipper'], function (bezier, clipper) {
     };
 
     Machine.prototype.dumpGCode = function () {
+        function formatCoord(num) {
+            if (num == 0)
+                return '0';
+            if (num % 1 === 0)
+                return num.toString();
+            var res = num.toFixed(4);
+            for (var i = res.length - 1; i >= 0; i--) {
+                if (res[i] != '0' && res[i] != '.')
+                    return res.substring(0, i + 1);
+                if (res[i] == '.')
+                    return res.substring(0, i);
+            }
+            return res;
+        }
+
         function pos(point) {
             var res = '';
             if (point['x'] != null)
-                res += 'X' + point.x;
+                res += ' X' + formatCoord(point.x);
             if (point['y'] != null)
-                res += 'Y' + point.y;
+                res += ' Y' + formatCoord(point.y);
             if (point['z'] != null)
-                res += 'Z' + point.z;
+                res += ' Z' + formatCoord(point.z);
             return res;
         }
 

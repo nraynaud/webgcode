@@ -2,6 +2,10 @@
 
 define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
 
+    function lastItem(array) {
+        return array[array.length - 1];
+    }
+
     var cpr = new clipper.Clipper();
     var co = new clipper.ClipperOffset();
 
@@ -40,11 +44,11 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
     }
 
     function spiralFromData(pocket, childClosingPoint, childSpiral, currentShell) {
-        var currentContour = rotatePolygonSoThatStartPointIsClosestTo(childClosingPoint, pocket.contour[0]);
+        var currentContour = cam.geom.closePolygons([rotatePolygonSoThatStartPointIsClosestTo(childClosingPoint, pocket.contour[0])])[0];
         var newShell = currentShell.slice();
         newShell[0] = currentContour;
         //push first point at the end to force polygon closing
-        return {shell: newShell, path: childSpiral.concat(currentContour, [currentContour[0]])};
+        return {shell: newShell, path: childSpiral.concat(currentContour)};
     }
 
     function chainOneStagePocketRing(pocket) {
@@ -55,7 +59,7 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
                 var newSpiraledToolPath;
                 if (child['spiraledToolPath']) {
                     var childToolPath = child.spiraledToolPath;
-                    newSpiraledToolPath = spiralFromData(pocket, childToolPath.path.slice(-1)[0], childToolPath.path, childToolPath.shell);
+                    newSpiraledToolPath = spiralFromData(pocket, lastItem(childToolPath.path), childToolPath.path, childToolPath.shell);
                 } else {
                     var childContour = child.contour[0];
                     var shell = [childContour];
@@ -66,8 +70,20 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
                 //the lowest chainable child might itself have non-chainable children
                 pocket.children = child.children;
                 pocket.spiraledToolPath = newSpiraledToolPath;
+                return;
             }
         }
+        if (pocket.children.length) {
+            //find a first point that limits a bit the tool travel
+            var lastChild = lastItem(pocket.children);
+            var lastPoint = lastItem(lastChild['spiraledToolPath'] ? lastChild['spiraledToolPath'].path : lastChild.contour[0]);
+            for (var i = 0; i < pocket.contour.length; i++) {
+                //do it for the contour and all its holes.
+                pocket.contour[i] = rotatePolygonSoThatStartPointIsClosestTo(lastPoint, pocket.contour[i]);
+                lastPoint = lastItem(pocket.contour[i]);
+            }
+        }
+        cam.geom.closePolygons(pocket.contour);
     }
 
     function chainPocketRings(pocket) {
@@ -126,6 +142,12 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
         parentList[findParent(parentList, child.contour[0][0])].children.push(child);
     }
 
+    function sortChildren(pocket) {
+        pocket.children.sort(function (p1, p2) {
+            return pointOrder(p1.contour[0][0], p2.contour[0][0]);
+        });
+    }
+
     function doCreatePocket2(shapePoly, scaledToolRadius, radialEngagementRatio, display) {
         var outlineAtToolCenter = offsetPolygon(shapePoly, -scaledToolRadius, true);
         var pocket = outlineAtToolCenter;
@@ -149,10 +171,10 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
             var children = stack.pop();
             for (var j = 0; j < children.length; j++) {
                 var child = children[j];
-                cam.geom.closePolygons(child.contour);
+                sortChildren(child);
                 chainOneStagePocketRing(child);
                 if (stack.length)
-                    plugChildIntoCorrectParent(stack[stack.length - 1], child);
+                    plugChildIntoCorrectParent(lastItem(stack), child);
             }
         } while (stack.length > 0);
         return children;
@@ -218,12 +240,25 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
             promise: deferred.promise};
     }
 
+    function pointOrder(p1, p2) {
+        var dX = p1.X - p2.X;
+        if (dX == 0)
+            return p1.Y - p2.Y;
+        return dX;
+    }
+
+    function sortPolygons(polygons) {
+        polygons.sort(function (p1, p2) {
+            return pointOrder(p1[0][0], p2[0][0]);
+        });
+    }
+
     function createPocket(clipperPoly, scaledToolRadius, radialEngagementRatio, display) {
         var result = new clipper.PolyTree();
         cpr.AddPaths(clipperPoly, clipper.PolyType.ptSubject, true);
-        cpr.AddPaths([], clipper.PolyType.ptClip, true);
         cpr.Execute(clipper.ClipType.ctUnion, result, clipper.PolyFillType.pftNonZero, clipper.PolyFillType.pftNonZero);
         var polygons = cam.decomposePolytreeInTopLevelPolygons(result);
+        sortPolygons(polygons);
         var workArray = polygons.map(function (poly) {
             return createWork(poly, scaledToolRadius, radialEngagementRatio, display);
         });
