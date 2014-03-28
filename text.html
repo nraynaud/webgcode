@@ -115,65 +115,64 @@
                         var textContour = svgElement.path(textOutline).attr({stroke: 'gray', 'vector-effect': 'non-scaling-stroke', fill: 'none'});
                         twoDView.zoomExtent();
                         self.set('textContour', textContour);
-                        self.computePocket(textContour, t);
+                        Ember.run.debounce(self, self.computePocket, 3000);
                     });
                 }).catch(function (error) {
                             console.log(error.stack);
                         });
             }.observes('text').on('init'),
-            computePocket: function (passedTextContour, text) {
+            computePocket: function () {
                 var self = this;
                 var svgElement = this.get('textGroup');
                 var toolRadius = 2 / 2;
                 var radialEngagementRatio = 0.9;
+                var passedTextContour = this.get('textContour');
+                var text = this.get('text');
+                var poly2 = machine.toClipper(passedTextContour);
 
-                Ember.run.debounce(this, function () {
-                    var poly2 = machine.toClipper(passedTextContour);
+                function registerPocket(pocketToolPaths) {
 
-                    function registerPocket(pocketToolPaths) {
-
-                        function displayClipper(clipperPoly, attr) {
-                            var res1 = svgElement.path(null).attr({'vector-effect': 'non-scaling-stroke'}).attr(attr);
-                            machine.fromClipper(clipperPoly).map(function (poly) {
-                                if (poly.path.length > 1)
-                                    cam.pushOnPath(res1, poly);
-                            });
-                        }
-
-                        function registerPocket(pocket) {
-                            for (var j = 0; j < pocket.children.length; j++)
-                                registerPocket(pocket.children[j]);
-                            if (pocket.spiraledToolPath) {
-                                displayClipper([pocket.spiraledToolPath.path], {stroke: 'blue', fill: 'none'});
-                                displayClipper(pocket.spiraledToolPath.shell, {stroke: 'none', fill: 'rgba(100, 100, 255, 0.2)',
-                                    'fill-rule': 'evenodd', title: 'spiral toolpath'});
-                            } else
-                                displayClipper(pocket.contour, {stroke: 'blue', fill: 'none'});
-                        }
-
-                        for (var i = 0; i < pocketToolPaths.length; i++)
-                            for (var j = 0; j < pocketToolPaths[i].length; j++)
-                                registerPocket(pocketToolPaths[i][j]);
+                    function displayClipper(clipperPoly, attr) {
+                        var res1 = svgElement.path(null).attr({'vector-effect': 'non-scaling-stroke'}).attr(attr);
+                        machine.fromClipper(clipperPoly).map(function (poly) {
+                            if (poly.path.length > 1)
+                                cam.pushOnPath(res1, poly);
+                        });
                     }
 
-                    var promise = pocket.createPocket(poly2, toolRadius * machine.clipperScale, radialEngagementRatio, self.display);
-
-                    function onTextChange() {
-                        promise.abort();
-                        self.removeObserver('text', onTextChange);
+                    function registerPocket(pocket) {
+                        for (var j = 0; j < pocket.children.length; j++)
+                            registerPocket(pocket.children[j]);
+                        if (pocket.spiraledToolPath) {
+                            displayClipper([pocket.spiraledToolPath.path], {stroke: 'blue', fill: 'none'});
+                            displayClipper(pocket.spiraledToolPath.shell, {stroke: 'none', fill: 'rgba(100, 100, 255, 0.2)',
+                                'fill-rule': 'evenodd', title: 'spiral toolpath'});
+                        } else
+                            displayClipper(pocket.contour, {stroke: 'blue', fill: 'none'});
                     }
 
-                    this.addObserver('text', onTextChange);
+                    for (var i = 0; i < pocketToolPaths.length; i++)
+                        for (var j = 0; j < pocketToolPaths[i].length; j++)
+                            registerPocket(pocketToolPaths[i][j]);
+                }
 
-                    promise.then(function (pocketToolPaths) {
-                        self.removeObserver('text', onTextChange);
-                        if (text == self.get('text'))
-                            Ember.run(null, registerPocket, pocketToolPaths);
-                    }, function (error) {
-                        self.removeObserver('text', onTextChange);
-                        console.log(error.stack);
-                    });
-                }, 3000);
+                var promise = pocket.createPocket(poly2, toolRadius * machine.clipperScale, radialEngagementRatio, self.display);
+
+                function onTextChange() {
+                    promise.abort();
+                    self.removeObserver('text', onTextChange);
+                }
+
+                this.addObserver('text', onTextChange);
+
+                promise.then(function (pocketToolPaths) {
+                    self.removeObserver('text', onTextChange);
+                    if (text == self.get('text'))
+                        Ember.run(null, registerPocket, pocketToolPaths);
+                }, function (error) {
+                    self.removeObserver('text', onTextChange);
+                    console.log(error.stack);
+                });
             }
         });
         TextApplication.TextRoute = Ember.Route.extend({
