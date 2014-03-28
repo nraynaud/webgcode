@@ -198,7 +198,7 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
         function createWorkerListener(workStructure) {
             return function (event) {
                 if (workStructure.abort) {
-                    console.log('got message from an aborted worker')
+                    console.log('got message from an aborted worker');
                     workStructure.worker.terminate();
                     workStructure.worker = null;
                     return;
@@ -228,15 +228,12 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
         return {
             workers: workers,
             abort: function () {
-                console.log('aborted');
                 for (var i = 0; i < workers.length; i++) {
                     var work = workers[i];
                     work.abort = true;
                     if (work.worker !== null) {
-                        console.log('terminating a worker');
-                        console.time('worker termination');
                         work.worker.terminate();
-                        console.timeEnd('worker termination');
+                        work.worker = null;
                     }
                 }
             }};
@@ -249,7 +246,6 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
             messageHandler: function (data) {
                 if (data['finished']) {
                     var result = data['result'];
-                    console.log('got result');
                     handle.remove();
                     Ember.run(deferred, deferred.resolve, result);
                     return true;

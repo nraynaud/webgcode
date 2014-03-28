@@ -500,6 +500,7 @@
 		DDAA5D6C8C9C3AB7DBDE6606 /* mode-mushcode.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5E524DC565DA731F8C82 /* mode-mushcode.js */; };
 		DDAA5D6CCAA204ABDF0432D8 /* morphology.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5B56FDBADA4E25BC4B18 /* morphology.js */; };
 		DDAA5D7ADB5D8BDC546E1E8F /* theme-textmate.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA554AA19A3163F6FB6B9E /* theme-textmate.js */; };
+		DDAA5D8522CC01C3FDEDF044 /* views.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5D362B64EEE93DE54810 /* views.js */; };
 		DDAA5D8D3AE5D6059877050B /* mode-css.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53AA1AA0B33FDC424095 /* mode-css.js */; };
 		DDAA5D8EEC8AFAEEC2BB4E19 /* mode-mushcode_high_rules.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA50139A1CA71689A75AE6 /* mode-mushcode_high_rules.js */; };
 		DDAA5D96AD8B7A9BF70C792A /* theme-tomorrow_night_blue.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA559A81F203F6155DF892 /* theme-tomorrow_night_blue.js */; };
@@ -766,6 +767,7 @@
 		DDAA53BC2DF0C9B74F250819 /* csg.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = csg.js; path = webapp/libs/csg.js; sourceTree = "<group>"; };
 		DDAA53C424B774AE05FC4E8B /* mode-lisp.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-lisp.js"; sourceTree = "<group>"; };
 		DDAA53C4425482405DFB2FDB /* ext-themelist.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-themelist.js"; sourceTree = "<group>"; };
+		DDAA53C9FA100E05C62C575E /* views.js */ = {isa = PBXFileReference; lastKnownFileType = file.j; name = views.js; path = ui/views.js; sourceTree = "<group>"; };
 		DDAA53D0D9AE21EE52463EAE /* manual.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = manual.c; path = interpolator/manual.c; sourceTree = "<group>"; };
 		DDAA53D8AD9201DD86A33004 /* mode-tmsnippet.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-tmsnippet.js"; sourceTree = "<group>"; };
 		DDAA53D913DB1180C1993DBB /* worker-xquery.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "worker-xquery.js"; sourceTree = "<group>"; };
@@ -1156,6 +1158,7 @@
 		DDAA5D2BF7ADBC8D4467D752 /* mode-c9search.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-c9search.js"; sourceTree = "<group>"; };
 		DDAA5D2C948B60B091AE382C /* mode-yaml.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-yaml.js"; sourceTree = "<group>"; };
 		DDAA5D30B597998BDF0DB885 /* theme-ambiance.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-ambiance.js"; sourceTree = "<group>"; };
+		DDAA5D362B64EEE93DE54810 /* views.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = views.js; sourceTree = "<group>"; };
 		DDAA5D3FDB61213238442732 /* mode-golang.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-golang.js"; sourceTree = "<group>"; };
 		DDAA5D6124B41AD6DD5DDB6F /* ext-static_highlight.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-static_highlight.js"; sourceTree = "<group>"; };
 		DDAA5D675D414DC8548C15CF /* mode-abap.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-abap.js"; sourceTree = "<group>"; };
@@ -1617,8 +1620,18 @@
 				DDAA5EB341C9FC384E6D6A89 /* clipper.js */,
 				DDAA5502A0380F5DA1F2E16B /* text.js */,
 				DDAA571D7AADB7293C20F54C /* pocket.js */,
+				DDAA53C9FA100E05C62C575E /* views.js */,
+				DDAA59E1C202A1DFCFB7CC1A /* ui */,
 			);
 			path = cnc;
+			sourceTree = "<group>";
+		};
+		DDAA59E1C202A1DFCFB7CC1A /* ui */ = {
+			isa = PBXGroup;
+			children = (
+				DDAA5D362B64EEE93DE54810 /* views.js */,
+			);
+			path = ui;
 			sourceTree = "<group>";
 		};
 		DDAA5B6138E48F6C79991FB2 /* src-noconflict */ = {
@@ -2801,6 +2814,7 @@
 				DDAA5B3BF805ECF7897A9F36 /* pocket.js in Sources */,
 				DDAA54CC60DF245D707A1063 /* pocket_worker.js in Sources */,
 				DDAA52AB326C153DC3BC16E4 /* handlebars-v1.3.0.js in Sources */,
+				DDAA5D8522CC01C3FDEDF044 /* views.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
