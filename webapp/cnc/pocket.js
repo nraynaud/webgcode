@@ -6,7 +6,6 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
         return array[array.length - 1];
     }
 
-    var cpr = new clipper.Clipper();
     var co = new clipper.ClipperOffset();
 
     function offsetPolygon(polygon, radius, useTree) {
@@ -186,7 +185,7 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
             setTimeout(function () {
                 var result = doCreatePocket(polygon, toolRadius, radialEngagementRatio, display);
                 handle.remove();
-                resolve(result);
+                Ember.run(null, resolve, result);
             }, 0);
         }
     }
@@ -198,6 +197,12 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
 
         function createWorkerListener(workStructure) {
             return function (event) {
+                if (workStructure.abort) {
+                    console.log('got message from an aborted worker')
+                    workStructure.worker.terminate();
+                    workStructure.worker = null;
+                    return;
+                }
                 var result = workStructure.work.messageHandler(event.data);
                 if (result) {
                     workStructure.work = null;
@@ -219,7 +224,22 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
             worker.onmessage = createWorkerListener(workers[workIndex]);
             worker.postMessage(workArray[workIndex].message);
         }
-        return workers;
+
+        return {
+            workers: workers,
+            abort: function () {
+                console.log('aborted');
+                for (var i = 0; i < workers.length; i++) {
+                    var work = workers[i];
+                    work.abort = true;
+                    if (work.worker !== null) {
+                        console.log('terminating a worker');
+                        console.time('worker termination');
+                        work.worker.terminate();
+                        console.timeEnd('worker termination');
+                    }
+                }
+            }};
     }
 
     function createWork(polygon, scaledToolRadius, radialEngagementRatio, display) {
@@ -231,7 +251,7 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
                     var result = data['result'];
                     console.log('got result');
                     handle.remove();
-                    deferred.resolve(result);
+                    Ember.run(deferred, deferred.resolve, result);
                     return true;
                 } else if (data['operation'] == 'displayUndercutPoly')
                     display.displayUndercutPoly(data['polygon']);
@@ -254,18 +274,18 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
     }
 
     function createPocket(clipperPoly, scaledToolRadius, radialEngagementRatio, display) {
-        var result = new clipper.PolyTree();
-        cpr.AddPaths(clipperPoly, clipper.PolyType.ptSubject, true);
-        cpr.Execute(clipper.ClipType.ctUnion, result, clipper.PolyFillType.pftNonZero, clipper.PolyFillType.pftNonZero);
-        var polygons = cam.decomposePolytreeInTopLevelPolygons(result);
+        var polygons = cam.decomposePolytreeInTopLevelPolygons(cam.polyOp(clipperPoly, [], clipper.ClipType.ctUnion, true));
         sortPolygons(polygons);
+        var promises = [];
         var workArray = polygons.map(function (poly) {
-            return createWork(poly, scaledToolRadius, radialEngagementRatio, display);
+            var work = createWork(poly, scaledToolRadius, radialEngagementRatio, display);
+            promises.push(work.promise);
+            return  work;
         });
-        window.workerPool = createWorkerPool('webapp/pocket_worker.js', workArray, 6);
-        return RSVP.all(workArray.map(function (work) {
-            return work.promise;
-        }));
+        window.workerPool = createWorkerPool('webapp/pocket_worker.js', workArray, 2);
+        var result = RSVP.all(promises);
+        result.abort = window.workerPool.abort;
+        return result;
     }
 
     return {

@@ -10,6 +10,9 @@
     <script src="webapp/libs/opentype.js"></script>
     <script src="webapp/libs/extractedRaphael.js"></script>
     <script src="webapp/libs/require.js"></script>
+    <script src="webapp/libs/handlebars-v1.3.0.js"></script>
+    <script src="webapp/libs/ember-1.5.0-beta5.pre7.js"></script>
+    <script src="webapp/libs/ember-data-1.0.0-beta7.js"></script>
 
     <script>
         requirejs.config({
@@ -51,25 +54,150 @@
     </style>
 </head>
 <body>
+<script type="text/x-handlebars" data-template-name="text">
+    {{input type="text" id="text" valueBinding="text"}}
+</script>
 <div id="drawing"></div>
 <textarea id="code"></textarea>
 <script>
     var drawing = $('#drawing');
-    require(['cnc/twoDView', 'cnc/cam', 'samples/fontExample.js'], function (twoD, cam, fontExample) {
+    require(['cnc/twoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text', 'cnc/pocket'], function (twoD, cam, fontExample, text, pocket) {
+        window.TextApplication = Ember.Application.create({
+            LOG_TRANSITIONS: true
+        });
+        TextApplication.Router.reopen({
+            rootURL: '/webgcode/'
+        });
+        TextApplication.Router.map(function () {
+            this.resource('text', {path: '/'});
+        });
+        TextApplication.TextController = Ember.ObjectController.extend({
+            init: function () {
+                this._super();
+                var textGroup = twoDView.paper.group();
+                this.set('textGroup', textGroup);
+                this.display = {
+                    displayClipperComputingPoly: function (clipperPoly) {
+                        var res1 = textGroup.path(null).attr({class: 'computingPolygon', 'vector-effect': 'non-scaling-stroke', fill: 'url(#computingFill)'});
+                        machine.fromClipper(clipperPoly).map(function (poly) {
+                            if (poly.path.length > 1)
+                                cam.pushOnPath(res1, poly);
+                            res1.node.pathSegList.appendItem(res1.node.createSVGPathSegClosePath());
+                        });
+                        return res1;
+                    }.bind(this),
+                    displayUndercutPoly: function (clipperPoly) {
+                        var res1 = textGroup.path(null).attr({class: 'undercutPolygon', 'vector-effect': 'non-scaling-stroke'});
+                        machine.fromClipper(clipperPoly).map(function (poly) {
+                            if (poly.path.length > 1)
+                                cam.pushOnPath(res1, poly);
+                            res1.node.pathSegList.appendItem(res1.node.createSVGPathSegClosePath());
+                        });
+                        return res1;
+                    }.bind(this)
+                }
+            },
+            idleCounter: 0,
+            idleTimerHandle: null,
+            textChanged: function () {
+                this.set('idleCounter', 0);
+                var t = this.get('text');
+                if (t == null)
+                    return;
+                console.log(t);
+                var self = this;
+                var svgElement = self.get('textGroup');
+                svgElement.clear();
+
+                text.getText('Seymour One', t, 30).then(function (textOutline) {
+                    Ember.run(function () {
+                        svgElement.clear();
+                        var textContour = svgElement.path(textOutline).attr({stroke: 'gray', 'vector-effect': 'non-scaling-stroke', fill: 'none'});
+                        twoDView.zoomExtent();
+                        self.set('textContour', textContour);
+                        self.computePocket(textContour, t);
+                    });
+                }).catch(function (error) {
+                            console.log(error.stack);
+                        });
+            }.observes('text').on('init'),
+            computePocket: function (passedTextContour, text) {
+                var self = this;
+                var svgElement = this.get('textGroup');
+                var toolRadius = 2 / 2;
+                var radialEngagementRatio = 0.9;
+
+                Ember.run.debounce(this, function () {
+                    var poly2 = machine.toClipper(passedTextContour);
+
+                    function registerPocket(pocketToolPaths) {
+
+                        function displayClipper(clipperPoly, attr) {
+                            var res1 = svgElement.path(null).attr({'vector-effect': 'non-scaling-stroke'}).attr(attr);
+                            machine.fromClipper(clipperPoly).map(function (poly) {
+                                if (poly.path.length > 1)
+                                    cam.pushOnPath(res1, poly);
+                            });
+                        }
+
+                        function registerPocket(pocket) {
+                            for (var j = 0; j < pocket.children.length; j++)
+                                registerPocket(pocket.children[j]);
+                            if (pocket.spiraledToolPath) {
+                                displayClipper([pocket.spiraledToolPath.path], {stroke: 'blue', fill: 'none'});
+                                displayClipper(pocket.spiraledToolPath.shell, {stroke: 'none', fill: 'rgba(100, 100, 255, 0.2)',
+                                    'fill-rule': 'evenodd', title: 'spiral toolpath'});
+                            } else
+                                displayClipper(pocket.contour, {stroke: 'blue', fill: 'none'});
+                        }
+
+                        for (var i = 0; i < pocketToolPaths.length; i++)
+                            for (var j = 0; j < pocketToolPaths[i].length; j++)
+                                registerPocket(pocketToolPaths[i][j]);
+                    }
+
+                    var promise = pocket.createPocket(poly2, toolRadius * machine.clipperScale, radialEngagementRatio, self.display);
+
+                    function onTextChange() {
+                        promise.abort();
+                        self.removeObserver('text', onTextChange);
+                    }
+
+                    this.addObserver('text', onTextChange);
+
+                    promise.then(function (pocketToolPaths) {
+                        self.removeObserver('text', onTextChange);
+                        if (text == self.get('text'))
+                            Ember.run(null, registerPocket, pocketToolPaths);
+                    }, function (error) {
+                        self.removeObserver('text', onTextChange);
+                        console.log(error.stack);
+                    });
+                }, 3000);
+            }
+        });
+        TextApplication.TextRoute = Ember.Route.extend({
+            model: function () {
+                return this.store.find('text', 1);
+            }
+        });
+        TextApplication.ApplicationAdapter = DS.FixtureAdapter.extend();
+        TextApplication.Text = DS.Model.extend({
+            text: DS.attr('string')
+        });
+        TextApplication.Text.FIXTURES = [
+            {
+                id: 1,
+                text: 'text1'
+            },
+            {
+                id: 2,
+                text: 'long text'
+            }
+        ];
+
         var twoDView = new twoD.TwoDView(drawing);
         var machine = new cam.Machine(twoDView.paper);
-
-        function whenDone() {
-            console.timeEnd('creation');
-            $('#code').text(machine.dumpGCode());
-            twoDView.zoomExtent();
-        }
-
-        console.time('creation');
-        twoDView.zoomExtent();
-        var res = fontExample.testFont(machine, whenDone, twoDView);
-        if (!res)
-            whenDone();
     })
 </script>
 </body>

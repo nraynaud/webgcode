@@ -5,9 +5,9 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <title>Raphael Play</title>
     <script src="webapp/libs/jquery.min.js"></script>
-    <script src="webapp/libs/handlebars-1.0.0-rc.4.js"></script>
-    <script src="webapp/libs/ember-1.0.0-rc.5.js"></script>
-    <script src="webapp/libs/ember-data-0.13.min.js"></script>
+    <script src="webapp/libs/handlebars-v1.3.0.js"></script>
+    <script src="webapp/libs/ember-1.5.0-beta5.pre7.js"></script>
+    <script src="webapp/libs/ember-data-1.0.0-beta7.js"></script>
     <script src="webapp/libs/Three.js"></script>
     <script src="webapp/libs/TrackballControls.js"></script>
     <script src="webapp/libs/csg.js"></script>
@@ -166,25 +166,24 @@ function secondsToHms(d) {
     return ((h > 0 ? h + ":" : "") + (m > 0 ? (h > 0 && m < 10 ? "0" : "") + m + ":" : "0:") + (s < 10 ? "0" : "") + s);
 }
 window.TestApp = Ember.Application.create();
+TestApp.Router.reopen({
+    rootURL: '/webgcode/'
+});
 TestApp.Router.map(function () {
     this.resource('testApp', { path: '/' });
 });
-TestApp.Store = DS.Store.extend({
-    revision: 13,
-    adapter: 'DS.FixtureAdapter'
-});
 TestApp.Document = DS.Model.extend({
-    tool: DS.belongsTo('TestApp.Tool'),
-    slot: DS.belongsTo('TestApp.Slot'),
-    operation: DS.belongsTo('TestApp.Operation')
+    tool: DS.belongsTo('tool'),
+    slot: DS.belongsTo('slot'),
+    operation: DS.belongsTo('operation')
 });
 TestApp.Tool = DS.Model.extend({
-    document: DS.belongsTo('TestApp.Document'),
+    document: DS.belongsTo('document'),
     diameter: DS.attr('number'),
     flutes: DS.attr('number')
 });
 TestApp.Slot = DS.Model.extend({
-    document: DS.belongsTo('TestApp.Document'),
+    document: DS.belongsTo('document'),
     depth: DS.attr('number'),
     length: DS.attr('number'),
     width: DS.attr('number'),
@@ -193,7 +192,7 @@ TestApp.Slot = DS.Model.extend({
     }.property('depth', 'length', 'width')
 });
 TestApp.Operation = DS.Model.extend({
-    document: DS.belongsTo('TestApp.Document'),
+    document: DS.belongsTo('document'),
     increment: DS.attr('number'),
     rotationFrequency: DS.attr('number'),
     feedRate: DS.attr('number'),
@@ -247,7 +246,7 @@ TestApp.Operation = DS.Model.extend({
 });
 TestApp.TestAppRoute = Ember.Route.extend({
     model: function () {
-        return TestApp.Document.find(1);
+        return this.store.find('document', 1);
     }
 });
 TestApp.OperationController = Ember.ObjectController.extend({
@@ -348,7 +347,7 @@ TestApp.ThreeJSView = Ember.View.extend({
         obj.add(partMesh);
         obj.add(partMeshWireFrame);
         this.updateMesh(obj);
-    }.observes('controller.slot.length', 'controller.slot.width', 'controller.slot.depth')
+    }.observes('controller.slot.length', 'controller.slot.width', 'controller.slot.depth').on('init')
 });
 TestApp.RaphaelView = Ember.View.extend({
     didInsertElement: function () {
@@ -377,7 +376,7 @@ TestApp.RaphaelView = Ember.View.extend({
         if (w != null && l != null)
             this.get('slotDrawing').attr({x: 320 - w / 2, y: 240 - l / 2, width: w, height: l});
     }.observes('controller.slot.length', 'controller.slot.width'),
-    operationIncrementChanged: function () {
+    completelyUpdateView: function () {
         var l = this.get('controller.slot.length');
         var inc = this.get('controller.operation.increment');
         var operationPath = this.get('operationPath');
@@ -412,8 +411,13 @@ TestApp.RaphaelView = Ember.View.extend({
         console.log('trocho', this.get('controller.operation.actualPathLength'));
         var start = operationPath.node.getPointAtLength(0);
         this.get('toolDrawing').attr({cx: start.x, cy: start.y});
-    }.observes('controller.operation.increment', 'controller.slot.length', 'controller.slot.width', 'controller.tool.diameter')
+    },
+    operationIncrementChanged: function () {
+        Ember.run.once(this, 'completelyUpdateView');
+    }.observes('controller.operation.increment', 'controller.slot.length', 'controller.slot.width', 'controller.tool.diameter').on('init')
 });
+
+TestApp.ApplicationAdapter = DS.FixtureAdapter.extend();
 TestApp.Document.FIXTURES = [
     { id: 1, tool: 1, slot: 1, operation: 1}
 ];

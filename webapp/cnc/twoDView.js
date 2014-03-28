@@ -112,6 +112,7 @@ define(['libs/svg'], function () {
         $(window).resize(function resizeSVG() {
             self.svg.size(drawing.width(), drawing.height());
         });
+        self.zoomExtent();
     }
 
     TwoDView.prototype = {
@@ -123,7 +124,7 @@ define(['libs/svg'], function () {
             var box = paper.bbox();
             var m = this.root.node.getCTM();
             var svg = this.svg.node;
-            var newScale = Math.min(svg.width.baseVal.value / box.width, svg.height.baseVal.value / box.height) * 0.9;
+            var newScale = Math.min(svg.width.baseVal.value / box.width, svg.height.baseVal.value / box.height) * 0.8;
             newScale = isFinite(newScale) ? newScale : 1;
             newScale = Math.abs(newScale);
             m.a = newScale;

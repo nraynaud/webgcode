@@ -1,15 +1,15 @@
 "use strict";
 define(['libs/rsvp-latest', 'cnc/cam', 'cnc/clipper', 'libs/opentype'], function (rsvp, cam, clipper, opentype) {
     RSVP.on('error', function (reason) {
-        console.log(reason);
+        console.log(reason.stack);
     });
     var getFont = function (url) {
         return new RSVP.Promise(function (resolve, reject) {
             opentype.load(url, function (err, font) {
                 if (err)
-                    reject(this);
+                    Ember.run(null, reject, err);
                 else
-                    resolve(font);
+                    Ember.run(null, resolve, font);
             });
         });
     };
@@ -21,11 +21,11 @@ define(['libs/rsvp-latest', 'cnc/cam', 'cnc/clipper', 'libs/opentype'], function
                     for (var i = 0; i < result.items.length; i++) {
                         var font = result.items[i];
                         if (font.family == fontFamily) {
-                            resolve(font);
+                            Ember.run(null, resolve, font);
                             return;
                         }
                     }
-                    reject(this);
+                    Ember.run(null, reject, this);
                 }).fail(reject);
             }).then(function (fontData) {
                 return getFont(fontData.files['regular']);
