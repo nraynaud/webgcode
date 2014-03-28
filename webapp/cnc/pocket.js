@@ -278,7 +278,7 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
             promises.push(work.promise);
             return  work;
         });
-        window.workerPool = createWorkerPool('webapp/pocket_worker.js', workArray, 2);
+        window.workerPool = createWorkerPool('webapp/pocket_worker.js', workArray, 6);
         var result = RSVP.all(promises);
         result.abort = window.workerPool.abort;
         return result;

@@ -1,4 +1,8 @@
 
+.TwoDView * {
+    vector-effect: non-scaling-stroke;
+}
+
 .TwoDView .background {
     opacity: 0.4;
 }

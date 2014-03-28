@@ -71,7 +71,7 @@
 <textarea id="code"></textarea>
 <script>
     var drawing = $('#drawing');
-    require(['cnc/twoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text', 'cnc/pocket', 'cnc/ui/views'], function (twoD, cam, fontExample, text, pocket, views) {
+    require(['cnc/twoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text', 'cnc/pocket', 'cnc/ui/views', 'libs/simplify'], function (twoD, cam, fontExample, text, pocket, views, simplify) {
         window.TextApplication = Ember.Application.create({
             LOG_TRANSITIONS: true
         });
@@ -93,7 +93,7 @@
                 this.display = {
                     displayClipperComputingPoly: function (clipperPoly) {
                         var res1 = pocketGroup.path(null).attr({class: 'computingPolygon', 'vector-effect': 'non-scaling-stroke', fill: 'url(#computingFill)'});
-                        machine.fromClipper(clipperPoly).map(function (poly) {
+                        machine.fromClipper(simplifyPolys(clipperPoly)).map(function (poly) {
                             if (poly.path.length > 1)
                                 cam.pushOnPath(res1, poly);
                             res1.node.pathSegList.appendItem(res1.node.createSVGPathSegClosePath());
@@ -166,11 +166,11 @@
                         for (var j = 0; j < pocket.children.length; j++)
                             registerPocket(pocket.children[j]);
                         if (pocket.spiraledToolPath) {
-                            displayClipper([pocket.spiraledToolPath.path], {stroke: 'blue', fill: 'none'});
-                            displayClipper(pocket.spiraledToolPath.shell, {stroke: 'none', fill: 'rgba(100, 100, 255, 0.2)',
+                            displayClipper(simplifyPolys([pocket.spiraledToolPath.path]), {stroke: 'blue', fill: 'none'});
+                            displayClipper(simplifyPolys(pocket.spiraledToolPath.shell), {stroke: 'none', fill: 'rgba(100, 100, 255, 0.2)',
                                 'fill-rule': 'evenodd', title: 'spiral toolpath'});
                         } else
-                            displayClipper(pocket.contour, {stroke: 'blue', fill: 'none'});
+                            displayClipper(simplifyPolys(pocket.contour), {stroke: 'blue', fill: 'none'});
                     }
 
                     for (var i = 0; i < pocketToolPaths.length; i++)
@@ -180,7 +180,6 @@
 
                 var promise = pocket.createPocket(poly2, toolRadius * machine.clipperScale, radialEngagementRatio, self.display);
                 self.set('computationPromise', promise);
-
                 promise.then(function (pocketToolPaths) {
                     if (text == self.get('text'))
                         Ember.run(null, registerPocket, pocketToolPaths);
@@ -217,6 +216,13 @@
                 text: 'long text'
             }
         ];
+        function simplifyPolys(polys) {
+            return polys.map(function (poly) {
+                var simplified = simplify(poly, machine.clipperScale / 100, true);
+                console.log('simplified', poly.length, simplified.length);
+                return simplified;
+            });
+        }
 
         var twoDView = new twoD.TwoDView(drawing);
         var machine = new cam.Machine(twoDView.paper);
