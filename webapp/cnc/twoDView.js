@@ -6,10 +6,10 @@ define(['libs/svg'], function () {
         //https://bugzilla.mozilla.org/show_bug.cgi?id=479058
         //http://stackoverflow.com/questions/15629183/svg-offset-issue-in-firefox
         var inserted = $('<div></div>');
+        this.inserted = inserted;
         inserted.addClass('TwoDView');
-        inserted.css('top', '0');
         drawing.append(inserted);
-        this.svg = SVG(inserted[0]).size(drawing.width(), drawing.height());
+        this.svg = SVG(inserted[0]).attr({width: null, height: null});
         this.root = this.svg.group().attr({class: 'root', 'vector-effect': 'non-scaling-stroke'});
         this.background = this.root.group().attr({class: 'background', 'vector-effect': 'non-scaling-stroke'});
         this.paper = this.root.group().attr({class: 'paper', 'vector-effect': 'non-scaling-stroke'});
@@ -65,22 +65,8 @@ define(['libs/svg'], function () {
         }
         var self = this;
 
-        function getModelPositionForPageXY(x, y, matrix) {
-            if (matrix == null)
-                matrix = self.root.node.getCTM();
-            //can't use offset with SVG in FF  http://stackoverflow.com/questions/15629183/svg-offset-issue-in-firefox
-            var targetOffset = inserted.offset();
-            var px = x - targetOffset.left;
-            var py = y - targetOffset.top;
-            var p = self.svg.node.createSVGPoint();
-            p.x = px;
-            p.y = py;
-            p = p.matrixTransform(matrix.inverse());
-            return {x: p.x, y: p.y};
-        }
-
         drawing.mousewheel(function (event, delta, deltaX, deltaY) {
-            var pos = getModelPositionForPageXY(event.pageX, event.pageY);
+            var pos = self.getModelPositionForPageXY(event.pageX, event.pageY);
             var k = self.svg.node.createSVGMatrix().translate(pos.x, pos.y).scale(1 + deltaY / 360).translate(-pos.x, -pos.y);
             var m = self.root.node.getCTM().multiply(k);
             if (m.a > 0.4)
@@ -92,19 +78,19 @@ define(['libs/svg'], function () {
             if (event.which != 1)
                 return;
             var m = self.root.node.getCTM();
-            var pos = getModelPositionForPageXY(event.pageX, event.pageY, m);
+            var pos = self.getModelPositionForPageXY(event.pageX, event.pageY, m);
             self.mouseDownStartCondition = {x: event.pageX, y: event.pageY, matrix: m, modelPos: pos};
         });
-        drawing.mouseup(function (event) {
+        drawing.mouseup(function () {
             self.mouseDownStartCondition = null;
         });
-        drawing.mouseleave(function (event) {
+        drawing.mouseleave(function () {
             self.mouseDownStartCondition = null;
         });
         drawing.mousemove(function (event) {
             if (self.mouseDownStartCondition) {
                 var oldPos = self.mouseDownStartCondition.modelPos;
-                var newPos = getModelPositionForPageXY(event.pageX, event.pageY, self.mouseDownStartCondition.matrix);
+                var newPos = self.getModelPositionForPageXY(event.pageX, event.pageY, self.mouseDownStartCondition.matrix);
                 var k = self.mouseDownStartCondition.matrix.translate(newPos.x - oldPos.x, newPos.y - oldPos.y);
                 self.setMatrix(self.root, k);
             }
@@ -112,10 +98,28 @@ define(['libs/svg'], function () {
         $(window).resize(function resizeSVG() {
             self.svg.size(drawing.width(), drawing.height());
         });
+        var topRight = self.getModelPositionForPageXY(inserted.width(), inserted.height());
+        var bottomLeft = self.getModelPositionForPageXY(0, 0);
+        self.viewPort = self.root.rect(topRight.x, topRight.y).attr({x: bottomLeft.x, y: bottomLeft.y,
+            stroke: 'gray', fill: 'none'});
+
         self.zoomExtent();
     }
 
     TwoDView.prototype = {
+        getModelPositionForPageXY: function (x, y, matrix) {
+            if (matrix == null)
+                matrix = this.root.node.getCTM();
+            //can't use offset with SVG in FF  http://stackoverflow.com/questions/15629183/svg-offset-issue-in-firefox
+            var targetOffset = this.inserted.offset();
+            var px = x - targetOffset.left;
+            var py = y - targetOffset.top;
+            var p = this.svg.node.createSVGPoint();
+            p.x = px;
+            p.y = py;
+            p = p.matrixTransform(matrix.inverse());
+            return {x: p.x, y: p.y};
+        },
         clear: function () {
             this.paper.clear();
         },
@@ -123,14 +127,16 @@ define(['libs/svg'], function () {
             var paper = this.paper;
             var box = paper.bbox();
             var m = this.root.node.getCTM();
-            var svg = this.svg.node;
-            var newScale = Math.min(svg.width.baseVal.value / box.width, svg.height.baseVal.value / box.height) * 0.8;
+            var svg = $(this.svg.node);
+            var width = svg.width();
+            var height = svg.height();
+            var newScale = Math.min(width / box.width, height / box.height) * 0.8;
             newScale = isFinite(newScale) ? newScale : 1;
             newScale = Math.abs(newScale);
             m.a = newScale;
             m.d = -newScale;
             m.e = -box.x + box.width * 0.25;
-            m.f = -(-box.y + box.height * 0.5 - svg.height.baseVal.value);
+            m.f = -(-box.y + box.height * 0.5 - height);
             this.setMatrix(this.root, m);
         },
         setMatrix: function (element, matrix) {
@@ -140,6 +146,13 @@ define(['libs/svg'], function () {
                 return matrix[c];
             }).join(',');
             element.attr({transform: 'matrix(' + components + ')'});
+            var topRight = this.getModelPositionForPageXY(this.inserted.width(), this.inserted.height());
+            var bottomLeft = this.getModelPositionForPageXY(0, 0);
+            var height = Math.abs(topRight.y - bottomLeft.y);
+            var width = (topRight.x - bottomLeft.x);
+            this.viewPort.attr({width: width * 0.99, height: height * 0.98,
+                x: bottomLeft.x + width * 0.01, y: (bottomLeft.y - height) + height * 0.01, stroke: 'gray', fill: 'none'});
+
         }
     };
 

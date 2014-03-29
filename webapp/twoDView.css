@@ -3,6 +3,22 @@
     vector-effect: non-scaling-stroke;
 }
 
+.TwoDView {
+    top: 0;
+    display: flex;
+    display: -webkit-flex;
+    flex: 1 0 auto;
+    -webkit-flex: 1 0 auto;
+    overflow: hidden;
+
+    align-items: stretch;
+}
+
+.TwoDView > svg {
+    flex: 1 0 auto;
+    -webkit-flex: 1;
+}
+
 .TwoDView .background {
     opacity: 0.4;
 }
