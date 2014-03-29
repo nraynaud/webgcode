@@ -32,18 +32,22 @@ define(['libs/rsvp-latest', 'cnc/cam', 'cnc/clipper', 'libs/opentype'], function
             }).then(function (font) {
                 var path = font.getPath(text, 0, 0, fontSize);
                 var res = '';
+
+                function xy(x, y) {
+                    return x + ',' + -y;
+                }
+
                 for (var i = 0; i < path.commands.length; i++) {
-                    var command = path.commands[i];
+                    var c = path.commands[i];
                     // do not push a 'Z' at the front side, this happens when the text starts with a space
-                    if (!(res.length === 0 && command.type == 'Z'))
-                        res += ' ' + command.type;
-                    if (command.type == 'M' || command.type == 'L')
-                        res += ' ' + command.x + ',' + -command.y;
-                    else if (command.type == 'Q')
-                        res += command.x1 + ',' + -command.y1 + ' ' + command.x + ',' + -command.y;
-                    else if (command.type == 'C')
-                        res += command.x1 + ',' + -command.y1 + ' ' + command.x2 + ',' + -command.y2
-                            + ' ' + command.x + ',' + -command.y;
+                    if (!(res.length === 0 && c.type == 'Z'))
+                        res += ' ' + c.type;
+                    if (c.type == 'M' || c.type == 'L')
+                        res += ' ' + xy(c.x, c.y);
+                    else if (c.type == 'Q')
+                        res += xy(c.x1, c.y1) + ' ' + xy(c.x, c.y);
+                    else if (c.type == 'C')
+                        res += xy(c.x1, c.y1) + ' ' + xy(c.x2, c.y2) + ' ' + xy(c.x, c.y);
                 }
                 return res;
             });

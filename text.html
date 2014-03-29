@@ -209,7 +209,7 @@
         TextApplication.Text.FIXTURES = [
             {
                 id: 1,
-                text: 'text1'
+                text: 'random text'
             },
             {
                 id: 2,
@@ -218,9 +218,7 @@
         ];
         function simplifyPolys(polys) {
             return polys.map(function (poly) {
-                var simplified = simplify(poly, machine.clipperScale / 100, true);
-                console.log('simplified', poly.length, simplified.length);
-                return simplified;
+                return simplify(poly, machine.clipperScale / 100, true);
             });
         }
 
