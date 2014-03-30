@@ -5,6 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <title>Contouring Test</title>
     <script src="webapp/libs/jquery.min.js"></script>
+    <script src="webapp/libs/handlebars-v1.3.0.js"></script>
     <script src="webapp/libs/ember-1.5.0-beta5.pre7.js"></script>
     <script src="webapp/libs/svg.js"></script>
     <script src="webapp/libs/jquery.mousewheel.js"></script>
@@ -45,10 +46,11 @@
         }
 
         #drawing, #code {
-            display: block;
+            display: flex;
+            display: -webkit-flex;
             flex: 1;
             -webkit-flex: 1;
-            align-items: center;
+            align-items: stretch;
             border: solid;
             padding: 0;
             margin: 0;
