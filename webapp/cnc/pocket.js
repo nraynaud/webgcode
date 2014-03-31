@@ -1,6 +1,6 @@
 "use strict";
 
-define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
+define(['cnc/clipper', 'cnc/cam', 'libs/simplify'], function (clipper, cam, simplify) {
 
     function lastItem(array) {
         return array[array.length - 1];
@@ -147,18 +147,21 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
         });
     }
 
-    function computeUndercut(shapePoly, outlineAtToolCenter, scaledToolRadius) {
-        co.ArcTolerance = scaledToolRadius / 1000;
-        var undercut = offsetPolygon(clipper.Clipper.CleanPolygons(outlineAtToolCenter, scaledToolRadius / 10000), scaledToolRadius * 1.001);
+    function computeUndercut(shapePoly, outlineAtToolCenter, scaledToolRadius, tolerance) {
+        co.ArcTolerance = tolerance;
+        var undercut = offsetPolygon(cam.simplifyPolygons(outlineAtToolCenter, tolerance), scaledToolRadius + tolerance);
         return cam.polyOp(shapePoly, undercut, clipper.ClipType.ctDifference, false);
     }
 
     function doCreatePocket2(shapePoly, scaledToolRadius, radialEngagementRatio, display) {
+        var step = scaledToolRadius * radialEngagementRatio;
+        var tolerance = step / 1000;
         var outlineAtToolCenter = offsetPolygon(shapePoly, -scaledToolRadius, true);
         var polygon = clipper.Clipper.ClosedPathsFromPolyTree(outlineAtToolCenter);
-        display.displayUndercutPoly(computeUndercut(shapePoly, polygon, scaledToolRadius));
-        var co2 = new clipper.ClipperOffset();
-        co2.AddPaths(polygon, clipper.JoinType.jtRound, clipper.EndType.etClosedPolygon);
+        display.displayUndercutPoly(computeUndercut(shapePoly, polygon, scaledToolRadius, tolerance));
+        var polygon2 = simplify(polygon, tolerance, true);
+        var co2 = new clipper.ClipperOffset(2, tolerance);
+        co2.AddPaths(polygon2, clipper.JoinType.jtRound, clipper.EndType.etClosedPolygon);
         var pocket = outlineAtToolCenter;
         var stack = [];
         var i = 1;
@@ -167,7 +170,7 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
                 return {contour: poly, children: []};
             }));
             pocket = new clipper.PolyTree();
-            co2.Execute(pocket, -scaledToolRadius * radialEngagementRatio * i);
+            co2.Execute(pocket, -step * i);
             i++;
         } while (pocket.ChildCount());
         do {
@@ -184,13 +187,8 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
     }
 
     function computePocketImmediately(polygon, toolRadius, radialEngagementRatio, display) {
-        var handle = display.displayClipperComputingPoly(polygon);
         return function (resolve) {
-            setTimeout(function () {
-                var result = doCreatePocket(polygon, toolRadius, radialEngagementRatio, display);
-                handle.remove();
-                Ember.run(null, resolve, result);
-            }, 0);
+            resolve(doCreatePocket2(polygon, toolRadius, radialEngagementRatio, display));
         }
     }
 
@@ -275,9 +273,7 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
         });
     }
 
-    function createPocket(clipperPoly, scaledToolRadius, radialEngagementRatio, display) {
-        var polygons = cam.decomposePolytreeInTopLevelPolygons(cam.polyOp(clipperPoly, [], clipper.ClipType.ctUnion, true));
-        sortPolygons(polygons);
+    function createPocketInWorkerPool(polygons, scaledToolRadius, radialEngagementRatio, display) {
         var promises = [];
         var workArray = polygons.map(function (poly) {
             var work = createWork(poly, scaledToolRadius, radialEngagementRatio, display);
@@ -285,8 +281,23 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
             return  work;
         });
         window.workerPool = createWorkerPool('webapp/pocket_worker.js', workArray, 6);
-        var result = RSVP.all(promises);
-        result.abort = window.workerPool.abort;
+        return {promises: promises, abort: window.workerPool.abort};
+    }
+
+    function createPocketImmediately(polygons, scaledToolRadius, radialEngagementRatio, display) {
+        return {promises: polygons.map(function (poly) {
+            return new RSVP.Promise(computePocketImmediately(poly, scaledToolRadius, radialEngagementRatio, display));
+        }), abort: function () {
+        }};
+    }
+
+    function createPocket(clipperPoly, scaledToolRadius, radialEngagementRatio, display, immediately) {
+        var polygons = cam.decomposePolytreeInTopLevelPolygons(cam.polyOp(clipperPoly, [], clipper.ClipType.ctUnion, true));
+        sortPolygons(polygons);
+        var func = immediately ? createPocketImmediately : createPocketInWorkerPool;
+        var work = func(polygons, scaledToolRadius, radialEngagementRatio, display);
+        var result = RSVP.all(work.promises);
+        result.abort = work.abort;
         return result;
     }
 

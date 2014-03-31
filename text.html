@@ -80,7 +80,7 @@
 
 <script type="text/x-handlebars" data-template-name="text">
     <div class="controls">
-    <label for="text">Text:</label><br>
+        <label for="text">Text:</label><br>
         {{input type="text" id="text" valueBinding="text" title="your text" action="launchComputationImmediately"}}
         <br>
         <label for="toolDiameter" title="in mm">Tool Diameter:</label><br>
@@ -148,10 +148,13 @@ require(['cnc/twoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text', 'cnc/p
                     var pocketGroup = self.get('pocketGroup');
                     var add = [];
                     for (var i = 0; i < addCount; i++)
-                        add.push(self.displayClipper(pocketGroup, observedObj[start + i], {class: 'undercut'}));
+                        add.push(self.displayClipper(pocketGroup, self.simplify(observedObj[start + i]), {class: 'undercut'}));
                     Array.prototype.splice.apply(undercuts, [start, 0].concat(add));
                 }
             });
+        },
+        simplify: function (poly) {
+            return cam.simplifyPolygons(poly, machine.clipperScale / 100);
         },
         didInsertElement: function () {
             var view = new twoD.TwoDView(this.$());
@@ -191,11 +194,11 @@ require(['cnc/twoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text', 'cnc/p
                 for (var j = 0; j < pocket.children.length; j++)
                     registerPocket(pocket.children[j]);
                 if (pocket.spiraledToolPath) {
-                    self.displayClipper(pocketGroup, simplifyPolys([pocket.spiraledToolPath.path]), {stroke: 'blue', fill: 'none'});
-                    self.displayClipper(pocketGroup, simplifyPolys(pocket.spiraledToolPath.shell), {stroke: 'none', fill: 'rgba(100, 100, 255, 0.2)',
+                    self.displayClipper(pocketGroup, self.simplify([pocket.spiraledToolPath.path]), {stroke: 'blue', fill: 'none'});
+                    self.displayClipper(pocketGroup, self.simplify(pocket.spiraledToolPath.shell), {stroke: 'none', fill: 'rgba(100, 100, 255, 0.2)',
                         'fill-rule': 'evenodd', title: 'spiral toolpath'});
                 } else
-                    self.displayClipper(pocketGroup, simplifyPolys(pocket.contour), {stroke: 'blue', fill: 'none'});
+                    self.displayClipper(pocketGroup, self.simplify(pocket.contour), {stroke: 'blue', fill: 'none'});
             }
 
             var pocketToolPaths = this.get('controller.pocketToolPaths');
@@ -255,6 +258,7 @@ require(['cnc/twoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text', 'cnc/p
             self.get('undercut').clear();
             this.abortComputation();
             var poly2 = machine.pathDefToClipper(textOutline);
+            console.time('computation');
             var promise = pocket.createPocket(poly2, toolRadius * machine.clipperScale, radialEngagementRatio, {
                 displayClipperComputingPoly: function () {
                     return {remove: function () {
@@ -270,6 +274,7 @@ require(['cnc/twoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text', 'cnc/p
             },function (error) {
                 console.log(error.stack);
             }).finally(function () {
+                        console.timeEnd('computation');
                         self.set('computationPromise', null);
                     });
         },
@@ -286,17 +291,12 @@ require(['cnc/twoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text', 'cnc/p
         model: function () {
             return {
                 id: 1,
-                text: 'long text'
+                text: 'Quite long text'
             }
         },
         controllerName: 'text'
     });
     TextApplication.ApplicationAdapter = DS.FixtureAdapter.extend();
-    function simplifyPolys(polys) {
-        return polys.map(function (poly) {
-            return simplify(poly, machine.clipperScale / 50, true);
-        });
-    }
 
     var machine = new cam.Machine(null);
 })

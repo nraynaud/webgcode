@@ -82,7 +82,7 @@
     stroke: black;
     stroke-width: 1;
     vector-effect: non-scaling-stroke;
-    -webkit-animation-duration: 1s;
+    -webkit-animation-duration: 10s;
     -webkit-animation-name: slidein;
     -webkit-animation-iteration-count: infinite;
     -webkit-animation-timing-function: ease-in-out;

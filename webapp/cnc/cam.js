@@ -1,6 +1,6 @@
 "use strict";
 
-define(['cnc/bezier', 'cnc/clipper'], function (bezier, clipper) {
+define(['cnc/bezier', 'cnc/clipper', 'libs/simplify'], function (bezier, clipper, simplify) {
     function pushOnPath(path, toolpath) {
         var firstPoint = toolpath.getStartPoint();
         path.node.pathSegList.appendItem(path.node.createSVGPathSegMovetoAbs(firstPoint.x, firstPoint.y));
@@ -465,11 +465,18 @@ define(['cnc/bezier', 'cnc/clipper'], function (bezier, clipper) {
         return result;
     }
 
+    function simplifyPolygons(polys, tolerance) {
+        return polys.map(function (poly) {
+            return simplify(poly, tolerance, true);
+        });
+    }
+
     return {
         geom: geom,
         pushOnPath: pushOnPath,
         Machine: Machine,
         decomposePolytreeInTopLevelPolygons: decomposePolytreeInTopLevelPolygons,
-        polyOp: polyOp
+        polyOp: polyOp,
+        simplifyPolygons: simplifyPolygons
     };
 });
