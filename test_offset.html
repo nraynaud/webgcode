@@ -59,10 +59,12 @@
     </style>
 </head>
 <body>
-<div id="drawing"></div>
+<div id="drawing">
+    <div class="TwoDView"></div>
+</div>
 <textarea id="code"></textarea>
 <script>
-    var drawing = $('#drawing');
+    var drawing = $('#drawing').find('.TwoDView');
     require(['cnc/twoDView', 'cnc/cam', 'samples/fontExample.js', 'samples/box.js'], function (twoD, cam, fontExample, box) {
         var twoDView = new twoD.TwoDView(drawing);
         var machine = new cam.Machine(twoDView.paper);

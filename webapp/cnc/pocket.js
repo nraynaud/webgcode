@@ -147,15 +147,19 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
         });
     }
 
+    function computeUndercut(shapePoly, outlineAtToolCenter, scaledToolRadius) {
+        co.ArcTolerance = scaledToolRadius / 1000;
+        var undercut = offsetPolygon(clipper.Clipper.CleanPolygons(outlineAtToolCenter, scaledToolRadius / 10000), scaledToolRadius * 1.001);
+        return cam.polyOp(shapePoly, undercut, clipper.ClipType.ctDifference, false);
+    }
+
     function doCreatePocket2(shapePoly, scaledToolRadius, radialEngagementRatio, display) {
         var outlineAtToolCenter = offsetPolygon(shapePoly, -scaledToolRadius, true);
-        var pocket = outlineAtToolCenter;
-        co.ArcTolerance = scaledToolRadius / 1000;
         var polygon = clipper.Clipper.ClosedPathsFromPolyTree(outlineAtToolCenter);
-        var undercut = offsetPolygon(clipper.Clipper.CleanPolygons(polygon, scaledToolRadius / 10000), scaledToolRadius * 1.001);
+        display.displayUndercutPoly(computeUndercut(shapePoly, polygon, scaledToolRadius));
         var co2 = new clipper.ClipperOffset();
-        display.displayUndercutPoly(cam.polyOp(shapePoly, undercut, clipper.ClipType.ctDifference, false));
         co2.AddPaths(polygon, clipper.JoinType.jtRound, clipper.EndType.etClosedPolygon);
+        var pocket = outlineAtToolCenter;
         var stack = [];
         var i = 1;
         do {
@@ -250,7 +254,9 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
                     Ember.run(deferred, deferred.resolve, result);
                     return true;
                 } else if (data['operation'] == 'displayUndercutPoly')
-                    display.displayUndercutPoly(data['polygon']);
+                    Ember.run(function () {
+                        display.displayUndercutPoly(data['polygon']);
+                    });
                 return false;
             },
             promise: deferred.promise};

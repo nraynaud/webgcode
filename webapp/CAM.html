@@ -54,6 +54,9 @@
         }
 
         #drawing {
+            display: flex;
+            display: -webkit-flex;
+            align-items: stretch;
             flex: 1;
             overflow: hidden;
         }
@@ -93,7 +96,9 @@
 </div>
 <div id="views">
     <div id="container"></div>
-    <div id="drawing"></div>
+    <div id="drawing">
+        <div class="TwoDView"></div>
+    </div>
 </div>
 <script>
     var inChromeApp = window.location.hash == '#fromApp';
@@ -124,7 +129,7 @@
                 threeDView.renderer.render(threeDView.scene, threeDView.camera);
             }
         }, false);
-        var twoDView = new twoD.TwoDView($('#drawing'));
+        var twoDView = new twoD.TwoDView($('#drawing').find('.TwoDView'));
         if (!inChromeApp) {
             var code = localStorage.getItem('JSCode');
             if (code)

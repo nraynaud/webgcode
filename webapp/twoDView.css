@@ -4,12 +4,10 @@
 }
 
 .TwoDView {
-    top: 0;
     display: flex;
     display: -webkit-flex;
-    flex: 1 0 auto;
+    flex: 1 1 auto;
     -webkit-flex: 1 0 auto;
-    overflow: hidden;
 
     align-items: stretch;
 }
@@ -71,10 +69,6 @@
     fill: rgb(128, 128, 128);
 }
 
-.computingPolygon {
-    stroke: none;
-}
-
 #computingFill * {
     opacity: 0.5;
 }
@@ -106,4 +100,31 @@
 
 .undercutPolygon {
     fill: red;
+}
+
+.computing {
+    stroke: red;
+}
+
+.lol {
+    stroke: red;
+}
+
+:not(.computing).outline {
+    fill: none;
+    stroke: gray;
+}
+
+.TwoDView .outline.computing {
+    stroke: gray;
+}
+
+.TwoDView .pocket {
+    fill: none;
+    stroke: blue;
+}
+
+.TwoDView .undercut {
+    fill: red;
+    stroke: none;
 }

@@ -5,11 +5,12 @@ define(['libs/svg'], function () {
         //for firefox reason I added that
         //https://bugzilla.mozilla.org/show_bug.cgi?id=479058
         //http://stackoverflow.com/questions/15629183/svg-offset-issue-in-firefox
-        var inserted = $('<div></div>');
-        this.inserted = inserted;
-        inserted.addClass('TwoDView');
-        drawing.append(inserted);
-        this.svg = SVG(inserted[0]).attr({width: null, height: null});
+        /*var inserted = $('<div></div>');
+         this.inserted = inserted;
+         inserted.addClass('TwoDView');
+         drawing.append(inserted);*/
+        this.inserted = drawing;
+        this.svg = SVG(drawing[0]).attr({width: null, height: null});
         this.root = this.svg.group().attr({class: 'root', 'vector-effect': 'non-scaling-stroke'});
         this.background = this.root.group().attr({class: 'background', 'vector-effect': 'non-scaling-stroke'});
         this.paper = this.root.group().attr({class: 'paper', 'vector-effect': 'non-scaling-stroke'});
@@ -60,7 +61,7 @@ define(['libs/svg'], function () {
                 if (Math.abs(i) <= xSpan)
                     group.text('' + i).transform({scaleY: -1}).attr({class: 'gridText '}).x(i).y(0);
                 if (Math.abs(i) <= ySpan)
-                    group.text('' + i).transform({scaleY: -1}).attr({class: 'gridText '}).x(0).y(i);
+                    group.text('' + -i).transform({scaleY: -1}).attr({class: 'gridText '}).x(0).y(i);
             }
         }
         var self = this;
@@ -96,28 +97,36 @@ define(['libs/svg'], function () {
             }
         });
         $(window).resize(function resizeSVG() {
-            self.svg.size(drawing.width(), drawing.height());
+            console.log('resize');
+            self.updateVisibleBox();
         });
-        var topRight = self.getModelPositionForPageXY(inserted.width(), inserted.height());
-        var bottomLeft = self.getModelPositionForPageXY(0, 0);
-        self.viewPort = self.root.rect(topRight.x, topRight.y).attr({x: bottomLeft.x, y: bottomLeft.y,
-            stroke: 'gray', fill: 'none'});
-
+        self.viewPort = self.root.rect().attr({ stroke: 'gray', fill: 'none'});
         self.zoomExtent();
     }
 
     TwoDView.prototype = {
+        transformPoint: function (x, y, matrix) {
+            var p = this.svg.node.createSVGPoint();
+            p.x = x;
+            p.y = y;
+            p = p.matrixTransform(matrix);
+            return p;
+        },
+        updateVisibleBox: function () {
+            var m = this.root.node.getCTM().inverse();
+            var topRight = this.transformPoint(this.inserted.width(), this.inserted.height(), m);
+            var bottomLeft = this.transformPoint(0, 0, m);
+            var height = Math.abs(topRight.y - bottomLeft.y);
+            var width = (topRight.x - bottomLeft.x);
+            this.viewPort.attr({width: width * 0.98, height: height * 0.98,
+                x: bottomLeft.x + width * 0.01, y: (bottomLeft.y - height) + height * 0.01, stroke: 'gray', fill: 'none'});
+        },
         getModelPositionForPageXY: function (x, y, matrix) {
             if (matrix == null)
                 matrix = this.root.node.getCTM();
             //can't use offset with SVG in FF  http://stackoverflow.com/questions/15629183/svg-offset-issue-in-firefox
             var targetOffset = this.inserted.offset();
-            var px = x - targetOffset.left;
-            var py = y - targetOffset.top;
-            var p = this.svg.node.createSVGPoint();
-            p.x = px;
-            p.y = py;
-            p = p.matrixTransform(matrix.inverse());
+            var p = this.transformPoint(x - targetOffset.left, y - targetOffset.top, matrix.inverse());
             return {x: p.x, y: p.y};
         },
         clear: function () {
@@ -146,13 +155,7 @@ define(['libs/svg'], function () {
                 return matrix[c];
             }).join(',');
             element.attr({transform: 'matrix(' + components + ')'});
-            var topRight = this.getModelPositionForPageXY(this.inserted.width(), this.inserted.height());
-            var bottomLeft = this.getModelPositionForPageXY(0, 0);
-            var height = Math.abs(topRight.y - bottomLeft.y);
-            var width = (topRight.x - bottomLeft.x);
-            this.viewPort.attr({width: width * 0.99, height: height * 0.98,
-                x: bottomLeft.x + width * 0.01, y: (bottomLeft.y - height) + height * 0.01, stroke: 'gray', fill: 'none'});
-
+            this.updateVisibleBox();
         }
     };
 

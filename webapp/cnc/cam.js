@@ -370,13 +370,14 @@ define(['cnc/bezier', 'cnc/clipper'], function (bezier, clipper) {
         return points;
     };
 
+
     /**
      *
      * @param shapePath a SVG path
      * @returns a Clipper polygon array
      */
-    Machine.prototype.toClipper = function (shapePath) {
-        var polygons = bezier.pathToPolygons(R.path2curve(shapePath.node.getAttribute('d')), {a: 1, b: 0, c: 0, d: 1, e: 0, f: 0}, 0.0001);
+    Machine.prototype.pathDefToClipper = function (pathDef) {
+        var polygons = bezier.pathToPolygons(R.path2curve(pathDef), {a: 1, b: 0, c: 0, d: 1, e: 0, f: 0}, 0.0001);
         var machine = this;
         $.each(polygons, function (_, poly) {
             $.each(poly, function (_, point) {
@@ -385,6 +386,15 @@ define(['cnc/bezier', 'cnc/clipper'], function (bezier, clipper) {
             });
         });
         return polygons;
+    };
+
+    /**
+     *
+     * @param shapePath a SVG path
+     * @returns a Clipper polygon array
+     */
+    Machine.prototype.toClipper = function (shapePath) {
+        return this.pathDefToClipper(shapePath.node.getAttribute('d'));
     };
 
     /**
