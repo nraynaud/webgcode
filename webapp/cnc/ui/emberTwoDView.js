@@ -8,15 +8,6 @@ define(['libs/svg'], function () {
             var background = this.get('view.background');
             var xSpan = 400;
             var ySpan = 600;
-            var horizontalPattern = this.get('view.svg').pattern(xSpan, 1, function (add) {
-                add.line(xSpan, 0, -xSpan, 0).attr({class: 'mmGrid'});
-            });
-            var verticalPattern = this.get('view.svg').pattern(1, ySpan, function (add) {
-                add.line(0, -ySpan, 0, ySpan).attr({class: 'mmGrid'});
-            });
-
-            this.set('verticalBackgroundGrid', this.get('view.background').rect(10, 10).attr({class: 'gridRectangle', fill: horizontalPattern}).hide());
-            this.set('horizontalBackgroundGrid', this.get('view.background').rect(10, 10).attr({class: 'gridRectangle', fill: verticalPattern}).hide());
 
             var grid = background.group().attr({class: 'grid'});
             var dmGrid = grid.group().attr({class: 'dmGrid'});
@@ -25,13 +16,13 @@ define(['libs/svg'], function () {
             var halfCmGrid = cmGrid.group().attr({class: 'halfCmGrid'});
             var mmGrid = halfCmGrid.group().attr({class: 'mmGrid'});
             this.gridStack = [
-                //[20, $(mmGrid.node)],
+                [20, $(mmGrid.node)],
                 [15, $(halfCmGrid.node)],
                 [5, $(cmGrid.node)],
                 [2.5, $(halfDmGrid.node)]
             ];
             var biggestSpan = Math.max(ySpan, xSpan);
-            for (var i = -biggestSpan; i <= biggestSpan; i += 10) {
+            for (var i = -biggestSpan; i <= biggestSpan; i += 1) {
                 var group = mmGrid;
                 if (i % 100 == 0)
                     group = dmGrid;
@@ -42,9 +33,9 @@ define(['libs/svg'], function () {
                 else if (i % 5 == 0)
                     group = halfCmGrid;
                 if (Math.abs(i) <= ySpan)
-                    group.line(xSpan, i, -xSpan, i).attr({class: 'gridy' + Math.floor(i / 10) * 10});
+                    group.line(xSpan, i, -xSpan, i);
                 if (Math.abs(i) <= xSpan)
-                    group.line(i, ySpan, i, -ySpan).attr({class: 'gridx' + Math.floor(i / 10) * 10});
+                    group.line(i, ySpan, i, -ySpan);
                 if (i % 10 == 0) {
                     if (Math.abs(i) <= xSpan)
                         group.text('' + i).attr({class: 'gridText '}).x(i).y(0);
@@ -63,21 +54,6 @@ define(['libs/svg'], function () {
             if (gridThreshold != this.currentGridThreshold) {
                 for (i = 0; i < gridStack.length; i++)
                     gridStack[i][1].css('visibility', scale < gridStack[i][0] ? 'hidden' : 'visible');
-            }
-            if (scale >= 20) {
-                var view = this.get('view.visibleBox');
-                var minX = Math.floor(view.x / 10) * 10;
-                var maxX = Math.ceil((view.x + view.width) / 10) * 10;
-                var minY = Math.floor(view.y / 10) * 10;
-                var maxY = Math.ceil((view.y + view.height) / 10) * 10;
-                var a = {x: minX, y: minY, width: maxX - minX, height: maxY - minY};
-                this.get('verticalBackgroundGrid').attr(a);
-                this.get('horizontalBackgroundGrid').attr(a);
-                this.get('verticalBackgroundGrid').show();
-                this.get('horizontalBackgroundGrid').show();
-            } else {
-                this.get('verticalBackgroundGrid').hide();
-                this.get('horizontalBackgroundGrid').hide();
             }
             this.currentGridThreshold = gridThreshold;
         }.observes('view.ctm', 'view.visibleBox').on('init')
@@ -170,11 +146,12 @@ define(['libs/svg'], function () {
             var m = this.getCTM().inverse();
             var bottomLeft = this.transformPoint(0, this.get('insertedSize.y'), m);
             var topRight = this.transformPoint(this.get('insertedSize.x'), 0, m);
+            var bottom = Math.min(bottomLeft.y, topRight.y);
             var width = (topRight.x - bottomLeft.x);
-            var height = topRight.y - bottomLeft.y;
-            this.set('visibleBox', {x: bottomLeft.x, y: bottomLeft.y, width: width, height: height});
+            var height = Math.abs(topRight.y - bottomLeft.y);
+            this.set('visibleBox', {x: bottomLeft.x, y: bottom, width: width, height: height});
             this.get('viewPort').attr({width: width * 0.98, height: height * 0.98,
-                x: bottomLeft.x + width * 0.01, y: bottomLeft.y + height * 0.01, stroke: 'gray', fill: 'none'});
+                x: bottomLeft.x + width * 0.01, y: bottom + height * 0.01, stroke: 'gray', fill: 'none'});
         },
         getModelPositionForPageXY: function (x, y, matrix) {
             if (matrix == null)

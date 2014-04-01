@@ -27,8 +27,8 @@
 
 .TwoDView .mmGrid {
     stroke: #FF7F2A;
-    stroke-dasharray: 0.4, 0.1;
-    stroke-width: 0.05;
+    stroke-dasharray: 5, 5;
+    stroke-width: 0.5;
 }
 
 .TwoDView .halfCmGrid {
