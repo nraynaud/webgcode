@@ -27,8 +27,8 @@
 
 .TwoDView .mmGrid {
     stroke: #FF7F2A;
-    stroke-dasharray: 5, 2;
-    stroke-width: 0.5;
+    stroke-dasharray: 0.4, 0.1;
+    stroke-width: 0.05;
 }
 
 .TwoDView .halfCmGrid {
@@ -130,4 +130,8 @@
 .TwoDView .undercut {
     fill: red;
     stroke: none;
+}
+
+.gridRectangle {
+    stroke: black;
 }

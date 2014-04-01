@@ -6,6 +6,18 @@ define(['libs/svg'], function () {
         init: function () {
             var view = this.get('view');
             var background = this.get('view.background');
+            var xSpan = 400;
+            var ySpan = 600;
+            var horizontalPattern = this.get('view.svg').pattern(xSpan, 1, function (add) {
+                add.line(xSpan, 0, -xSpan, 0).attr({class: 'mmGrid'});
+            });
+            var verticalPattern = this.get('view.svg').pattern(1, ySpan, function (add) {
+                add.line(0, -ySpan, 0, ySpan).attr({class: 'mmGrid'});
+            });
+
+            this.set('verticalBackgroundGrid', this.get('view.background').rect(10, 10).attr({class: 'gridRectangle', fill: horizontalPattern}).hide());
+            this.set('horizontalBackgroundGrid', this.get('view.background').rect(10, 10).attr({class: 'gridRectangle', fill: verticalPattern}).hide());
+
             var grid = background.group().attr({class: 'grid'});
             var dmGrid = grid.group().attr({class: 'dmGrid'});
             var halfDmGrid = dmGrid.group().attr({class: 'halfDmGrid'});
@@ -13,15 +25,13 @@ define(['libs/svg'], function () {
             var halfCmGrid = cmGrid.group().attr({class: 'halfCmGrid'});
             var mmGrid = halfCmGrid.group().attr({class: 'mmGrid'});
             this.gridStack = [
-                [20, $(mmGrid.node)],
+                //[20, $(mmGrid.node)],
                 [15, $(halfCmGrid.node)],
                 [5, $(cmGrid.node)],
                 [2.5, $(halfDmGrid.node)]
             ];
-            var xSpan = 400;
-            var ySpan = 600;
             var biggestSpan = Math.max(ySpan, xSpan);
-            for (var i = -biggestSpan; i <= biggestSpan; i += 1) {
+            for (var i = -biggestSpan; i <= biggestSpan; i += 10) {
                 var group = mmGrid;
                 if (i % 100 == 0)
                     group = dmGrid;
@@ -32,9 +42,9 @@ define(['libs/svg'], function () {
                 else if (i % 5 == 0)
                     group = halfCmGrid;
                 if (Math.abs(i) <= ySpan)
-                    group.line(xSpan, i, -xSpan, i);
+                    group.line(xSpan, i, -xSpan, i).attr({class: 'gridy' + Math.floor(i / 10) * 10});
                 if (Math.abs(i) <= xSpan)
-                    group.line(i, ySpan, i, -ySpan);
+                    group.line(i, ySpan, i, -ySpan).attr({class: 'gridx' + Math.floor(i / 10) * 10});
                 if (i % 10 == 0) {
                     if (Math.abs(i) <= xSpan)
                         group.text('' + i).attr({class: 'gridText '}).x(i).y(0);
@@ -53,6 +63,21 @@ define(['libs/svg'], function () {
             if (gridThreshold != this.currentGridThreshold) {
                 for (i = 0; i < gridStack.length; i++)
                     gridStack[i][1].css('visibility', scale < gridStack[i][0] ? 'hidden' : 'visible');
+            }
+            if (scale >= 20) {
+                var view = this.get('view.visibleBox');
+                var minX = Math.floor(view.x / 10) * 10;
+                var maxX = Math.ceil((view.x + view.width) / 10) * 10;
+                var minY = Math.floor(view.y / 10) * 10;
+                var maxY = Math.ceil((view.y + view.height) / 10) * 10;
+                var a = {x: minX, y: minY, width: maxX - minX, height: maxY - minY};
+                this.get('verticalBackgroundGrid').attr(a);
+                this.get('horizontalBackgroundGrid').attr(a);
+                this.get('verticalBackgroundGrid').show();
+                this.get('horizontalBackgroundGrid').show();
+            } else {
+                this.get('verticalBackgroundGrid').hide();
+                this.get('horizontalBackgroundGrid').hide();
             }
             this.currentGridThreshold = gridThreshold;
         }.observes('view.ctm', 'view.visibleBox').on('init')
@@ -83,13 +108,15 @@ define(['libs/svg'], function () {
             var origin = this.get('background').group().attr({class: 'origin'});
             origin.path('M0,0 L0,10 A 10,10 90 0 0 10,0 Z M0,0 L0,-10 A 10,10 90 0 0 -10,0 Z').attr({stroke: 'none', fill: 'red', transform: null});
             origin.ellipse(20, 20).cx(0).cy(0).attr({stroke: 'red', fill: 'none', transform: null});
+            this.set('minZoom', 0.4);
+            this.set('maxZoom', 80);
             var _this = this;
 
             element.mousewheel(function (event, delta, deltaX, deltaY) {
                 var pos = _this.getModelPositionForPageXY(event.pageX, event.pageY);
                 var k = svg.node.createSVGMatrix().translate(pos.x, pos.y).scale(1 + deltaY / 360).translate(-pos.x, -pos.y);
                 var m = _this.getCTM().multiply(k);
-                if (m.a > 0.4)
+                if (m.a > _this.get('minZoom') && m.a < _this.get('maxZoom'))
                     _this.setMatrix(m);
                 event.preventDefault();
             });
@@ -141,13 +168,13 @@ define(['libs/svg'], function () {
         },
         updateVisibleBox: function () {
             var m = this.getCTM().inverse();
-            var bottomLeft = this.transformPoint(0, 0, m);
-            var topRight = this.transformPoint(this.get('insertedSize.x'), this.get('insertedSize.y'), m);
+            var bottomLeft = this.transformPoint(0, this.get('insertedSize.y'), m);
+            var topRight = this.transformPoint(this.get('insertedSize.x'), 0, m);
             var width = (topRight.x - bottomLeft.x);
-            var height = Math.abs(topRight.y - bottomLeft.y);
+            var height = topRight.y - bottomLeft.y;
             this.set('visibleBox', {x: bottomLeft.x, y: bottomLeft.y, width: width, height: height});
             this.get('viewPort').attr({width: width * 0.98, height: height * 0.98,
-                x: bottomLeft.x + width * 0.01, y: (bottomLeft.y - height) + height * 0.01, stroke: 'gray', fill: 'none'});
+                x: bottomLeft.x + width * 0.01, y: bottomLeft.y + height * 0.01, stroke: 'gray', fill: 'none'});
         },
         getModelPositionForPageXY: function (x, y, matrix) {
             if (matrix == null)
@@ -165,8 +192,10 @@ define(['libs/svg'], function () {
             var width = this.get('insertedSize.x');
             var height = this.get('insertedSize.y');
             var newScale = Math.min(width / box.width, height / box.height) * 0.8;
-            newScale = isFinite(newScale) ? newScale : 1;
             newScale = Math.abs(newScale);
+            newScale = isFinite(newScale) ? newScale : 1;
+            newScale = Math.max(this.get('minZoom'), newScale);
+            newScale = Math.min(this.get('maxZoom'), newScale);
             var m = this.get('svg.node').createSVGMatrix();
             m = m.scaleNonUniform(newScale, -newScale);
             m = m.translate((width / newScale - box.width ) / 2, -(height / newScale + box.height) / 2);

@@ -253,7 +253,7 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
             promises.push(work.promise);
             return  work;
         });
-        window.workerPool = createWorkerPool('webapp/pocket_worker.js', workArray, 1);
+        window.workerPool = createWorkerPool('webapp/pocket_worker.js', workArray, 6);
         return {promises: promises, abort: window.workerPool.abort};
     }
 
