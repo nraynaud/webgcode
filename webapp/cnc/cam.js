@@ -94,7 +94,7 @@ define(['cnc/bezier', 'cnc/clipper', 'libs/simplify'], function (bezier, clipper
                 var poly = polygon[i];
                 if (poly.length != 0) {
                     var lastPoint = poly[poly.length - 1];
-                    if (lastPoint.X != poly[0].X && lastPoint.Y != poly[0].Y)
+                    if (!(lastPoint.X == poly[0].X && lastPoint.Y == poly[0].Y))
                         poly.push(poly[0]);
                 }
             }
