@@ -1,6 +1,63 @@
 "use strict";
 
 define(['libs/svg'], function () {
+
+    var BackgroundGrid = Ember.Object.extend({
+        init: function () {
+            var view = this.get('view');
+            var background = this.get('view.background');
+            var grid = background.group().attr({class: 'grid'});
+            var dmGrid = grid.group().attr({class: 'dmGrid'});
+            var halfDmGrid = dmGrid.group().attr({class: 'halfDmGrid'});
+            var cmGrid = halfDmGrid.group().attr({class: 'cmGrid'});
+            var halfCmGrid = cmGrid.group().attr({class: 'halfCmGrid'});
+            var mmGrid = halfCmGrid.group().attr({class: 'mmGrid'});
+            this.gridStack = [
+                [20, $(mmGrid.node)],
+                [15, $(halfCmGrid.node)],
+                [5, $(cmGrid.node)],
+                [2.5, $(halfDmGrid.node)]
+            ];
+            var xSpan = 400;
+            var ySpan = 600;
+            var biggestSpan = Math.max(ySpan, xSpan);
+            for (var i = -biggestSpan; i <= biggestSpan; i += 1) {
+                var group = mmGrid;
+                if (i % 100 == 0)
+                    group = dmGrid;
+                else if (i % 50 == 0)
+                    group = halfDmGrid;
+                else if (i % 10 == 0)
+                    group = cmGrid;
+                else if (i % 5 == 0)
+                    group = halfCmGrid;
+                if (Math.abs(i) <= ySpan)
+                    group.line(xSpan, i, -xSpan, i);
+                if (Math.abs(i) <= xSpan)
+                    group.line(i, ySpan, i, -ySpan);
+                if (i % 10 == 0) {
+                    if (Math.abs(i) <= xSpan)
+                        group.text('' + i).attr({class: 'gridText '}).x(i).y(0);
+                    if (Math.abs(i) <= ySpan)
+                        group.text('' + -i).attr({class: 'gridText '}).x(0).y(i);
+                }
+            }
+        },
+        updateGridVisibility: function () {
+            var scale = this.get('view.ctm.a');
+            var gridThreshold;
+            var gridStack = this.get('gridStack');
+            for (var i = 0; i < gridStack.length; i++)
+                if (scale < gridStack[i][0])
+                    gridThreshold = gridStack[i][0];
+            if (gridThreshold != this.currentGridThreshold) {
+                for (i = 0; i < gridStack.length; i++)
+                    gridStack[i][1].css('visibility', scale < gridStack[i][0] ? 'hidden' : 'visible');
+            }
+            this.currentGridThreshold = gridThreshold;
+        }.observes('view.ctm', 'view.visibleBox').on('init')
+    });
+
     var EmberTwoDView = Ember.Object.extend({
         init: function () {
             //for firefox reasons I added an enclosing <div class="TwoDView"> of the same size as the <svg>
@@ -26,7 +83,6 @@ define(['libs/svg'], function () {
             var origin = this.get('background').group().attr({class: 'origin'});
             origin.path('M0,0 L0,10 A 10,10 90 0 0 10,0 Z M0,0 L0,-10 A 10,10 90 0 0 -10,0 Z').attr({stroke: 'none', fill: 'red', transform: null});
             origin.ellipse(20, 20).cx(0).cy(0).attr({stroke: 'red', fill: 'none', transform: null});
-            this.createGrid();
             var _this = this;
 
             element.mousewheel(function (event, delta, deltaX, deltaY) {
@@ -66,48 +122,10 @@ define(['libs/svg'], function () {
                 _this.updateVisibleBox();
             }
 
-            _this.viewPort = _this.root.rect().attr({ stroke: 'gray', fill: 'none'});
+            _this.set('viewPort', _this.root.rect().attr({ stroke: 'gray', fill: 'none'}));
             resizeSVG();
-            this.updateGridVisibility(this.getCTM().a);
             _this.zoomExtent();
-        },
-        createGrid: function () {
-            var grid = this.get('background').group().attr({class: 'grid'});
-            var dmGrid = grid.group().attr({class: 'dmGrid'});
-            var halfDmGrid = dmGrid.group().attr({class: 'halfDmGrid'});
-            var cmGrid = halfDmGrid.group().attr({class: 'cmGrid'});
-            var halfCmGrid = cmGrid.group().attr({class: 'halfCmGrid'});
-            var mmGrid = halfCmGrid.group().attr({class: 'mmGrid'});
-            this.gridStack = [
-                [20, $(mmGrid.node)],
-                [15, $(halfCmGrid.node)],
-                [5, $(cmGrid.node)],
-                [2.5, $(halfDmGrid.node)]
-            ];
-            var xSpan = 400;
-            var ySpan = 600;
-            var biggestSpan = Math.max(ySpan, xSpan);
-            for (var i = -biggestSpan; i <= biggestSpan; i += 1) {
-                var group = mmGrid;
-                if (i % 100 == 0)
-                    group = dmGrid;
-                else if (i % 50 == 0)
-                    group = halfDmGrid;
-                else if (i % 10 == 0)
-                    group = cmGrid;
-                else if (i % 5 == 0)
-                    group = halfCmGrid;
-                if (Math.abs(i) <= ySpan)
-                    group.line(xSpan, i, -xSpan, i);
-                if (Math.abs(i) <= xSpan)
-                    group.line(i, ySpan, i, -ySpan);
-                if (i % 10 == 0) {
-                    if (Math.abs(i) <= xSpan)
-                        group.text('' + i).transform({scaleY: -1}).attr({class: 'gridText '}).x(i).y(0);
-                    if (Math.abs(i) <= ySpan)
-                        group.text('' + -i).transform({scaleY: -1}).attr({class: 'gridText '}).x(0).y(i);
-                }
-            }
+            this.set('grid', BackgroundGrid.create({view: this}));
         },
         transformPoint: function (x, y, matrix) {
             var p = this.get('svg').node.createSVGPoint();
@@ -123,10 +141,11 @@ define(['libs/svg'], function () {
         },
         updateVisibleBox: function () {
             var m = this.getCTM().inverse();
-            var topRight = this.transformPoint(this.get('insertedSize').x, this.get('insertedSize').y, m);
             var bottomLeft = this.transformPoint(0, 0, m);
-            var height = Math.abs(topRight.y - bottomLeft.y);
+            var topRight = this.transformPoint(this.get('insertedSize.x'), this.get('insertedSize.y'), m);
             var width = (topRight.x - bottomLeft.x);
+            var height = Math.abs(topRight.y - bottomLeft.y);
+            this.set('visibleBox', {x: bottomLeft.x, y: bottomLeft.y, width: width, height: height});
             this.get('viewPort').attr({width: width * 0.98, height: height * 0.98,
                 x: bottomLeft.x + width * 0.01, y: (bottomLeft.y - height) + height * 0.01, stroke: 'gray', fill: 'none'});
         },
@@ -143,35 +162,19 @@ define(['libs/svg'], function () {
         },
         zoomExtent: function () {
             var box = this.get('paper').bbox();
-            var m = this.getCTM();
-            var svg = $(this.get('svg').node);
-            var width = svg.width();
-            var height = svg.height();
+            var width = this.get('insertedSize.x');
+            var height = this.get('insertedSize.y');
             var newScale = Math.min(width / box.width, height / box.height) * 0.8;
             newScale = isFinite(newScale) ? newScale : 1;
             newScale = Math.abs(newScale);
-            m.a = newScale;
-            m.d = -newScale;
-            m.e = -box.x + box.width * 0.25;
-            m.f = -(-box.y + box.height * 0.5 - height);
+            var m = this.get('svg.node').createSVGMatrix();
+            m = m.scaleNonUniform(newScale, -newScale);
+            m = m.translate((width / newScale - box.width ) / 2, -(height / newScale + box.height) / 2);
             this.setMatrix(m);
-        },
-        updateGridVisibility: function (scale) {
-            var gridThreshold;
-            var gridStack = this.get('gridStack');
-            for (var i = 0; i < gridStack.length; i++)
-                if (scale < gridStack[i][0])
-                    gridThreshold = gridStack[i][0];
-            if (gridThreshold != this.currentGridThreshold) {
-                for (i = 0; i < gridStack.length; i++)
-                    gridStack[i][1].css('visibility', scale < gridStack[i][0] ? 'hidden' : 'visible');
-            }
-            this.currentGridThreshold = gridThreshold;
         },
         setMatrix: function (matrix) {
             this.get('root').node.transform.baseVal.getItem(0).setMatrix(matrix);
-            this.ctm = matrix;
-            this.updateGridVisibility(matrix.a);
+            this.set('ctm', matrix);
             this.updateVisibleBox();
         }
     });
