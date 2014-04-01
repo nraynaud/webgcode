@@ -234,7 +234,7 @@ require(['cnc/twoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text', 'cnc/p
         radialEngagementRatio: 0.9,
         undercut: [],
         toolChanged: function () {
-            Ember.run.debounce(self, self.computePocket, 2000);
+            Ember.run.debounce(this, this.computePocket, 2000);
         }.observes('toolDiameter', 'radialEngagementRatio'),
         textChanged: function () {
             var t = this.get('text');
@@ -266,7 +266,7 @@ require(['cnc/twoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text', 'cnc/p
                 },
                 displayUndercutPoly: function (poly) {
                     self.get('undercut').pushObject(poly);
-                }});
+                }}, false);
             self.set('computationPromise', promise);
             promise.then(function (pocketToolPaths) {
                 self.set('pocketToolPaths', pocketToolPaths);
