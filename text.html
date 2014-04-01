@@ -101,7 +101,7 @@
 
 <script>
 var drawing = $('#drawing');
-require(['cnc/twoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text', 'cnc/pocket', 'cnc/ui/views', 'libs/simplify'], function (twoD, cam, fontExample, text, pocket, views, simplify) {
+require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text', 'cnc/pocket', 'cnc/ui/views', 'libs/simplify'], function (emberTwoDView, cam, fontExample, text, pocket, views, simplify) {
     window.TextApplication = Ember.Application.create({
         customEvents: {
             mousewheel: "mousewheel"
@@ -157,7 +157,7 @@ require(['cnc/twoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text', 'cnc/p
             return cam.simplifyPolygons(poly, machine.clipperScale / 100);
         },
         didInsertElement: function () {
-            var view = new twoD.TwoDView(this.$());
+            var view = emberTwoDView.EmberTwoDView.create({element: this.$()});
             this.set('nativeComponent', view);
             var outline = view.paper.path('M0,0').attr({class: 'outline', fill: 'url(#computingFill)'});
             outline.remove();

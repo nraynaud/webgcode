@@ -193,6 +193,7 @@
 		DDAA54D2FD784075CBBFAE57 /* mode-svg.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA598FCD563229B3C9C177 /* mode-svg.js */; };
 		DDAA54D3473556EC0B93F92B /* ext-options.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA586F6DBF760EB89D45F2 /* ext-options.js */; };
 		DDAA54D65635F2743D24E8F1 /* mode-batchfile.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA55FB9013844B5A76FD74 /* mode-batchfile.js */; };
+		DDAA54D76ECEC7A8B4F7AB6B /* emberTwoDView.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5A55C036357C8CD5193C /* emberTwoDView.js */; };
 		DDAA54D89E9E248B236C3E79 /* ext-spellcheck.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5526963C0E04E95BFE1E /* ext-spellcheck.js */; };
 		DDAA54DE0F20CCE148C6E657 /* mode-html_ruby.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA51CFE282C3F1F99DC15A /* mode-html_ruby.js */; };
 		DDAA54F6E0E3E391A282D127 /* theme-mono_industrial.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54FA588E5018E48E44B2 /* theme-mono_industrial.js */; };
@@ -1036,6 +1037,7 @@
 		DDAA5A4AEE4A521F092724BE /* mode-haxe.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-haxe.js"; sourceTree = "<group>"; };
 		DDAA5A4B426FA2031B60ED96 /* ext-statusbar.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-statusbar.js"; sourceTree = "<group>"; };
 		DDAA5A52751E1F666910B8D0 /* mode-scss.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-scss.js"; sourceTree = "<group>"; };
+		DDAA5A55C036357C8CD5193C /* emberTwoDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = emberTwoDView.js; sourceTree = "<group>"; };
 		DDAA5A58AA2235B4497F9E98 /* mode-actionscript.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-actionscript.js"; sourceTree = "<group>"; };
 		DDAA5A6953BC079E94FCF489 /* theme-github.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-github.js"; sourceTree = "<group>"; };
 		DDAA5A7401620FDAACB4DB87 /* mode-glsl.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-glsl.js"; sourceTree = "<group>"; };
@@ -1582,6 +1584,7 @@
 			isa = PBXGroup;
 			children = (
 				DDAA5D362B64EEE93DE54810 /* views.js */,
+				DDAA5A55C036357C8CD5193C /* emberTwoDView.js */,
 			);
 			path = ui;
 			sourceTree = "<group>";
@@ -2758,6 +2761,7 @@
 				DDAA52AB326C153DC3BC16E4 /* handlebars-v1.3.0.js in Sources */,
 				DDAA5D8522CC01C3FDEDF044 /* views.js in Sources */,
 				DDAA513250107BC899C6708D /* simplify.js in Sources */,
+				DDAA54D76ECEC7A8B4F7AB6B /* emberTwoDView.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
