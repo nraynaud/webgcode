@@ -2,20 +2,16 @@
 
 define(['libs/svg'], function () {
     function TwoDView(drawing) {
-        //for firefox reason I added that
+        //for firefox reasons I added an enclosing <div class="TwoDView"> of the same size as the <svg>
         //https://bugzilla.mozilla.org/show_bug.cgi?id=479058
         //http://stackoverflow.com/questions/15629183/svg-offset-issue-in-firefox
-        /*var inserted = $('<div></div>');
-         this.inserted = inserted;
-         inserted.addClass('TwoDView');
-         drawing.append(inserted);*/
         this.inserted = drawing;
         this.svg = SVG(drawing[0]).attr({width: null, height: null});
         this.root = this.svg.group().attr({class: 'root', 'vector-effect': 'non-scaling-stroke'});
+        this.root.node.transform.baseVal.initialize(this.svg.node.createSVGTransform());
         this.background = this.root.group().attr({class: 'background', 'vector-effect': 'non-scaling-stroke'});
         this.paper = this.root.group().attr({class: 'paper', 'vector-effect': 'non-scaling-stroke'});
-        var defs = this.svg.defs();
-        var pattern = defs.pattern(6, 6,function () {
+        this.svg.defs().pattern(6, 6,function () {
             var group = this.group();
             group.rect(6, 6).x(0).y(0);
             group.line(-1, 5, 7, 13);
@@ -24,7 +20,6 @@ define(['libs/svg'], function () {
             group.line(-1, -4, 7, 4);
             group.line(-1, -7, 7, 1);
         }).attr({id: 'computingFill'});
-        $(defs.node).append(pattern);
         var origin = this.background.group().attr({class: 'origin'});
         origin.path('M0,0 L0,10 A 10,10 90 0 0 10,0 Z M0,0 L0,-10 A 10,10 90 0 0 -10,0 Z').attr({stroke: 'none', fill: 'red', transform: null});
         origin.ellipse(20, 20).cx(0).cy(0).attr({stroke: 'red', fill: 'none', transform: null});
@@ -69,16 +64,16 @@ define(['libs/svg'], function () {
         drawing.mousewheel(function (event, delta, deltaX, deltaY) {
             var pos = self.getModelPositionForPageXY(event.pageX, event.pageY);
             var k = self.svg.node.createSVGMatrix().translate(pos.x, pos.y).scale(1 + deltaY / 360).translate(-pos.x, -pos.y);
-            var m = self.root.node.getCTM().multiply(k);
+            var m = self.getCTM().multiply(k);
             if (m.a > 0.4)
-                self.setMatrix(self.root, m);
+                self.setMatrix(m);
             event.preventDefault();
         });
 
         drawing.mousedown(function (event) {
             if (event.which != 1)
                 return;
-            var m = self.root.node.getCTM();
+            var m = self.getCTM();
             var pos = self.getModelPositionForPageXY(event.pageX, event.pageY, m);
             self.mouseDownStartCondition = {x: event.pageX, y: event.pageY, matrix: m, modelPos: pos};
         });
@@ -93,14 +88,19 @@ define(['libs/svg'], function () {
                 var oldPos = self.mouseDownStartCondition.modelPos;
                 var newPos = self.getModelPositionForPageXY(event.pageX, event.pageY, self.mouseDownStartCondition.matrix);
                 var k = self.mouseDownStartCondition.matrix.translate(newPos.x - oldPos.x, newPos.y - oldPos.y);
-                self.setMatrix(self.root, k);
+                self.setMatrix(k);
             }
         });
-        $(window).resize(function resizeSVG() {
-            console.log('resize');
+        $(window).resize(resizeSVG);
+        function resizeSVG() {
+            self.offset = self.inserted.offset();
+            self.insertedSize = {x: self.inserted.width(), y: self.inserted.height() };
             self.updateVisibleBox();
-        });
+        }
+
         self.viewPort = self.root.rect().attr({ stroke: 'gray', fill: 'none'});
+        resizeSVG();
+        this.updateGridVisibility(this.getCTM().a);
         self.zoomExtent();
     }
 
@@ -112,9 +112,14 @@ define(['libs/svg'], function () {
             p = p.matrixTransform(matrix);
             return p;
         },
+        getCTM: function () {
+            if (this.ctm == null)
+                this.ctm = this.root.node.getCTM();
+            return this.ctm;
+        },
         updateVisibleBox: function () {
-            var m = this.root.node.getCTM().inverse();
-            var topRight = this.transformPoint(this.inserted.width(), this.inserted.height(), m);
+            var m = this.getCTM().inverse();
+            var topRight = this.transformPoint(this.insertedSize.x, this.insertedSize.y, m);
             var bottomLeft = this.transformPoint(0, 0, m);
             var height = Math.abs(topRight.y - bottomLeft.y);
             var width = (topRight.x - bottomLeft.x);
@@ -123,9 +128,9 @@ define(['libs/svg'], function () {
         },
         getModelPositionForPageXY: function (x, y, matrix) {
             if (matrix == null)
-                matrix = this.root.node.getCTM();
+                matrix = this.getCTM();
             //can't use offset with SVG in FF  http://stackoverflow.com/questions/15629183/svg-offset-issue-in-firefox
-            var targetOffset = this.inserted.offset();
+            var targetOffset = this.offset;
             var p = this.transformPoint(x - targetOffset.left, y - targetOffset.top, matrix.inverse());
             return {x: p.x, y: p.y};
         },
@@ -135,7 +140,7 @@ define(['libs/svg'], function () {
         zoomExtent: function () {
             var paper = this.paper;
             var box = paper.bbox();
-            var m = this.root.node.getCTM();
+            var m = this.getCTM();
             var svg = $(this.svg.node);
             var width = svg.width();
             var height = svg.height();
@@ -146,15 +151,23 @@ define(['libs/svg'], function () {
             m.d = -newScale;
             m.e = -box.x + box.width * 0.25;
             m.f = -(-box.y + box.height * 0.5 - height);
-            this.setMatrix(this.root, m);
+            this.setMatrix(m);
         },
-        setMatrix: function (element, matrix) {
+        updateGridVisibility: function (scale) {
+            var gridThreshold;
             for (var i = 0; i < this.gridStack.length; i++)
-                this.gridStack[i][1].css('visibility', matrix.a < this.gridStack[i][0] ? 'hidden' : 'visible');
-            var components = $.map('abcdef'.split(''),function (c) {
-                return matrix[c];
-            }).join(',');
-            element.attr({transform: 'matrix(' + components + ')'});
+                if (scale < this.gridStack[i][0])
+                    gridThreshold = this.gridStack[i][0];
+            if (gridThreshold != this.currentGridThreshold) {
+                for (i = 0; i < this.gridStack.length; i++)
+                    this.gridStack[i][1].css('visibility', scale < this.gridStack[i][0] ? 'hidden' : 'visible');
+            }
+            this.currentGridThreshold = gridThreshold;
+        },
+        setMatrix: function (matrix) {
+            this.root.node.transform.baseVal.getItem(0).setMatrix(matrix);
+            this.ctm = matrix;
+            this.updateGridVisibility(matrix.a);
             this.updateVisibleBox();
         }
     };
