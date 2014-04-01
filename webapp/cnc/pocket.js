@@ -1,6 +1,6 @@
 "use strict";
 
-define(['cnc/clipper', 'cnc/cam', 'libs/simplify'], function (clipper, cam, simplify) {
+define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
 
     function lastItem(array) {
         return array[array.length - 1];
@@ -14,13 +14,6 @@ define(['cnc/clipper', 'cnc/cam', 'libs/simplify'], function (clipper, cam, simp
         co.AddPaths(polygon, clipper.JoinType.jtRound, clipper.EndType.etClosedPolygon);
         co.Execute(result, radius);
         return result;
-    }
-
-    function recursivelyOffset(shape, offsetDistance, depth) {
-        return cam.decomposePolytreeInTopLevelPolygons(shape).map(function (child) {
-            var offset = offsetPolygon(child, offsetDistance, true);
-            return {contour: child, children: recursivelyOffset(offset, offsetDistance, depth + 1)};
-        });
     }
 
     function sqDist(p1, p2) {
@@ -39,15 +32,23 @@ define(['cnc/clipper', 'cnc/cam', 'libs/simplify'], function (clipper, cam, simp
                 minDist = dist;
             }
         }
-        return polygon.slice(minIndex).concat(polygon.slice(0, minIndex));
+        polygon.push.apply(polygon, polygon.splice(0, minIndex));
+        return polygon;
     }
 
-    function spiralFromData(pocket, childClosingPoint, childSpiral, currentShell) {
-        var currentContour = cam.geom.closePolygons([rotatePolygonSoThatStartPointIsClosestTo(childClosingPoint, pocket.contour[0])])[0];
+    function spiralFromData(pocket, childSpiral, currentShell) {
+        var currentContour = pocket.contour[0];
         var newShell = currentShell.slice();
         newShell[0] = currentContour;
-        //push first point at the end to force polygon closing
         return {shell: newShell, path: childSpiral.concat(currentContour)};
+    }
+
+    function rotateAndCloseRing(pocket) {
+        var lastChild = lastItem(pocket.children);
+        if (lastChild)
+        //last point of the last child
+            rotatePolygonSoThatStartPointIsClosestTo(lastItem(lastItem(lastChild.contour)), pocket.contour[0]);
+        cam.geom.closePolygons(pocket.contour);
     }
 
     function chainOneStagePocketRing(pocket) {
@@ -58,48 +59,19 @@ define(['cnc/clipper', 'cnc/cam', 'libs/simplify'], function (clipper, cam, simp
                 var newSpiraledToolPath;
                 if (child['spiraledToolPath']) {
                     var childToolPath = child.spiraledToolPath;
-                    newSpiraledToolPath = spiralFromData(pocket, lastItem(childToolPath.path), childToolPath.path, childToolPath.shell);
+                    newSpiraledToolPath = spiralFromData(pocket, childToolPath.path, childToolPath.shell);
                 } else {
                     var childContour = child.contour[0];
                     var shell = [childContour];
                     if (child.children.length)
                         shell.push(childContour);
-                    newSpiraledToolPath = spiralFromData(pocket, childContour[0], childContour.concat([childContour[0]]), shell);
+                    newSpiraledToolPath = spiralFromData(pocket, childContour.concat([childContour[0]]), shell);
                 }
                 //the lowest chainable child might itself have non-chainable children
                 pocket.children = child.children;
                 pocket.spiraledToolPath = newSpiraledToolPath;
-                return;
             }
         }
-        if (pocket.children.length) {
-            //find a first point that limits a bit the tool travel
-            var lastChild = lastItem(pocket.children);
-            var lastPoint = lastItem(lastChild['spiraledToolPath'] ? lastChild['spiraledToolPath'].path : lastChild.contour[0]);
-            for (var i = 0; i < pocket.contour.length; i++) {
-                //do it for the contour and all its holes.
-                pocket.contour[i] = rotatePolygonSoThatStartPointIsClosestTo(lastPoint, pocket.contour[i]);
-                lastPoint = lastItem(pocket.contour[i]);
-            }
-        }
-        cam.geom.closePolygons(pocket.contour);
-    }
-
-    function chainPocketRings(pocket) {
-        cam.geom.closePolygons(pocket.contour);
-        for (var j = 0; j < pocket.children.length; j++)
-            chainPocketRings(pocket.children[j]);
-        chainOneStagePocketRing(pocket);
-    }
-
-    function doCreatePocket(shapePoly, scaledToolRadius, radialEngagementRatio, display) {
-        var outlineAtToolCenter = offsetPolygon(shapePoly, -scaledToolRadius, true);
-        var pocketToolPaths = recursivelyOffset(outlineAtToolCenter, -scaledToolRadius * radialEngagementRatio, 0);
-        for (var i = 0; i < pocketToolPaths.length; i++) {
-            var pocket = pocketToolPaths[i];
-            chainPocketRings(pocket);
-        }
-        return pocketToolPaths
     }
 
 //https://github.com/substack/point-in-polygon/blob/master/index.js
@@ -149,7 +121,7 @@ define(['cnc/clipper', 'cnc/cam', 'libs/simplify'], function (clipper, cam, simp
 
     function computeUndercut(shapePoly, outlineAtToolCenter, scaledToolRadius, tolerance) {
         co.ArcTolerance = tolerance;
-        var undercut = offsetPolygon(cam.simplifyPolygons(outlineAtToolCenter, tolerance), scaledToolRadius + tolerance);
+        var undercut = offsetPolygon(outlineAtToolCenter, scaledToolRadius + tolerance);
         return cam.polyOp(shapePoly, undercut, clipper.ClipType.ctDifference, false);
     }
 
@@ -158,8 +130,8 @@ define(['cnc/clipper', 'cnc/cam', 'libs/simplify'], function (clipper, cam, simp
         var tolerance = step / 1000;
         var outlineAtToolCenter = offsetPolygon(shapePoly, -scaledToolRadius, true);
         var polygon = clipper.Clipper.ClosedPathsFromPolyTree(outlineAtToolCenter);
-        display.displayUndercutPoly(computeUndercut(shapePoly, polygon, scaledToolRadius, tolerance));
-        var polygon2 = simplify(polygon, tolerance, true);
+        var polygon2 = cam.simplifyPolygons(polygon, tolerance);
+        display.displayUndercutPoly(computeUndercut(shapePoly, polygon2, scaledToolRadius, tolerance));
         var co2 = new clipper.ClipperOffset(2, tolerance);
         co2.AddPaths(polygon2, clipper.JoinType.jtRound, clipper.EndType.etClosedPolygon);
         var pocket = outlineAtToolCenter;
@@ -178,6 +150,7 @@ define(['cnc/clipper', 'cnc/cam', 'libs/simplify'], function (clipper, cam, simp
             for (var j = 0; j < children.length; j++) {
                 var child = children[j];
                 sortChildren(child);
+                rotateAndCloseRing(child);
                 chainOneStagePocketRing(child);
                 if (stack.length)
                     plugChildIntoCorrectParent(lastItem(stack), child);
@@ -280,7 +253,7 @@ define(['cnc/clipper', 'cnc/cam', 'libs/simplify'], function (clipper, cam, simp
             promises.push(work.promise);
             return  work;
         });
-        window.workerPool = createWorkerPool('webapp/pocket_worker.js', workArray, 6);
+        window.workerPool = createWorkerPool('webapp/pocket_worker.js', workArray, 1);
         return {promises: promises, abort: window.workerPool.abort};
     }
 
@@ -303,7 +276,6 @@ define(['cnc/clipper', 'cnc/cam', 'libs/simplify'], function (clipper, cam, simp
 
     return {
         createPocket: createPocket,
-        doCreatePocket: doCreatePocket,
         doCreatePocket2: doCreatePocket2
     };
 });
