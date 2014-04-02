@@ -209,13 +209,11 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
     }
 
     function createWork(polygon, scaledToolRadius, radialEngagementRatio, display) {
-        var handle = display.displayClipperComputingPoly(polygon);
         var deferred = RSVP.defer();
         return {message: {poly: polygon, scaledToolRadius: scaledToolRadius, radialEngagementRatio: radialEngagementRatio},
             messageHandler: function (data) {
                 if (data['finished']) {
                     var result = data['result'];
-                    handle.remove();
                     Ember.run(deferred, deferred.resolve, result);
                     return true;
                 } else if (data['operation'] == 'displayUndercutPoly')

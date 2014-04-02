@@ -127,11 +127,13 @@
     stroke: blue;
 }
 
-.TwoDView .undercut {
-    fill: red;
+.TwoDView .spiralPocketOutline {
+    fill-rule: evenodd;
+    fill: rgba(100, 100, 255, 0.2);
     stroke: none;
 }
 
-.gridRectangle {
-    stroke: black;
+.TwoDView .undercut {
+    fill: red;
+    stroke: none;
 }
