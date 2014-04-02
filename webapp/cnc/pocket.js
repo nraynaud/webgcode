@@ -159,12 +159,6 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
         return children;
     }
 
-    function computePocketImmediately(polygon, toolRadius, radialEngagementRatio, display) {
-        return function (resolve) {
-            resolve(doCreatePocket2(polygon, toolRadius, radialEngagementRatio, display));
-        }
-    }
-
     function createWorkerPool(workerUrl, workArray, maxWorkers) {
         var workersCount = Math.min(maxWorkers, workArray.length);
         var workers = [];
@@ -259,7 +253,9 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
 
     function createPocketImmediately(polygons, scaledToolRadius, radialEngagementRatio, display) {
         return {promises: polygons.map(function (poly) {
-            return new RSVP.Promise(computePocketImmediately(poly, scaledToolRadius, radialEngagementRatio, display));
+            return new RSVP.Promise(function (resolve) {
+                resolve(doCreatePocket2(poly, scaledToolRadius, radialEngagementRatio, display));
+            })
         }), abort: function () {
         }};
     }
