@@ -143,8 +143,8 @@ define(['libs/svg'], function () {
         },
         visibleBoxChanged: function () {
             var visibleBox = this.get('visibleBox');
-            this.get('viewPort').attr({width: visibleBox.width * 1, height: visibleBox.height * 1,
-                x: visibleBox.x + visibleBox.width * 0.0, y: visibleBox.y + visibleBox.height * 0.0});
+            this.get('viewPort').attr({width: visibleBox.width, height: visibleBox.height,
+                x: visibleBox.x, y: visibleBox.y });
         }.observes('visibleBox').on('init'),
         visibleBox: function () {
             var m = this.getCTM().inverse();
