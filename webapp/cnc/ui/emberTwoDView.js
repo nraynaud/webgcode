@@ -45,7 +45,7 @@ define(['libs/svg'], function () {
             }
         },
         updateGridVisibility: function () {
-            var scale = this.get('view.ctm.a');
+            var scale = this.get('view').getCTM().a;
             var gridThreshold;
             var gridStack = this.get('gridStack');
             for (var i = 0; i < gridStack.length; i++)
@@ -60,6 +60,8 @@ define(['libs/svg'], function () {
     });
 
     var EmberTwoDView = Ember.Object.extend({
+        minZoom: 0.4,
+        maxZoom: 80,
         init: function () {
             //for firefox reasons I added an enclosing <div class="TwoDView"> of the same size as the <svg>
             //https://bugzilla.mozilla.org/show_bug.cgi?id=479058
@@ -84,8 +86,6 @@ define(['libs/svg'], function () {
             var origin = this.get('background').group().attr({class: 'origin'});
             origin.path('M0,0 L0,10 A 10,10 90 0 0 10,0 Z M0,0 L0,-10 A 10,10 90 0 0 -10,0 Z').attr({stroke: 'none', fill: 'red', transform: null});
             origin.ellipse(20, 20).cx(0).cy(0).attr({stroke: 'red', fill: 'none', transform: null});
-            this.set('minZoom', 0.4);
-            this.set('maxZoom', 80);
             var _this = this;
 
             element.mousewheel(function (event, delta, deltaX, deltaY) {
@@ -122,7 +122,6 @@ define(['libs/svg'], function () {
             function resizeSVG() {
                 _this.set('offset', element.offset());
                 _this.set('insertedSize', {x: element.width(), y: element.height()});
-                _this.updateVisibleBox();
             }
 
             _this.set('viewPort', _this.root.rect().attr({ stroke: 'gray', fill: 'none'}));
@@ -142,17 +141,20 @@ define(['libs/svg'], function () {
                 this.set('ctm', this.root.node.getCTM());
             return this.get('ctm');
         },
-        updateVisibleBox: function () {
+        visibleBoxChanged: function () {
+            var visibleBox = this.get('visibleBox');
+            this.get('viewPort').attr({width: visibleBox.width * 1, height: visibleBox.height * 1,
+                x: visibleBox.x + visibleBox.width * 0.0, y: visibleBox.y + visibleBox.height * 0.0});
+        }.observes('visibleBox').on('init'),
+        visibleBox: function () {
             var m = this.getCTM().inverse();
             var bottomLeft = this.transformPoint(0, this.get('insertedSize.y'), m);
             var topRight = this.transformPoint(this.get('insertedSize.x'), 0, m);
             var bottom = Math.min(bottomLeft.y, topRight.y);
             var width = (topRight.x - bottomLeft.x);
             var height = Math.abs(topRight.y - bottomLeft.y);
-            this.set('visibleBox', {x: bottomLeft.x, y: bottom, width: width, height: height});
-            this.get('viewPort').attr({width: width * 0.98, height: height * 0.98,
-                x: bottomLeft.x + width * 0.01, y: bottom + height * 0.01, stroke: 'gray', fill: 'none'});
-        },
+            return {x: bottomLeft.x + width * 0.2, y: bottom + height * 0.2, width: width * 0.6, height: height * 0.6}
+        }.property('ctm', 'insertedSize'),
         getModelPositionForPageXY: function (x, y, matrix) {
             if (matrix == null)
                 matrix = this.getCTM();
@@ -181,8 +183,10 @@ define(['libs/svg'], function () {
         setMatrix: function (matrix) {
             this.get('root').node.transform.baseVal.getItem(0).setMatrix(matrix);
             this.set('ctm', matrix);
-            this.updateVisibleBox();
-        }
+        },
+        zoomLevel: function () {
+            return this.getCTM().a;
+        }.property('ctm')
     });
 
     return {EmberTwoDView: EmberTwoDView};
