@@ -211,6 +211,20 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
                 this.get('pathElement').plot(this.get('lods')[lodIndex]);
             else
                 this.get('pathElement').plot('M0,0');
+        },
+        refreshVisibility2: function (viewBox) {
+            var lodIndex = this.get('lodIndex');
+            var b = this.get('bbox');
+            var inViewPort = !(viewBox.x >= b.x + b.width || viewBox.y >= b.y + b.height
+                    || b.x >= viewBox.x + viewBox.width || b.y >= viewBox.y + viewBox.height);
+            if (this.get('currentLodIndex') === lodIndex && this.get('currentVisibility') === inViewPort)
+                return;
+            this.set('currentLodIndex', lodIndex);
+            this.set('currentVisibility', inViewPort);
+            if (inViewPort)
+                this.get('pathElement').plot(this.get('lods')[lodIndex]);
+            else
+                this.get('pathElement').plot('M0,0');
         }
     });
 
@@ -301,7 +315,6 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
             outline.remove();
             this.set('outline', outline);
             this.set('pocketGroup', view.paper.group());
-            this.set('unionRect', view.paper.rect(0, 0).attr({stroke: 'red', fill: 'none'}));
         },
         simplify: function (poly) {
             return cam.simplifyPolygons(poly, machine.clipperScale / 100);
@@ -310,18 +323,15 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
             this.get('pocketGroup').clear();
         },
         viewPointWasChanged: function () {
-            console.log(arguments);
             var vbox = this.get('nativeComponent.visibleBox');
             if (vbox) {
                 var previousVbox = this.get('vbox');
                 var tree = this.get('tree');
                 var union = previousVbox != null ? unionBox(vbox, previousVbox) : vbox;
-                if (this.get('unionRect'))
-                    this.get('unionRect').x(union.x).y(union.y).width(union.width).height(union.height);
                 var refreshList = tree.search([union.x, union.y, union.x + union.width, union.y + union.height]);
                 for (var i = 0; i < refreshList.length; i++) {
                     var pathView = refreshList[i][4];
-                    pathView.refreshVisibility();
+                    pathView.refreshVisibility2(vbox);
                 }
                 this.set('vbox', vbox);
             }
