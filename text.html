@@ -165,20 +165,19 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
 
             var polyline = this.get('polyline');
             var lods = [
-                simplifyScaleAndCreatePathDef(polyline, machine.clipperScale, 1 / lerp(0.4, 80, 0.25)),
-                simplifyScaleAndCreatePathDef(polyline, machine.clipperScale, 1 / lerp(0.4, 80, 0.5)),
-                simplifyScaleAndCreatePathDef(polyline, machine.clipperScale, 1 / lerp(0.4, 80, 0.75)),
-                simplifyScaleAndCreatePathDef(polyline, machine.clipperScale, 1 / lerp(0.4, 80, 1))
+                parent.path(simplifyScaleAndCreatePathDef(polyline, machine.clipperScale, 0.5 / lerp(0.4, 80, 0.25))).attr(this.get('attr')).remove(),
+                parent.path(simplifyScaleAndCreatePathDef(polyline, machine.clipperScale, 0.5 / lerp(0.4, 80, 0.5))).attr(this.get('attr')).remove(),
+                parent.path(simplifyScaleAndCreatePathDef(polyline, machine.clipperScale, 0.5 / lerp(0.4, 80, 0.75))).attr(this.get('attr')).remove(),
+                parent.path(simplifyScaleAndCreatePathDef(polyline, machine.clipperScale, 0.5 / lerp(0.4, 80, 1))).attr(this.get('attr')).remove()
             ];
             this.set('lods', lods);
-
-            var path = parent.path(simplifyScaleAndCreatePathDef(polyline, machine.clipperScale, 0.1))
-                    .attr(this.get('attr'));
+            this.set('emptyPath', parent.path('M0,0').remove());
+            var path = parent.path(simplifyScaleAndCreatePathDef(polyline, machine.clipperScale, 0.1)).attr(this.get('attr'));
             var bbox = path.bbox();
             this.set('bbox', bbox);
             this.set('treeKey', [bbox.x, bbox.y, bbox.x2, bbox.y2, this]);
             this.set('pathElement', path);
-            this.refreshVisibility();
+            this.refreshVisibility2(this.get('operationView.nativeComponent.visibleBox'));
         },
         lodIndex: function () {
             var zoomLevel = this.get('operationView.nativeComponent.zoomLevel');
@@ -221,10 +220,9 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
                 return;
             this.set('currentLodIndex', lodIndex);
             this.set('currentVisibility', inViewPort);
-            if (inViewPort)
-                this.get('pathElement').plot(this.get('lods')[lodIndex]);
-            else
-                this.get('pathElement').plot('M0,0');
+            var newElement = inViewPort ? this.get('lods')[lodIndex] : this.get('emptyPath');
+            this.get('pathElement').replace(newElement);
+            this.set('pathElement', newElement);
         }
     });
 
