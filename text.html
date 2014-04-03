@@ -146,6 +146,14 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
         return d;
     }
 
+    function unionBox(box1, box2) {
+        var x = Math.min(box1.x, box2.x);
+        var y = Math.min(box1.y, box2.y);
+        var x2 = Math.max(box1.x + box1.width, box2.x + box2.width);
+        var y2 = Math.max(box1.y + box1.height, box2.y + box2.height);
+        return {x: x, y: y, width: x2 - x, height: y2 - y};
+    }
+
     TextApplication.MultiLODPolylineView = Ember.Object.extend({
         init: function () {
             var zoomLevel = this.get('operationView.nativeComponent.zoomLevel');
@@ -157,10 +165,10 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
 
             var polyline = this.get('polyline');
             var lods = [
-                simplifyScaleAndCreatePathDef(polyline, machine.clipperScale, 0.5 / lerp(0.4, 80, 0.25)),
-                simplifyScaleAndCreatePathDef(polyline, machine.clipperScale, 0.5 / lerp(0.4, 80, 0.5)),
-                simplifyScaleAndCreatePathDef(polyline, machine.clipperScale, 0.5 / lerp(0.4, 80, 0.75)),
-                simplifyScaleAndCreatePathDef(polyline, machine.clipperScale, 0.5 / lerp(0.4, 80, 1))
+                simplifyScaleAndCreatePathDef(polyline, machine.clipperScale, 1 / lerp(0.4, 80, 0.25)),
+                simplifyScaleAndCreatePathDef(polyline, machine.clipperScale, 1 / lerp(0.4, 80, 0.5)),
+                simplifyScaleAndCreatePathDef(polyline, machine.clipperScale, 1 / lerp(0.4, 80, 0.75)),
+                simplifyScaleAndCreatePathDef(polyline, machine.clipperScale, 1 / lerp(0.4, 80, 1))
             ];
             this.set('lods', lods);
 
@@ -168,6 +176,7 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
                     .attr(this.get('attr'));
             var bbox = path.bbox();
             this.set('bbox', bbox);
+            this.set('treeKey', [bbox.x, bbox.y, bbox.x2, bbox.y2, this]);
             this.set('pathElement', path);
         },
         lodIndex: function () {
@@ -184,13 +193,13 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
         inViewPort: function () {
             var a = this.get('operationView.nativeComponent.visibleBox');
             var b = this.get('bbox');
-            return !(a.x > b.x + b.width || a.y > b.y + b.height
-                    || b.x > a.x + a.width || b.y > a.y + a.height);
+            return !(a.x >= b.x + b.width || a.y >= b.y + b.height
+                    || b.x >= a.x + a.width || b.y >= a.y + a.height);
         }.property('operationView.nativeComponent.visibleBox'),
         willDestroy: function () {
             this.get('pathElement').remove();
         },
-        zoomChanged: function () {
+        refreshVisibility: function () {
             var lodIndex = this.get('lodIndex');
             var inViewPort = this.get('inViewPort');
             if (this.get('currentLodIndex') === lodIndex && this.get('currentVisibility') === inViewPort)
@@ -201,15 +210,17 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
                 this.get('pathElement').plot(this.get('lods')[lodIndex]);
             else
                 this.get('pathElement').plot('M0,0');
-        }.observes('lodIndex', 'inViewPort').on('init')
+        }
     });
 
     TextApplication.PocketView = Ember.Object.extend({
         layerViews: [],
         pocketGroupWillChange: function () {
             if (this.get('pocketGroup') != null)
-                for (var i = 0; i < this.get('layerViews').length; i++)
+                for (var i = 0; i < this.get('layerViews').length; i++) {
+                    this.get('operationView.tree').remove(this.get('layerViews')[i].get('treeKey'));
                     this.get('layerViews')[i].destroy();
+                }
         }.observesBefore('pocketGroup'),
         pocketGroupChanged: function () {
             var pocketGroup = this.get('pocketGroup');
@@ -231,7 +242,9 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
         },
         displayPolyline: function (polyline, attr) {
             var params = {polyline: polyline, parent: this.get('pocketGroup'), operationView: this.get('operationView'), attr: attr};
-            this.get('layerViews').pushObject(TextApplication.MultiLODPolylineView.create(params));
+            var layerView = TextApplication.MultiLODPolylineView.create(params);
+            this.get('operationView.tree').insert(layerView.get('treeKey'));
+            this.get('layerViews').pushObject(layerView);
         }
     });
     TextApplication.OperationView = Ember.View.extend({
@@ -280,9 +293,6 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
                 }
             });
         },
-        simplify: function (poly) {
-            return cam.simplifyPolygons(poly, machine.clipperScale / 100);
-        },
         didInsertElement: function () {
             var view = emberTwoDView.EmberTwoDView.create({element: this.$()});
             this.set('nativeComponent', view);
@@ -290,11 +300,31 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
             outline.remove();
             this.set('outline', outline);
             this.set('pocketGroup', view.paper.group());
-
+            this.set('unionRect', view.paper.rect(0, 0).attr({stroke: 'red', fill: 'none'}));
+        },
+        simplify: function (poly) {
+            return cam.simplifyPolygons(poly, machine.clipperScale / 100);
         },
         clear: function () {
             this.get('pocketGroup').clear();
         },
+        viewPointWasChanged: function () {
+            console.log(arguments);
+            var vbox = this.get('nativeComponent.visibleBox');
+            if (vbox) {
+                var previousVbox = this.get('vbox');
+                var tree = this.get('tree');
+                var union = previousVbox != null ? unionBox(vbox, previousVbox) : vbox;
+                if (this.get('unionRect'))
+                    this.get('unionRect').x(union.x).y(union.y).width(union.width).height(union.height);
+                var refreshList = tree.search([union.x, union.y, union.x + union.width, union.y + union.height]);
+                for (var i = 0; i < refreshList.length; i++) {
+                    var pathView = refreshList[i][4];
+                    pathView.refreshVisibility();
+                }
+                this.set('vbox', vbox);
+            }
+        }.observes('nativeComponent.visibleBox').on('didInsertElement'),
         synchronizeOutline: function () {
             this.clear();
             var d = this.get('controller.textOutline');
