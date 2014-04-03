@@ -178,6 +178,7 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
             this.set('bbox', bbox);
             this.set('treeKey', [bbox.x, bbox.y, bbox.x2, bbox.y2, this]);
             this.set('pathElement', path);
+            this.refreshVisibility();
         },
         lodIndex: function () {
             var zoomLevel = this.get('operationView.nativeComponent.zoomLevel');
