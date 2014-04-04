@@ -210,7 +210,7 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
 
     function createWork(polygon, scaledToolRadius, radialEngagementRatio, display) {
         var deferred = RSVP.defer();
-        return {message: {poly: polygon, scaledToolRadius: scaledToolRadius, radialEngagementRatio: radialEngagementRatio},
+        return {message: {operation: 'createPocket', poly: polygon, scaledToolRadius: scaledToolRadius, radialEngagementRatio: radialEngagementRatio},
             messageHandler: function (data) {
                 if (data['finished']) {
                     var result = data['result'];
@@ -245,7 +245,7 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
             promises.push(work.promise);
             return  work;
         });
-        window.workerPool = createWorkerPool('webapp/pocket_worker.js', workArray, 6);
+        window.workerPool = createWorkerPool('webapp/worker.js', workArray, 6);
         return {promises: promises, polygons: polygons, abort: window.workerPool.abort};
     }
 

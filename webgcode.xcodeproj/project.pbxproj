@@ -188,7 +188,6 @@
 		DDAA54C3921E087795326120 /* mode-c_cpp.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5ABCA6DCA7AD3725DBD3 /* mode-c_cpp.js */; };
 		DDAA54C63FBE1B8B4896D813 /* mode-curly.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA52D5329B178535416E1F /* mode-curly.js */; };
 		DDAA54CA142F40EF25AD3D72 /* mode-javascript.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA579CE5691D8A2FAEAEE1 /* mode-javascript.js */; };
-		DDAA54CC60DF245D707A1063 /* pocket_worker.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA586246000FF215F912ED /* pocket_worker.js */; };
 		DDAA54D019D132A9B4F9A2D9 /* theme-terminal.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5ABC8C077A5A04533AFA /* theme-terminal.js */; };
 		DDAA54D2FD784075CBBFAE57 /* mode-svg.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA598FCD563229B3C9C177 /* mode-svg.js */; };
 		DDAA54D3473556EC0B93F92B /* ext-options.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA586F6DBF760EB89D45F2 /* ext-options.js */; };
@@ -951,7 +950,6 @@
 		DDAA5846BE331E69A0311E40 /* ajax-loader.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = "ajax-loader.gif"; path = "webapp/ajax-loader.gif"; sourceTree = "<group>"; };
 		DDAA5846DC8D832C25364711 /* mode-mushcode_high_rules.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-mushcode_high_rules.js"; sourceTree = "<group>"; };
 		DDAA5852C21094C5D9ACA26E /* ember-1.5.0-beta5.pre7.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = "ember-1.5.0-beta5.pre7.js"; path = "webapp/libs/ember-1.5.0-beta5.pre7.js"; sourceTree = "<group>"; };
-		DDAA586246000FF215F912ED /* pocket_worker.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = pocket_worker.js; sourceTree = "<group>"; };
 		DDAA586255294CE6628FB715 /* mode-scss.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-scss.js"; sourceTree = "<group>"; };
 		DDAA586ED3964DF7D3AB9C61 /* test_offset.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_offset.html; sourceTree = "<group>"; };
 		DDAA586F6DBF760EB89D45F2 /* ext-options.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-options.js"; sourceTree = "<group>"; };
@@ -1959,7 +1957,6 @@
 				DDAA5BD4D3436F114AB6921D /* manifest.json */,
 				DDAA5C4F4476F0E52C5B5B0B /* ajax-loader.gif */,
 				DDAA578CF1A78A375FB0D041 /* twoDView.css */,
-				DDAA586246000FF215F912ED /* pocket_worker.js */,
 			);
 			path = webapp;
 			sourceTree = "<group>";
@@ -2760,7 +2757,6 @@
 				DDAA5DD3BD0324CD47B87A8B /* clipper.js in Sources */,
 				DDAA541CA63CF55BE9930E28 /* text.js in Sources */,
 				DDAA5B3BF805ECF7897A9F36 /* pocket.js in Sources */,
-				DDAA54CC60DF245D707A1063 /* pocket_worker.js in Sources */,
 				DDAA52AB326C153DC3BC16E4 /* handlebars-v1.3.0.js in Sources */,
 				DDAA5D8522CC01C3FDEDF044 /* views.js in Sources */,
 				DDAA513250107BC899C6708D /* simplify.js in Sources */,

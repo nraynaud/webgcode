@@ -78,7 +78,7 @@ var runner = (function () {
                 loop();
         };
         var channel = new MessageChannel();
-        worker.postMessage(null, [channel.port1]);
+        worker.postMessage({operation: 'acceptProgram'}, [channel.port1]);
         return channel.port2;
     }
 
