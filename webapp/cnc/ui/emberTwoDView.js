@@ -16,10 +16,10 @@ define(['libs/svg'], function () {
             var halfCmGrid = cmGrid.group().attr({class: 'halfCmGrid'});
             var mmGrid = halfCmGrid.group().attr({class: 'mmGrid'});
             this.gridStack = [
-                [20, $(mmGrid.node)],
-                [15, $(halfCmGrid.node)],
-                [5, $(cmGrid.node)],
-                [2.5, $(halfDmGrid.node)]
+                [20, $(mmGrid.node), false],
+                [15, $(halfCmGrid.node), false],
+                [5, $(cmGrid.node), false],
+                [2.5, $(halfDmGrid.node), false]
             ];
             var biggestSpan = Math.max(ySpan, xSpan);
             for (var i = -biggestSpan; i <= biggestSpan; i += 1) {
@@ -46,17 +46,18 @@ define(['libs/svg'], function () {
         },
         updateGridVisibility: function () {
             var scale = this.get('view').getCTM().a;
-            var gridThreshold;
             var gridStack = this.get('gridStack');
-            for (var i = 0; i < gridStack.length; i++)
-                if (scale < gridStack[i][0])
-                    gridThreshold = gridStack[i][0];
-            if (gridThreshold != this.currentGridThreshold) {
-                for (i = 0; i < gridStack.length; i++)
-                    gridStack[i][1].css('visibility', scale < gridStack[i][0] ? 'hidden' : 'visible');
+            for (var i = 0; i < gridStack.length; i++) {
+                var hide = scale < gridStack[i][0];
+                if (gridStack[i][2] != hide) {
+                    gridStack[i][1].css('visibility', hide ? 'hidden' : 'visible');
+                    gridStack[i][2] = hide;
+                }
             }
-            this.currentGridThreshold = gridThreshold;
-        }.observes('view.ctm', 'view.visibleBox').on('init')
+        }.on('init'),
+        observeViewPort: function () {
+            Ember.run.debounce(this, this.updateGridVisibility, 50);
+        }.observes('view.ctm', 'view.visibleBox')
     });
 
     var EmberTwoDView = Ember.Object.extend({

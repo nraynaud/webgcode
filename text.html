@@ -349,6 +349,9 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
             this.get('pocketGroup').clear();
         },
         viewPointWasChanged: function () {
+            Ember.run.debounce(this, this.updateRepresentationsToView, 50);
+        }.observes('nativeComponent.visibleBox'),
+        updateRepresentationsToView: function () {
             var vbox = this.get('nativeComponent.visibleBox');
             if (vbox) {
                 var previousVbox = this.get('vbox');
@@ -359,7 +362,7 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
                     refreshList[i][4].refreshVisibility(vbox);
                 this.set('vbox', vbox);
             }
-        }.observes('nativeComponent.visibleBox').on('didInsertElement'),
+        }.on('didInsertElement'),
         synchronizeOutline: function () {
             this.clear();
             var d = this.get('controller.textOutline');
