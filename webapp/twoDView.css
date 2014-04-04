@@ -85,20 +85,6 @@
     stroke: black;
     stroke-width: 1;
     vector-effect: non-scaling-stroke;
-    -webkit-animation-duration: 10s;
-    -webkit-animation-name: slidein;
-    -webkit-animation-iteration-count: infinite;
-    -webkit-animation-timing-function: ease-in-out;
-    -webkit-animation-direction: alternate;
-}
-
-@-webkit-keyframes slidein {
-    0% {
-        -webkit-transform: translate(0, -1px);
-    }
-    100% {
-        -webkit-transform: translate(0, 2px);
-    }
 }
 
 .undercutPolygon {

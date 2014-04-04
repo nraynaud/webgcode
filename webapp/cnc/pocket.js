@@ -125,7 +125,7 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
         return cam.polyOp(shapePoly, undercut, clipper.ClipType.ctDifference, false);
     }
 
-    function doCreatePocket2(shapePoly, scaledToolRadius, radialEngagementRatio, display) {
+    function doCreatePocket(shapePoly, scaledToolRadius, radialEngagementRatio, display) {
         var step = scaledToolRadius * radialEngagementRatio;
         var tolerance = step / 1000;
         var outlineAtToolCenter = offsetPolygon(shapePoly, -scaledToolRadius, true);
@@ -246,30 +246,39 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
             return  work;
         });
         window.workerPool = createWorkerPool('webapp/pocket_worker.js', workArray, 6);
-        return {promises: promises, abort: window.workerPool.abort};
+        return {promises: promises, polygons: polygons, abort: window.workerPool.abort};
     }
 
     function createPocketImmediately(polygons, scaledToolRadius, radialEngagementRatio, display) {
-        return {promises: polygons.map(function (poly) {
-            return new RSVP.Promise(function (resolve) {
-                resolve(doCreatePocket2(poly, scaledToolRadius, radialEngagementRatio, display));
-            })
-        }), abort: function () {
-        }};
+        return {
+            promises: polygons.map(function (poly) {
+                return new RSVP.Promise(function (resolve) {
+                    resolve(doCreatePocket(poly, scaledToolRadius, radialEngagementRatio, display));
+                })
+            }),
+            abort: function () {
+            },
+            polygons: polygons
+        };
     }
 
     function createPocket(clipperPoly, scaledToolRadius, radialEngagementRatio, display, immediately) {
-        var polygons = cam.decomposePolytreeInTopLevelPolygons(cam.polyOp(clipperPoly, [], clipper.ClipType.ctUnion, true));
-        sortPolygons(polygons);
-        var func = immediately ? createPocketImmediately : createPocketInWorkerPool;
-        var work = func(polygons, scaledToolRadius, radialEngagementRatio, display);
+        var work = createPocket2(clipperPoly, scaledToolRadius, radialEngagementRatio, display, immediately);
         var result = RSVP.all(work.promises);
         result.abort = work.abort;
         return result;
     }
 
+    function createPocket2(clipperPoly, scaledToolRadius, radialEngagementRatio, display, immediately) {
+        var polygons = cam.decomposePolytreeInTopLevelPolygons(cam.polyOp(clipperPoly, [], clipper.ClipType.ctUnion, true));
+        sortPolygons(polygons);
+        var func = immediately ? createPocketImmediately : createPocketInWorkerPool;
+        return func(polygons, scaledToolRadius, radialEngagementRatio, display);
+    }
+
     return {
         createPocket: createPocket,
-        doCreatePocket2: doCreatePocket2
+        doCreatePocket2: doCreatePocket,
+        createPocket2: createPocket2
     };
 });

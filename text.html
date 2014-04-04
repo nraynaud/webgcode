@@ -190,15 +190,18 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
             var parent = this.get('parent');
             var polyline = this.get('polyline');
             this.set('lods', []);
-            this.set('emptyPath', parent.path('M0,0').remove());
             var bbox = getbBox(polyline, machine.clipperScale);
             this.set('bbox', bbox);
             this.set('treeKey', [bbox.x, bbox.y, bbox.x2, bbox.y2, this]);
-            this.refreshVisibility2(this.get('operationView.nativeComponent.visibleBox'));
+            this.refreshVisibility(this.get('operationView.nativeComponent.visibleBox'));
         },
         installLodRepresentation: function (index) {
             var lods = this.get('lods');
             var newElement = index.isNaN ? this.get('emptyPath') : lods[index];
+            if (index.isNaN && newElement == null) {
+                newElement = this.get('parent').path('M0,0');
+                this.set('emptyPath', newElement);
+            }
             var element = this.get('pathElement');
             if (newElement == null) {
                 var interpolationPoints = this.get('lodLevels');
@@ -222,12 +225,12 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
             for (var i = 0; i < interpolationPoints.length; i++)
                 if (zoomRatio < interpolationPoints[i])
                     return i;
-            return i;
+            return interpolationPoints.length - 1;
         }.property('operationView.nativeComponent.zoomLevel'),
         willDestroy: function () {
             this.get('pathElement').remove();
         },
-        refreshVisibility2: function (viewBox) {
+        refreshVisibility: function (viewBox) {
             var lodIndex = this.get('lodIndex');
             var inViewPort = bboxIntersect(viewBox, this.get('bbox'));
             if (this.get('currentLodIndex') === lodIndex && this.get('currentVisibility') === inViewPort)
@@ -239,23 +242,30 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
     });
 
     TextApplication.PocketView = Ember.Object.extend({
-        layerViews: [],
-        pocketGroupWillChange: function () {
-            if (this.get('pocketGroup') != null)
-                for (var i = 0; i < this.get('layerViews').length; i++) {
-                    this.get('operationView.tree').remove(this.get('layerViews')[i].get('treeKey'));
-                    this.get('layerViews')[i].destroy();
-                }
-        }.observesBefore('pocketGroup'),
+        init: function () {
+            this._super();
+            this.set('layerViews', new Ember.Set());
+        },
+        willDestroy: function () {
+            while (this.get('layerViews.firstObject'))
+                this.removePolyline(this.get('layerViews.firstObject'));
+        },
         pocketGroupChanged: function () {
             var pocketGroup = this.get('pocketGroup');
             if (pocketGroup != null) {
-                for (var i = 0; i < this.get('pocket').length; i++) {
-                    var pocketLayer = this.get('pocket')[i];
-                    this.recursivelyDisplayLayers(pocketLayer, pocketGroup);
-                }
+                var toolPathArray = this.get('pocket.toolPathArray');
+                if (toolPathArray != null) {
+                    for (var i = 0; i < toolPathArray.length; i++)
+                        this.recursivelyDisplayLayers(toolPathArray[i], pocketGroup);
+                    if (this.get('computingView') != null) {
+                        this.removePolyline(this.get('computingView'));
+                        this.set('computingView', null);
+                    }
+                } else
+                    this.set('computingView', this.displayPolyline(this.get('pocket.polygon'),
+                            {class: 'computing', fill: 'url(#computingFill)'}));
             }
-        }.observes('pocketGroup').on('init'),
+        }.observes('pocketGroup', 'pocket.toolPathArray').on('init'),
         recursivelyDisplayLayers: function (pocket, group) {
             for (var j = 0; j < pocket.children.length; j++)
                 this.recursivelyDisplayLayers(pocket.children[j], group);
@@ -269,7 +279,13 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
             var params = {polyline: polyline, parent: this.get('pocketGroup'), operationView: this.get('operationView'), attr: attr};
             var layerView = TextApplication.MultiLODPolylineView.create(params);
             this.get('operationView.tree').insert(layerView.get('treeKey'));
-            this.get('layerViews').pushObject(layerView);
+            this.get('layerViews').add(layerView);
+            return layerView;
+        },
+        removePolyline: function (polyline) {
+            this.get('layerViews').remove(polyline);
+            this.get('operationView.tree').remove(polyline.get('treeKey'));
+            polyline.destroy();
         }
     });
     TextApplication.OperationView = Ember.View.extend({
@@ -303,7 +319,7 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
                 arrayWillChange: function (observedObj, start, removeCount, addCount) {
                     for (var i = 0; i < removeCount; i++) {
                         var pocketView = pocketViews[start + i];
-                        pocketView.set('pocketGroup', null);
+                        pocketView.destroy();
                     }
                     pocketViews.splice(start, removeCount);
                 },
@@ -321,7 +337,7 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
         didInsertElement: function () {
             var view = emberTwoDView.EmberTwoDView.create({element: this.$()});
             this.set('nativeComponent', view);
-            var outline = view.paper.path('M0,0').attr({class: 'outline', fill: 'url(#computingFill)'});
+            var outline = view.paper.path('M0,0').attr({class: 'outline'});
             outline.remove();
             this.set('outline', outline);
             this.set('pocketGroup', view.paper.group());
@@ -340,7 +356,7 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
                 var union = previousVbox != null ? unionBox(vbox, previousVbox) : vbox;
                 var refreshList = tree.search([union.x, union.y, union.x + union.width, union.y + union.height]);
                 for (var i = 0; i < refreshList.length; i++)
-                    refreshList[i][4].refreshVisibility2(vbox);
+                    refreshList[i][4].refreshVisibility(vbox);
                 this.set('vbox', vbox);
             }
         }.observes('nativeComponent.visibleBox').on('didInsertElement'),
@@ -350,17 +366,10 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
             var paper = this.get('nativeComponent.paper');
             if (d != null) {
                 paper.add(this.get('outline').attr({d: d}));
-                this.synchronizeComputing();
                 Ember.run.scheduleOnce('afterRender', this.get('nativeComponent'), 'zoomExtent');
             } else
                 this.get('outline').remove();
         }.observes('controller.textOutline'),
-        synchronizeComputing: function () {
-            var computing = this.get('controller.computing');
-            if (computing)
-                this.clear();
-            toggleClass(this.get('outline'), 'computing', computing);
-        }.observes('controller.computing'),
         displayClipper: function (parent, clipperPoly, attr) {
             var d = '';
             machine.fromClipper(clipperPoly).forEach(function (poly) {
@@ -399,7 +408,15 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
                         console.error(error.stack);
                     });
         }.observes('text').on('init'),
-        computing: Ember.computed.bool('computationPromise'),
+        computing: function () {
+            return this.get('pocketToolPaths').isAny('isComputing');
+        }.property('pocketToolPaths.@each.isComputing'),
+        timeComputing: function () {
+            if (this.get('computing'))
+                console.time('computing');
+            else
+                console.timeEnd('computing');
+        }.observes('computing').on('init'),
         computePocket: function () {
             var _this = this;
             var toolRadius = this.get('toolDiameter') / 2 * machine.clipperScale;
@@ -407,37 +424,44 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
             _this.get('undercut').clear();
             _this.get('pocketToolPaths').clear();
             this.abortComputation();
-            console.time('computation');
             var poly2 = machine.pathDefToClipper(textOutline);
             var display = {
                 displayUndercutPoly: function (poly) {
                     _this.get('undercut').pushObject(poly);
                 }};
-            var promise = pocket.createPocket(poly2, toolRadius, this.get('radialEngagementRatio'), display, false);
-            _this.set('computationPromise', promise);
-            promise.then(function (pocketToolPaths) {
-                _this.get('pocketToolPaths').pushObjects(pocketToolPaths);
-            },function (error) {
-                console.log(error.stack);
-            }).finally(function () {
-                        console.timeEnd('computation');
-                        _this.set('computationPromise', null);
-                    });
+            var work = pocket.createPocket2(poly2, toolRadius, this.get('radialEngagementRatio'), display, false);
+            _this.set('workBatch', work);
+            _this.get('pocketToolPaths').pushObjects(work.polygons.map(function (polygon, index) {
+                return TextApplication.PocketToolPath.create({polygon: polygon, promise: work.promises[index]});
+            }));
         },
         abortComputation: function () {
-            var promise = this.get('computationPromise');
-            if (promise == null)
+            var work = this.get('workBatch');
+            if (work == null)
                 return;
-            promise.abort();
-            this.set('computationPromise', null);
+            work.abort();
+            this.set('workBatch', null);
         }
     });
 
+    TextApplication.PocketToolPath = Ember.Object.extend({
+        init: function () {
+            var _this = this;
+            this.get('promise').then(function (toolPathArray) {
+                _this.set('toolPathArray', toolPathArray);
+            }).catch(function (error) {
+                        console.error(error.stack);
+                    }).finally(function () {
+                        _this.set('isComputing', false);
+                    });
+        },
+        isComputing: true
+    });
     TextApplication.TextRoute = Ember.Route.extend({
         model: function () {
             return {
                 id: 1,
-                text: 'Text',
+                text: 'Quite Long Text',
                 toolDiameter: 2,
                 radialEngagementRatio: 0.9,
                 depth: 1
