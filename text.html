@@ -164,15 +164,17 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
             var polygon = polygons[i];
             for (var j = 0; j < polygon.length; j++) {
                 var point = polygon[j];
-                var x = point.X / scale;
+                var x = point.X;
                 minX = Math.min(x, minX);
                 maxX = Math.max(x, maxX);
-                var y = point.Y / scale;
+                var y = point.Y;
                 minY = Math.min(y, minY);
                 maxY = Math.max(y, maxY);
             }
         }
-        return {x: minX, y: minY, width: maxX - minX, height: maxY - minY, x2: maxX, y2: maxY};
+        return {x: minX / scale, y: minY / scale,
+            width: (maxX - minX) / scale, height: (maxY - minY) / scale,
+            x2: maxX / scale, y2: maxY / scale};
     }
 
     function lerp(min, max, ratio) {
@@ -185,7 +187,7 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
     }
 
     TextApplication.MultiLODPolylineView = Ember.Object.extend({
-        lodLevels: [0.2, 0.5, 0.75, 1],
+        lodLevels: [0.1, 0.5, 0.75, 1],
         init: function () {
             var parent = this.get('parent');
             var polyline = this.get('polyline');
@@ -193,7 +195,8 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
             var bbox = getbBox(polyline, machine.clipperScale);
             this.set('bbox', bbox);
             this.set('treeKey', [bbox.x, bbox.y, bbox.x2, bbox.y2, this]);
-            this.refreshVisibility(this.get('operationView.nativeComponent.visibleBox'));
+            this.refreshVisibility(this.get('operationView.nativeComponent.visibleBox'),
+                    this.get('operationView.nativeComponent.zoomLevel'));
         },
         installLodRepresentation: function (index) {
             var lods = this.get('lods');
@@ -208,7 +211,7 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
                 var minZoom = this.get('operationView.nativeComponent.minZoom');
                 var maxZoom = this.get('operationView.nativeComponent.maxZoom');
                 var d = simplifyScaleAndCreatePathDef(this.get('polyline'), machine.clipperScale,
-                        2 / lerp(minZoom, maxZoom, interpolationPoints[index]));
+                        0.5 / lerp(minZoom, maxZoom, interpolationPoints[index]));
                 newElement = this.get('parent').path(d).attr(this.get('attr'));
                 lods[index] = newElement;
             }
@@ -216,8 +219,7 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
                 element.replace(newElement);
             this.set('pathElement', newElement);
         },
-        lodIndex: function () {
-            var zoomLevel = this.get('operationView.nativeComponent.zoomLevel');
+        computeLodIndex: function (zoomLevel) {
             var minZoom = this.get('operationView.nativeComponent.minZoom');
             var maxZoom = this.get('operationView.nativeComponent.maxZoom');
             var zoomRatio = (zoomLevel - minZoom) / (maxZoom - minZoom);
@@ -226,12 +228,12 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
                 if (zoomRatio < interpolationPoints[i])
                     return i;
             return interpolationPoints.length - 1;
-        }.property('operationView.nativeComponent.zoomLevel'),
+        },
         willDestroy: function () {
             this.get('pathElement').remove();
         },
-        refreshVisibility: function (viewBox) {
-            var lodIndex = this.get('lodIndex');
+        refreshVisibility: function (viewBox, zoomLevel) {
+            var lodIndex = this.computeLodIndex(zoomLevel);
             var inViewPort = bboxIntersect(viewBox, this.get('bbox'));
             if (this.get('currentLodIndex') === lodIndex && this.get('currentVisibility') === inViewPort)
                 return;
@@ -359,7 +361,7 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
                 var union = previousVbox != null ? unionBox(vbox, previousVbox) : vbox;
                 var refreshList = tree.search([union.x, union.y, union.x + union.width, union.y + union.height]);
                 for (var i = 0; i < refreshList.length; i++)
-                    refreshList[i][4].refreshVisibility(vbox);
+                    refreshList[i][4].refreshVisibility(vbox, this.get('nativeComponent.zoomLevel'));
                 this.set('vbox', vbox);
             }
         }.on('didInsertElement'),
