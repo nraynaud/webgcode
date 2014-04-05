@@ -125,13 +125,13 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
         return cam.polyOp(shapePoly, undercut, clipper.ClipType.ctDifference, false);
     }
 
-    function doCreatePocket(shapePoly, scaledToolRadius, radialEngagementRatio, display) {
+    function doCreatePocket(shapePoly, scaledToolRadius, radialEngagementRatio, resolveUndercut) {
         var step = scaledToolRadius * radialEngagementRatio;
         var tolerance = step / 1000;
         var outlineAtToolCenter = offsetPolygon(shapePoly, -scaledToolRadius, true);
         var polygon = clipper.Clipper.ClosedPathsFromPolyTree(outlineAtToolCenter);
         var polygon2 = cam.simplifyPolygons(polygon, tolerance);
-        display.displayUndercutPoly(computeUndercut(shapePoly, polygon2, scaledToolRadius, tolerance));
+        resolveUndercut(computeUndercut(shapePoly, polygon2, scaledToolRadius, tolerance));
         var co2 = new clipper.ClipperOffset(2, tolerance);
         co2.AddPaths(polygon2, clipper.JoinType.jtRound, clipper.EndType.etClosedPolygon);
         var pocket = outlineAtToolCenter;
@@ -208,21 +208,24 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
             }};
     }
 
-    function createWork(polygon, scaledToolRadius, radialEngagementRatio, display) {
+    function createWork(polygon, scaledToolRadius, radialEngagementRatio) {
         var deferred = RSVP.defer();
-        return {message: {operation: 'createPocket', poly: polygon, scaledToolRadius: scaledToolRadius, radialEngagementRatio: radialEngagementRatio},
+        var undercutDeferred = RSVP.defer();
+        return {
+            message: {operation: 'createPocket', poly: polygon, scaledToolRadius: scaledToolRadius, radialEngagementRatio: radialEngagementRatio},
             messageHandler: function (data) {
                 if (data['finished']) {
                     var result = data['result'];
                     Ember.run(deferred, deferred.resolve, result);
                     return true;
                 } else if (data['operation'] == 'displayUndercutPoly')
-                    Ember.run(function () {
-                        display.displayUndercutPoly(data['polygon']);
-                    });
+                    Ember.run(undercutDeferred, undercutDeferred.resolve, data['polygon']);
                 return false;
             },
-            promise: deferred.promise};
+            promise: deferred.promise,
+            undercutPromise: undercutDeferred.promise,
+            polygon: polygon
+        };
     }
 
     function pointOrder(p1, p2) {
@@ -238,47 +241,36 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
         });
     }
 
-    function createPocketInWorkerPool(polygons, scaledToolRadius, radialEngagementRatio, display) {
-        var promises = [];
+    function createPocketInWorkerPool(polygons, scaledToolRadius, radialEngagementRatio) {
         var workArray = polygons.map(function (poly) {
-            var work = createWork(poly, scaledToolRadius, radialEngagementRatio, display);
-            promises.push(work.promise);
-            return  work;
+            return createWork(poly, scaledToolRadius, radialEngagementRatio);
         });
         window.workerPool = createWorkerPool('webapp/worker.js', workArray, 6);
-        return {promises: promises, polygons: polygons, abort: window.workerPool.abort};
+        return {workArray: workArray, abort: window.workerPool.abort};
     }
 
-    function createPocketImmediately(polygons, scaledToolRadius, radialEngagementRatio, display) {
+    function createPocketImmediately(polygons, scaledToolRadius, radialEngagementRatio) {
         return {
-            promises: polygons.map(function (poly) {
-                return new RSVP.Promise(function (resolve) {
-                    resolve(doCreatePocket(poly, scaledToolRadius, radialEngagementRatio, display));
-                })
+            workArray: polygons.map(function (poly) {
+                var undercutDeferred = RSVP.defer();
+                var deferred = RSVP.defer();
+                deferred.resolve(doCreatePocket(poly, scaledToolRadius, radialEngagementRatio, undercutDeferred.resolve));
+                return {promise: deferred.promise, undercutPromise: undercutDeferred.promise, polygon: poly};
             }),
             abort: function () {
-            },
-            polygons: polygons
+            }
         };
     }
 
-    function createPocket(clipperPoly, scaledToolRadius, radialEngagementRatio, display, immediately) {
-        var work = createPocket2(clipperPoly, scaledToolRadius, radialEngagementRatio, display, immediately);
-        var result = RSVP.all(work.promises);
-        result.abort = work.abort;
-        return result;
-    }
-
-    function createPocket2(clipperPoly, scaledToolRadius, radialEngagementRatio, display, immediately) {
+    function createPocket(clipperPoly, scaledToolRadius, radialEngagementRatio, immediately) {
         var polygons = cam.decomposePolytreeInTopLevelPolygons(cam.polyOp(clipperPoly, [], clipper.ClipType.ctUnion, true));
         sortPolygons(polygons);
         var func = immediately ? createPocketImmediately : createPocketInWorkerPool;
-        return func(polygons, scaledToolRadius, radialEngagementRatio, display);
+        return func(polygons, scaledToolRadius, radialEngagementRatio);
     }
 
     return {
-        createPocket: createPocket,
-        doCreatePocket2: doCreatePocket,
-        createPocket2: createPocket2
+        doCreatePocket: doCreatePocket,
+        createPocket: createPocket
     };
 });

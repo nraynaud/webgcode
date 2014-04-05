@@ -121,19 +121,6 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
     //TODO: find how to inject this into the template scope directly
     TextApplication.NumberField = views.NumberField;
 
-    function toggleClass(svgElement, className, toggle) {
-        var classAttr = svgElement.attr('class');
-        var classes = classAttr.split(' ');
-        var index = classes.indexOf(className);
-        if (toggle) {
-            if (index == -1)
-                svgElement.attr('class', classAttr + ' ' + className);
-        } else if (index != -1) {
-            classes.splice(index, 1);
-            svgElement.attr('class', classes.join(' '));
-        }
-    }
-
     function simplifyScaleAndCreatePathDef(polygons, scale, tolerance) {
         polygons = cam.simplifyPolygons(polygons, tolerance * scale);
         var d = '';
@@ -198,23 +185,26 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
             this.refreshVisibility(this.get('operationView.nativeComponent.visibleBox'),
                     this.get('operationView.nativeComponent.zoomLevel'));
         },
+        willDestroy: function () {
+            this.get('pathElement').remove();
+        },
         installLodRepresentation: function (index) {
             var lods = this.get('lods');
             var newElement = index.isNaN ? this.get('emptyPath') : lods[index];
-            if (index.isNaN && newElement == null) {
-                newElement = this.get('parent').path('M0,0');
-                this.set('emptyPath', newElement);
-            }
             var element = this.get('pathElement');
-            if (newElement == null) {
-                var interpolationPoints = this.get('lodLevels');
-                var minZoom = this.get('operationView.nativeComponent.minZoom');
-                var maxZoom = this.get('operationView.nativeComponent.maxZoom');
-                var d = simplifyScaleAndCreatePathDef(this.get('polyline'), machine.clipperScale,
-                        0.5 / lerp(minZoom, maxZoom, interpolationPoints[index]));
-                newElement = this.get('parent').path(d).attr(this.get('attr'));
-                lods[index] = newElement;
-            }
+            if (newElement == null)
+                if (index.isNaN) {
+                    newElement = this.get('parent').group();
+                    this.set('emptyPath', newElement);
+                } else {
+                    var interpolationPoints = this.get('lodLevels');
+                    var minZoom = this.get('operationView.nativeComponent.minZoom');
+                    var maxZoom = this.get('operationView.nativeComponent.maxZoom');
+                    var d = simplifyScaleAndCreatePathDef(this.get('polyline'), machine.clipperScale,
+                            0.5 / lerp(minZoom, maxZoom, interpolationPoints[index]));
+                    newElement = this.get('parent').path(d).attr(this.get('attr'));
+                    lods[index] = newElement;
+                }
             if (element != null)
                 element.replace(newElement);
             this.set('pathElement', newElement);
@@ -228,9 +218,6 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
                 if (zoomRatio < interpolationPoints[i])
                     return i;
             return interpolationPoints.length - 1;
-        },
-        willDestroy: function () {
-            this.get('pathElement').remove();
         },
         refreshVisibility: function (viewBox, zoomLevel) {
             var lodIndex = this.computeLodIndex(zoomLevel);
@@ -253,21 +240,22 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
                 this.removePolyline(this.get('layerViews.firstObject'));
         },
         pocketGroupChanged: function () {
-            var pocketGroup = this.get('pocketGroup');
-            if (pocketGroup != null) {
-                var toolPathArray = this.get('pocket.toolPathArray');
-                if (toolPathArray != null) {
-                    for (var i = 0; i < toolPathArray.length; i++)
-                        this.recursivelyDisplayLayers(toolPathArray[i], pocketGroup);
-                    if (this.get('computingView') != null) {
-                        this.removePolyline(this.get('computingView'));
-                        this.set('computingView', null);
-                    }
-                } else
-                    this.set('computingView', this.displayPolyline(this.get('pocket.polygon'),
-                            {class: 'computing', fill: 'url(#computingFill)'}));
-            }
+            var toolPathArray = this.get('pocket.toolPathArray');
+            if (toolPathArray != null) {
+                for (var i = 0; i < toolPathArray.length; i++)
+                    this.recursivelyDisplayLayers(toolPathArray[i], this.get('pocketGroup'));
+                if (this.get('computingView') != null) {
+                    this.removePolyline(this.get('computingView'));
+                    this.set('computingView', null);
+                }
+            } else
+                this.set('computingView', this.displayPolyline(this.get('pocket.polygon'),
+                        {class: 'computing', fill: 'url(#computingFill)'}));
         }.observes('pocketGroup', 'pocket.toolPathArray').on('init'),
+        undercutChanged: function () {
+            if (this.get('pocket.undercut') != null)
+                this.displayPolyline(this.get('pocket.undercut'), {class: 'undercut'});
+        }.observes('pocket.undercut').on('init'),
         recursivelyDisplayLayers: function (pocket, group) {
             for (var j = 0; j < pocket.children.length; j++)
                 this.recursivelyDisplayLayers(pocket.children[j], group);
@@ -279,10 +267,10 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
         },
         displayPolyline: function (polyline, attr) {
             var params = {polyline: polyline, parent: this.get('pocketGroup'), operationView: this.get('operationView'), attr: attr};
-            var layerView = TextApplication.MultiLODPolylineView.create(params);
-            this.get('operationView.tree').insert(layerView.get('treeKey'));
-            this.get('layerViews').add(layerView);
-            return layerView;
+            var polylineView = TextApplication.MultiLODPolylineView.create(params);
+            this.get('operationView.tree').insert(polylineView.get('treeKey'));
+            this.get('layerViews').add(polylineView);
+            return polylineView;
         },
         removePolyline: function (polyline) {
             this.get('layerViews').remove(polyline);
@@ -292,31 +280,19 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
     });
     TextApplication.OperationView = Ember.View.extend({
         classNames: ['TwoDView'],
+        pocketViews: [],
         init: function () {
             this._super();
-            //http://emberjs.com/guides/object-model/observers/#toc_unconsumed-computed-properties-do-not-trigger-observers
-            this.get('controller');
-            var undercuts = [];
             var tree = rbrush();
             this.set('tree', tree);
-            this.set('undercuts', undercuts);
+        },
+        didInsertElement: function () {
+            var view = emberTwoDView.EmberTwoDView.create({element: this.$()});
+            this.set('nativeComponent', view);
+            this.set('outline', view.paper.path('M0,0').attr({class: 'outline'}).remove());
+            this.set('pocketGroup', view.paper.group());
             var _this = this;
-            this.get('controller.undercut').addArrayObserver({
-                arrayWillChange: function (observedObj, start, removeCount, addCount) {
-                    for (var i = 0; i < removeCount; i++)
-                        undercuts[start + i].remove();
-                    undercuts.splice(start, removeCount);
-                },
-                arrayDidChange: function (observedObj, start, removeCount, addCount) {
-                    var pocketGroup = _this.get('pocketGroup');
-                    var add = [];
-                    for (var i = 0; i < addCount; i++)
-                        add.push(_this.displayClipper(pocketGroup, _this.simplify(observedObj[start + i]), {class: 'undercut'}));
-                    Array.prototype.splice.apply(undercuts, [start, 0].concat(add));
-                }
-            });
-            var pocketViews = [];
-            this.set('pocketViews', pocketViews);
+            var pocketViews = this.get('pocketViews');
             this.get('controller.pocketToolPaths').addArrayObserver({
                 arrayWillChange: function (observedObj, start, removeCount, addCount) {
                     for (var i = 0; i < removeCount; i++) {
@@ -336,20 +312,6 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
                 }
             });
         },
-        didInsertElement: function () {
-            var view = emberTwoDView.EmberTwoDView.create({element: this.$()});
-            this.set('nativeComponent', view);
-            var outline = view.paper.path('M0,0').attr({class: 'outline'});
-            outline.remove();
-            this.set('outline', outline);
-            this.set('pocketGroup', view.paper.group());
-        },
-        simplify: function (poly) {
-            return cam.simplifyPolygons(poly, machine.clipperScale / 100);
-        },
-        clear: function () {
-            this.get('pocketGroup').clear();
-        },
         viewPointWasChanged: function () {
             Ember.run.debounce(this, this.updateRepresentationsToView, 50);
         }.observes('nativeComponent.visibleBox'),
@@ -366,26 +328,14 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
             }
         }.on('didInsertElement'),
         synchronizeOutline: function () {
-            this.clear();
             var d = this.get('controller.textOutline');
             var paper = this.get('nativeComponent.paper');
-            if (d != null) {
+            if (d != null && d != '') {
                 paper.add(this.get('outline').attr({d: d}));
                 Ember.run.scheduleOnce('afterRender', this.get('nativeComponent'), 'zoomExtent');
             } else
                 this.get('outline').remove();
-        }.observes('controller.textOutline'),
-        displayClipper: function (parent, clipperPoly, attr) {
-            var d = '';
-            machine.fromClipper(clipperPoly).forEach(function (poly) {
-                var firstPoint = poly.getStartPoint();
-                d += ' M ' + firstPoint.x + ',' + firstPoint.y;
-                poly.forEachPoint(function (x, y) {
-                    d += ' L ' + x + ',' + y;
-                }, null);
-            });
-            return parent.path(d).attr(attr);
-        }
+        }.observes('controller.textOutline')
     });
 
     TextApplication.TextView = Ember.View.extend({
@@ -398,8 +348,8 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
                 this.computePocket();
             }
         },
-        undercut: [],
         pocketToolPaths: [],
+        workBatch: null,
         textChanged: function () {
             this.abortComputation();
             var t = this.get('text');
@@ -424,20 +374,16 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
         }.observes('computing').on('init'),
         computePocket: function () {
             var _this = this;
+            this.abortComputation();
+            _this.get('pocketToolPaths').clear();
             var toolRadius = this.get('toolDiameter') / 2 * machine.clipperScale;
             var textOutline = this.get('textOutline');
-            _this.get('undercut').clear();
-            _this.get('pocketToolPaths').clear();
-            this.abortComputation();
             var poly2 = machine.pathDefToClipper(textOutline);
-            var display = {
-                displayUndercutPoly: function (poly) {
-                    _this.get('undercut').pushObject(poly);
-                }};
-            var work = pocket.createPocket2(poly2, toolRadius, this.get('radialEngagementRatio'), display, false);
+            var work = pocket.createPocket(poly2, toolRadius, this.get('radialEngagementRatio'), false);
             _this.set('workBatch', work);
-            _this.get('pocketToolPaths').pushObjects(work.polygons.map(function (polygon, index) {
-                return TextApplication.PocketToolPath.create({polygon: polygon, promise: work.promises[index]});
+            _this.get('pocketToolPaths').pushObjects(work.workArray.map(function (workunit) {
+                return TextApplication.PocketToolPath.create({polygon: workunit.polygon, promise: workunit.promise,
+                    undercutPromise: workunit.undercutPromise});
             }));
         },
         abortComputation: function () {
@@ -459,6 +405,11 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
                     }).finally(function () {
                         _this.set('isComputing', false);
                     });
+            this.get('undercutPromise').then(function (undercut) {
+                _this.set('undercut', undercut);
+            }).catch(function (error) {
+                        console.error(error.stack);
+                    });
         },
         isComputing: true
     });
@@ -466,7 +417,7 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
         model: function () {
             return {
                 id: 1,
-                text: 'Quite Long Text',
+                text: 'long text',
                 toolDiameter: 2,
                 radialEngagementRatio: 0.9,
                 depth: 1
@@ -480,4 +431,3 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
 </script>
 </body>
 </html>
-
