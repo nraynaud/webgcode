@@ -266,7 +266,7 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
             this.set('tree', tree);
             var bbox = getbBox(this.get('pocket.polygon'), machine.clipperScale);
             this.set('treeKey', [bbox.x, bbox.y, bbox.x2, bbox.y2, this]);
-            this.set('minVisibleZoomLevel', 2);
+            this.set('minVisibleZoomLevel', 1 / this.get('pocket.separation') * machine.clipperScale);
             this.set('outline', this.get('pocketGroup')
                     .path(simplifyScaleAndCreatePathDef(this.get('pocket.polygon'), machine.clipperScale, 0.1, true))
                     .attr({class: 'computing outline', fill: 'url(#computingFill)'}));
@@ -281,6 +281,8 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
                 for (var i = 0; i < toolPathArray.length; i++)
                     this.recursivelyDisplayLayers(toolPathArray[i], this.get('pocketGroup'));
                 toggleClass(this.get('outline'), 'computing', false);
+                toggleClass(this.get('outline'), 'spiralPocketOutline',
+                        this.get('operationView.nativeComponent.zoomLevel') < this.get('minVisibleZoomLevel'));
             }
         }.observes('pocket.toolPathArray').on('init'),
         undercutChanged: function () {
@@ -313,8 +315,8 @@ require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'cnc/text'
         },
         refreshVisibility: function (viewBox, zoomLevel, refreshZone) {
             toggleClass(this.get('outline'), 'spiralPocketOutline', zoomLevel < this.get('minVisibleZoomLevel'));
-            var refreshList = this.get('tree').search([refreshZone.x, refreshZone.y, refreshZone.x + refreshZone.width,
-                refreshZone.y + refreshZone.height]);
+            var refreshList = this.get('tree').search([refreshZone.x, refreshZone.y,
+                refreshZone.x + refreshZone.width, refreshZone.y + refreshZone.height]);
             for (var i = 0; i < refreshList.length; i++)
                 refreshList[i][4].refreshVisibility(viewBox, zoomLevel, refreshZone);
         }
