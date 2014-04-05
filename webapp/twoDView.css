@@ -119,6 +119,12 @@
     stroke: none;
 }
 
+.TwoDView .outline.spiralPocketOutline {
+    fill-rule: evenodd;
+    fill: rgba(100, 100, 255, 0.2);
+    stroke: gray;
+}
+
 .TwoDView .undercut {
     fill: red;
     stroke: none;
