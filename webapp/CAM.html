@@ -149,7 +149,7 @@
             };
             twoDView.clear();
             var resWasFalse;
-            var res = new Function(['machine', 'whenDone', 'cam'], editor.getValue())(machine, function () {
+            var res = new Function(['machine', 'whenDone', 'cam'], editor.getValue() + '//# sourceURL=user_code')(machine, function () {
                 if (resWasFalse)
                     throw new Error('you called whenDone() also you didn\'t return true in your code.');
                 whenDone(machine);
