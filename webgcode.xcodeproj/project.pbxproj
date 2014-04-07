@@ -545,6 +545,7 @@
 		DDAA5EA3E94D201C69902842 /* mode-clojure.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C23C43B6D9D0D8973DA /* mode-clojure.js */; };
 		DDAA5EA452F567322478AA52 /* mode-xquery.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C5A8AECDC951F8642BA /* mode-xquery.js */; };
 		DDAA5EA83E9B8793A627D580 /* usbdesc.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5871F32AE72FC99CFFCB /* usbdesc.c */; };
+		DDAA5EA8781DF5F9C0E660F7 /* pocketView.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA50DB79A1ADCAFA5BA02C /* pocketView.js */; };
 		DDAA5EB392A1897BD69C7105 /* theme-dreamweaver.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5357D39A53BEE239C450 /* theme-dreamweaver.js */; };
 		DDAA5EC324351EA2737D519E /* mode-haskell.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5AD2C44DF1B6C0CFD86F /* mode-haskell.js */; };
 		DDAA5EC8032D8F31C9638EAC /* mode-yaml.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5D2C948B60B091AE382C /* mode-yaml.js */; };
@@ -647,6 +648,7 @@
 		DDAA50C21493D3915B591B0C /* ext-static_highlight.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-static_highlight.js"; sourceTree = "<group>"; };
 		DDAA50C9FD01A5E8470A1E78 /* mode-xquery.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-xquery.js"; sourceTree = "<group>"; };
 		DDAA50CD38AC02FBA90FFC54 /* mode-jade.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-jade.js"; sourceTree = "<group>"; };
+		DDAA50DB79A1ADCAFA5BA02C /* pocketView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = pocketView.js; sourceTree = "<group>"; };
 		DDAA50ECC32869405C4B00FC /* theme-cobalt.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-cobalt.js"; sourceTree = "<group>"; };
 		DDAA50F3E153B90B949FB125 /* runner.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = runner.js; path = webapp/runner.js; sourceTree = "<group>"; };
 		DDAA50F533EB03376CD41557 /* mode-rhtml.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-rhtml.js"; sourceTree = "<group>"; };
@@ -1586,6 +1588,7 @@
 			children = (
 				DDAA5D362B64EEE93DE54810 /* views.js */,
 				DDAA5A55C036357C8CD5193C /* emberTwoDView.js */,
+				DDAA50DB79A1ADCAFA5BA02C /* pocketView.js */,
 			);
 			path = ui;
 			sourceTree = "<group>";
@@ -2762,6 +2765,7 @@
 				DDAA513250107BC899C6708D /* simplify.js in Sources */,
 				DDAA54D76ECEC7A8B4F7AB6B /* emberTwoDView.js in Sources */,
 				DDAA5FF8AE3F69093DDAC5CC /* rbrush.js in Sources */,
+				DDAA5EA8781DF5F9C0E660F7 /* pocketView.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,6 +1,8 @@
 "use strict";
 
 define(['cnc/bezier', 'cnc/clipper', 'libs/simplify'], function (bezier, clipper, simplify) {
+    var CLIPPER_SCALE = Math.pow(2, 20);
+
     function pushOnPath(path, toolpath) {
         var firstPoint = toolpath.getStartPoint();
         path.node.pathSegList.appendItem(path.node.createSVGPathSegMovetoAbs(firstPoint.x, firstPoint.y));
@@ -180,7 +182,7 @@ define(['cnc/bezier', 'cnc/clipper', 'libs/simplify'], function (bezier, clipper
     function Machine(paper) {
         this.paper = paper;
         this.operations = [];
-        this.clipperScale = Math.pow(2, 20);
+        this.clipperScale = CLIPPER_SCALE;
     }
 
     Machine.prototype.setParams = function (workZ, travelZ, feedRate) {
@@ -472,6 +474,7 @@ define(['cnc/bezier', 'cnc/clipper', 'libs/simplify'], function (bezier, clipper
     }
 
     return {
+        CLIPPER_SCALE: CLIPPER_SCALE,
         geom: geom,
         pushOnPath: pushOnPath,
         Machine: Machine,
