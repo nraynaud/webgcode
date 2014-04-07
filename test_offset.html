@@ -65,8 +65,8 @@
 <textarea id="code"></textarea>
 <script>
     var drawing = $('#drawing').find('.TwoDView');
-    require(['cnc/twoDView', 'cnc/cam', 'samples/fontExample.js', 'samples/box.js'], function (twoD, cam, fontExample, box) {
-        var twoDView = new twoD.TwoDView(drawing);
+    require(['cnc/ui/emberTwoDView', 'cnc/cam', 'samples/fontExample.js', 'samples/box.js'], function (twoD, cam, fontExample, box) {
+        var twoDView = twoD.EmberTwoDView.create({element: drawing});
         var machine = new cam.Machine(twoDView.paper);
 
         function whenDone() {

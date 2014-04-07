@@ -163,7 +163,7 @@ define(['libs/svg'], function () {
             var bottom = Math.min(bottomLeft.y, topRight.y);
             var width = (topRight.x - bottomLeft.x);
             var height = Math.abs(topRight.y - bottomLeft.y);
-            return {x: bottomLeft.x + width * 0.3, y: bottom + height * 0.2, width: width * 0.6, height: height * 0.6}
+            return {x: bottomLeft.x, y: bottom, width: width, height: height}
         }.property('ctm', 'insertedSize'),
         getModelPositionForPageXY: function (x, y, matrix) {
             if (matrix == null)

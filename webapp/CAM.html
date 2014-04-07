@@ -13,6 +13,8 @@
     <script src="libs/extractedRaphael.js"></script>
     <script src="libs/ace/src-noconflict/ace.js"></script>
     <script src="libs/require.js"></script>
+    <script src="libs/handlebars-v1.3.0.js"></script>
+    <script src="libs/ember-1.5.0-beta5.pre7.js"></script>
 
     <link rel="stylesheet" href="twoDView.css" type="text/css">
     <style>
@@ -107,7 +109,7 @@
     if (inChromeApp) //https://code.google.com/p/chromium/issues/detail?id=159303
         editor.session.setUseWorker(false);
     editor.session.setMode("ace/mode/javascript");
-    require(['cnc/twoDView.js', 'cnc/threeDView.js', 'cnc/cam.js'], function (twoD, threeD, cam) {
+    require(['cnc/ui/emberTwoDView', 'cnc/threeDView', 'cnc/cam'], function (twoD, threeD, cam) {
         var threeDView = new threeD.ThreeDView($('#container'));
         window.addEventListener("message", function (event) {
             if (event.data['type'] == 'gimme program') {
@@ -129,7 +131,7 @@
                 threeDView.renderer.render(threeDView.scene, threeDView.camera);
             }
         }, false);
-        var twoDView = new twoD.TwoDView($('#drawing').find('.TwoDView'));
+        var twoDView = twoD.EmberTwoDView.create({element: $('#drawing').find('.TwoDView')});
         if (!inChromeApp) {
             var code = localStorage.getItem('JSCode');
             if (code)
