@@ -215,7 +215,11 @@ define(['cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView'], function (cam, rbrush
             this.set('pocketGroup', view.paper.group());
             var _this = this;
             var pocketViews = this.get('pocketViews');
-            this.get('controller.pocketToolPaths').addArrayObserver({
+            var toolPaths = this.get('controller.pocketToolPaths');
+            toolPaths.forEach(function (pocket) {
+                _this.addPockets(toolPaths, 0);
+            });
+            toolPaths.addArrayObserver({
                 arrayWillChange: function (observedObj, start, removeCount, addCount) {
                     for (var i = 0; i < removeCount; i++) {
                         _this.get('tree').remove(pocketViews[start + i].get('treeKey'));
@@ -224,16 +228,22 @@ define(['cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView'], function (cam, rbrush
                     pocketViews.splice(start, removeCount);
                 },
                 arrayDidChange: function (observedObj, start, removeCount, addCount) {
-                    var pocketGroup = _this.get('pocketGroup');
                     var add = [];
                     for (var i = 0; i < addCount; i++)
-                        add.pushObject(PocketView.create({pocket: observedObj[start + i],
-                            pocketGroup: pocketGroup, operationView: _this}));
-                    _this.get('tree').load(add.map(function (view) {
-                        return view.get('treeKey');
-                    }));
-                    Array.prototype.splice.apply(pocketViews, [start, 0].concat(add));
+                        add.push(observedObj[start + i]);
+                    _this.addPockets(add, start);
                 }
+            });
+        },
+        addPockets: function (pockets, startIndex) {
+            var pocketViews = this.get('pocketViews');
+            var pocketGroup = this.get('pocketGroup');
+            var _this = this;
+            pockets.forEach(function (pocket, index) {
+                var view = PocketView.create({pocket: pocket,
+                    pocketGroup: pocketGroup, operationView: _this});
+                pocketViews.insertAt(startIndex + index, view);
+                _this.get('tree').insert(view.get('treeKey'));
             });
         },
         viewPointWasChanged: function () {
