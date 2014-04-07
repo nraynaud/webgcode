@@ -106,8 +106,8 @@
 
 <script>
     var drawing = $('#drawing');
-    require(['cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/text', 'cnc/pocket', 'cnc/ui/views', 'cnc/ui/pocketView'],
-            function (emberTwoDView, cam, text, pocket, views, pocketView) {
+    require(['cnc/cam', 'cnc/text', 'cnc/pocket', 'cnc/ui/views', 'cnc/ui/pocketView'],
+            function (cam, text, pocket, views, pocketView) {
                 window.TextApplication = Ember.Application.create({
                     customEvents: {
                         mousewheel: "mousewheel"

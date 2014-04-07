@@ -1,6 +1,6 @@
 "use strict";
 
-define(['cnc/cam', 'libs/rbrush', 'cnc/ui/EmberTwoDView'], function (cam, rbrush, emberTwoDView) {
+define(['cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView'], function (cam, rbrush, emberTwoDView) {
 
     function toggleClass(svgElement, className, toggle) {
         var classAttr = svgElement.attr('class');
