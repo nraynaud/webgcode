@@ -12,7 +12,6 @@
     <script src="webapp/libs/require.js"></script>
     <script src="webapp/libs/handlebars-v1.3.0.js"></script>
     <script src="webapp/libs/ember-1.5.0-beta5.pre7.js"></script>
-    <script src="webapp/libs/ember-data-1.0.0-beta7.js"></script>
 
     <script>
         requirejs.config({
@@ -166,9 +165,9 @@
                 var radialEngagementRatio = this.get('radialEngagementRatio');
                 var work = pocket.createPocket(poly2, toolRadius, radialEngagementRatio, false);
                 this.set('workBatch', work);
-                this.get('pocketToolPaths').pushObjects(work.workArray.map(function (workunit) {
-                    return TextApplication.PocketToolPath.create({polygon: workunit.polygon, promise: workunit.promise,
-                        undercutPromise: workunit.undercutPromise, separation: radialEngagementRatio * toolRadius});
+                this.get('pocketToolPaths').pushObjects(work.workArray.map(function (workUnit) {
+                    return TextApplication.PocketToolPath.create({polygon: workUnit.polygon, promise: workUnit.promise,
+                        undercutPromise: workUnit.undercutPromise, separation: radialEngagementRatio * toolRadius});
                 }));
             },
             abortComputation: function () {
@@ -210,7 +209,6 @@
             },
             controllerName: 'text'
         });
-        TextApplication.ApplicationAdapter = DS.FixtureAdapter.extend();
     });
 </script>
 </body>
