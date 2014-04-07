@@ -106,114 +106,112 @@
 
 <script>
     var drawing = $('#drawing');
-    require(['cnc/cam', 'cnc/text', 'cnc/pocket', 'cnc/ui/views', 'cnc/ui/pocketView'],
-            function (cam, text, pocket, views, pocketView) {
-                window.TextApplication = Ember.Application.create({
-                    customEvents: {
-                        mousewheel: "mousewheel"
-                    }
-                });
-                TextApplication.Router.reopen({
-                    rootURL: '/webgcode/'
-                });
-                TextApplication.Router.map(function () {
-                    this.resource('text', {path: '/'});
-                });
-                //TODO: find how to inject this into the template scope directly
-                TextApplication.NumberField = views.NumberField;
-                $.extend(TextApplication, pocketView);
+    require(['cnc/cam', 'cnc/text', 'cnc/pocket', 'cnc/ui/views', 'cnc/ui/pocketView'], function (cam, text, pocket, views, pocketView) {
+        window.TextApplication = Ember.Application.create({
+            customEvents: {
+                mousewheel: "mousewheel"
+            }
+        });
+        TextApplication.Router.reopen({
+            rootURL: '/webgcode/'
+        });
+        TextApplication.Router.map(function () {
+            this.resource('text', {path: '/'});
+        });
+        //TODO: find how to inject this into the template scope directly
+        TextApplication.NumberField = views.NumberField;
+        $.extend(TextApplication, pocketView);
 
-                TextApplication.TextView = Ember.View.extend({
-                    classNames: ['emberPart'],
-                    templateName: 'text'
-                });
-                TextApplication.TextController = Ember.ObjectController.extend({
-                    actions: {
-                        launchComputationImmediately: function () {
-                            this.computePocket();
-                        }
-                    },
-                    pocketToolPaths: [],
-                    workBatch: null,
-                    textChanged: function () {
-                        this.abortComputation();
-                        var t = this.get('text');
-                        if (t == null)
-                            return;
-                        var _this = this;
-                        text.getText('Seymour One', t, 30)
-                                .then(function (textOutline) {
-                                    _this.set('textOutline', textOutline);
-                                    _this.computePocket();
-                                })
-                                .catch(function (error) {
-                                    console.error(error.stack);
-                                });
-                    }.observes('text').on('init'),
-                    computing: function () {
-                        return this.get('pocketToolPaths').isAny('isComputing');
-                    }.property('pocketToolPaths.@each.isComputing'),
-                    timeComputing: function () {
-                        if (this.get('computing'))
-                            console.time('computing');
-                        else
-                            console.timeEnd('computing');
-                    }.observes('computing').on('init'),
-                    computePocket: function () {
-                        this.abortComputation();
-                        this.get('pocketToolPaths').clear();
-                        var toolRadius = this.get('toolDiameter') / 2 * machine.clipperScale;
-                        var poly2 = machine.pathDefToClipper(this.get('textOutline'));
-                        var radialEngagementRatio = this.get('radialEngagementRatio');
-                        var work = pocket.createPocket(poly2, toolRadius, radialEngagementRatio, false);
-                        this.set('workBatch', work);
-                        this.get('pocketToolPaths').pushObjects(work.workArray.map(function (workunit) {
-                            return TextApplication.PocketToolPath.create({polygon: workunit.polygon, promise: workunit.promise,
-                                undercutPromise: workunit.undercutPromise, separation: radialEngagementRatio * toolRadius});
-                        }));
-                    },
-                    abortComputation: function () {
-                        var work = this.get('workBatch');
-                        if (work == null)
-                            return;
-                        work.abort();
-                        this.set('workBatch', null);
-                    }
-                });
+        TextApplication.TextView = Ember.View.extend({
+            classNames: ['emberPart'],
+            templateName: 'text'
+        });
+        TextApplication.TextController = Ember.ObjectController.extend({
+            actions: {
+                launchComputationImmediately: function () {
+                    this.computePocket();
+                }
+            },
+            pocketToolPaths: [],
+            workBatch: null,
+            textChanged: function () {
+                this.abortComputation();
+                var t = this.get('text');
+                if (t == null)
+                    return;
+                var _this = this;
+                text.getText('Seymour One', t, 30)
+                        .then(function (textOutline) {
+                            _this.set('textOutline', textOutline);
+                            _this.computePocket();
+                        })
+                        .catch(function (error) {
+                            console.error(error);
+                        });
+            }.observes('text').on('init'),
+            computing: function () {
+                return this.get('pocketToolPaths').isAny('isComputing');
+            }.property('pocketToolPaths.@each.isComputing'),
+            timeComputing: function () {
+                if (this.get('computing'))
+                    console.time('computing');
+                else
+                    console.timeEnd('computing');
+            }.observes('computing').on('init'),
+            computePocket: function () {
+                this.abortComputation();
+                this.get('pocketToolPaths').clear();
+                var toolRadius = this.get('toolDiameter') / 2 * cam.CLIPPER_SCALE;
+                var poly2 = cam.pathDefToClipper(this.get('textOutline'));
+                var radialEngagementRatio = this.get('radialEngagementRatio');
+                var work = pocket.createPocket(poly2, toolRadius, radialEngagementRatio, false);
+                this.set('workBatch', work);
+                this.get('pocketToolPaths').pushObjects(work.workArray.map(function (workunit) {
+                    return TextApplication.PocketToolPath.create({polygon: workunit.polygon, promise: workunit.promise,
+                        undercutPromise: workunit.undercutPromise, separation: radialEngagementRatio * toolRadius});
+                }));
+            },
+            abortComputation: function () {
+                var work = this.get('workBatch');
+                if (work == null)
+                    return;
+                work.abort();
+                this.set('workBatch', null);
+            }
+        });
 
-                TextApplication.PocketToolPath = Ember.Object.extend({
-                    init: function () {
-                        var _this = this;
-                        this.get('promise').then(function (toolPathArray) {
-                            _this.set('toolPathArray', toolPathArray);
-                        }).catch(function (error) {
-                                    console.error(error.stack);
-                                }).finally(function () {
-                                    _this.set('isComputing', false);
-                                });
-                        this.get('undercutPromise').then(function (undercut) {
-                            _this.set('undercut', undercut);
-                        }).catch(function (error) {
-                                    console.error(error.stack);
-                                });
-                    },
-                    isComputing: true
-                });
-                TextApplication.TextRoute = Ember.Route.extend({
-                    model: function () {
-                        return {
-                            id: 1,
-                            text: 'long text',
-                            toolDiameter: 2,
-                            radialEngagementRatio: 0.9,
-                            depth: 1
-                        }
-                    },
-                    controllerName: 'text'
-                });
-                TextApplication.ApplicationAdapter = DS.FixtureAdapter.extend();
-                var machine = new cam.Machine(null);
-            })
+        TextApplication.PocketToolPath = Ember.Object.extend({
+            init: function () {
+                var _this = this;
+                this.get('promise').then(function (toolPathArray) {
+                    _this.set('toolPathArray', toolPathArray);
+                }).catch(function (error) {
+                            console.error(error.stack);
+                        }).finally(function () {
+                            _this.set('isComputing', false);
+                        });
+                this.get('undercutPromise').then(function (undercut) {
+                    _this.set('undercut', undercut);
+                }).catch(function (error) {
+                            console.error(error.stack);
+                        });
+            },
+            isComputing: true
+        });
+        TextApplication.TextRoute = Ember.Route.extend({
+            model: function () {
+                return {
+                    id: 1,
+                    text: 'long text',
+                    toolDiameter: 2,
+                    radialEngagementRatio: 0.9,
+                    depth: 1
+                }
+            },
+            controllerName: 'text'
+        });
+        TextApplication.ApplicationAdapter = DS.FixtureAdapter.extend();
+    });
 </script>
 </body>
 </html>
