@@ -162,7 +162,7 @@ define(['cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView'], function (cam, rbrush
                 for (var i = 0; i < toolPathArray.length; i++)
                     this.recursivelyDisplayLayers(toolPathArray[i], this.get('pocketGroup'));
                 toggleClass(this.get('outline'), 'computing', false);
-                toggleClass(this.get('outline'), 'spiralPocketOutline',
+                toggleClass(this.get('outline'), 'seenFromFar',
                     this.get('operationView.nativeComponent.zoomLevel') < this.get('minVisibleZoomLevel'));
             }
         }.observes('pocket.toolPathArray').on('init'),
@@ -195,7 +195,7 @@ define(['cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView'], function (cam, rbrush
             this.get('outline').remove();
         },
         refreshVisibility: function (viewBox, zoomLevel, refreshZone) {
-            toggleClass(this.get('outline'), 'spiralPocketOutline', zoomLevel < this.get('minVisibleZoomLevel'));
+            toggleClass(this.get('outline'), 'seenFromFar', zoomLevel < this.get('minVisibleZoomLevel'));
             var refreshList = this.get('tree').search([refreshZone.x, refreshZone.y,
                 refreshZone.x + refreshZone.width, refreshZone.y + refreshZone.height]);
             for (var i = 0; i < refreshList.length; i++)

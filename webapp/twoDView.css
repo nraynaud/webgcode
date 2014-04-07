@@ -119,9 +119,9 @@
     stroke: none;
 }
 
-.TwoDView .outline.spiralPocketOutline {
+.TwoDView .outline.seenFromFar {
     fill-rule: evenodd;
-    fill: rgba(100, 100, 255, 0.2);
+    fill: blue;
     stroke: gray;
 }
 
