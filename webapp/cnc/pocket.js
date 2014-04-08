@@ -45,9 +45,12 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
 
     function rotateAndCloseRing(pocket) {
         var lastChild = lastItem(pocket.children);
-        if (lastChild)
-        //last point of the last child
-            rotatePolygonSoThatStartPointIsClosestTo(lastItem(lastItem(lastChild.contour)), pocket.contour[0]);
+        if (lastChild) {
+            //last point of the last child
+            var point = lastItem(lastItem(lastChild.contour));
+            for (var i = 0; i < pocket.contour.length; i++)
+                rotatePolygonSoThatStartPointIsClosestTo(point, pocket.contour[i]);
+        }
         cam.geom.closePolygons(pocket.contour);
     }
 
@@ -125,6 +128,25 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
         return cam.polyOp(shapePoly, undercut, clipper.ClipType.ctDifference, false);
     }
 
+    function polyToPocketLayer(poly) {
+        return {contour: poly, children: []};
+    }
+
+    function createOffsetStack(tolerance, polygon2, outlineAtToolCenter, step) {
+        var co2 = new clipper.ClipperOffset(2, tolerance);
+        co2.AddPaths(polygon2, clipper.JoinType.jtRound, clipper.EndType.etClosedPolygon);
+        var pocket = outlineAtToolCenter;
+        var stack = [];
+        var i = 1;
+        do {
+            stack.push(cam.decomposePolytreeInTopLevelPolygons(pocket).map(polyToPocketLayer));
+            pocket = new clipper.PolyTree();
+            co2.Execute(pocket, -step * i);
+            i++;
+        } while (pocket.ChildCount());
+        return stack;
+    }
+
     function doCreatePocket(shapePoly, scaledToolRadius, radialEngagementRatio, resolveUndercut) {
         var step = scaledToolRadius * radialEngagementRatio;
         var tolerance = step / 1000;
@@ -132,19 +154,7 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
         var polygon = clipper.Clipper.ClosedPathsFromPolyTree(outlineAtToolCenter);
         var polygon2 = cam.simplifyPolygons(polygon, tolerance);
         resolveUndercut(computeUndercut(shapePoly, polygon2, scaledToolRadius, tolerance));
-        var co2 = new clipper.ClipperOffset(2, tolerance);
-        co2.AddPaths(polygon2, clipper.JoinType.jtRound, clipper.EndType.etClosedPolygon);
-        var pocket = outlineAtToolCenter;
-        var stack = [];
-        var i = 1;
-        do {
-            stack.push(cam.decomposePolytreeInTopLevelPolygons(pocket).map(function (poly) {
-                return {contour: poly, children: []};
-            }));
-            pocket = new clipper.PolyTree();
-            co2.Execute(pocket, -step * i);
-            i++;
-        } while (pocket.ChildCount());
+        var stack = createOffsetStack(tolerance, polygon2, outlineAtToolCenter, step);
         do {
             var children = stack.pop();
             for (var j = 0; j < children.length; j++) {
