@@ -15,12 +15,12 @@ define(['libs/svg'], function () {
             var cmGrid = halfDmGrid.group().attr({class: 'cmGrid'});
             var halfCmGrid = cmGrid.group().attr({class: 'halfCmGrid'});
             var mmGrid = halfCmGrid.group().attr({class: 'mmGrid'});
-            this.gridStack = [
+            this.set('gridStack', [
                 [20, $(mmGrid.node), false],
                 [15, $(halfCmGrid.node), false],
                 [5, $(cmGrid.node), false],
                 [2.5, $(halfDmGrid.node), false]
-            ];
+            ]);
             var biggestSpan = Math.max(ySpan, xSpan);
             for (var i = -biggestSpan; i <= biggestSpan; i += 1) {
                 var group = mmGrid;
@@ -89,47 +89,35 @@ define(['libs/svg'], function () {
             origin.ellipse(20, 20).cx(0).cy(0).attr({stroke: 'red', fill: 'none', transform: null});
             var _this = this;
 
-            element.mousewheel(function (event, delta, deltaX, deltaY) {
-                Ember.run(function () {
-                    var pos = _this.getModelPositionForPageXY(event.pageX, event.pageY);
-                    var k = svg.node.createSVGMatrix().translate(pos.x, pos.y).scale(1 + deltaY / 360).translate(-pos.x, -pos.y);
-                    var m = _this.getCTM().multiply(k);
-                    if (m.a > _this.get('minZoom') && m.a < _this.get('maxZoom'))
-                        _this.setMatrix(m);
-                    event.preventDefault();
-                });
-            });
-
-            element.mousedown(function (event) {
-                Ember.run(function () {
-                    if (event.which != 1)
-                        return;
-                    var m = _this.getCTM();
-                    var pos = _this.getModelPositionForPageXY(event.pageX, event.pageY, m);
-                    _this.set('mouseDownStartCondition', {x: event.pageX, y: event.pageY, matrix: m, modelPos: pos});
-                });
-            });
-            element.mouseup(function () {
-                Ember.run(function () {
-                    _this.set('mouseDownStartCondition', null);
-                });
-            });
-            element.mouseleave(function () {
-                Ember.run(function () {
-                    _this.set('mouseDownStartCondition', null);
-                });
-            });
-            element.mousemove(function (event) {
-                Ember.run(function () {
-                    if (_this.mouseDownStartCondition) {
-                        var formerPosition = _this.get('mouseDownStartCondition').modelPos;
-                        var newPosition = _this.getModelPositionForPageXY(event.pageX, event.pageY, _this.get('mouseDownStartCondition').matrix);
-                        _this.setMatrix(_this.get('mouseDownStartCondition').matrix.translate(newPosition.x - formerPosition.x, newPosition.y - formerPosition.y));
-                    }
-                });
-            });
-
-            $(window).resize(resizeSVG);
+            element.mousewheel(Ember.run.bind(_this, function (event, delta, deltaX, deltaY) {
+                var pos = _this.getModelPositionForPageXY(event.pageX, event.pageY);
+                var k = svg.node.createSVGMatrix().translate(pos.x, pos.y).scale(1 + deltaY / 360).translate(-pos.x, -pos.y);
+                var m = _this.getCTM().multiply(k);
+                if (m.a > _this.get('minZoom') && m.a < _this.get('maxZoom'))
+                    _this.setMatrix(m);
+                event.preventDefault();
+            }));
+            element.mousedown(Ember.run.bind(_this, function (event) {
+                if (event.which != 1)
+                    return;
+                var m = _this.getCTM();
+                var pos = _this.getModelPositionForPageXY(event.pageX, event.pageY, m);
+                _this.set('mouseDownStartCondition', {x: event.pageX, y: event.pageY, matrix: m, modelPos: pos});
+            }));
+            element.mouseup(Ember.run.bind(_this, function () {
+                _this.set('mouseDownStartCondition', null);
+            }));
+            element.mouseleave(Ember.run.bind(_this, function () {
+                _this.set('mouseDownStartCondition', null);
+            }));
+            element.mousemove(Ember.run.bind(_this, function (event) {
+                if (!_this.get('mouseDownStartCondition'))
+                    return;
+                var formerPosition = _this.get('mouseDownStartCondition').modelPos;
+                var newPosition = _this.getModelPositionForPageXY(event.pageX, event.pageY, _this.get('mouseDownStartCondition').matrix);
+                _this.setMatrix(_this.get('mouseDownStartCondition').matrix.translate(newPosition.x - formerPosition.x, newPosition.y - formerPosition.y));
+            }));
+            $(window).resize(Ember.run.bind(_this, resizeSVG));
             function resizeSVG() {
                 _this.set('offset', element.offset());
                 _this.set('insertedSize', {x: element.width(), y: element.height()});
