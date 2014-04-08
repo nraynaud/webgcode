@@ -294,42 +294,7 @@ define(['cnc/bezier', 'cnc/clipper', 'libs/simplify'], function (bezier, clipper
     };
 
     Machine.prototype.dumpGCode = function () {
-        function formatCoord(num) {
-            if (num == 0)
-                return '0';
-            if (num % 1 === 0)
-                return num.toString();
-            var res = num.toFixed(4);
-            for (var i = res.length - 1; i >= 0; i--) {
-                if (res[i] != '0' && res[i] != '.')
-                    return res.substring(0, i + 1);
-                if (res[i] == '.')
-                    return res.substring(0, i);
-            }
-            return res;
-        }
-
-        function pos(point) {
-            var res = '';
-            if (point['x'] != null)
-                res += ' X' + formatCoord(point.x);
-            if (point['y'] != null)
-                res += ' Y' + formatCoord(point.y);
-            if (point['z'] != null)
-                res += ' Z' + formatCoord(point.z);
-            return res;
-        }
-
-        var code = ['F' + this.feedRate];
-        this.dumpOnCollector({
-            goToTravelSpeed: function (point) {
-                code.push('G0 ' + pos(point));
-            },
-            goToWorkSpeed: function (point) {
-                code.push('G1 ' + pos(point));
-            }
-        });
-        return code.join('\n');
+        return dumpGCode(this.feedRate, this.dumpOnCollector.bind(this));
     };
 
     Machine.prototype.getToolPath = function (parameters) {
@@ -471,6 +436,45 @@ define(['cnc/bezier', 'cnc/clipper', 'libs/simplify'], function (bezier, clipper
         });
     }
 
+    function dumpGCode(feedRate, codeGenerator) {
+        function formatCoord(num) {
+            if (num == 0)
+                return '0';
+            if (num % 1 === 0)
+                return num.toString();
+            var res = num.toFixed(4);
+            for (var i = res.length - 1; i >= 0; i--) {
+                if (res[i] != '0' && res[i] != '.')
+                    return res.substring(0, i + 1);
+                if (res[i] == '.')
+                    return res.substring(0, i);
+            }
+            return res;
+        }
+
+        function pos(point) {
+            var res = '';
+            if (point['x'] != null)
+                res += ' X' + formatCoord(point.x);
+            if (point['y'] != null)
+                res += ' Y' + formatCoord(point.y);
+            if (point['z'] != null)
+                res += ' Z' + formatCoord(point.z);
+            return res;
+        }
+
+        var code = ['F' + feedRate];
+        codeGenerator({
+            goToTravelSpeed: function (point) {
+                code.push('G0 ' + pos(point));
+            },
+            goToWorkSpeed: function (point) {
+                code.push('G1 ' + pos(point));
+            }
+        });
+        return code.join('\n');
+    }
+
     return {
         CLIPPER_SCALE: CLIPPER_SCALE,
         geom: geom,
@@ -479,6 +483,7 @@ define(['cnc/bezier', 'cnc/clipper', 'libs/simplify'], function (bezier, clipper
         decomposePolytreeInTopLevelPolygons: decomposePolytreeInTopLevelPolygons,
         polyOp: polyOp,
         simplifyPolygons: simplifyPolygons,
-        pathDefToClipper: pathDefToClipper
+        pathDefToClipper: pathDefToClipper,
+        dumpGCode: dumpGCode
     };
 });

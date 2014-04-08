@@ -153,6 +153,7 @@ define(['cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView'], function (cam, rbrush
                 .attr({class: 'computing outline', fill: 'url(#computingFill)'}));
         },
         willDestroy: function () {
+            this.get('outline').remove();
             while (this.get('layerViews.firstObject'))
                 this.removePolyline(this.get('layerViews.firstObject'));
         },

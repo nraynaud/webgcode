@@ -99,8 +99,7 @@
     <div id="drawing">
         {{view TextApplication.OperationView}}
     </div>
-    <textarea id="code"></textarea>
-
+    {{textarea id="code" value=code}}
 </script>
 
 <script>
@@ -159,16 +158,36 @@
             }.observes('computing').on('init'),
             computePocket: function () {
                 this.abortComputation();
-                this.get('pocketToolPaths').clear();
+                var pocketToolPaths = this.get('pocketToolPaths');
+                pocketToolPaths.clear();
                 var toolRadius = this.get('toolDiameter') / 2 * cam.CLIPPER_SCALE;
                 var poly2 = cam.pathDefToClipper(this.get('textOutline'));
                 var radialEngagementRatio = this.get('radialEngagementRatio');
+                console.time('computing pocket');
+                var _this = this;
+                var promises = [];
                 var work = pocket.createPocket(poly2, toolRadius, radialEngagementRatio, false);
                 this.set('workBatch', work);
-                this.get('pocketToolPaths').pushObjects(work.workArray.map(function (workUnit) {
-                    return TextApplication.PocketToolPath.create({polygon: workUnit.polygon, promise: workUnit.promise,
-                        undercutPromise: workUnit.undercutPromise, separation: radialEngagementRatio * toolRadius});
-                }));
+                work.workArray.forEach(function (workUnit) {
+                    pocketToolPaths.pushObject(
+                            TextApplication.PocketToolPath.create({polygon: workUnit.polygon, promise: workUnit.promise,
+                                undercutPromise: workUnit.undercutPromise, separation: radialEngagementRatio * toolRadius}));
+                    promises.pushObject(workUnit.promise, workUnit.undercutPromise);
+                });
+                RSVP.all(promises)
+                        .then(function () {
+                            var travelZ = 3;
+                            var code = cam.dumpGCode(500, function (collector) {
+                                collector.goToTravelSpeed({z: travelZ});
+                                pocketToolPaths.forEach(function (pocket) {
+                                    pocket.dumpOn(collector, travelZ, -_this.get('depth'));
+                                });
+                            });
+                            _this.set('code', code);
+                        })
+                        .finally(function () {
+                            console.timeEnd('computing pocket');
+                        });
             },
             abortComputation: function () {
                 var work = this.get('workBatch');
@@ -195,7 +214,34 @@
                             console.error(error.stack);
                         });
             },
-            isComputing: true
+            isComputing: true,
+            dumpOn: function (collector, travelZ, workZ) {
+                function p(clipperPoint) {
+                    return {x: clipperPoint.X / cam.CLIPPER_SCALE, y: clipperPoint.Y / cam.CLIPPER_SCALE};
+                }
+
+                function dumpPolylines(polylines, collector) {
+                    for (var i = 0; i < polylines.length; i++) {
+                        var polyline = polylines[i];
+                        if (polyline.length) {
+                            collector.goToTravelSpeed(p(polyline[0]));
+                            collector.goToWorkSpeed({z: workZ});
+                            for (var j = 0; j < polyline.length; j++)
+                                collector.goToWorkSpeed(p(polyline[j]));
+                            collector.goToTravelSpeed({z: travelZ});
+                        }
+                    }
+                }
+
+                function dumpLayer(layer, collector) {
+                    for (var i = 0; i < layer.children.length; i++)
+                        dumpLayer(layer.children[i], collector);
+                    dumpPolylines(layer.spiraledToolPath ? [layer.spiraledToolPath.path] : layer.contour, collector);
+                }
+
+                for (var i = 0; i < this.get('toolPathArray').length; i++)
+                    dumpLayer(this.get('toolPathArray')[i], collector);
+            }
         });
         TextApplication.TextRoute = Ember.Route.extend({
             model: function () {
