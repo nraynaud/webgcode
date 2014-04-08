@@ -118,6 +118,7 @@
 		DDAA52E56A9DA318A5A56BD2 /* mode-lua.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA576D5DCAE40E9F6E2C1D /* mode-lua.js */; };
 		DDAA52E69C8F49B77C6C0768 /* mode-markdown.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA574DE28F0AE049E6A25D /* mode-markdown.js */; };
 		DDAA52E9389C4448A4E70733 /* mode-julia.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5A10B778E1E7F6266C12 /* mode-julia.js */; };
+		DDAA52EC89706119108AA97B /* require_text.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5A50F53BA396E1733E04 /* require_text.js */; };
 		DDAA52F03B5C65468F8F999A /* theme-crimson_editor.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA553A79491F8CE346CA7B /* theme-crimson_editor.js */; };
 		DDAA52FC2439C4D841334F40 /* theme-cobalt.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA50ECC32869405C4B00FC /* theme-cobalt.js */; };
 		DDAA5303FD3D8CAC022E9CD5 /* mode-html.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA533BF7637C6E507869F0 /* mode-html.js */; };
@@ -1015,6 +1016,7 @@
 		DDAA59CEB6DEF826C808ACEC /* opentype.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = opentype.js; sourceTree = "<group>"; };
 		DDAA59D148CE61867C74889D /* ext-themelist.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-themelist.js"; sourceTree = "<group>"; };
 		DDAA59DFD5F7D5919AAD5111 /* mode-batchfile.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-batchfile.js"; sourceTree = "<group>"; };
+		DDAA59E3CD1BC8E48FD71658 /* textApp.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; name = textApp.hbs; path = templates/textApp.hbs; sourceTree = "<group>"; };
 		DDAA59F8D4251CE050C3AE74 /* cnc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cnc.h; path = interpolator/cnc.h; sourceTree = SOURCE_ROOT; };
 		DDAA59FBB1DC7A258BD30B50 /* ace.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = ace.js; sourceTree = "<group>"; };
 		DDAA59FEF17A22C1216B27DD /* .nojekyll */ = {isa = PBXFileReference; lastKnownFileType = file.nojekyll; path = .nojekyll; sourceTree = "<group>"; };
@@ -1031,6 +1033,7 @@
 		DDAA5A47A7F070BF331595D4 /* mode-jsx.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-jsx.js"; sourceTree = "<group>"; };
 		DDAA5A4AEE4A521F092724BE /* mode-haxe.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-haxe.js"; sourceTree = "<group>"; };
 		DDAA5A4B426FA2031B60ED96 /* ext-statusbar.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-statusbar.js"; sourceTree = "<group>"; };
+		DDAA5A50F53BA396E1733E04 /* require_text.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = require_text.js; sourceTree = "<group>"; };
 		DDAA5A52751E1F666910B8D0 /* mode-scss.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-scss.js"; sourceTree = "<group>"; };
 		DDAA5A55C036357C8CD5193C /* emberTwoDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = emberTwoDView.js; sourceTree = "<group>"; };
 		DDAA5A58AA2235B4497F9E98 /* mode-actionscript.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-actionscript.js"; sourceTree = "<group>"; };
@@ -1316,6 +1319,7 @@
 				DDAA5931F75C90FB9844814F /* handlebars-v1.3.0.js */,
 				DDAA545E71294E9910F16EF0 /* simplify.js */,
 				DDAA5E8B52A7177858500318 /* rbrush.js */,
+				DDAA5A50F53BA396E1733E04 /* require_text.js */,
 			);
 			name = libs;
 			path = webapp/libs;
@@ -1952,6 +1956,7 @@
 				DDAA5BD4D3436F114AB6921D /* manifest.json */,
 				DDAA5C4F4476F0E52C5B5B0B /* ajax-loader.gif */,
 				DDAA578CF1A78A375FB0D041 /* twoDView.css */,
+				DDAA59E3CD1BC8E48FD71658 /* textApp.hbs */,
 			);
 			path = webapp;
 			sourceTree = "<group>";
@@ -2754,6 +2759,7 @@
 				DDAA54D76ECEC7A8B4F7AB6B /* emberTwoDView.js in Sources */,
 				DDAA5FF8AE3F69093DDAC5CC /* rbrush.js in Sources */,
 				DDAA5EA8781DF5F9C0E660F7 /* pocketView.js in Sources */,
+				DDAA52EC89706119108AA97B /* require_text.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,0 +1,22 @@
+<div class="controls">
+    <label for="text">Text:</label><br>
+    {{input type="text" id="text" valueBinding="text" title="your text"}}
+    <br>
+    <label for="toolDiameter" title="in mm">Tool Diameter:</label><br>
+    {{view TextApplication.NumberField id="toolDiameter" placeholder="tool diameter"
+    numericValueBinding="toolDiameter" min="0" action="launchComputationImmediately"}}
+    <br>
+    <label for="radialEngagement" title="ratio ]0-1]">Radial Engagement:</label><br>
+    {{view TextApplication.NumberField id="radialEngagement" placeholder="radial engagement"
+    numericValueBinding="radialEngagementRatio" min="0" max="1" step="0.05" action="launchComputationImmediately"}}
+    <br>
+    <label for="depth" title="in mm">Depth:</label><br>
+    {{view TextApplication.NumberField id="depth" placeholder="depth"
+    numericValueBinding="depth" min="0" max="1" step="0.05" action="launchComputationImmediately"}}
+    <br>
+
+</div>
+<div id="drawing">
+    {{view TextApplication.OperationView}}
+</div>
+{{textarea id="code" value=code}}
