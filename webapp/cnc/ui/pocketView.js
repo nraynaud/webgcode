@@ -71,6 +71,8 @@ define(['cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView'], function (cam, rbrush
 
     var MultiLODPolylineView = Ember.Object.extend({
         lodLevels: [0.1, 0.5, 0.75, 1],
+        hideWhenOutOfView: true,
+        closed: false,
         init: function () {
             //parse and remove the css classes because they might be toggled later.
             var attrClasses = this.get('attr.class') || '';
@@ -130,7 +132,8 @@ define(['cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView'], function (cam, rbrush
         },
         refreshVisibility: function (viewBox, zoomLevel) {
             var lodIndex = this.computeLodIndex(zoomLevel);
-            var visibility = bboxIntersect(viewBox, this.get('bbox')) && zoomLevel >= this.get('minVisibleZoomLevel');
+            var visibility = this.get('hideWhenOutOfView')
+                || bboxIntersect(viewBox, this.get('bbox')) && zoomLevel >= this.get('minVisibleZoomLevel');
             if (this.get('currentLodIndex') === lodIndex && this.get('currentVisibility') === visibility)
                 return;
             this.set('currentLodIndex', lodIndex);
@@ -148,22 +151,20 @@ define(['cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView'], function (cam, rbrush
             var bbox = getbBox(this.get('pocket.polygon'), cam.CLIPPER_SCALE);
             this.set('treeKey', [bbox.x, bbox.y, bbox.x2, bbox.y2, this]);
             this.set('minVisibleZoomLevel', 1 / this.get('pocket.separation') * cam.CLIPPER_SCALE);
-            this.set('outline', this.get('pocketGroup')
-                .path(simplifyScaleAndCreatePathDef(this.get('pocket.polygon'), cam.CLIPPER_SCALE, 0.1, true))
-                .attr({class: 'computing outline', fill: 'url(#computingFill)'}));
+            this.set('outline', this.displayPolyline(this.get('pocket.polygon'),
+                {class: 'computing outline', fill: 'url(#computingFill)'}, 0, true, false));
         },
         willDestroy: function () {
-            this.get('outline').remove();
             while (this.get('layerViews.firstObject'))
                 this.removePolyline(this.get('layerViews.firstObject'));
         },
-        pocketGroupChanged: function () {
+        toolPathArrayChanged: function () {
             var toolPathArray = this.get('pocket.toolPathArray');
             if (toolPathArray != null) {
                 for (var i = 0; i < toolPathArray.length; i++)
                     this.recursivelyDisplayLayers(toolPathArray[i], this.get('pocketGroup'));
-                toggleClass(this.get('outline'), 'computing', false);
-                toggleClass(this.get('outline'), 'seenFromFar',
+                this.get('outline').toggleClass('computing', false);
+                this.get('outline').toggleClass('seenFromFar',
                     this.get('operationView.nativeComponent.zoomLevel') < this.get('minVisibleZoomLevel'));
             }
         }.observes('pocket.toolPathArray').on('init'),
@@ -181,10 +182,12 @@ define(['cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView'], function (cam, rbrush
             } else
                 this.displayPolyline(pocket.contour, {class: 'pocket'}, minVisibleZoomLevel);
         },
-        displayPolyline: function (polyline, attr, minZoomLevel, closed) {
+        displayPolyline: function (polyline, svgAttributes, minZoomLevel, closed, hideWhenOutOfView) {
             var params = {polyline: polyline, parent: this.get('pocketGroup'), operationView: this.get('operationView'),
-                minVisibleZoomLevel: minZoomLevel, attr: attr, closed: closed};
-            var polylineView = TextApplication.MultiLODPolylineView.create(params);
+                minVisibleZoomLevel: minZoomLevel, attr: svgAttributes, closed: closed};
+            if (hideWhenOutOfView != null)
+                params.hideWhenOutOfView = hideWhenOutOfView;
+            var polylineView = MultiLODPolylineView.create(params);
             this.get('tree').insert(polylineView.get('treeKey'));
             this.get('layerViews').add(polylineView);
             return polylineView;
@@ -196,7 +199,7 @@ define(['cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView'], function (cam, rbrush
             this.get('outline').remove();
         },
         refreshVisibility: function (viewBox, zoomLevel, refreshZone) {
-            toggleClass(this.get('outline'), 'seenFromFar', zoomLevel < this.get('minVisibleZoomLevel'));
+            this.get('outline').toggleClass('seenFromFar', zoomLevel < this.get('minVisibleZoomLevel'));
             var refreshList = this.get('tree').search([refreshZone.x, refreshZone.y,
                 refreshZone.x + refreshZone.width, refreshZone.y + refreshZone.height]);
             for (var i = 0; i < refreshList.length; i++)
@@ -218,7 +221,7 @@ define(['cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView'], function (cam, rbrush
             var pocketViews = this.get('pocketViews');
             var toolPaths = this.get('controller.pocketToolPaths');
             toolPaths.forEach(function (pocket) {
-                _this.addPockets(toolPaths, 0);
+                _this.addPockets(pocket, 0);
             });
             toolPaths.addArrayObserver({
                 arrayWillChange: function (observedObj, start, removeCount, addCount) {
@@ -263,8 +266,5 @@ define(['cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView'], function (cam, rbrush
             }
         }.on('didInsertElement')
     });
-    return {
-        MultiLODPolylineView: MultiLODPolylineView,
-        PocketView: PocketView,
-        OperationView: OperationView};
+    return {OperationView: OperationView};
 });
