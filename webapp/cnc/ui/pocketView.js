@@ -196,7 +196,6 @@ define(['cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView'], function (cam, rbrush
             this.get('layerViews').remove(polyline);
             this.get('tree').remove(polyline.get('treeKey'));
             polyline.destroy();
-            this.get('outline').remove();
         },
         refreshVisibility: function (viewBox, zoomLevel, refreshZone) {
             this.get('outline').toggleClass('seenFromFar', zoomLevel < this.get('minVisibleZoomLevel'));
