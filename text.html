@@ -106,6 +106,9 @@
                     actions: {
                         launchComputationImmediately: function () {
                             this.computePocket();
+                        },
+                        computeGCode: function () {
+                            this.dumpGCode();
                         }
                     },
                     pocketToolPaths: [],
@@ -154,14 +157,7 @@
                         });
                         RSVP.all(promises)
                                 .then(function () {
-                                    var travelZ = 3;
-                                    var code = cam.dumpGCode(500, function (collector) {
-                                        collector.goToTravelSpeed({z: travelZ});
-                                        pocketToolPaths.forEach(function (pocket) {
-                                            pocket.dumpOn(collector, travelZ, -_this.get('depth'));
-                                        });
-                                    });
-                                    _this.set('code', code);
+                                    _this.dumpGCode();
                                 })
                                 .finally(function () {
                                     console.timeEnd('computing pocket');
@@ -173,6 +169,18 @@
                             return;
                         work.abort();
                         this.set('workBatch', null);
+                    },
+                    dumpGCode: function () {
+                        console.time('gcode dump');
+                        var _this = this;
+                        var code = cam.dumpGCode(_this.get('feedRate'), function (collector) {
+                            collector.goToTravelSpeed({z: _this.get('travelZ')});
+                            _this.get('pocketToolPaths').forEach(function (pocket) {
+                                pocket.dumpOn(collector, _this.get('travelZ'), _this.get('workZ'));
+                            });
+                        });
+                        _this.set('code', code);
+                        console.timeEnd('gcode dump');
                     }
                 });
 
@@ -228,7 +236,9 @@
                             text: 'long text',
                             toolDiameter: 2,
                             radialEngagementRatio: 0.9,
-                            depth: 1
+                            workZ: -1,
+                            travelZ: 3,
+                            feedRate: 500
                         }
                     },
                     controllerName: 'text'
