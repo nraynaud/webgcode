@@ -192,7 +192,8 @@ define(['cnc/util', 'cnc/geometry'], function (util, geometry) {
             fragmentIndex++;
             fragment = segment.fragments[fragmentIndex];
         }
-        var result = FRAGMENT_EQUATIONS[fragment.type](fragment, (x - xOffset) / fragment.length, acceleration);
+        //clamp to 1 because floats sometimes go away
+        var result = FRAGMENT_EQUATIONS[fragment.type](fragment, Math.min(1, (x - xOffset) / fragment.length), acceleration);
         return {speed: result.speed, time: timeOffset + result.time};
     }
 

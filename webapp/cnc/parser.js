@@ -5,7 +5,7 @@
 // speed in mm/s
 // angles in radians
 define(['libs/jsparse', 'cnc/util'], function (jp, util) {
-
+    jp.memoize = false;
     var XY_PLANE = {
         firstCoord: 'x',
         secondCoord: 'y',
@@ -380,8 +380,37 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
                     if (memory.hasOwnProperty(key))
                         delete memory[key];
             }, parseLine: function (str) {
-                return wholeLine(jp.ps(str));
+                return  wholeLine(jp.ps(str));
             }};
+    }
+
+    function cleanLine(originalLine) {
+        //drop spaces, go uppercase
+        var line = originalLine.replace(/[\t ]+/g, '').toUpperCase();
+        // drop comments
+        line = line.replace(/[(][^)]*[)]/g, '');
+        line = line.replace(/;.*$/, '');
+        //drop line number
+        line = line.replace(/^N[0-9]+/, '');
+        return line;
+    }
+
+    function handleLineAst(parsed, machineState, maxFeedRate, originalLine) {
+        var fCode = parsed['f'];
+        if (fCode != undefined && fCode.length)
+            machineState.feedRate = Math.min(machineState.unitMode(fCode[0]), maxFeedRate);
+        var gCode = parsed['g'];
+        for (var i = 0; gCode !== undefined && i < gCode.length; i++) {
+            var codeNum = gCode[i];
+            var transition = GROUPS_TRANSITIONS[codeNum];
+            if (transition != null)
+                $.extend(machineState, transition);
+            else {
+                console.log('Did not understand G' + gCode + ', skipping');
+                console.log(originalLine);
+            }
+        }
+        machineState.motionMode(parsed, machineState);
     }
 
     function evaluate(text, travelFeedRate, maxFeedRate, initialPosition) {
@@ -395,35 +424,16 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
         }
         var machineState = createMachine(travelFeedRate, maxFeedRate, initialPosition);
         var arrayOfLines = text.match(/[^\r\n]+/g);
-        $.each(arrayOfLines, function (lineNo, originalLine) {
+        for (var lineNo = 0; lineNo < arrayOfLines.length; lineNo++) {
+            var originalLine = arrayOfLines[lineNo];
             if (originalLine.match(/[\t ]*%[\t ]*/))
-                return;
-            //drop spaces, go uppercase
-            var line = originalLine.replace(/[\t ]+/g, '').toUpperCase();
-            // drop comments
-            line = line.replace(/[(][^)]*[)]/g, '');
-            line = line.replace(/;.*$/, '');
-            //drop line number
-            line = line.replace(/^N[0-9]+/, '');
+                continue;
+            var line = cleanLine(originalLine);
             var parsed = machineState.parser.parseLine(line).ast;
             if (parsed == undefined)
                 console.log('could not parse ', line);
-            var fCode = parsed['f'];
-            if (fCode != undefined && fCode.length)
-                machineState.feedRate = Math.min(machineState.unitMode(fCode[0]), maxFeedRate);
-            var gCode = parsed['g'];
-            for (var i = 0; gCode !== undefined && i < gCode.length; i++) {
-                var codeNum = gCode[i];
-                var transition = GROUPS_TRANSITIONS[codeNum];
-                if (transition != null)
-                    $.extend(machineState, transition);
-                else {
-                    console.log('Did not understand G' + gCode + ', skipping');
-                    console.log(originalLine);
-                }
-            }
-            machineState.motionMode(parsed, machineState);
-        });
+            handleLineAst(parsed, machineState, maxFeedRate, originalLine);
+        }
         return machineState.path;
     }
 
