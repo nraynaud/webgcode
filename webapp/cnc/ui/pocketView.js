@@ -132,7 +132,7 @@ define(['cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView'], function (cam, rbrush
         },
         refreshVisibility: function (viewBox, zoomLevel) {
             var lodIndex = this.computeLodIndex(zoomLevel);
-            var visibility = this.get('hideWhenOutOfView')
+            var visibility = !this.get('hideWhenOutOfView')
                 || bboxIntersect(viewBox, this.get('bbox')) && zoomLevel >= this.get('minVisibleZoomLevel');
             if (this.get('currentLodIndex') === lodIndex && this.get('currentVisibility') === visibility)
                 return;
