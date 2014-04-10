@@ -69,6 +69,12 @@ define(['cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView'], function (cam, rbrush
             || b.x >= a.x + a.width || b.y >= a.y + a.height);
     }
 
+    function prepareForTreeElement(object, bboxedElement) {
+        var bbox = getbBox(bboxedElement, cam.CLIPPER_SCALE);
+        object.set('bbox', bbox);
+        object.set('treeKey', [bbox.x, bbox.y, bbox.x2, bbox.y2, object]);
+    }
+
     var MultiLODPolylineView = Ember.Object.extend({
         lodLevels: [0.1, 0.5, 0.75, 1],
         hideWhenOutOfView: true,
@@ -79,9 +85,7 @@ define(['cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView'], function (cam, rbrush
             this.set('classes', attrClasses.split(' '));
             delete this.get('attr')['class'];
             this.set('lods', []);
-            var bbox = getbBox(this.get('polyline'), cam.CLIPPER_SCALE);
-            this.set('bbox', bbox);
-            this.set('treeKey', [bbox.x, bbox.y, bbox.x2, bbox.y2, this]);
+            prepareForTreeElement(this, this.get('polyline'));
             this.refreshVisibility(this.get('operationView.nativeComponent.visibleBox'),
                 this.get('operationView.nativeComponent.zoomLevel'));
         },
@@ -148,8 +152,7 @@ define(['cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView'], function (cam, rbrush
             this.set('layerViews', new Ember.Set());
             var tree = rbrush();
             this.set('tree', tree);
-            var bbox = getbBox(this.get('pocket.polygon'), cam.CLIPPER_SCALE);
-            this.set('treeKey', [bbox.x, bbox.y, bbox.x2, bbox.y2, this]);
+            prepareForTreeElement(this, this.get('pocket.polygon'));
             this.set('minVisibleZoomLevel', 1 / this.get('pocket.separation') * cam.CLIPPER_SCALE);
             this.set('outline', this.displayPolyline(this.get('pocket.polygon'),
                 {class: 'computing outline', fill: 'url(#computingFill)'}, 0, true, false));
@@ -199,10 +202,12 @@ define(['cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView'], function (cam, rbrush
         },
         refreshVisibility: function (viewBox, zoomLevel, refreshZone) {
             this.get('outline').toggleClass('seenFromFar', zoomLevel < this.get('minVisibleZoomLevel'));
-            var refreshList = this.get('tree').search([refreshZone.x, refreshZone.y,
-                refreshZone.x + refreshZone.width, refreshZone.y + refreshZone.height]);
-            for (var i = 0; i < refreshList.length; i++)
-                refreshList[i][4].refreshVisibility(viewBox, zoomLevel, refreshZone);
+            if (bboxIntersect(refreshZone, this.get('bbox'))) {
+                var refreshList = this.get('tree').search([refreshZone.x, refreshZone.y,
+                    refreshZone.x + refreshZone.width, refreshZone.y + refreshZone.height]);
+                for (var i = 0; i < refreshList.length; i++)
+                    refreshList[i][4].refreshVisibility(viewBox, zoomLevel, refreshZone);
+            }
         }
     });
     var OperationView = Ember.View.extend({
