@@ -223,7 +223,7 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
     function createParser() {
         var memory = {};
         var number = jp.join_action(jp.repeat1(jp.range('0', '9')), '');
-        var decimalPart = jp.join_action(jp.sequence('.', number), '');
+        var decimalPart = jp.join_action(jp.sequence('.', jp.optional(number)), '');
         var integerAndDecimal = jp.action(jp.sequence(number, jp.optional(decimalPart)), function (ast) {
             return ast[1] !== false ? ast[0] + ast[1] : ast[0];
         });
