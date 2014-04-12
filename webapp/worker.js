@@ -83,8 +83,11 @@ var tasks = {
     },
     simulateGCode: function (event) {
         require(['cnc/gcodeSimulation'], function (gcodeSimulation) {
-            var result = gcodeSimulation.simulateGCode(event.data.code);
-            self.postMessage(result);
+            try {
+                self.postMessage(gcodeSimulation.simulateGCode(event.data.code));
+            } finally {
+                self.close();
+            }
         });
     }
 };

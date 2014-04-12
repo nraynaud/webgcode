@@ -72,8 +72,9 @@ define(['cnc/simulation', 'cnc/parser', 'cnc/util'], function (simulation, parse
             }
         }
 
-        simulation.simulate2(parser.evaluate(code), pushPoint);
-        return {simulatedPath: simulatedPath, posData: posData, speedData: speedData, accelerationData: accelerationData};
+        var errors = [];
+        simulation.simulate2(parser.evaluate(code, null, null, null, errors), pushPoint);
+        return {simulatedPath: simulatedPath, posData: posData, speedData: speedData, accelerationData: accelerationData, errors: errors};
     }
 
     return {simulateGCode: simulateGCode}

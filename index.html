@@ -106,26 +106,56 @@
         var editor = ace.edit("codebox");
         editor.setTheme("ace/theme/twilight");
 
+        function parseInWorker(code, resultHandler) {
+            var worker = new Worker('webapp/worker.js');
+            worker.onmessage = function (event) {
+                resultHandler(event.data);
+            };
+            worker.postMessage({
+                operation: 'simulateGCode',
+                code: code
+            });
+        }
+
+        function parseImmediately(code, resultHandler) {
+            require(['cnc/gcodeSimulation'], function (gcodeSimulation) {
+                resultHandler(gcodeSimulation.simulateGCode(code));
+            });
+        }
+
         function refreshView() {
             console.time('simulation');
             $('#simulateButton').prop('disabled', true);
             $('#loader').show();
-            var worker = new Worker('webapp/worker.js');
-            worker.onmessage = function (event) {
-                var result = event.data;
+            editor.getSession().clearAnnotations();
+
+            function handleResult(result) {
                 threeDView.displayPath(result.simulatedPath);
                 var chart1 = $.plot("#chart1", result.posData);
                 $.plot("#chart2", result.speedData, {xaxis: {max: chart1.getAxes().xaxis.max}});
                 $.plot("#chart3", result.accelerationData, {xaxis: {max: chart1.getAxes().xaxis.max}});
                 console.timeEnd('simulation');
-                worker.terminate();
+                var annotations = [];
+                for (var i = 0; i < result.errors.length; i++) {
+                    var error = result.errors[i];
+                    annotations.push({row: error.lineNo, text: error.message, type: "error"});
+                }
+                editor.getSession().setAnnotations(annotations);
+                if (annotations.length) {
+                    editor.gotoLine(annotations[0].row);
+                }
                 $('#loader').hide();
                 $('#simulateButton').prop('disabled', false);
-            };
-            worker.postMessage({
-                operation: 'simulateGCode',
-                code: editor.getValue()
-            });
+            }
+
+            var code = editor.getValue();
+            try {
+                parseInWorker(code, handleResult);
+            } catch (error) {
+                console.log('worker error', error);
+                console.log('trying again without worker');
+                parseImmediately(code, handleResult)
+            }
         }
 
         $('#simulateButton').click(refreshView);

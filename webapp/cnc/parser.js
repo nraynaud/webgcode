@@ -198,7 +198,7 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
     }
 
     function createMachine(travelFeedRate, maxFeedRate, initialPosition) {
-        if (initialPosition === undefined) {
+        if (initialPosition == null) {
             initialPosition = {};
             $.each(util.AXES, function (_, axis) {
                 initialPosition[axis] = 0;
@@ -395,7 +395,7 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
         return line;
     }
 
-    function handleLineAst(parsed, machineState, maxFeedRate, originalLine) {
+    function handleLineAst(parsed, machineState, maxFeedRate, originalLine, lineNo, errorCollector) {
         var fCode = parsed['f'];
         if (fCode != undefined && fCode.length)
             machineState.feedRate = Math.min(machineState.unitMode(fCode[0]), maxFeedRate);
@@ -405,15 +405,15 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
             var transition = GROUPS_TRANSITIONS[codeNum];
             if (transition != null)
                 $.extend(machineState, transition);
-            else {
-                console.log('Did not understand G' + gCode + ', skipping');
-                console.log(originalLine);
-            }
+            else
+                errorCollector.push({lineNo: lineNo, message: 'Did not understand G' + gCode + ', skipping', line: originalLine});
         }
         machineState.motionMode(parsed, machineState);
     }
 
-    function evaluate(text, travelFeedRate, maxFeedRate, initialPosition) {
+    function evaluate(text, travelFeedRate, maxFeedRate, initialPosition, errorCollector) {
+        if (errorCollector == null)
+            errorCollector = [];
         if (travelFeedRate == null)
             travelFeedRate = maxFeedRate;
         if (maxFeedRate == null)
@@ -431,8 +431,9 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
             var line = cleanLine(originalLine);
             var parsed = machineState.parser.parseLine(line).ast;
             if (parsed == undefined)
-                console.log('could not parse ', line);
-            handleLineAst(parsed, machineState, maxFeedRate, originalLine);
+                errorCollector.push({lineNo: lineNo, message: "did not understand line", line: originalLine});
+            else
+                handleLineAst(parsed, machineState, maxFeedRate, originalLine, lineNo, errorCollector);
         }
         return machineState.path;
     }

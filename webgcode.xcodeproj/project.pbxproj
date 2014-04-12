@@ -362,6 +362,7 @@
 		DDAA59D895DEE2458F6D4D9B /* mode-ftl.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA587C66E36A6A71DDB2FB /* mode-ftl.js */; };
 		DDAA59DA16FC9B0C384D26D5 /* mode-c_cpp.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA569007B1E9F156338E9A /* mode-c_cpp.js */; };
 		DDAA59E344F993F0EBBA165C /* theme-ambiance.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5821B6BA919EEBBA46E0 /* theme-ambiance.js */; };
+		DDAA59E4FE424ADC50FD11A7 /* gcodeSimulation.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA55C2311D8558F97D8A5D /* gcodeSimulation.js */; };
 		DDAA59E5BC84A8A60DA2CDC0 /* mode-mysql.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA58D8CA42AC9A47644F12 /* mode-mysql.js */; };
 		DDAA59E5BD604F20F4F3EA38 /* contour.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5DA7202D3250BD94C922 /* contour.js */; };
 		DDAA59F486F571972F541EE6 /* mode-makefile.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5BCA090B2018864F4FDD /* mode-makefile.js */; };
@@ -863,6 +864,7 @@
 		DDAA55B330007C9773B22298 /* palette.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = palette.png; sourceTree = "<group>"; };
 		DDAA55BAB827067D0CE7FC7C /* mode-jsoniq.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-jsoniq.js"; sourceTree = "<group>"; };
 		DDAA55BC4AF31055E9F8A697 /* worker.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = worker.js; path = webapp/worker.js; sourceTree = "<group>"; };
+		DDAA55C2311D8558F97D8A5D /* gcodeSimulation.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = gcodeSimulation.js; sourceTree = "<group>"; };
 		DDAA55C9C91C38C7D86797CC /* mode-groovy.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-groovy.js"; sourceTree = "<group>"; };
 		DDAA55D5C70463DF25338723 /* mode-yaml.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-yaml.js"; sourceTree = "<group>"; };
 		DDAA55E585D8F419367CB167 /* mode-logiql.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-logiql.js"; sourceTree = "<group>"; };
@@ -1576,6 +1578,7 @@
 				DDAA571D7AADB7293C20F54C /* pocket.js */,
 				DDAA53C9FA100E05C62C575E /* views.js */,
 				DDAA59E1C202A1DFCFB7CC1A /* ui */,
+				DDAA55C2311D8558F97D8A5D /* gcodeSimulation.js */,
 			);
 			path = cnc;
 			sourceTree = "<group>";
@@ -2760,6 +2763,7 @@
 				DDAA5FF8AE3F69093DDAC5CC /* rbrush.js in Sources */,
 				DDAA5EA8781DF5F9C0E660F7 /* pocketView.js in Sources */,
 				DDAA52EC89706119108AA97B /* require_text.js in Sources */,
+				DDAA59E4FE424ADC50FD11A7 /* gcodeSimulation.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
