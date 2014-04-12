@@ -80,6 +80,12 @@ var tasks = {
                 self.postMessage(null);
             };
         });
+    },
+    simulateGCode: function (event) {
+        require(['cnc/gcodeSimulation'], function (gcodeSimulation) {
+            var result = gcodeSimulation.simulateGCode(event.data.code);
+            self.postMessage(result);
+        });
     }
 };
 
