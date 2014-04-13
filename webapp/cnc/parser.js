@@ -123,7 +123,8 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
             hadMovement = hadMovement || Math.abs(point[axis] - machineState.position[axis]) > 0.00001;
         });
         if (hadMovement) {
-            machineState.path.push({type: 'line', from: cloneObject(machineState.position), to: cloneObject(point), feedRate: speed});
+            machineState.path.push({type: 'line', from: cloneObject(machineState.position), to: cloneObject(point),
+                feedRate: speed, lineNo: machineState.lineNo});
             machineState.position = point;
         }
     }
@@ -193,7 +194,8 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
             fromAngle: angularStart,
             angularDistance: angularDiff,
             radius: radius,
-            feedRate: machineState.feedRate});
+            feedRate: machineState.feedRate,
+            lineNo: machineState.lineNo});
         machineState.position = targetPos;
     }
 
@@ -430,6 +432,7 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
                 continue;
             var line = cleanLine(originalLine);
             var parsed = machineState.parser.parseLine(line).ast;
+            machineState.lineNo = lineNo;
             if (parsed == undefined)
                 errorCollector.push({lineNo: lineNo, message: "did not understand line", line: originalLine});
             else

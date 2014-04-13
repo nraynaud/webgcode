@@ -95,6 +95,23 @@ define(function () {
                 this.scene.remove(this.toolpath);
             this.reRender();
         },
+        displayHighlight: function (polyline) {
+            this.hideHighlight();
+            var lineGeometry = new THREE.Geometry();
+            for (var i = 0; i < polyline.length; i++)
+                lineGeometry.vertices.push(new THREE.Vector3(polyline[i].x, polyline[i].y, polyline[i].z));
+            lineGeometry.verticesNeedUpdate = true;
+            this.highlight = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({depthWrite: false, overdraw: true, linewidth: 5, color: 0x0000FF}));
+            this.scene.add(this.highlight);
+            this.reRender();
+        },
+        hideHighlight: function () {
+            if (this.highlight) {
+                this.scene.remove(this.highlight);
+                this.highlight = null;
+                this.reRender();
+            }
+        },
         reRender: function () {
             this.renderer.render(this.scene, this.camera);
         }

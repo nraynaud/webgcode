@@ -83,7 +83,7 @@
 <div id="container"></div>
 <div id="app" class="editBlock"></div>
 <script type="text/x-handlebars" data-template-name="application">
-    {{ace-editor content=code annotations=errors}}
+    {{ace-editor content=code annotations=errors lineSegmentMap=lineSegmentMap}}
     <button id="simulateButton"
     {{action "simulate"}}>Simulate</button>
     <div id="loader">&nbsp;</div>
@@ -96,7 +96,7 @@
             <dt>Bounds (@tool center):</dt>
             <dd>
                 <table class="boundsTable" style="text-align:right;">
-                <thead>
+                    <thead>
                     <tr>
                         <th>&nbsp;</th>
                         <th>min</th>
@@ -189,11 +189,22 @@
         });
         Simulator.AceEditorComponent = Em.Component.extend({
             didInsertElement: function () {
+                var _this = this;
                 this.set('editor', window.ace.edit("codebox"));
                 this.get('editor').setTheme("ace/theme/twilight");
-                var self = this;
+                this.get('editor').on('mousemove', function (event) {
+                    var lineNo = event.getDocumentPosition().row;
+                    var highlight = _this.get('lineSegmentMap')[lineNo];
+                    if (highlight)
+                        threeDView.displayHighlight(highlight);
+                    else
+                        threeDView.hideHighlight();
+                });
+                this.get('editor').on('mouseout', function (event) {
+                    threeDView.hideHighlight();
+                });
                 this.get('editor').on('change', function () {
-                    Em.run.once(self, self.notifyPropertyChange, 'content');
+                    Em.run.once(_this, _this.notifyPropertyChange, 'content');
                 });
                 if (this.get('preset')) {
                     this.set('content', this.get('preset'));
@@ -215,9 +226,9 @@
             annotations: function (key, val) {
                 if (!this.get('editor'))
                     return val;
-                if (arguments.length == 1) {
+                if (arguments.length == 1)
                     return this.get('editor').getSession().getAnnotations();
-                } else {
+                else {
                     this.get('editor').getSession().setAnnotations(val);
                     if (val.length)
                         this.get('editor').gotoLine(val[0].row);
@@ -250,6 +261,7 @@
                     _this.set('errors', errors);
                     _this.set('bbox', {min: result.min, max: result.max});
                     _this.set('totalTime', result.totalTime);
+                    _this.set('lineSegmentMap', result.lineSegmentMap);
                     $('#loader').hide();
                     $('#simulateButton').prop('disabled', false);
                 }
@@ -269,9 +281,9 @@
             code: demoCode,
             errors: [],
             bbox: {},
-            totalTime: 0
+            totalTime: 0,
+            lineSegmentMap: []
         });
-
     });
 </script>
 </body>
