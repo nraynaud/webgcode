@@ -56,6 +56,15 @@
             width: 20px;
             height: 20px;
         }
+
+        .boundsTable {
+            border-collapse: collapse;
+        }
+
+        .boundsTable td {
+            border: dashed gray 1px;
+            padding: 3px;
+        }
     </style>
 </head>
 <body>
@@ -86,8 +95,8 @@
         <dl>
             <dt>Bounds (@tool center):</dt>
             <dd>
-                <table style="text-align:right;">
-                    <thead>
+                <table class="boundsTable" style="text-align:right;">
+                <thead>
                     <tr>
                         <th>&nbsp;</th>
                         <th>min</th>
