@@ -49,6 +49,14 @@
             width: 50%;
             height: 400px;
         }
+
+        #loader {
+            display: inline-block;
+            background-size: 100% 100%;
+            background-image: url(webapp/spinner.svg);
+            width: 20px;
+            height: 20px;
+        }
     </style>
 </head>
 <body>
@@ -96,7 +104,7 @@
         G17 (back to X-Y plane)
     </pre>
     <button id="simulateButton">Simulate</button>
-    <img id="loader" style="display: none" src="webapp/ajax-loader.gif">
+    <div id="loader">&nbsp;</div>
 </div>
 <div class="chart" id="chart1"></div>
 <div class="chart" id="chart2"></div>

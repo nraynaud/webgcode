@@ -1111,6 +1111,7 @@
 		DDAA5C0EF0AB3FDF7E4604D2 /* mode-logiql.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-logiql.js"; sourceTree = "<group>"; };
 		DDAA5C122A14047E66723196 /* mode-properties.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-properties.js"; sourceTree = "<group>"; };
 		DDAA5C13154AE7ADC61D5403 /* test.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test.html; sourceTree = "<group>"; };
+		DDAA5C173C2C592D36400815 /* spinner.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; path = spinner.svg; sourceTree = "<group>"; };
 		DDAA5C1795288A876C637870 /* TrackballControls.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = TrackballControls.js; path = webapp/libs/TrackballControls.js; sourceTree = "<group>"; };
 		DDAA5C1A31116FE9BE5056B7 /* mode-asciidoc.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-asciidoc.js"; sourceTree = "<group>"; };
 		DDAA5C22BCD8B5B9DE9BAFB9 /* usb.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; name = usb.o; path = interpolator/usb.o; sourceTree = SOURCE_ROOT; };
@@ -1960,6 +1961,7 @@
 				DDAA5C4F4476F0E52C5B5B0B /* ajax-loader.gif */,
 				DDAA578CF1A78A375FB0D041 /* twoDView.css */,
 				DDAA59E3CD1BC8E48FD71658 /* textApp.hbs */,
+				DDAA5C173C2C592D36400815 /* spinner.svg */,
 			);
 			path = webapp;
 			sourceTree = "<group>";

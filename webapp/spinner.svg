@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg>
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <linearGradient id="gradient" gradientUnits="userSpaceOnUse" x1="30" y1="100" x2="50" y2="0">
+        <stop offset="0" style="stop-color:black"/>
+        <stop offset="1" style="stop-color:white"/>
+    </linearGradient>
+    <path fill="url(#gradient)"
+          d="M50.069,0.078c-27.595,0-49.966,22.371-49.966,49.966c0,27.595,22.371,49.966,49.966,49.966   s49.966-22.371,49.966-49.966C100.035,22.448,77.664,0.078,50.069,0.078z M50.01,85.062c-19.316,0-34.976-15.66-34.976-34.976   c0-19.317,15.659-34.976,34.976-34.976c19.317,0,34.977,15.659,34.977,34.976C84.987,69.401,69.327,85.062,50.01,85.062z">
+        <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 50 50" to="360 50 50"
+                          begin="0s" dur="3s" repeatCount="indefinite"/>
+    </path>
+</svg>
