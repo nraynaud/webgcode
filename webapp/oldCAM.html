@@ -34,7 +34,7 @@
             flex: 1;
         }
 
-        .editBlock button {
+        .simulationControls {
             align-self: flex-end;
         }
 
@@ -76,7 +76,10 @@
         G3 Z50 J0 K5
         G17 (back to X-Y plane)
     </pre>
-    <button id="simulateButton">Simulate</button>
+    <div class="simulationControls">
+        <img id="loader" style="display: none" src="ajax-loader.gif">
+        <button id="simulateButton">Simulate</button>
+    </div>
 </div>
 
 <div id="container"></div>
@@ -85,18 +88,58 @@
         return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null;
     }
 
-    require(['cnc/threeDView', 'cnc/parser', 'cnc/simulation'], function (threeD, parser, simulation) {
+    require(['cnc/threeDView', 'cnc/simulation'], function (threeD, simulation) {
         var editor = ace.edit("codebox");
         editor.setTheme("ace/theme/twilight");
-        function refreshView() {
-            var simulatedPath = [];
-            var lastT = null;
-            simulation.simulate2(parser.evaluate(editor.getValue()), function (x, y, z, t) {
-                simulatedPath.push({x: x, y: y, z: z});
-                lastT = t;
+
+        function parseInWorker(code, resultHandler) {
+            var worker = new Worker('worker.js');
+            window.myWorker = worker;
+            worker.onmessage = function (event) {
+                resultHandler(event.data);
+                window.myWorker = null;
+            };
+            worker.postMessage({
+                operation: 'simulateGCode',
+                code: code
             });
-            console.log('total duration', lastT);
-            threeDView.displayPath(simulatedPath);
+        }
+
+        function parseImmediately(code, resultHandler) {
+            require(['cnc/gcodeSimulation'], function (gcodeSimulation) {
+                resultHandler(gcodeSimulation.simulateGCode(code));
+            });
+        }
+
+        function refreshView() {
+            console.time('simulation');
+            $('#simulateButton').prop('disabled', true);
+            $('#loader').show();
+            editor.getSession().clearAnnotations();
+
+            function handleResult(result) {
+                threeDView.displayPath(result.simulatedPath);
+                console.timeEnd('simulation');
+                var annotations = [];
+                for (var i = 0; i < result.errors.length; i++) {
+                    var error = result.errors[i];
+                    annotations.push({row: error.lineNo, text: error.message, type: "error"});
+                }
+                editor.getSession().setAnnotations(annotations);
+                if (annotations.length)
+                    editor.gotoLine(annotations[0].row);
+                $('#loader').hide();
+                $('#simulateButton').prop('disabled', false);
+            }
+
+            var code = editor.getValue();
+            try {
+                parseInWorker(code, handleResult);
+            } catch (error) {
+                console.log('worker error', error);
+                console.log('trying again without worker');
+                parseImmediately(code, handleResult)
+            }
         }
 
         $('#simulateButton').click(refreshView);
