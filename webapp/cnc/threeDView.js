@@ -10,9 +10,9 @@ define(function () {
         this.camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, 20000);
         this.scene = new THREE.Scene();
         this.camera.position.x = 30;
-        this.camera.position.y = 30;
-        this.camera.position.z = 30;
-        this.camera.up.set(0, 0, 1);
+        this.camera.position.y = -30;
+        this.camera.position.z = 60;
+        this.camera.up.set(0, 1, 0);
         this.renderer.setSize(WIDTH, HEIGHT);
         function resize() {
             self.camera.aspect = $container.width() / $container.height();
@@ -35,7 +35,7 @@ define(function () {
         this.controls.minDistance = 3;
         this.controls.keys = [ 65, 83, 68 ];
         this.controls.addEventListener('change', function () {
-            self.renderer.render(self.scene, self.camera);
+            self.reRender();
         });
         var planeGeometry = new THREE.PlaneGeometry(10, 10, 5, 5);
         this.scene.add(new THREE.Mesh(planeGeometry, new THREE.MeshBasicMaterial({wireframe: true, color: 0x00CC00})));
@@ -65,29 +65,39 @@ define(function () {
             requestAnimationFrame(animate);
             self.controls.update();
         }
+
         animate();
     }
 
-    ThreeDView.prototype.displayPath = function (path) {
-        var lineGeometry = new THREE.Geometry();
-        for (var i = 0; i < path.length; i += 3) {
-            var p = path[i];
-            lineGeometry.vertices.push(new THREE.Vector3(path[i], path[i + 1], path[i + 2]));
+    ThreeDView.prototype = {
+        displayPath: function (path) {
+            var lineGeometry = new THREE.Geometry();
+            for (var i = 0; i < path.length; i += 4)
+                lineGeometry.vertices.push(new THREE.Vector3(path[i], path[i + 1], path[i + 2]));
+            lineGeometry.verticesNeedUpdate = true;
+            if (this.toolpath)
+                this.scene.remove(this.toolpath);
+            this.toolpath = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({color: 0xCCCCCC}));
+            lineGeometry.computeBoundingBox();
+            var bbox = lineGeometry.boundingBox;
+            var extentMiddle = bbox.min.add(bbox.max).divideScalar(2);
+            this.controls.target = extentMiddle;
+            this.controls.position = extentMiddle.add(new THREE.Vector3(0, -10, -30));
+            this.scene.add(this.toolpath);
+            this.controls.update();
+            this.reRender();
+        },
+        displayVector: function (origin, vector, color, id) {
+            this.displayPath([origin, {x: origin.x + vector.x, y: origin.y + vector.y, z: origin.z + vector.z}]);
+        },
+        clearToolpath: function () {
+            if (this.toolpath)
+                this.scene.remove(this.toolpath);
+            this.reRender();
+        },
+        reRender: function () {
+            this.renderer.render(this.scene, this.camera);
         }
-        lineGeometry.verticesNeedUpdate = true;
-        if (this.toolpath)
-            this.scene.remove(this.toolpath);
-        this.toolpath = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({color: 0xCCCCCC}));
-        lineGeometry.computeBoundingBox();
-        var bbox = lineGeometry.boundingBox;
-        this.controls.target = bbox.min.add(bbox.max).divideScalar(2);
-        this.scene.add(this.toolpath);
-        this.controls.update();
-        this.renderer.render(this.scene, this.camera);
-    };
-
-    ThreeDView.prototype.displayVector = function (origin, vector, color, id) {
-        this.displayPath([origin, {x: origin.x + vector.x, y: origin.y + vector.y, z: origin.z + vector.z}]);
     };
     return {ThreeDView: ThreeDView};
 });
