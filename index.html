@@ -200,7 +200,7 @@
                     else
                         threeDView.hideHighlight();
                 });
-                this.get('editor').on('mouseout', function (event) {
+                $('#codebox').on('mouseout', function () {
                     threeDView.hideHighlight();
                 });
                 this.get('editor').on('change', function () {
