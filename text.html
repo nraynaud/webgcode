@@ -115,19 +115,25 @@
                     workBatch: null,
                     textChanged: function () {
                         this.abortComputation();
+                        Ember.run.debounce(this, this.recomputeText, 150);
+                    }.observes('text').on('init'),
+                    recomputeText: function () {
+                        this.abortComputation();
                         var t = this.get('text');
                         if (t == null || t.trim().length == 0)
                             return;
                         var _this = this;
                         text.getText('Seymour One', t, 30)
                                 .then(function (textOutline) {
+                                    if (t != _this.get('text'))
+                                        return;
                                     _this.set('textOutline', textOutline);
                                     _this.computePocket();
                                 })
                                 .catch(function (error) {
                                     console.error(error, error.stack);
                                 });
-                    }.observes('text').on('init'),
+                    },
                     computing: function () {
                         return this.get('pocketToolPaths').isAny('isComputing');
                     }.property('pocketToolPaths.@each.isComputing'),
