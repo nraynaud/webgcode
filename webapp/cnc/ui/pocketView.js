@@ -201,7 +201,8 @@ define(['cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView'], function (cam, rbrush
             polyline.destroy();
         },
         refreshVisibility: function (viewBox, zoomLevel, refreshZone) {
-            this.get('outline').toggleClass('seenFromFar', zoomLevel < this.get('minVisibleZoomLevel'));
+            if (this.get('pocket.toolPathArray') != null)
+                this.get('outline').toggleClass('seenFromFar', zoomLevel < this.get('minVisibleZoomLevel'));
             if (bboxIntersect(refreshZone, this.get('bbox'))) {
                 var refreshList = this.get('tree').search([refreshZone.x, refreshZone.y,
                     refreshZone.x + refreshZone.width, refreshZone.y + refreshZone.height]);
