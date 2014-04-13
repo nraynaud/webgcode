@@ -108,8 +108,10 @@
 
         function parseInWorker(code, resultHandler) {
             var worker = new Worker('webapp/worker.js');
+            window.myWorker = worker;
             worker.onmessage = function (event) {
                 resultHandler(event.data);
+                window.myWorker = null;
             };
             worker.postMessage({
                 operation: 'simulateGCode',
@@ -141,9 +143,8 @@
                     annotations.push({row: error.lineNo, text: error.message, type: "error"});
                 }
                 editor.getSession().setAnnotations(annotations);
-                if (annotations.length) {
+                if (annotations.length)
                     editor.gotoLine(annotations[0].row);
-                }
                 $('#loader').hide();
                 $('#simulateButton').prop('disabled', false);
             }

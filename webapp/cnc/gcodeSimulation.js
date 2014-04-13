@@ -39,10 +39,10 @@ define(['cnc/simulation', 'cnc/parser', 'cnc/util'], function (simulation, parse
         ];
 
         function pushPoint(x, y, z, t) {
+            simulatedPath.push(x, y, z);
             posData[0].data.push([t, x]);
             posData[1].data.push([t, y]);
             posData[2].data.push([t, z]);
-            simulatedPath.push({x: x, y: y, z: z});
             var previous = posData[0].data.length - 2;
             if (previous >= 0) {
                 var previousDate = posData[0].data[previous][0];
@@ -74,7 +74,7 @@ define(['cnc/simulation', 'cnc/parser', 'cnc/util'], function (simulation, parse
 
         var errors = [];
         simulation.simulate2(parser.evaluate(code, null, null, null, errors), pushPoint);
-        return {simulatedPath: simulatedPath, posData: posData, speedData: speedData, accelerationData: accelerationData, errors: errors};
+        return {simulatedPath: new Float32Array(simulatedPath), posData: posData, speedData: speedData, accelerationData: accelerationData, errors: errors};
     }
 
     return {simulateGCode: simulateGCode}

@@ -85,6 +85,8 @@ var tasks = {
         require(['cnc/gcodeSimulation'], function (gcodeSimulation) {
             try {
                 self.postMessage(gcodeSimulation.simulateGCode(event.data.code));
+            } catch (error) {
+                console.log('error');
             } finally {
                 self.close();
             }
