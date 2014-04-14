@@ -16,7 +16,7 @@ define(['cnc/simulation', 'cnc/parser'], function (simulation, parser) {
             xmax = Math.max(x, xmax);
             ymax = Math.max(y, ymax);
             zmax = Math.max(z, zmax);
-            simulatedPath.push(x, y, z, t);
+            simulatedPath.push(x, y, z);
         }
 
         var errors = [];

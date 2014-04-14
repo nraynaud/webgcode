@@ -37,8 +37,20 @@ define(function () {
         this.controls.addEventListener('change', function () {
             self.reRender();
         });
-        var planeGeometry = new THREE.PlaneGeometry(10, 10, 5, 5);
-        this.scene.add(new THREE.Mesh(planeGeometry, new THREE.MeshBasicMaterial({wireframe: true, color: 0x00CC00})));
+        function createGrid() {
+            var size = 10, step = 5;
+            var geometry = new THREE.Geometry();
+            var material = new THREE.LineBasicMaterial({ color: 0x00CC00});
+            for (var i = -size; i <= size; i += step) {
+                geometry.vertices.push(new THREE.Vector3(-size, i, 0));
+                geometry.vertices.push(new THREE.Vector3(size, i, 0));
+                geometry.vertices.push(new THREE.Vector3(i, -size, 0));
+                geometry.vertices.push(new THREE.Vector3(i, size, 0));
+            }
+            return new THREE.Line(geometry, material, THREE.LinePieces);
+        }
+
+        this.scene.add(createGrid());
         function createAxis(x, y, z, color) {
             var geom = new THREE.Geometry();
             geom.vertices.push(new THREE.Vector3(0, 0, 0));
@@ -71,9 +83,9 @@ define(function () {
 
     ThreeDView.prototype = {
         displayPath: function (path) {
-            var lineGeometry = new THREE.Geometry();
-            for (var i = 0; i < path.length; i += 4)
-                lineGeometry.vertices.push(new THREE.Vector3(path[i], path[i + 1], path[i + 2]));
+            var lineGeometry = new THREE.BufferGeometry();
+            lineGeometry.addAttribute('position', Float32Array, path.length / 3, 3);
+            lineGeometry.attributes.position.array = path;
             lineGeometry.verticesNeedUpdate = true;
             if (this.toolpath)
                 this.scene.remove(this.toolpath);

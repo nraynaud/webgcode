@@ -7,7 +7,7 @@
     <script src="webapp/libs/jquery.min.js"></script>
     <script src="webapp/libs/jquery.flot.min.js"></script>
     <script src="webapp/libs/jquery.flot.resize.js"></script>
-    <script src="webapp/libs/Three.js"></script>
+    <script src="webapp/libs/Three.min.js"></script>
     <script src="webapp/libs/TrackballControls.js"></script>
     <script src="webapp/libs/ace/src-noconflict/ace.js"></script>
     <script src="webapp/libs/require.js"></script>
@@ -125,12 +125,6 @@
         </dl>
     </div>
 </script>
-
-<script type="text/x-handlebars" data-template-name="components/ace-editor">
-    <pre id="codebox">
-    </pre>
-</script>
-
 <script>
     require(['cnc/threeDView', 'cnc/util'], function (threeD, util) {
         var demoCode = 'G0 Y10 Z-5\n' +
@@ -188,9 +182,10 @@
             rootElement: '#app'
         });
         Simulator.AceEditorComponent = Em.Component.extend({
+            tagName: 'pre',
             didInsertElement: function () {
                 var _this = this;
-                this.set('editor', window.ace.edit("codebox"));
+                this.set('editor', window.ace.edit(this.get('element')));
                 this.get('editor').setTheme("ace/theme/twilight");
                 this.get('editor').on('mousemove', function (event) {
                     var lineNo = event.getDocumentPosition().row;
@@ -200,7 +195,7 @@
                     else
                         threeDView.hideHighlight();
                 });
-                $('#codebox').on('mouseout', function () {
+                this.$().on('mouseout', function () {
                     threeDView.hideHighlight();
                 });
                 this.get('editor').on('change', function () {
