@@ -158,13 +158,9 @@
                 event.ports[0].postMessage({type: 'gcode', program: editor.getValue(), parameters: event.data.parameters});
             if (event.data['type'] == 'toolPosition') {
                 var pos = event.data['position'];
-                threeDView.tool.position.setX(pos.x);
-                threeDView.tool.position.setY(pos.y);
-                threeDView.tool.position.setZ(pos.z);
-                threeDView.tool.traverse(function (child) {
-                    child.visible = true;
-                });
-                threeDView.renderer.render(threeDView.scene, threeDView.camera);
+                threeDView.setToolPosition(pos.x, pos.y, pos.z);
+                threeDView.setToolVisibility(true);
+                threeDView.reRender();
             }
             if (event.data['type'] == 'setCode') {
                 editor.setValue(event.data['code']);

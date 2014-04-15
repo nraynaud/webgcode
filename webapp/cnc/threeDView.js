@@ -5,8 +5,10 @@ define(function () {
         var self = this;
         var WIDTH = $container.width();
         var HEIGHT = $container.height();
-        this.renderer = new THREE.WebGLRenderer({antialias: true});
-
+        if (window.WebGLRenderingContext)
+            this.renderer = new THREE.WebGLRenderer({antialias: true});
+        else
+            this.renderer = new THREE.CanvasRenderer();
         this.camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, 20000);
         this.scene = new THREE.Scene();
         this.camera.position.x = 30;
@@ -18,7 +20,7 @@ define(function () {
             self.camera.aspect = $container.width() / $container.height();
             self.camera.updateProjectionMatrix();
             self.renderer.setSize($container.width(), $container.height());
-            self.renderer.render(self.scene, self.camera);
+            self.reRender();
         }
 
         $(window).resize(resize);
@@ -39,23 +41,15 @@ define(function () {
         });
         function createGrid() {
             var size = 10, step = 5;
-            var geometry = new THREE.Geometry();
-            var material = new THREE.LineBasicMaterial({ color: 0x00CC00});
-            for (var i = -size; i <= size; i += step) {
-                geometry.vertices.push(new THREE.Vector3(-size, i, 0));
-                geometry.vertices.push(new THREE.Vector3(size, i, 0));
-                geometry.vertices.push(new THREE.Vector3(i, -size, 0));
-                geometry.vertices.push(new THREE.Vector3(i, size, 0));
-            }
-            return new THREE.Line(geometry, material, THREE.LinePieces);
+            var grid = new THREE.GridHelper(size, step);
+            grid.rotation = new THREE.Euler(Math.PI / 2, 0, 0);
+            grid.setColors(0x00CC00, 0x00CC00);
+            return  grid;
         }
 
         this.scene.add(createGrid());
         function createAxis(x, y, z, color) {
-            var geom = new THREE.Geometry();
-            geom.vertices.push(new THREE.Vector3(0, 0, 0));
-            geom.vertices.push(new THREE.Vector3(x, y, z));
-            return new THREE.Line(geom, new THREE.LineBasicMaterial({color: color}));
+            return  new THREE.ArrowHelper(new THREE.Vector3(x, y, z), new THREE.Vector3(0, 0, 0), 10, color, 1, 1);
         }
 
         var axes = new THREE.Object3D();
@@ -72,6 +66,7 @@ define(function () {
         this.tool.add(toolbit);
         this.tool.add(spindle);
         this.tool.matrixAutoUpdate = true;
+        this.setToolVisibility(false);
         this.scene.add(this.tool);
         function animate() {
             requestAnimationFrame(animate);
@@ -89,7 +84,7 @@ define(function () {
             lineGeometry.verticesNeedUpdate = true;
             if (this.toolpath)
                 this.scene.remove(this.toolpath);
-            this.toolpath = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({color: 0xCCCCCC}));
+            this.toolpath = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xCCCCCC}));
             lineGeometry.computeBoundingBox();
             var bbox = lineGeometry.boundingBox;
             var extentMiddle = bbox.min.add(bbox.max).divideScalar(2);
@@ -113,7 +108,9 @@ define(function () {
             for (var i = 0; i < polyline.length; i++)
                 lineGeometry.vertices.push(new THREE.Vector3(polyline[i].x, polyline[i].y, polyline[i].z));
             lineGeometry.verticesNeedUpdate = true;
-            this.highlight = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({depthWrite: false, overdraw: true, linewidth: 5, color: 0x0000FF}));
+            var material = new THREE.LineBasicMaterial({depthWrite: false, overdraw: true, linewidth: 6, color: 0xFF00FF});
+            this.highlight = new THREE.Line(lineGeometry, material);
+            this.highlight.renderDepth = 1;
             this.scene.add(this.highlight);
             this.reRender();
         },
@@ -123,6 +120,16 @@ define(function () {
                 this.highlight = null;
                 this.reRender();
             }
+        },
+        setToolVisibility: function (visible) {
+            this.tool.traverse(function (child) {
+                child.visible = visible;
+            });
+        },
+        setToolPosition: function (x, y, z) {
+            this.tool.position.setX(x);
+            this.tool.position.setY(y);
+            this.tool.position.setZ(z);
         },
         reRender: function () {
             this.renderer.render(this.scene, this.camera);
