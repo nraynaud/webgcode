@@ -24,10 +24,18 @@
     </script>
 
     <style>
+        body {
+            margin-top: 0;
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
         .editBlock {
             position: relative;
             float: left;
-            width: 49%;
+            width: 39%;
             height: 400px;
             padding: 1px;
             margin: 0;
@@ -45,7 +53,7 @@
         #container {
             float: right;
             background: #000;
-            width: 50%;
+            width: 60%;
             height: 400px;
         }
 
@@ -186,25 +194,29 @@
             didInsertElement: function () {
                 var _this = this;
                 this.set('editor', window.ace.edit(this.get('element')));
-                this.get('editor').setTheme("ace/theme/twilight");
-                this.get('editor').on('mousemove', function (event) {
-                    var lineNo = event.getDocumentPosition().row;
-                    var highlight = _this.get('lineSegmentMap')[lineNo];
-                    if (highlight)
-                        threeDView.displayHighlight(highlight);
-                    else
-                        threeDView.hideHighlight();
-                });
-                this.$().on('mouseout', function () {
-                    threeDView.hideHighlight();
-                });
-                this.get('editor').on('change', function () {
+                var editor = this.get('editor');
+                editor.setTheme("ace/theme/twilight");
+                editor.on('change', function () {
                     Em.run.once(_this, _this.notifyPropertyChange, 'content');
+                });
+                editor.selection.on('changeCursor', function (event) {
+                    _this.displayline(editor.selection.getCursor().row);
                 });
                 if (this.get('preset')) {
                     this.set('content', this.get('preset'));
                     this.set('preset', null);
                 }
+            },
+            displayline: function (lineNo) {
+                var current = this.get('highligthedLine');
+                if (current == lineNo)
+                    return;
+                this.set('highligthedLine', lineNo);
+                var highlight = this.get('lineSegmentMap')[lineNo];
+                if (highlight)
+                    threeDView.displayHighlight(highlight);
+                else
+                    threeDView.hideHighlight();
             },
             content: function (key, val) {
                 if (!this.get('editor')) {
