@@ -139,7 +139,14 @@
         }
         function refreshViews(machine) {
             twoDView.zoomExtent();
-            threeDView.displayPath(machine.dumpPath());
+            var path = machine.dumpPath();
+            var buffer = new Float32Array(path.length * 3);
+            for (var i = 0; i < path.length; i++) {
+                buffer[i * 3] = path[i].x;
+                buffer[i * 3 + 1] = path[i].y;
+                buffer[i * 3 + 2] = path[i].z;
+            }
+            threeDView.displayPath(buffer);
         }
 
         function refresh(callback) {
