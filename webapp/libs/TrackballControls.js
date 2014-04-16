@@ -5,7 +5,7 @@
 THREE.TrackballControls = function (object, domElement) {
 
     var _this = this;
-    var STATE = { NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM: 4, TOUCH_PAN: 5 };
+    var STATE = { NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM: 4 };
 
     this.object = object;
     this.domElement = ( domElement !== undefined ) ? domElement : document;
@@ -453,11 +453,6 @@ THREE.TrackballControls = function (object, domElement) {
                 _panStart = _panEnd = _this.getMouseOnScreen(x, y);
                 break;
 
-            case 3:
-                _state = STATE.TOUCH_PAN;
-                _panStart = _panEnd = _this.getMouseOnScreen(event.touches[ 0 ].pageX, event.touches[ 0 ].pageY);
-                break;
-
             default:
                 _state = STATE.NONE;
 
@@ -487,10 +482,6 @@ THREE.TrackballControls = function (object, domElement) {
                 _panEnd = _this.getMouseOnScreen(x, y);
                 break;
 
-            case 3:
-                _panEnd = _this.getMouseOnScreen(event.touches[ 0 ].pageX, event.touches[ 0 ].pageY);
-                break;
-
             default:
                 _state = STATE.NONE;
 
@@ -513,10 +504,6 @@ THREE.TrackballControls = function (object, domElement) {
                 var x = (event.touches[ 0 ].pageX + event.touches[ 1 ].pageX) / 2;
                 var y = (event.touches[ 0 ].pageY + event.touches[ 1 ].pageY) / 2;
                 _panStart = _panEnd = _this.getMouseOnScreen(x, y);
-                break;
-
-            case 3:
-                _panStart = _panEnd = _this.getMouseOnScreen(event.touches[ 0 ].pageX, event.touches[ 0 ].pageY);
                 break;
 
         }

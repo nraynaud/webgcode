@@ -106,6 +106,7 @@
 		DDAA52B773D21FC2254E2E33 /* theme-tomorrow.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA503A5D02312BED216D0C /* theme-tomorrow.js */; };
 		DDAA52C23A7DF5F1AE0B65CF /* tests.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA550CF317C3168B90577A /* tests.js */; };
 		DDAA52C9F7183836BE30B1A5 /* mode-lua.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C5B4D1761E314AFAF3E /* mode-lua.js */; };
+		DDAA52CFC7E4145D3E5577AD /* OrbitControls.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA51EC7192CBFEF3691F37 /* OrbitControls.js */; };
 		DDAA52D218E9551437D1E9A8 /* mode-css.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA50B857B83BE90A2BD457 /* mode-css.js */; };
 		DDAA52D5F1369521819B4C9E /* background.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA593347EC813B12F6ABB6 /* background.js */; };
 		DDAA52DB849C7ADF2FE83242 /* mode-tex.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5E77AD3A6A7DA2EB1C92 /* mode-tex.js */; };
@@ -689,6 +690,7 @@
 		DDAA51DE17B96DCF612B22D5 /* contour.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = contour.js; path = webapp/cnc/contour.js; sourceTree = "<group>"; };
 		DDAA51E1B3A6148A92300206 /* mode-logiql.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-logiql.js"; sourceTree = "<group>"; };
 		DDAA51E33CE9846FF5A24C02 /* parser.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = parser.js; path = webapp/cnc/parser.js; sourceTree = "<group>"; };
+		DDAA51EC7192CBFEF3691F37 /* OrbitControls.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = OrbitControls.js; sourceTree = "<group>"; };
 		DDAA51EE6AFBC9F5E43B15B8 /* mode-scala.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-scala.js"; sourceTree = "<group>"; };
 		DDAA5200F7205844443BF91C /* jquery.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.min.js; sourceTree = "<group>"; };
 		DDAA52022936D610AC43A2B8 /* mode-latex.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-latex.js"; sourceTree = "<group>"; };
@@ -1323,6 +1325,7 @@
 				DDAA545E71294E9910F16EF0 /* simplify.js */,
 				DDAA5E8B52A7177858500318 /* rbrush.js */,
 				DDAA5A50F53BA396E1733E04 /* require_text.js */,
+				DDAA51EC7192CBFEF3691F37 /* OrbitControls.js */,
 			);
 			name = libs;
 			path = webapp/libs;
@@ -2766,6 +2769,7 @@
 				DDAA5EA8781DF5F9C0E660F7 /* pocketView.js in Sources */,
 				DDAA52EC89706119108AA97B /* require_text.js in Sources */,
 				DDAA59E4FE424ADC50FD11A7 /* gcodeSimulation.js in Sources */,
+				DDAA52CFC7E4145D3E5577AD /* OrbitControls.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

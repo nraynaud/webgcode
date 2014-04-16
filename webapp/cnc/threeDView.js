@@ -94,11 +94,11 @@ define(function () {
             if (this.toolpath)
                 this.scene.remove(this.toolpath);
             this.toolpath = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xCCCCCC}));
-            lineGeometry.computeBoundingBox();
-            var bbox = lineGeometry.boundingBox;
-            var extentMiddle = bbox.min.add(bbox.max).divideScalar(2);
-            this.controls.target = extentMiddle;
-            this.controls.position = extentMiddle.add(new THREE.Vector3(0, -10, -30));
+            lineGeometry.computeBoundingSphere();
+            var extentMiddle = lineGeometry.boundingSphere.center;
+            this.controls.target = extentMiddle.clone();
+            var cameraPos = extentMiddle.add(new THREE.Vector3(0, -40, 80));
+            this.camera.position.copy(cameraPos);
             this.scene.add(this.toolpath);
             this.controls.update();
             this.reRender();
