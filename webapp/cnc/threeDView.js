@@ -23,7 +23,7 @@ define(function () {
         this.camera.position.x = 30;
         this.camera.position.y = -30;
         this.camera.position.z = 60;
-        this.camera.up.set(0, 1, 0);
+        this.camera.up.set(0, 0, 1);
         this.renderer.setSize(WIDTH, HEIGHT);
         function resize() {
             self.camera.aspect = $container.width() / $container.height();
@@ -35,7 +35,7 @@ define(function () {
         $(window).resize(resize);
         $container.append(this.renderer.domElement);
         this.scene.add(this.camera);
-        this.controls = new THREE.TrackballControls(this.camera, $container[0]);
+        this.controls = new THREE.OrbitControls(this.camera, $container[0]);
         this.controls.rotateSpeed = 1.0;
         this.controls.zoomSpeed = 1.2;
         this.controls.panSpeed = 0.8;
@@ -51,7 +51,7 @@ define(function () {
         function createGrid() {
             var size = 10, step = 5;
             var grid = new THREE.GridHelper(size, step);
-            grid.rotation = new THREE.Euler(Math.PI / 2, 0, 0);
+            grid.applyMatrix(new THREE.Matrix4().makeRotationX(Math.PI / 2));
             grid.setColors(0x00CC00, 0x00CC00);
             return  grid;
         }
@@ -88,7 +88,7 @@ define(function () {
     ThreeDView.prototype = {
         displayPath: function (path) {
             var lineGeometry = new THREE.BufferGeometry();
-            lineGeometry.addAttribute('position', Float32Array, path.length / 3, 3);
+            lineGeometry.addAttribute('position', new THREE.Float32Attribute(path.length / 3, 3));
             lineGeometry.attributes.position.array = path;
             lineGeometry.verticesNeedUpdate = true;
             if (this.toolpath)

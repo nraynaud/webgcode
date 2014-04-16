@@ -405,6 +405,7 @@
 		DDAA5B00C72CC576D75D71FD /* mode-rdoc.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C9D2FE99E063854ECFA /* mode-rdoc.js */; };
 		DDAA5B0DE45298A04E8D98D9 /* ext-whitespace.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5F1A74B572697EC9AAA2 /* ext-whitespace.js */; };
 		DDAA5B1614B11E1E8366C8CB /* mode-dart.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5332978C3636406BC00C /* mode-dart.js */; };
+		DDAA5B174B890AC6DBB4E5BE /* gcodeEditor.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA572B976576EFEEC3D1E4 /* gcodeEditor.js */; };
 		DDAA5B2BABA4DD4726AD4B56 /* mode-haxe.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5465DEE2882638F4DC5E /* mode-haxe.js */; };
 		DDAA5B2F5CB56C762DE20ACC /* mode-text.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5781D163BA1486DF100C /* mode-text.js */; };
 		DDAA5B30BC9AA67B0852582F /* mode-django.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA528CF69DA328C2C9E230 /* mode-django.js */; };
@@ -912,6 +913,7 @@
 		DDAA571D7AADB7293C20F54C /* pocket.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = pocket.js; sourceTree = "<group>"; };
 		DDAA571EA9877B447B82A9BB /* ace.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = ace.js; sourceTree = "<group>"; };
 		DDAA5724D8276AD9990D6B67 /* mode-coffee.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-coffee.js"; sourceTree = "<group>"; };
+		DDAA572B976576EFEEC3D1E4 /* gcodeEditor.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = gcodeEditor.js; sourceTree = "<group>"; };
 		DDAA572F77B201065CB57BFA /* icon_fraise.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; path = icon_fraise.svg; sourceTree = "<group>"; };
 		DDAA5742B12741F52EAAA49F /* mode-julia.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-julia.js"; sourceTree = "<group>"; };
 		DDAA574B073061BABDAB81C9 /* keybinding-emacs.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "keybinding-emacs.js"; sourceTree = "<group>"; };
@@ -1593,6 +1595,7 @@
 				DDAA5D362B64EEE93DE54810 /* views.js */,
 				DDAA5A55C036357C8CD5193C /* emberTwoDView.js */,
 				DDAA50DB79A1ADCAFA5BA02C /* pocketView.js */,
+				DDAA572B976576EFEEC3D1E4 /* gcodeEditor.js */,
 			);
 			path = ui;
 			sourceTree = "<group>";
@@ -2770,6 +2773,7 @@
 				DDAA52EC89706119108AA97B /* require_text.js in Sources */,
 				DDAA59E4FE424ADC50FD11A7 /* gcodeSimulation.js in Sources */,
 				DDAA52CFC7E4145D3E5577AD /* OrbitControls.js in Sources */,
+				DDAA5B174B890AC6DBB4E5BE /* gcodeEditor.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
