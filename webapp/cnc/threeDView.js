@@ -20,11 +20,13 @@ define(function () {
             this.renderer = new THREE.CanvasRenderer();
         this.camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, 20000);
         this.scene = new THREE.Scene();
+        this.overlayScene = new THREE.Scene();
         this.camera.position.x = 30;
         this.camera.position.y = -30;
         this.camera.position.z = 60;
         this.camera.up.set(0, 0, 1);
         this.renderer.setSize(WIDTH, HEIGHT);
+        this.renderer.autoClear = false;
         function resize() {
             self.camera.aspect = $container.width() / $container.height();
             self.camera.updateProjectionMatrix();
@@ -65,7 +67,7 @@ define(function () {
         axes.add(createAxis(10, 0, 0, 0xFF0000));
         axes.add(createAxis(0, 10, 0, 0x00FF00));
         axes.add(createAxis(0, 0, 10, 0x0000FF));
-        this.scene.add(axes);
+        this.overlayScene.add(axes);
         this.tool = new THREE.Object3D();
         var toolbit = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 10, 20, 2, false), new THREE.MeshPhongMaterial({emissive: 0xEF0000, specular: 0x0F0000, shininess: 204, color: 0xF0F0F0, opacity: 0.5, transparent: true}));
         toolbit.translateY(5);
@@ -120,12 +122,12 @@ define(function () {
             var material = new THREE.LineBasicMaterial({depthWrite: false, overdraw: true, linewidth: 6, color: 0xFF00FF});
             this.highlight = new THREE.Line(lineGeometry, material);
             this.highlight.renderDepth = 1;
-            this.scene.add(this.highlight);
+            this.overlayScene.add(this.highlight);
             this.reRender();
         },
         hideHighlight: function () {
             if (this.highlight) {
-                this.scene.remove(this.highlight);
+                this.overlayScene.remove(this.highlight);
                 this.highlight = null;
                 this.reRender();
             }
@@ -141,7 +143,10 @@ define(function () {
             this.tool.position.setZ(z);
         },
         reRender: function () {
+            this.renderer.clear();
             this.renderer.render(this.scene, this.camera);
+            this.renderer.clear(false, true, false);
+            this.renderer.render(this.overlayScene, this.camera);
         }
     };
     return {ThreeDView: ThreeDView};
