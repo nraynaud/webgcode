@@ -145,7 +145,8 @@ define(function () {
         reRender: function () {
             this.renderer.clear();
             this.renderer.render(this.scene, this.camera);
-            this.renderer.clear(false, true, false);
+            if (this.renderer instanceof THREE.WebGLRenderer)
+                this.renderer.clear(false, true, false);
             this.renderer.render(this.overlayScene, this.camera);
         }
     };
