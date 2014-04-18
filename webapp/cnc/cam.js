@@ -1,6 +1,6 @@
 "use strict";
 
-define(['cnc/bezier', 'cnc/clipper', 'libs/simplify', 'cnc/util'], function (bezier, clipper, simplify, util) {
+define(['cnc/bezier', 'cnc/clipper', 'libs/simplify', 'cnc/util', 'libs/extractedRaphael'], function (bezier, clipper, simplify, util, _) {
     var CLIPPER_SCALE = Math.pow(2, 20);
 
     function pushOnPath(path, toolpath) {

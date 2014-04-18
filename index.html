@@ -5,8 +5,6 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <title>g-code simulator</title>
     <script src="webapp/libs/jquery.min.js"></script>
-    <script src="webapp/libs/jquery.flot.min.js"></script>
-    <script src="webapp/libs/jquery.flot.resize.js"></script>
     <script src="webapp/libs/Three.min.js"></script>
     <script src="webapp/libs/TrackballControls.js"></script>
     <script src="webapp/libs/OrbitControls.js"></script>
@@ -51,11 +49,9 @@
             margin: 0;
         }
 
-        #container {
+        .viewContainer {
             float: right;
-            background: #000;
             width: 60%;
-            height: 400px;
         }
 
         #loader {
@@ -74,6 +70,11 @@
             border: dashed gray 1px;
             padding: 3px;
         }
+
+        .ThreeDView {
+            background: #000;
+            height: 400px;
+        }
     </style>
 </head>
 <body>
@@ -89,8 +90,9 @@
     <a href="https://github.com/nraynaud/webgcode/tree/gh-pages">https://github.com/nraynaud/webgcode/tree/gh-pages</a>
 </p>
 
-<div id="container"></div>
-<div id="app" class="editBlock"></div>
+<div id="app">
+
+</div>
 <script>
     require(['cnc/threeDView', 'cnc/util', 'cnc/ui/gcodeEditor', 'text!templates/gcodeSimulator.hbs'],
             function (threeD, util, gcodeEditor, applicationTemplate) {
@@ -141,7 +143,6 @@
                     });
                 }
 
-                var threeDView = new threeD.ThreeDView($('#container'));
                 Ember.Handlebars.helper('num', function (value) {
                     return new Handlebars.SafeString(Handlebars.Utils.escapeExpression(util.formatCoord(value)));
                 });
@@ -152,6 +153,30 @@
                 });
 
                 Simulator.GcodeEditorComponent = gcodeEditor.GcodeEditorComponent;
+
+                Simulator.ThreeDView = Ember.View.extend({
+                    classNames: ['ThreeDView'],
+                    didInsertElement: function () {
+                        var threeDView = new threeD.ThreeDView(this.$());
+                        this.set('nativeComponent', threeDView);
+                        this.simulatedPathChanged();
+                        this.highlightChanged();
+                    },
+                    simulatedPathChanged: function () {
+                        var path = this.get('controller.simulatedPath');
+                        if (path != null)
+                            this.get('nativeComponent').displayPath(path);
+                        else
+                            this.get('nativeComponent').clearToolpath();
+                    }.observes('controller.simulatedPath'),
+                    highlightChanged: function () {
+                        var highlight = this.get('controller.currentHighLight');
+                        if (highlight)
+                            this.get('nativeComponent').displayHighlight(highlight);
+                        else
+                            this.get('nativeComponent').hideHighlight();
+                    }.observes('controller.currentHighLight')
+                });
 
                 Simulator.ApplicationController = Ember.ObjectController.extend({
                     init: function () {
@@ -167,7 +192,7 @@
                         var _this = this;
 
                         function handleResult(result) {
-                            threeDView.displayPath(result.simulatedPath);
+                            _this.set('simulatedPath', result.simulatedPath);
                             console.timeEnd('simulation');
                             var errors = [];
                             for (var i = 0; i < result.errors.length; i++) {
@@ -182,7 +207,7 @@
                             $('#simulateButton').prop('disabled', false);
                         }
 
-                        threeDView.clearToolpath();
+                        this.set('simulatedPath', null);
                         $('#loader').show();
                         $('#simulateButton').prop('disabled', true);
                         var code = this.get('code');
@@ -194,19 +219,16 @@
                             parseImmediately(code, handleResult)
                         }
                     },
-                    highlightRow: function () {
-                        var highlight = this.get('lineSegmentMap')[this.get('currentRow')];
-                        if (highlight)
-                            threeDView.displayHighlight(highlight);
-                        else
-                            threeDView.hideHighlight();
-                    }.observes('currentRow'),
+                    currentHighLight: function () {
+                        return this.get('lineSegmentMap')[this.get('currentRow')];
+                    }.property('currentRow').readOnly(),
                     code: demoCode,
                     errors: [],
                     bbox: {},
                     totalTime: 0,
                     lineSegmentMap: [],
-                    currentRow: null
+                    currentRow: null,
+                    simulatedPath: null
                 });
             });
 </script>
