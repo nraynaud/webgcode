@@ -15,20 +15,6 @@ define(['cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView'], function (cam, rbrush
         }
     }
 
-    function simplifyScaleAndCreatePathDef(polygons, scale, tolerance, closed) {
-        polygons = cam.simplifyPolygons(polygons, tolerance * scale);
-        var d = '';
-        polygons.forEach(function (poly) {
-            var firstPoint = poly[0];
-            d += ' M ' + firstPoint.X / scale + ',' + firstPoint.Y / scale;
-            for (var i = 1; i < poly.length; i++)
-                d += ' L ' + poly[i].X / scale + ',' + poly[i].Y / scale;
-            if (closed)
-                d += 'Z';
-        });
-        return d;
-    }
-
     function unionBox(box1, box2) {
         var x = Math.min(box1.x, box2.x);
         var y = Math.min(box1.y, box2.y);
@@ -114,7 +100,7 @@ define(['cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView'], function (cam, rbrush
                     var interpolationPoints = this.get('lodLevels');
                     var minZoom = this.get('operationView.nativeComponent.minZoom');
                     var maxZoom = this.get('operationView.nativeComponent.maxZoom');
-                    var d = simplifyScaleAndCreatePathDef(this.get('polyline'), cam.CLIPPER_SCALE,
+                    var d = cam.simplifyScaleAndCreatePathDef(this.get('polyline'), cam.CLIPPER_SCALE,
                         0.5 / lerp(minZoom, maxZoom, interpolationPoints[index]), this.get('closed'));
                     newElement = parent.path(d).attr(this.get('attr')).attr({class: this.get('classes').join(' ')});
                     lods[index] = newElement;

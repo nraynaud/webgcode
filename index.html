@@ -5,6 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <title>g-code simulator</title>
     <script src="webapp/libs/jquery.min.js"></script>
+    <script src="webapp/libs/jquery.mousewheel.js"></script>
     <script src="webapp/libs/Three.min.js"></script>
     <script src="webapp/libs/TrackballControls.js"></script>
     <script src="webapp/libs/OrbitControls.js"></script>
@@ -22,6 +23,7 @@
         });
     </script>
 
+    <link rel="stylesheet" href="webapp/twoDView.css" type="text/css">
     <style>
         body {
             margin-top: 0;
@@ -72,6 +74,13 @@
         }
 
         .ThreeDView {
+            border: solid gray 1px;
+            background: #000;
+            height: 400px;
+        }
+
+        .TwoDView {
+            border: solid gray 1px;
             background: #000;
             height: 400px;
         }
@@ -94,8 +103,8 @@
 
 </div>
 <script>
-    require(['cnc/threeDView', 'cnc/util', 'cnc/ui/gcodeEditor', 'text!templates/gcodeSimulator.hbs'],
-            function (threeD, util, gcodeEditor, applicationTemplate) {
+    require(['cnc/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/util', 'cnc/ui/gcodeEditor', 'text!templates/gcodeSimulator.hbs'],
+            function (threeD, emberTwoDView, cam, util, gcodeEditor, applicationTemplate) {
                 var demoCode = 'G0 Y10 Z-5\n' +
                         'G1 Z-10\n' +
                         'G1 Y20\n' +
@@ -177,6 +186,48 @@
                             this.get('nativeComponent').hideHighlight();
                     }.observes('controller.currentHighLight')
                 });
+                Simulator.TwoDView = Ember.View.extend({
+                    classNames: ['TwoDView'],
+                    didInsertElement: function () {
+                        var view = emberTwoDView.EmberTwoDView.create({element: this.$()});
+                        this.set('nativeComponent', view);
+                        this.simulatedPathChanged();
+                    },
+                    simulatedPathChanged: function () {
+                        var path = this.get('controller.simulatedPath');
+                        var toolpath = this.get('toolpath');
+                        if (toolpath != null) {
+                            toolpath.remove();
+                            toolpath = null;
+                        }
+                        if (path != null) {
+                            var polyline = [];
+                            for (var i = 0; i < path.length; i += 3)
+                                polyline.push({X: path[i], Y: path[i + 1]});
+                            toolpath = this.get('nativeComponent.paper')
+                                    .path(cam.simplifyScaleAndCreatePathDef([polyline], 1, 0.001, false))
+                                    .attr({fill: 'none', 'stroke': 'white', 'stroke-width': 1.5});
+                            this.get('nativeComponent').zoomExtent();
+                        }
+                        this.set('toolpath', toolpath);
+                    }.observes('controller.simulatedPath'),
+                    highlightChanged: function () {
+                        var highlight = this.get('controller.currentHighLight');
+                        var currentHighlight = this.get('highlight');
+                        if (currentHighlight) {
+                            currentHighlight.remove();
+                            currentHighlight = null;
+                        }
+                        if (highlight) {
+                            currentHighlight = this.get('nativeComponent.paper')
+                                    .path(cam.simplifyScaleAndCreatePathDef([highlight.map(function (point) {
+                                        return {X: point.x, Y: point.y};
+                                    })], 1, 0.001, false))
+                                    .attr({fill: 'none', 'stroke': '#FF00FF', 'stroke-width': 6, 'stroke-linecap': 'round'});
+                        }
+                        this.set('highlight', currentHighlight);
+                    }.observes('controller.currentHighLight')
+                });
 
                 Simulator.ApplicationController = Ember.ObjectController.extend({
                     init: function () {
@@ -193,7 +244,6 @@
 
                         function handleResult(result) {
                             _this.set('simulatedPath', result.simulatedPath);
-                            console.timeEnd('simulation');
                             var errors = [];
                             for (var i = 0; i < result.errors.length; i++) {
                                 var error = result.errors[i];

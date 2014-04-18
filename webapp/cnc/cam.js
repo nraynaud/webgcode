@@ -461,6 +461,20 @@ define(['cnc/bezier', 'cnc/clipper', 'libs/simplify', 'cnc/util', 'libs/extracte
         return code.join('\n');
     }
 
+    function simplifyScaleAndCreatePathDef(polygons, scale, tolerance, closed) {
+        polygons = simplifyPolygons(polygons, tolerance * scale);
+        var d = '';
+        polygons.forEach(function (poly) {
+            var firstPoint = poly[0];
+            d += ' M ' + firstPoint.X / scale + ',' + firstPoint.Y / scale;
+            for (var i = 1; i < poly.length; i++)
+                d += ' L ' + poly[i].X / scale + ',' + poly[i].Y / scale;
+            if (closed)
+                d += 'Z';
+        });
+        return d;
+    }
+
     return {
         CLIPPER_SCALE: CLIPPER_SCALE,
         geom: geom,
@@ -470,6 +484,7 @@ define(['cnc/bezier', 'cnc/clipper', 'libs/simplify', 'cnc/util', 'libs/extracte
         polyOp: polyOp,
         simplifyPolygons: simplifyPolygons,
         pathDefToClipper: pathDefToClipper,
-        dumpGCode: dumpGCode
+        dumpGCode: dumpGCode,
+        simplifyScaleAndCreatePathDef: simplifyScaleAndCreatePathDef
     };
 });
