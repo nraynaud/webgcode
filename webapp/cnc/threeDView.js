@@ -37,7 +37,7 @@ define(function () {
         $(window).resize(resize);
         $container.append(this.renderer.domElement);
         this.scene.add(this.camera);
-        this.controls = new THREE.OrbitControls(this.camera, $container[0]);
+        this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
         this.controls.rotateSpeed = 1.0;
         this.controls.zoomSpeed = 1.2;
         this.controls.panSpeed = 0.8;
@@ -85,6 +85,7 @@ define(function () {
         }
 
         animate();
+        this.reRender();
     }
 
     ThreeDView.prototype = {
@@ -109,9 +110,10 @@ define(function () {
             this.displayPath([origin, {x: origin.x + vector.x, y: origin.y + vector.y, z: origin.z + vector.z}]);
         },
         clearToolpath: function () {
-            if (this.toolpath)
+            if (this.toolpath) {
                 this.scene.remove(this.toolpath);
-            this.reRender();
+                this.reRender();
+            }
         },
         displayHighlight: function (polyline) {
             this.hideHighlight();
