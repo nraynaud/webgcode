@@ -415,6 +415,7 @@
 		DDAA5B0DE45298A04E8D98D9 /* ext-whitespace.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5F1A74B572697EC9AAA2 /* ext-whitespace.js */; };
 		DDAA5B1614B11E1E8366C8CB /* mode-dart.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5332978C3636406BC00C /* mode-dart.js */; };
 		DDAA5B174B890AC6DBB4E5BE /* gcodeEditor.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA572B976576EFEEC3D1E4 /* gcodeEditor.js */; };
+		DDAA5B2AF25C46F0305708DF /* svg.marker.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5809EB81F24232EF8488 /* svg.marker.js */; };
 		DDAA5B2BABA4DD4726AD4B56 /* mode-haxe.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5465DEE2882638F4DC5E /* mode-haxe.js */; };
 		DDAA5B2F5CB56C762DE20ACC /* mode-text.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5781D163BA1486DF100C /* mode-text.js */; };
 		DDAA5B30BC9AA67B0852582F /* mode-django.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA528CF69DA328C2C9E230 /* mode-django.js */; };
@@ -964,6 +965,7 @@
 		DDAA580641C92063DA287AA3 /* mode-dot.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-dot.js"; sourceTree = "<group>"; };
 		DDAA580836B68B119AF8A9C5 /* theme-github.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-github.js"; sourceTree = "<group>"; };
 		DDAA58091D03F4BBE2CE4509 /* mode-abap.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-abap.js"; sourceTree = "<group>"; };
+		DDAA5809EB81F24232EF8488 /* svg.marker.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svg.marker.js; sourceTree = "<group>"; };
 		DDAA580AEA9050E8971DABA7 /* mode-dart.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-dart.js"; sourceTree = "<group>"; };
 		DDAA580B83384A5B3FC32644 /* cnc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cnc.h; path = interpolator/cnc.h; sourceTree = SOURCE_ROOT; };
 		DDAA5813FACB66396C5032AA /* main.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; name = main.bin; path = interpolator/main.bin; sourceTree = SOURCE_ROOT; };
@@ -1637,6 +1639,7 @@
 				DDAA53C9FA100E05C62C575E /* views.js */,
 				DDAA59E1C202A1DFCFB7CC1A /* ui */,
 				DDAA55C2311D8558F97D8A5D /* gcodeSimulation.js */,
+				DDAA5809EB81F24232EF8488 /* svg.marker.js */,
 			);
 			path = cnc;
 			sourceTree = "<group>";
@@ -2868,6 +2871,7 @@
 				DDAA5ADB5DD3D84C881B5228 /* Makefile in Sources */,
 				DDAA55150ECC7C43EAC4BBB7 /* manual.c in Sources */,
 				DDAA5A9958B03F3E1FB9C541 /* usbdesc.c in Sources */,
+				DDAA5B2AF25C46F0305708DF /* svg.marker.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

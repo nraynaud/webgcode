@@ -1,6 +1,6 @@
 "use strict";
 
-define(['libs/svg'], function () {
+define(['libs/svg', 'cnc/svg.marker'], function () {
 
     var BackgroundGrid = Ember.Object.extend({
         init: function () {
@@ -75,6 +75,7 @@ define(['libs/svg'], function () {
             root.node.transform.baseVal.initialize(svg.node.createSVGTransform());
             this.set('background', root.group().attr({class: 'background'}));
             this.set('paper', root.group().attr({class: 'paper'}));
+            this.set('overlay', root.group().attr({class: 'overlay'}));
             svg.defs().pattern(6, 6,function () {
                 var group = this.group();
                 group.rect(6, 6).x(0).y(0);
@@ -88,7 +89,18 @@ define(['libs/svg'], function () {
             origin.path('M0,0 L0,10 A 10,10 90 0 0 10,0 Z M0,0 L0,-10 A 10,10 90 0 0 -10,0 Z').attr({stroke: 'none', fill: 'red', transform: null});
             origin.ellipse(20, 20).cx(0).cy(0).attr({stroke: 'red', fill: 'none', transform: null});
             var _this = this;
+            var redArrowMarker = svg.marker(3, 1.5, 3, 3,function () {
+                var group = this.group();
+                group.path('M 3,1.5 L0,3 L0,0 Z').attr('fill', '#FF0000');
+            }).attr({viewBox: '-5 -5 10 10'});
+            var greenArrowMarker = svg.marker(3, 1.5, 3, 3,function () {
+                var group = this.group();
+                group.path('M 3,1.5 L0,3 L0,0 Z').attr('fill', '#00FF00');
+            }).attr({viewBox: '-5 -5 10 10'});
+            var axes = this.get('overlay').group().attr({class: 'axes'});
 
+            axes.line(0, 0, 10, 0).attr({stroke: '#FF0000', 'stroke-width': 1.5, 'marker-end': redArrowMarker});
+            axes.line(0, 0, 0, 10).attr({stroke: '#00FF00', 'stroke-width': 1.5, 'marker-end': greenArrowMarker});
             element.mousewheel(Ember.run.bind(_this, function (event, delta, deltaX, deltaY) {
                 var pos = _this.getModelPositionForPageXY(event.pageX, event.pageY);
                 var k = svg.node.createSVGMatrix().translate(pos.x, pos.y).scale(1 + deltaY / 360).translate(-pos.x, -pos.y);

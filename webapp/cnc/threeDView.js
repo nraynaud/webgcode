@@ -54,7 +54,7 @@ define(function () {
             var size = 10, step = 5;
             var grid = new THREE.GridHelper(size, step);
             grid.applyMatrix(new THREE.Matrix4().makeRotationX(Math.PI / 2));
-            grid.setColors(0x00CC00, 0x00CC00);
+            grid.setColors(0xFF7F2A, 0xFF7F2A);
             return  grid;
         }
 
