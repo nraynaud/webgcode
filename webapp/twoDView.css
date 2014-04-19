@@ -129,3 +129,16 @@
     fill: red;
     stroke: none;
 }
+
+.toolpath {
+    stroke-width: 1.5;
+    fill: none;
+}
+
+.rapidMove {
+    stroke: #FF0000;
+}
+
+.normalMove {
+    stroke: white;
+}

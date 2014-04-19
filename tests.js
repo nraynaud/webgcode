@@ -7,6 +7,7 @@ require(['libs/jsparse', 'cnc/parser', 'cnc/simulation'], function (jp, parser, 
         deepEqual(result[0], {
             feedRate: 3000,
             lineNo: 0,
+            speedTag: "rapid",
             from: {x: 0, y: 0, z: 0},
             to: {x: 10, y: 0, z: 0},
             type: "line"}, '"' + code + '" second component check');
@@ -18,6 +19,7 @@ require(['libs/jsparse', 'cnc/parser', 'cnc/simulation'], function (jp, parser, 
         deepEqual(result[0], {
             feedRate: 3000,
             lineNo: 0,
+            speedTag: "rapid",
             from: {x: 0, y: 0, z: 0},
             to: {x: 10, y: 0, z: 0},
             type: "line"}, '"' + code + '" second component check');
@@ -29,6 +31,7 @@ require(['libs/jsparse', 'cnc/parser', 'cnc/simulation'], function (jp, parser, 
         deepEqual(result[0], {
             feedRate: 200,
             lineNo: 0,
+            speedTag: "normal",
             from: {x: 0, y: 0, z: 0},
             to: {x: 10, y: 0, z: 0},
             type: "line"}, '"' + code + '" second component check');
@@ -45,6 +48,7 @@ require(['libs/jsparse', 'cnc/parser', 'cnc/simulation'], function (jp, parser, 
             },
             feedRate: 200,
             lineNo: 0,
+            speedTag: "normal",
             from: { x: 0, y: 0, z: 0
             },
             fromAngle: -Math.PI,
@@ -72,6 +76,7 @@ require(['libs/jsparse', 'cnc/parser', 'cnc/simulation'], function (jp, parser, 
             },
             feedRate: 200,
             lineNo: 0,
+            speedTag: "normal",
             from: { x: 0, y: 0, z: 0
             },
             fromAngle: -Math.PI,

@@ -68,6 +68,7 @@ define(function () {
         axes.add(createAxis(0, 10, 0, 0x00FF00));
         axes.add(createAxis(0, 0, 10, 0x0000FF));
         this.overlayScene.add(axes);
+        this.drawing = new THREE.Object3D();
         this.tool = new THREE.Object3D();
         var toolbit = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 10, 20, 2, false), new THREE.MeshPhongMaterial({emissive: 0xEF0000, specular: 0x0F0000, shininess: 204, color: 0xF0F0F0, opacity: 0.5, transparent: true}));
         toolbit.translateY(5);
@@ -79,30 +80,43 @@ define(function () {
         this.tool.matrixAutoUpdate = true;
         this.setToolVisibility(false);
         this.scene.add(this.tool);
+        this.scene.add(this.drawing);
         function animate() {
             requestAnimationFrame(animate);
             self.controls.update();
         }
-
         animate();
         this.reRender();
     }
 
     ThreeDView.prototype = {
         displayPath: function (path) {
+            this.clearToolpath();
             var lineGeometry = new THREE.BufferGeometry();
             lineGeometry.addAttribute('position', new THREE.Float32Attribute(path.length / 3, 3));
             lineGeometry.attributes.position.array = path;
             lineGeometry.verticesNeedUpdate = true;
-            if (this.toolpath)
-                this.scene.remove(this.toolpath);
             this.toolpath = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xCCCCCC}));
-            lineGeometry.computeBoundingSphere();
-            var extentMiddle = lineGeometry.boundingSphere.center;
+            this.drawing.add(this.toolpath);
+            this.zoomExtent();
+        },
+        computeDrawingBBox: function () {
+            var bbox = new THREE.Box3();
+            this.drawing.updateMatrixWorld(true);
+            this.drawing.traverse(function (node) {
+                if (node.geometry) {
+                    node.geometry.computeBoundingBox();
+                    bbox.union(node.geometry.boundingBox);
+                }
+            });
+            return bbox;
+        },
+        zoomExtent: function () {
+            var bbox = this.computeDrawingBBox();
+            var extentMiddle = bbox.center();
             this.controls.target = extentMiddle.clone();
             var cameraPos = extentMiddle.add(new THREE.Vector3(0, -40, 80));
             this.camera.position.copy(cameraPos);
-            this.scene.add(this.toolpath);
             this.controls.update();
             this.reRender();
         },
@@ -111,7 +125,7 @@ define(function () {
         },
         clearToolpath: function () {
             if (this.toolpath) {
-                this.scene.remove(this.toolpath);
+                this.drawing.remove(this.toolpath);
                 this.reRender();
             }
         },

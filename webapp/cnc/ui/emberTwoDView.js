@@ -98,7 +98,6 @@ define(['libs/svg', 'cnc/svg.marker'], function () {
                 group.path('M 3,1.5 L0,3 L0,0 Z').attr('fill', '#00FF00');
             }).attr({viewBox: '-5 -5 10 10'});
             var axes = this.get('overlay').group().attr({class: 'axes'});
-
             axes.line(0, 0, 10, 0).attr({stroke: '#FF0000', 'stroke-width': 1.5, 'marker-end': redArrowMarker});
             axes.line(0, 0, 0, 10).attr({stroke: '#00FF00', 'stroke-width': 1.5, 'marker-end': greenArrowMarker});
             element.mousewheel(Ember.run.bind(_this, function (event, delta, deltaX, deltaY) {

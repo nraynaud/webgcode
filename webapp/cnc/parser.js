@@ -81,17 +81,17 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
     }
 
     function moveFeedrate(line, machineState) {
-        moveStraightLine(line, machineState, machineState.feedRate);
+        moveStraightLine(line, machineState, machineState.feedRate, 'normal');
     }
 
     function moveTraverseRate(line, machineState) {
-        moveStraightLine(line, machineState, machineState.travelFeedRate);
+        moveStraightLine(line, machineState, machineState.travelFeedRate, 'rapid');
     }
 
-    function moveStraightLine(line, machineState, speed) {
+    function moveStraightLine(line, machineState, speed, speedTag) {
         var parsedMove = detectAxisMove(line, machineState.unitMode);
         if (parsedMove)
-            move(parsedMove, machineState, speed);
+            addPathComponent(machineState.distanceMode(machineState.position, parsedMove), machineState, speed, speedTag);
     }
 
     function noMotion(line, machineState) {
@@ -112,19 +112,14 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
         return $.extend({}, old);
     }
 
-    function move(parsedMove, machineState, speed) {
-        var newPos = machineState.distanceMode(machineState.position, parsedMove);
-        addPathComponent(newPos, machineState, speed);
-    }
-
-    function addPathComponent(point, machineState, speed) {
+    function addPathComponent(point, machineState, speed, speedTag) {
         var hadMovement = false;
         $.each(util.AXES, function (_, axis) {
             hadMovement = hadMovement || Math.abs(point[axis] - machineState.position[axis]) > 0.00001;
         });
         if (hadMovement) {
             machineState.path.push({type: 'line', from: cloneObject(machineState.position), to: cloneObject(point),
-                feedRate: speed, lineNo: machineState.lineNo});
+                feedRate: speed, lineNo: machineState.lineNo, speedTag: speedTag});
             machineState.position = point;
         }
     }
@@ -195,7 +190,8 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
             angularDistance: angularDiff,
             radius: radius,
             feedRate: machineState.feedRate,
-            lineNo: machineState.lineNo});
+            lineNo: machineState.lineNo,
+            speedTag: 'normal'});
         machineState.position = targetPos;
     }
 

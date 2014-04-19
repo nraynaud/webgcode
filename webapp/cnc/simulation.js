@@ -233,16 +233,16 @@ define(['cnc/util', 'cnc/geometry'], function (util, geometry) {
                 var ratio = j / steps;
                 var data = dataForRatio(segment, ratio);
                 currentTime = startTime + data.time;
-                internalPushPoint.apply(null, type.pointAtRatio(segment, ratio));
+                internalPushPoint(type.pointAtRatio(segment, ratio), segment);
             }
         }
 
-        function internalPushPoint(x, y, z) {
-            lastPosition = [x, y, z];
-            pushPoint(x, y, z, currentTime);
+        function internalPushPoint(point, segment) {
+            lastPosition = point;
+            pushPoint(point[0], point[1], point[2], currentTime, segment);
         }
 
-        internalPushPoint(0, 0, 0);
+        internalPushPoint([0, 0, 0], groups[0][0]);
         $.each(groups, function (_, group) {
             planSpeed(group);
             $.each(group, function (_, segment) {
@@ -250,7 +250,7 @@ define(['cnc/util', 'cnc/geometry'], function (util, geometry) {
             });
             for (var i = 0; i < 10; i++) {
                 currentTime += 0.001;
-                internalPushPoint.apply(null, lastPosition);
+                internalPushPoint(lastPosition, group[group.length - 1]);
             }
         });
     }

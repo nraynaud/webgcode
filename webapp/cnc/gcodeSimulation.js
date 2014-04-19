@@ -2,32 +2,17 @@
 
 define(['cnc/simulation', 'cnc/parser'], function (simulation, parser) {
     function simulateGCode(code) {
-        var simulatedPath = [];
-
-        var totalTime = 0;
-        var xmin = +Infinity, ymin = +Infinity, zmin = +Infinity;
-        var xmax = -Infinity, ymax = -Infinity, zmax = -Infinity;
-
-        function pushPoint(x, y, z, t) {
-            totalTime = Math.max(t, totalTime);
-            xmin = Math.min(x, xmin);
-            ymin = Math.min(y, ymin);
-            zmin = Math.min(z, zmin);
-            xmax = Math.max(x, xmax);
-            ymax = Math.max(y, ymax);
-            zmax = Math.max(z, zmax);
-            simulatedPath.push(x, y, z);
-        }
-
         var errors = [];
         var toolPath = parser.evaluate(code, null, null, null, errors);
         var map = [];
         for (var i = 0; i < toolPath.length; i++) {
             var segment = toolPath[i];
-            if (segment.type == 'line')
-                map[segment.lineNo] = [segment.from, segment.to];
-            else {
-                var tolerance = 0.05;
+            if (segment.type == 'line') {
+                var array = [segment.from, segment.to];
+                array.speedTag = segment.speedTag;
+                map[segment.lineNo] = array;
+            } else {
+                var tolerance = 0.001;
                 var steps = Math.PI / Math.acos(1 - tolerance / segment.radius) * Math.abs(segment.angularDistance) / (Math.PI * 2);
                 var points = [];
                 for (var j = 0; j <= steps; j++)
@@ -35,8 +20,40 @@ define(['cnc/simulation', 'cnc/parser'], function (simulation, parser) {
                 map[segment.lineNo] = points;
             }
         }
+        var simulatedPath = [];
+
+        var totalTime = 0;
+        var xmin = +Infinity, ymin = +Infinity, zmin = +Infinity;
+        var xmax = -Infinity, ymax = -Infinity, zmax = -Infinity;
+        var simulationFragments = [];
+        var currentSpeeTag = null;
+
+        function closeFragment() {
+            if (simulatedPath.length) {
+                simulationFragments.push({vertices: new Float32Array(simulatedPath), speedTag: currentSpeeTag});
+                //repeat the last point as ne new first point, because we're breaking the polyline
+                simulatedPath = simulatedPath.slice(-3);
+            }
+        }
+
+        function pushPoint(x, y, z, t, segment) {
+            totalTime = Math.max(t, totalTime);
+            xmin = Math.min(x, xmin);
+            ymin = Math.min(y, ymin);
+            zmin = Math.min(z, zmin);
+            xmax = Math.max(x, xmax);
+            ymax = Math.max(y, ymax);
+            zmax = Math.max(z, zmax);
+            if (currentSpeeTag != segment.speedTag) {
+                closeFragment();
+                currentSpeeTag = segment.speedTag;
+            }
+            simulatedPath.push(x, y, z);
+        }
+
         simulation.simulate2(toolPath, pushPoint);
-        return {totalTime: totalTime, simulatedPath: new Float32Array(simulatedPath),
+        closeFragment();
+        return {totalTime: totalTime, simulatedPath: simulationFragments,
             min: {x: xmin, y: ymin, z: zmin}, max: {x: xmax, y: ymax, z: zmax},
             errors: errors, lineSegmentMap: map};
     }
