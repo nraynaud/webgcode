@@ -1191,6 +1191,7 @@
 		DDAA5CD2FDA82B7CF0314228 /* mode-tcl.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-tcl.js"; sourceTree = "<group>"; };
 		DDAA5CDC55A7F6BEB7766AB2 /* theme-merbivore_soft.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-merbivore_soft.js"; sourceTree = "<group>"; };
 		DDAA5CDF37E9EE57B6093FF2 /* mode-coldfusion.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-coldfusion.js"; sourceTree = "<group>"; };
+		DDAA5D05BDAF8EB358055953 /* webgcode.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngc; path = webgcode.ngc; sourceTree = "<group>"; };
 		DDAA5D08CDD09CDA23452943 /* mode-jade.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-jade.js"; sourceTree = "<group>"; };
 		DDAA5D097A450AA46102FD59 /* mode-objectivec.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-objectivec.js"; sourceTree = "<group>"; };
 		DDAA5D0CF378287552FFC123 /* textApp.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = textApp.hbs; sourceTree = "<group>"; };
@@ -1844,6 +1845,7 @@
 				DDAA5527CBB1CAC105BF8642 /* pump.js */,
 				DDAA57FC83E3C32A4390BC45 /* fontExample.js */,
 				DDAA5814D4884F3B31A1A4B8 /* pocket.js */,
+				DDAA5D05BDAF8EB358055953 /* webgcode.ngc */,
 			);
 			path = samples;
 			sourceTree = "<group>";

@@ -85,6 +85,7 @@ define(function () {
             requestAnimationFrame(animate);
             self.controls.update();
         }
+
         animate();
         this.reRender();
     }
@@ -92,13 +93,21 @@ define(function () {
     ThreeDView.prototype = {
         displayPath: function (path) {
             this.clearToolpath();
-            var lineGeometry = new THREE.BufferGeometry();
-            lineGeometry.addAttribute('position', new THREE.Float32Attribute(path.length / 3, 3));
-            lineGeometry.attributes.position.array = path;
-            lineGeometry.verticesNeedUpdate = true;
-            this.toolpath = new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xCCCCCC}));
-            this.drawing.add(this.toolpath);
+            var normalMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFFFFFF});
+            var rapidMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFF0000});
+            var toolpath = new THREE.Object3D();
+            for (var i = 0; i < path.length; i++) {
+                var fragment = path[i];
+                var geom = new THREE.BufferGeometry();
+                geom.addAttribute('position', new THREE.Float32Attribute(fragment.vertices.length / 3, 3));
+                geom.attributes.position.array = fragment.vertices;
+                geom.verticesNeedUpdate = true;
+                toolpath.add(new THREE.Line(geom, fragment.speedTag == 'rapid' ? rapidMaterial : normalMaterial));
+            }
+            this.drawing.add(toolpath);
+            this.toolpath = toolpath;
             this.zoomExtent();
+            return toolpath;
         },
         computeDrawingBBox: function () {
             var bbox = new THREE.Box3();
