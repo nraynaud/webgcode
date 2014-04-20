@@ -1,42 +1,57 @@
 "use strict";
 
 define(['cnc/simulation', 'cnc/parser', 'require'], function (simulation, parser, require) {
+    var currentSpeedTag = null;
+    var simulatedPath = [];
+    var simulationFragments = [];
+
+    function closeFragment() {
+        if (simulatedPath.length) {
+            simulationFragments.push({vertices: new Float32Array(simulatedPath), speedTag: currentSpeedTag});
+            //repeat the last point as ne new first point, because we're breaking the polyline
+            simulatedPath = simulatedPath.slice(-3);
+        }
+    }
+
+    function accumulatePoint(point, segment) {
+        if (currentSpeedTag != segment.speedTag) {
+            closeFragment();
+            currentSpeedTag = segment.speedTag;
+        }
+        simulatedPath.push(point.x, point.y, point.z);
+    }
+
     function simulateGCode(code) {
         var errors = [];
         var toolPath = parser.evaluate(code, null, null, null, errors);
         var map = [];
+        accumulatePoint(toolPath[0].from, toolPath[0]);
         for (var i = 0; i < toolPath.length; i++) {
             var segment = toolPath[i];
             if (segment.type == 'line') {
                 var array = [segment.from, segment.to];
                 array.speedTag = segment.speedTag;
                 map[segment.lineNo] = array;
+                accumulatePoint(segment.to, segment);
             } else {
                 var tolerance = 0.001;
                 var steps = Math.PI / Math.acos(1 - tolerance / segment.radius) * Math.abs(segment.angularDistance) / (Math.PI * 2);
                 var points = [];
-                for (var j = 0; j <= steps; j++)
-                    points.push(simulation.COMPONENT_TYPES['arc'].pointAtRatio(segment, j / steps, true));
+                for (var j = 0; j <= steps; j++) {
+                    var point = simulation.COMPONENT_TYPES['arc'].pointAtRatio(segment, j / steps, true);
+                    points.push(point);
+                    accumulatePoint(point, segment);
+                }
                 map[segment.lineNo] = points;
             }
         }
-        var simulatedPath = [];
 
         var totalTime = 0;
         var xmin = +Infinity, ymin = +Infinity, zmin = +Infinity;
         var xmax = -Infinity, ymax = -Infinity, zmax = -Infinity;
-        var simulationFragments = [];
-        var currentSpeeTag = null;
 
-        function closeFragment() {
-            if (simulatedPath.length) {
-                simulationFragments.push({vertices: new Float32Array(simulatedPath), speedTag: currentSpeeTag});
-                //repeat the last point as ne new first point, because we're breaking the polyline
-                simulatedPath = simulatedPath.slice(-3);
-            }
-        }
 
-        function pushPoint(x, y, z, t, segment) {
+        function pushPoint(x, y, z, t) {
             totalTime = Math.max(t, totalTime);
             xmin = Math.min(x, xmin);
             ymin = Math.min(y, ymin);
@@ -44,11 +59,6 @@ define(['cnc/simulation', 'cnc/parser', 'require'], function (simulation, parser
             xmax = Math.max(x, xmax);
             ymax = Math.max(y, ymax);
             zmax = Math.max(z, zmax);
-            if (currentSpeeTag != segment.speedTag) {
-                closeFragment();
-                currentSpeeTag = segment.speedTag;
-            }
-            simulatedPath.push(x, y, z);
         }
 
         simulation.simulate2(toolPath, pushPoint);
