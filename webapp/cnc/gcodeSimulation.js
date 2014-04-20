@@ -1,6 +1,6 @@
 "use strict";
 
-define(['cnc/simulation', 'cnc/parser'], function (simulation, parser) {
+define(['cnc/simulation', 'cnc/parser', 'require'], function (simulation, parser, require) {
     function simulateGCode(code) {
         var errors = [];
         var toolPath = parser.evaluate(code, null, null, null, errors);
@@ -58,5 +58,43 @@ define(['cnc/simulation', 'cnc/parser'], function (simulation, parser) {
             errors: errors, lineSegmentMap: map};
     }
 
-    return {simulateGCode: simulateGCode}
+    function parseImmediately(code, resultHandler) {
+        resultHandler(simulateGCode(code));
+    }
+
+    function parseInWorker(code, resultHandler) {
+        var worker = new Worker(require.toUrl('worker.js'));
+        worker.onerror = function (error) {
+            console.log('worker error', error);
+            console.log('trying again without worker');
+            parseImmediately(code, resultHandler);
+        };
+        window.myWorker = worker;
+        worker.onmessage = function (event) {
+            worker.onerror = function (error) {
+                console.log('worker error', error);
+            };
+            resultHandler(event.data);
+            window.myWorker = null;
+        };
+        worker.postMessage({
+            operation: 'simulateGCode',
+            code: code
+        });
+    }
+
+    function tryToParseInWorker(code, resultHandler) {
+        try {
+            parseInWorker(code, resultHandler);
+        } catch (error) {
+            console.log('worker error', error);
+            console.log('trying again without worker');
+            parseImmediately(code, resultHandler);
+        }
+    }
+
+    return {simulateGCode: simulateGCode,
+        parseImmediately: parseImmediately,
+        parseInWorker: parseInWorker,
+        tryToParseInWorker: tryToParseInWorker};
 });

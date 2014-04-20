@@ -25,6 +25,7 @@ define(function () {
         this.camera.position.y = -30;
         this.camera.position.z = 60;
         this.camera.up.set(0, 0, 1);
+        this.renderer.sortObjects = false;
         this.renderer.setSize(WIDTH, HEIGHT);
         this.renderer.autoClear = false;
         function resize() {
@@ -96,18 +97,26 @@ define(function () {
             var normalMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFFFFFF});
             var rapidMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFF0000});
             var toolpath = new THREE.Object3D();
+            var lines = new THREE.Object3D();
             for (var i = 0; i < path.length; i++) {
                 var fragment = path[i];
                 var geom = new THREE.BufferGeometry();
                 geom.addAttribute('position', new THREE.Float32Attribute(fragment.vertices.length / 3, 3));
                 geom.attributes.position.array = fragment.vertices;
                 geom.verticesNeedUpdate = true;
-                toolpath.add(new THREE.Line(geom, fragment.speedTag == 'rapid' ? rapidMaterial : normalMaterial));
+                lines.add(new THREE.Line(geom, fragment.speedTag == 'rapid' ? rapidMaterial : normalMaterial));
             }
             this.drawing.add(toolpath);
+            toolpath.add(lines);
             this.toolpath = toolpath;
             this.zoomExtent();
             return toolpath;
+        },
+        clearToolpath: function () {
+            if (this.toolpath) {
+                this.drawing.remove(this.toolpath);
+                this.reRender();
+            }
         },
         computeDrawingBBox: function () {
             var bbox = new THREE.Box3();
@@ -131,12 +140,6 @@ define(function () {
         },
         displayVector: function (origin, vector, color, id) {
             this.displayPath([origin, {x: origin.x + vector.x, y: origin.y + vector.y, z: origin.z + vector.z}]);
-        },
-        clearToolpath: function () {
-            if (this.toolpath) {
-                this.drawing.remove(this.toolpath);
-                this.reRender();
-            }
         },
         displayHighlight: function (polyline) {
             this.hideHighlight();
