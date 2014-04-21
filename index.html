@@ -255,7 +255,7 @@ require(['cnc/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/util', 'cnc/u
                     loadBigSample: function () {
                         this.set('computing', true);
                         var _this = this;
-                        require(['text!samples/webgcode.ngc'], function (text) {
+                        require(['text!samples/aztec_calendar.ngc'], function (text) {
                             _this.set('code', text);
                             _this.launchSimulation();
                         });

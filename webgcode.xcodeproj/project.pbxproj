@@ -667,6 +667,7 @@
 		DDAA50F3E153B90B949FB125 /* runner.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = runner.js; path = webapp/runner.js; sourceTree = "<group>"; };
 		DDAA50F533EB03376CD41557 /* mode-rhtml.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-rhtml.js"; sourceTree = "<group>"; };
 		DDAA51012FAC296C36F1B443 /* mode-forth.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-forth.js"; sourceTree = "<group>"; };
+		DDAA511CE8BD477E113E0D3E /* aztec_calendar.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngc; path = aztec_calendar.ngc; sourceTree = "<group>"; };
 		DDAA511D074EB615D09ECC3C /* mode-matlab.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-matlab.js"; sourceTree = "<group>"; };
 		DDAA5123BB7887FC75E9F33D /* mode-typescript.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-typescript.js"; sourceTree = "<group>"; };
 		DDAA51282EC12CD309AA444E /* worker-lua.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "worker-lua.js"; sourceTree = "<group>"; };
@@ -2006,6 +2007,7 @@
 				DDAA5950A619B90125653E97 /* fontExample.js */,
 				DDAA5E07D516D6BA1AE88B69 /* pocket.js */,
 				DDAA5526562DE2F5D309F976 /* webgcode.ngc */,
+				DDAA511CE8BD477E113E0D3E /* aztec_calendar.ngc */,
 			);
 			path = samples;
 			sourceTree = "<group>";
