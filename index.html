@@ -294,7 +294,7 @@ require(['cnc/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/util', 'cnc/u
                 },
                 currentHighLight: function () {
                     return this.get('lineSegmentMap')[this.get('currentRow')];
-                }.property('currentRow').readOnly(),
+                }.property('currentRow', 'lineSegmentMap').readOnly(),
                 code: demoCode,
                 errors: [],
                 bbox: {},
