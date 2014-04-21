@@ -99,8 +99,9 @@ define(function () {
     ThreeDView.prototype = {
         addToolpathFragment: function (toolpathObject, fragment) {
             var geom = new THREE.BufferGeometry();
-            geom.addAttribute('position', new THREE.Float32Attribute(fragment.vertices.length / 3, 3));
-            geom.attributes.position.array = fragment.vertices;
+            var float32Array = new Float32Array(fragment.vertices);
+            geom.addAttribute('position', new THREE.Float32Attribute(float32Array.length / 3, 3));
+            geom.attributes.position.array = float32Array;
             geom.verticesNeedUpdate = true;
             toolpathObject.add(new THREE.Line(geom, fragment.speedTag == 'rapid' ? this.rapidMaterial : this.normalMaterial));
         },
@@ -112,7 +113,8 @@ define(function () {
             return this.toolpath;
         },
         clearToolpath: function () {
-            this.toolpath.length = 0;
+            while (this.toolpath.children.length)
+                this.toolpath.remove(this.toolpath.children[0]);
         },
         computeDrawingBBox: function () {
             var bbox = new THREE.Box3();

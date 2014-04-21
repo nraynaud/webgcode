@@ -29,6 +29,10 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
         secondCenterCoord: 'k'
     };
 
+    var NON_MODAL = {
+        10: dataInput
+    };
+
     var GROUPS_TRANSITIONS = {
         0: {motionMode: moveTraverseRate},
         1: {motionMode: moveFeedrate},
@@ -42,13 +46,22 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
         21: {unitMode: mmConverter},
         40: {},//skip
         49: {},//skip
-        54: {},//skip
+        54: {currentOrigin: 1},
+        55: {currentOrigin: 2},
+        56: {currentOrigin: 3},
+        57: {currentOrigin: 4},
+        58: {currentOrigin: 5},
+        59: {currentOrigin: 6},
+        59.1: {currentOrigin: 7},
+        59.2: {currentOrigin: 8},
+        59.3: {currentOrigin: 9},
         61: {pathControl: 61},
         61.1: {pathControl: 61.1},
         64: {pathControl: 64},
         80: {motionMode: noMotion},
         90: {distanceMode: absoluteDistance},
-        91: {distanceMode: incrementalDistance}
+        91: {distanceMode: incrementalDistance},
+        94: {}//skip, default
     };
 
     function absoluteDistance(previous, parsedMove) {
@@ -72,6 +85,21 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
         return length * 25.4;
     }
 
+    function dataInput(line, machineState) {
+        console.log(JSON.stringify(line));
+        if (line['l'] != 2)
+            throw {name: 'unsupported G10', message: 'only G10 L2 is supported'};
+        var origin = line['p'];
+        if (origin == null)
+            throw {name: 'unsupported G10', message: 'you did not define P'};
+        if (origin < 1 || origin > 9)
+            throw {name: 'unsupported G10', message: 'should be in [0-9], was ' + origin};
+        if (line['r'])
+            throw {name: 'unsupported G10', message: 'axis rotation is not supported'};
+        var parsedMove = detectAxisMove(line, machineState.unitMode);
+        $.extend(machineState.origins[origin], parsedMove);
+    }
+
     function moveCWArcMode(line, machineState) {
         parseArc(line, true, machineState);
     }
@@ -91,7 +119,7 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
     function moveStraightLine(line, machineState, speed, speedTag) {
         var parsedMove = detectAxisMove(line, machineState.unitMode);
         if (parsedMove)
-            addPathComponent(machineState.distanceMode(machineState.position, parsedMove), machineState, speed, speedTag);
+            addPathComponent(machineState.absolutePoint(parsedMove), machineState, speed, speedTag);
     }
 
     function noMotion(line, machineState) {
@@ -161,7 +189,7 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
             return;
         var currentPosition = machineState.position;
         var unitMode = machineState.unitMode;
-        var targetPos = machineState.distanceMode(machineState.position, detectAxisMove(line, unitMode));
+        var targetPos = machineState.absolutePoint(parsedMove);
         var plane = machineState.planeMode;
         var xCoord = plane.firstCoord;
         var yCoord = plane.secondCoord;
@@ -205,6 +233,9 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
                 initialPosition[axis] = 0;
             });
         }
+        var origins = [];
+        for (var i = 0; i < 10; i++)
+            origins.push({x: 0, y: 0, z: 0});
         var path = [];
         var machineState = {
             position: {},
@@ -217,9 +248,21 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
             pathControl: 61,
             path: path,
             parser: createParser(),
+            origins: origins,
+            currentOrigin: 1,
             addPathFragment: function (fragment) {
                 path.push(fragment);
                 pathListener(fragment);
+            },
+            absolutePoint: function (parsedMove) {
+                var currentOrigin = machineState.origins[machineState.currentOrigin];
+                $.each(util.AXES, function (_, axis) {
+                    if (parsedMove[axis] != null)
+                        parsedMove[axis] -= currentOrigin[axis];
+                });
+                var localPoint = machineState.distanceMode(machineState.position, parsedMove);
+
+                return localPoint;
             }
         };
         $.each(util.AXES, function (_, axis) {
@@ -408,15 +451,26 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
         if (fCode != undefined && fCode.length)
             machineState.feedRate = Math.min(machineState.unitMode(fCode[0]), maxFeedRate);
         var gCode = parsed['g'];
+        var nonModal = null;
         for (var i = 0; gCode !== undefined && i < gCode.length; i++) {
             var codeNum = gCode[i];
             var transition = GROUPS_TRANSITIONS[codeNum];
             if (transition != null)
                 $.extend(machineState, transition);
-            else
-                errorCollector.push({lineNo: lineNo, message: 'Did not understand G' + gCode + ', skipping', line: originalLine});
+            else {
+                var nonModal2 = NON_MODAL[codeNum];
+                if (nonModal2) {
+                    if (nonModal == null) {
+                        nonModal = nonModal2;
+                        nonModal(parsed, machineState);
+                    } else
+                        errorCollector.push({lineNo: lineNo, message: 'More than one non-modal on same line G' + gCode + ', skipping', line: originalLine});
+                } else
+                    errorCollector.push({lineNo: lineNo, message: 'Did not understand G' + codeNum + ', skipping', line: originalLine});
+            }
         }
-        machineState.motionMode(parsed, machineState);
+        if (nonModal == null)
+            machineState.motionMode(parsed, machineState);
     }
 
     function evaluate(text, travelFeedRate, maxFeedRate, initialPosition, errorCollector, fragmentListener) {
@@ -442,7 +496,11 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
             if (parsed == undefined)
                 errorCollector.push({lineNo: lineNo, message: "did not understand line", line: originalLine});
             else
-                handleLineAst(parsed, machineState, maxFeedRate, originalLine, lineNo, errorCollector);
+                try {
+                    handleLineAst(parsed, machineState, maxFeedRate, originalLine, lineNo, errorCollector);
+                } catch (error) {
+                    errorCollector.push({lineNo: lineNo, message: error.name + ': ' + error.message, line: originalLine});
+                }
         }
         return machineState.path;
     }

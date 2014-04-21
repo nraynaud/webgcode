@@ -106,9 +106,11 @@
             $('#simulateButton').prop('disabled', true);
             $('#loader').show();
             editor.getSession().clearAnnotations();
+            threeDView.clearToolpath();
+            var simulatedPath = [];
 
             function handleResult(result) {
-                threeDView.displayPath(result.simulatedPath);
+                threeDView.displayPath(simulatedPath);
                 console.timeEnd('simulation');
                 var annotations = [];
                 for (var i = 0; i < result.errors.length; i++) {
@@ -123,7 +125,8 @@
             }
 
             var code = editor.getValue();
-            gcodeSimulation.tryToParseInWorker(code, handleResult, function () {
+            gcodeSimulation.tryToParseInWorker(code, handleResult, function (fragment) {
+                simulatedPath.push(fragment);
             });
         }
 

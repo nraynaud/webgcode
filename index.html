@@ -104,201 +104,208 @@
 
 </div>
 <script>
-    require(['cnc/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/util', 'cnc/ui/gcodeEditor', 'cnc/gcodeSimulation', 'text!templates/gcodeSimulator.hbs'],
-            function (threeD, emberTwoDView, cam, util, gcodeEditor, gcodeSimulation, applicationTemplate) {
-                var demoCode = 'G0 Y10 Z-5\n' +
-                        'G1 Z-10\n' +
-                        'G1 Y20\n' +
-                        'G02 X10 Y30 R10\n' +
-                        'G1 X30\n' +
-                        'G2 X40 Y20 R10\n' +
-                        'G1 Y10\n' +
-                        'G2 X30 Y0 R10\n' +
-                        'G1 X10\n' +
-                        'G2 X0 Y10 Z-15 R10 (yeah spiral !)\n' +
-                        'G3 X-10 Y20 R-10 (yeah, long arc !)\n' +
-                        'G3 X0 Y10 I10 (center)\n' +
-                        'G91 G1 X10 Z10\n' +
-                        'G3 Y10 R5 Z3 (circle in incremental)\n' +
-                        'Y10 R5 Z3 (again, testing modal state)\n' +
-                        'G20 G0 X1 (one inch to the right)\n' +
-                        'G3 X-1 R1 (radius in inches)\n' +
-                        'G3 X1 Z0.3 I0.5 J0.5 (I,J in inches)\n' +
-                        'G21 (back to mm)\n' +
-                        'G80 X10 (do nothing)\n' +
-                        'G90\n' +
-                        'G0 X30 Y30 Z30\n' +
-                        'G18 (X-Z plane)\n' +
-                        'G3 Z40 I0 K5\n' +
-                        'G19 (Y-Z plane)\n' +
-                        'G3 Z50 J0 K5\n' +
-                        'G17 (back to X-Y plane)\n';
+require(['cnc/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/util', 'cnc/ui/gcodeEditor', 'cnc/gcodeSimulation', 'text!templates/gcodeSimulator.hbs'],
+        function (threeD, emberTwoDView, cam, util, gcodeEditor, gcodeSimulation, applicationTemplate) {
+            var demoCode = 'G0 Y10 Z-5\n' +
+                    'G1 Z-10\n' +
+                    'G1 Y20\n' +
+                    'G02 X10 Y30 R10\n' +
+                    'G1 X30\n' +
+                    'G2 X40 Y20 R10\n' +
+                    'G1 Y10\n' +
+                    'G2 X30 Y0 R10\n' +
+                    'G1 X10\n' +
+                    'G2 X0 Y10 Z-15 R10 (yeah spiral !)\n' +
+                    'G3 X-10 Y20 R-10 (yeah, long arc !)\n' +
+                    'G3 X0 Y10 I10 (center)\n' +
+                    'G91 G1 X10 Z10\n' +
+                    'G3 Y10 R5 Z3 (circle in incremental)\n' +
+                    'Y10 R5 Z3 (again, testing modal state)\n' +
+                    'G20 G0 X1 (one inch to the right)\n' +
+                    'G3 X-1 R1 (radius in inches)\n' +
+                    'G3 X1 Z0.3 I0.5 J0.5 (I,J in inches)\n' +
+                    'G21 (back to mm)\n' +
+                    'G80 X10 (do nothing)\n' +
+                    'G90\n' +
+                    'G0 X30 Y30 Z30\n' +
+                    'G18 (X-Z plane)\n' +
+                    'G3 Z40 I0 K5\n' +
+                    'G19 (Y-Z plane)\n' +
+                    'G3 Z50 J0 K5\n' +
+                    'G17 (back to X-Y plane)\n';
 
-                Ember.Handlebars.helper('num', function (value) {
-                    return new Handlebars.SafeString(Handlebars.Utils.escapeExpression(util.formatCoord(value)));
-                });
-                Ember.TEMPLATES['application'] = Ember.Handlebars.compile(applicationTemplate);
+            Ember.Handlebars.helper('num', function (value) {
+                return new Handlebars.SafeString(Handlebars.Utils.escapeExpression(util.formatCoord(value)));
+            });
+            Ember.TEMPLATES['application'] = Ember.Handlebars.compile(applicationTemplate);
 
-                window.Simulator = Ember.Application.create({
-                    rootElement: '#app'
-                });
+            window.Simulator = Ember.Application.create({
+                rootElement: '#app'
+            });
 
-                Simulator.GcodeEditorComponent = gcodeEditor.GcodeEditorComponent;
+            Simulator.GcodeEditorComponent = gcodeEditor.GcodeEditorComponent;
 
-                Simulator.ThreeDView = Ember.View.extend({
-                    classNames: ['ThreeDView'],
-                    didInsertElement: function () {
-                        var threeDView = new threeD.ThreeDView(this.$());
-                        this.set('nativeComponent', threeDView);
-                        this.highlightChanged();
-                        this.get('controller.simulatedPath').addArrayObserver({
-                            arrayWillChange: function (observedObj, start, removeCount, addCount) {
-                                for (var i = removeCount - 1; i >= 0; i--)
-                                    threeDView.toolpath.remove((threeDView.toolpath.children[start + i]));
-                            },
-                            arrayDidChange: function (observedObj, start, removeCount, addCount) {
-                                for (var i = 0; i < addCount; i++)
-                                    threeDView.addToolpathFragment(threeDView.toolpath, observedObj[start + i]);
-                                threeDView.zoomExtent();
-                            }
-                        });
-                    },
-                    simulatedPathChanged: function () {
-                        if (!this.get('controller.computing'))
-                            this.get('nativeComponent').zoomExtent();
-                    }.observes('controller.computing'),
-                    highlightChanged: function () {
-                        var highlight = this.get('controller.currentHighLight');
-                        if (highlight)
-                            this.get('nativeComponent').displayHighlight(highlight);
-                        else
-                            this.get('nativeComponent').hideHighlight();
-                    }.observes('controller.currentHighLight')
-                });
-                Simulator.TwoDView = Ember.View.extend({
-                    classNames: ['TwoDView'],
-                    didInsertElement: function () {
-                        var view = emberTwoDView.EmberTwoDView.create({element: this.$()});
-                        this.set('nativeComponent', view);
-                        var toolpath = view.paper.group();
-                        this.simulatedPathChanged();
-                        var _this = this;
-                        this.get('controller.simulatedPath').addArrayObserver({
-                            arrayWillChange: function (observedObj, start, removeCount, addCount) {
-                                for (var i = removeCount - 1; i >= 0; i--)
-                                    toolpath.get([start + i]).remove();
-                            },
-                            arrayDidChange: function (observedObj, start, removeCount, addCount) {
-                                for (var i = 0; i < addCount; i++)
-                                    toolpath.add(_this.createFragment(view.paper, observedObj[start + i]), start + i);
-                                view.zoomExtent();
-                            }
-                        });
-                    },
-                    createFragment: function (parent, fragment) {
-                        var paper = this.get('nativeComponent.paper');
-                        var polyline = [];
-                        var vertices = fragment.vertices;
-                        for (var i = 0; i < vertices.length; i += 3)
-                            polyline.push({X: vertices[i], Y: vertices[i + 1]});
-                        return paper.path(cam.simplifyScaleAndCreatePathDef([polyline], 1, 0.001, false))
-                                .attr({class: 'toolpath ' + (fragment.speedTag == 'rapid' ? 'rapidMove' : 'normalMove')});
-                    },
-                    simulatedPathChanged: function () {
-                        var path = this.get('controller.simulatedPath');
-                        var toolpath = this.get('toolpath');
-                        if (toolpath != null) {
-                            toolpath.remove();
-                            toolpath = null;
+            Simulator.ThreeDView = Ember.View.extend({
+                classNames: ['ThreeDView'],
+                didInsertElement: function () {
+                    var threeDView = new threeD.ThreeDView(this.$());
+                    this.set('nativeComponent', threeDView);
+                    this.highlightChanged();
+                    this.get('controller.simulatedPath').addArrayObserver({
+                        arrayWillChange: function (observedObj, start, removeCount, addCount) {
+                            for (var i = removeCount - 1; i >= 0; i--)
+                                threeDView.toolpath.remove((threeDView.toolpath.children[start + i]));
+                        },
+                        arrayDidChange: function (observedObj, start, removeCount, addCount) {
+                            for (var i = 0; i < addCount; i++)
+                                threeDView.addToolpathFragment(threeDView.toolpath, observedObj[start + i]);
+                            Ember.run.throttle(threeDView, threeDView.zoomExtent, 1000);
                         }
-                        if (path != null) {
-                            toolpath = this.get('nativeComponent.paper').group();
-                            for (var j = 0; j < path.length; j++) {
-                                var polyline = [];
-                                var vertices = path[j].vertices;
-                                for (var i = 0; i < vertices.length; i += 3)
-                                    polyline.push({X: vertices[i], Y: vertices[i + 1]});
-                                toolpath.path(cam.simplifyScaleAndCreatePathDef([polyline], 1, 0.001, false))
-                                        .attr({class: 'toolpath ' + (path[j].speedTag == 'rapid' ? 'rapidMove' : 'normalMove')});
-                            }
-                            this.get('nativeComponent').zoomExtent();
+                    });
+                },
+                simulatedPathChanged: function () {
+                    if (!this.get('controller.computing'))
+                        this.get('nativeComponent').zoomExtent();
+                }.observes('controller.computing'),
+                highlightChanged: function () {
+                    var highlight = this.get('controller.currentHighLight');
+                    if (highlight)
+                        this.get('nativeComponent').displayHighlight(highlight);
+                    else
+                        this.get('nativeComponent').hideHighlight();
+                }.observes('controller.currentHighLight')
+            });
+            Simulator.TwoDView = Ember.View.extend({
+                classNames: ['TwoDView'],
+                didInsertElement: function () {
+                    var view = emberTwoDView.EmberTwoDView.create({element: this.$()});
+                    this.set('nativeComponent', view);
+                    var toolpath = view.paper.group();
+                    this.simulatedPathChanged();
+                    var _this = this;
+                    this.get('controller.simulatedPath').addArrayObserver({
+                        arrayWillChange: function (observedObj, start, removeCount, addCount) {
+                            for (var i = removeCount - 1; i >= 0; i--)
+                                toolpath.get([start + i]).remove();
+                        },
+                        arrayDidChange: function (observedObj, start, removeCount, addCount) {
+                            for (var i = 0; i < addCount; i++)
+                                toolpath.add(_this.createFragment(view.paper, observedObj[start + i]), start + i);
+                            view.zoomExtent();
                         }
-                        this.set('toolpath', toolpath);
-                    }.observes('controller.simulatedPath'),
-                    highlightChanged: function () {
-                        var highlight = this.get('controller.currentHighLight');
-                        var currentHighlight = this.get('highlight');
-                        if (currentHighlight) {
-                            currentHighlight.remove();
-                            currentHighlight = null;
+                    });
+                },
+                createFragment: function (parent, fragment) {
+                    var paper = this.get('nativeComponent.paper');
+                    var polyline = [];
+                    var vertices = new Float32Array(fragment.vertices);
+                    for (var i = 0; i < vertices.length; i += 3)
+                        polyline.push({X: vertices[i], Y: vertices[i + 1]});
+                    return paper.path(cam.simplifyScaleAndCreatePathDef([polyline], 1, 0.001, false))
+                            .attr({class: 'toolpath ' + (fragment.speedTag == 'rapid' ? 'rapidMove' : 'normalMove')});
+                },
+                simulatedPathChanged: function () {
+                    var path = this.get('controller.simulatedPath');
+                    var toolpath = this.get('toolpath');
+                    if (toolpath != null) {
+                        toolpath.remove();
+                        toolpath = null;
+                    }
+                    if (path != null) {
+                        toolpath = this.get('nativeComponent.paper').group();
+                        for (var j = 0; j < path.length; j++) {
+                            var polyline = [];
+                            var vertices = path[j].vertices;
+                            for (var i = 0; i < vertices.length; i += 3)
+                                polyline.push({X: vertices[i], Y: vertices[i + 1]});
+                            toolpath.path(cam.simplifyScaleAndCreatePathDef([polyline], 1, 0.001, false))
+                                    .attr({class: 'toolpath ' + (path[j].speedTag == 'rapid' ? 'rapidMove' : 'normalMove')});
                         }
-                        if (highlight) {
-                            currentHighlight = this.get('nativeComponent.paper')
-                                    .path(cam.simplifyScaleAndCreatePathDef([highlight.map(function (point) {
-                                        return {X: point.x, Y: point.y};
-                                    })], 1, 0.001, false))
-                                    .attr({fill: 'none', 'stroke': '#FF00FF', 'stroke-width': 6, 'stroke-linecap': 'round'});
-                        }
-                        this.set('highlight', currentHighlight);
-                    }.observes('controller.currentHighLight')
-                });
+                        this.get('nativeComponent').zoomExtent();
+                    }
+                    this.set('toolpath', toolpath);
+                }.observes('controller.simulatedPath'),
+                highlightChanged: function () {
+                    var highlight = this.get('controller.currentHighLight');
+                    var currentHighlight = this.get('highlight');
+                    if (currentHighlight) {
+                        currentHighlight.remove();
+                        currentHighlight = null;
+                    }
+                    if (highlight) {
+                        currentHighlight = this.get('nativeComponent.paper')
+                                .path(cam.simplifyScaleAndCreatePathDef([highlight.map(function (point) {
+                                    return {X: point.x, Y: point.y};
+                                })], 1, 0.001, false))
+                                .attr({fill: 'none', 'stroke': '#FF00FF', 'stroke-width': 6, 'stroke-linecap': 'round'});
+                    }
+                    this.set('highlight', currentHighlight);
+                }.observes('controller.currentHighLight')
+            });
 
-                Simulator.ApplicationController = Ember.ObjectController.extend({
-                    init: function () {
-                        this._super();
+            Simulator.ApplicationController = Ember.ObjectController.extend({
+                init: function () {
+                    this._super();
+                    this.launchSimulation();
+                },
+                actions: {
+                    simulate: function () {
                         this.launchSimulation();
                     },
-                    actions: {
-                        simulate: function () {
-                            this.launchSimulation();
-                        },
-                        loadBigSample: function () {
-                            this.set('computing', true);
-                            var _this = this;
-                            require(['text!samples/webgcode.ngc'], function (text) {
-                                _this.set('code', text);
-                                _this.launchSimulation();
-                            });
-                        }
-                    },
-                    launchSimulation: function () {
-                        var _this = this;
-
-                        function handleResult(result) {
-                            var errors = [];
-                            for (var i = 0; i < result.errors.length; i++) {
-                                var error = result.errors[i];
-                                errors.push({row: error.lineNo, text: error.message, type: "error"});
-                            }
-                            _this.set('errors', errors);
-                            _this.set('bbox', {min: result.min, max: result.max});
-                            _this.set('totalTime', result.totalTime);
-                            _this.set('lineSegmentMap', result.lineSegmentMap);
-                            _this.set('computing', false);
-                            console.timeEnd('simulation');
-                        }
-
-                        console.time('simulation');
+                    loadBigSample: function () {
                         this.set('computing', true);
-                        _this.set('lineSegmentMap', []);
-                        this.get('simulatedPath').clear();
-                        gcodeSimulation.tryToParseInWorker(this.get('code'), Ember.run.bind(_this, handleResult), Ember.run.bind(_this, function (fragment) {
-                            _this.get('simulatedPath').pushObject(fragment);
-                        }));
-                    },
-                    currentHighLight: function () {
-                        return this.get('lineSegmentMap')[this.get('currentRow')];
-                    }.property('currentRow').readOnly(),
-                    code: demoCode,
-                    errors: [],
-                    bbox: {},
-                    totalTime: 0,
-                    lineSegmentMap: [],
-                    currentRow: null,
-                    simulatedPath: [],
-                    computing: false
-                });
+                        var _this = this;
+                        require(['text!samples/webgcode.ngc'], function (text) {
+                            _this.set('code', text);
+                            _this.launchSimulation();
+                        });
+                    }
+                },
+                launchSimulation: function () {
+                    var _this = this;
+
+                    function handleResult(result) {
+                        _this.flushFragmentFile();
+                        var errors = [];
+                        for (var i = 0; i < result.errors.length; i++) {
+                            var error = result.errors[i];
+                            errors.push({row: error.lineNo, text: error.message, type: "error"});
+                        }
+                        _this.set('errors', errors);
+                        _this.set('bbox', {min: result.min, max: result.max});
+                        _this.set('totalTime', result.totalTime);
+                        _this.set('lineSegmentMap', result.lineSegmentMap);
+                        _this.set('computing', false);
+                        console.timeEnd('simulation');
+                    }
+
+                    console.time('simulation');
+                    this.set('computing', true);
+                    _this.set('lineSegmentMap', []);
+                    this.get('simulatedPath').clear();
+                    gcodeSimulation.tryToParseInWorker(this.get('code'), Ember.run.bind(_this, handleResult), Ember.run.bind(_this, function (fragment) {
+                        _this.get('fragmentFile').pushObject(fragment);
+                        Ember.run.throttle(_this, _this.flushFragmentFile, 500);
+                    }));
+                },
+                flushFragmentFile: function () {
+                    this.get('simulatedPath').pushObjects(this.get('fragmentFile'));
+                    this.get('fragmentFile').clear();
+                },
+                currentHighLight: function () {
+                    return this.get('lineSegmentMap')[this.get('currentRow')];
+                }.property('currentRow').readOnly(),
+                code: demoCode,
+                errors: [],
+                bbox: {},
+                totalTime: 0,
+                lineSegmentMap: [],
+                currentRow: null,
+                simulatedPath: [],
+                computing: false,
+                fragmentFile: []
             });
+        });
 </script>
 </body>
 </html>

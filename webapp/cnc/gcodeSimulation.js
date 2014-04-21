@@ -8,7 +8,7 @@ define(['cnc/simulation', 'cnc/parser', 'require'], function (simulation, parser
 
         function closeFragment() {
             if (simulatedPath.length) {
-                var fragment = {vertices: new Float32Array(simulatedPath), speedTag: currentSpeedTag};
+                var fragment = {vertices: new Float32Array(simulatedPath).buffer, speedTag: currentSpeedTag};
                 simulationFragments.push(fragment);
                 //repeat the last point as ne new first point, because we're breaking the polyline
                 simulatedPath = simulatedPath.slice(-3);
@@ -17,7 +17,7 @@ define(['cnc/simulation', 'cnc/parser', 'require'], function (simulation, parser
         }
 
         function accumulatePoint(point, segment) {
-            if (currentSpeedTag != segment.speedTag || simulatedPath.length >= 5000) {
+            if (currentSpeedTag != segment.speedTag || simulatedPath.length >= 10000) {
                 closeFragment();
                 currentSpeedTag = segment.speedTag;
             }
@@ -68,7 +68,7 @@ define(['cnc/simulation', 'cnc/parser', 'require'], function (simulation, parser
         simulation.simulate2(toolPath, pushPoint);
 
         return {
-            totalTime: totalTime, simulatedPath: simulationFragments,
+            totalTime: totalTime,
             min: {x: xmin, y: ymin, z: zmin}, max: {x: xmax, y: ymax, z: zmax},
             errors: errors, lineSegmentMap: map};
     }
@@ -79,10 +79,10 @@ define(['cnc/simulation', 'cnc/parser', 'require'], function (simulation, parser
                 self.postMessage({
                     type: 'fragment',
                     fragment: fragment
-                });
+                }, [fragment.vertices]);
             }));
         } catch (error) {
-            console.log('error');
+            console.log('error ' + error.message);
         } finally {
             self.close();
         }
