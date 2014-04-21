@@ -5,7 +5,7 @@ define(function () {
             var _this = this;
             this.set('editor', window.ace.edit(this.get('element')));
             var editor = this.get('editor');
-            editor.setTheme("ace/theme/twilight");
+            editor.setTheme("ace/theme/chaos");
             editor.on('change', function () {
                 Em.run.once(_this, _this.notifyPropertyChange, 'content');
             });
