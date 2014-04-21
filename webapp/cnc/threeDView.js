@@ -82,6 +82,11 @@ define(function () {
         this.setToolVisibility(false);
         this.scene.add(this.tool);
         this.scene.add(this.drawing);
+        this.toolpath = new THREE.Object3D();
+        this.drawing.add(this.toolpath);
+        this.normalMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFFFFFF});
+        this.rapidMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFF0000});
+
         function animate() {
             requestAnimationFrame(animate);
             self.controls.update();
@@ -92,31 +97,22 @@ define(function () {
     }
 
     ThreeDView.prototype = {
+        addToolpathFragment: function (toolpathObject, fragment) {
+            var geom = new THREE.BufferGeometry();
+            geom.addAttribute('position', new THREE.Float32Attribute(fragment.vertices.length / 3, 3));
+            geom.attributes.position.array = fragment.vertices;
+            geom.verticesNeedUpdate = true;
+            toolpathObject.add(new THREE.Line(geom, fragment.speedTag == 'rapid' ? this.rapidMaterial : this.normalMaterial));
+        },
         displayPath: function (path) {
             this.clearToolpath();
-            var normalMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFFFFFF});
-            var rapidMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFF0000});
-            var toolpath = new THREE.Object3D();
-            var lines = new THREE.Object3D();
-            for (var i = 0; i < path.length; i++) {
-                var fragment = path[i];
-                var geom = new THREE.BufferGeometry();
-                geom.addAttribute('position', new THREE.Float32Attribute(fragment.vertices.length / 3, 3));
-                geom.attributes.position.array = fragment.vertices;
-                geom.verticesNeedUpdate = true;
-                lines.add(new THREE.Line(geom, fragment.speedTag == 'rapid' ? rapidMaterial : normalMaterial));
-            }
-            this.drawing.add(toolpath);
-            toolpath.add(lines);
-            this.toolpath = toolpath;
+            for (var i = 0; i < path.length; i++)
+                this.addToolpathFragment(this.toolpath, path[i]);
             this.zoomExtent();
-            return toolpath;
+            return this.toolpath;
         },
         clearToolpath: function () {
-            if (this.toolpath) {
-                this.drawing.remove(this.toolpath);
-                this.reRender();
-            }
+            this.toolpath.length = 0;
         },
         computeDrawingBBox: function () {
             var bbox = new THREE.Box3();

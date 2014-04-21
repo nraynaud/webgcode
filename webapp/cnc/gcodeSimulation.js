@@ -1,55 +1,59 @@
 "use strict";
 
 define(['cnc/simulation', 'cnc/parser', 'require'], function (simulation, parser, require) {
-    var currentSpeedTag = null;
-    var simulatedPath = [];
-    var simulationFragments = [];
+    function simulateGCode(code, fragmentHandler) {
+        var currentSpeedTag = null;
+        var simulatedPath = [];
+        var simulationFragments = [];
 
-    function closeFragment() {
-        if (simulatedPath.length) {
-            simulationFragments.push({vertices: new Float32Array(simulatedPath), speedTag: currentSpeedTag});
-            //repeat the last point as ne new first point, because we're breaking the polyline
-            simulatedPath = simulatedPath.slice(-3);
-        }
-    }
-
-    function accumulatePoint(point, segment) {
-        if (currentSpeedTag != segment.speedTag) {
-            closeFragment();
-            currentSpeedTag = segment.speedTag;
-        }
-        simulatedPath.push(point.x, point.y, point.z);
-    }
-
-    function simulateGCode(code) {
-        var errors = [];
-        var toolPath = parser.evaluate(code, null, null, null, errors);
-        var map = [];
-        accumulatePoint(toolPath[0].from, toolPath[0]);
-        for (var i = 0; i < toolPath.length; i++) {
-            var segment = toolPath[i];
-            if (segment.type == 'line') {
-                var array = [segment.from, segment.to];
-                array.speedTag = segment.speedTag;
-                map[segment.lineNo] = array;
-                accumulatePoint(segment.to, segment);
-            } else {
-                var tolerance = 0.001;
-                var steps = Math.PI / Math.acos(1 - tolerance / segment.radius) * Math.abs(segment.angularDistance) / (Math.PI * 2);
-                var points = [];
-                for (var j = 0; j <= steps; j++) {
-                    var point = simulation.COMPONENT_TYPES['arc'].pointAtRatio(segment, j / steps, true);
-                    points.push(point);
-                    accumulatePoint(point, segment);
-                }
-                map[segment.lineNo] = points;
+        function closeFragment() {
+            if (simulatedPath.length) {
+                var fragment = {vertices: new Float32Array(simulatedPath), speedTag: currentSpeedTag};
+                simulationFragments.push(fragment);
+                //repeat the last point as ne new first point, because we're breaking the polyline
+                simulatedPath = simulatedPath.slice(-3);
+                fragmentHandler(fragment);
             }
         }
+
+        function accumulatePoint(point, segment) {
+            if (currentSpeedTag != segment.speedTag || simulatedPath.length >= 5000) {
+                closeFragment();
+                currentSpeedTag = segment.speedTag;
+            }
+            simulatedPath.push(point.x, point.y, point.z);
+        }
+
+        var errors = [];
+        var map = [];
+
+        function fragmentListener(fragment) {
+            if (simulationFragments.length == 0 && simulatedPath.length == 0)
+                accumulatePoint(fragment.from, fragment);
+            if (fragment.type == 'line') {
+                var array = [fragment.from, fragment.to];
+                array.speedTag = fragment.speedTag;
+                map[fragment.lineNo] = array;
+                accumulatePoint(fragment.to, fragment);
+            } else {
+                var tolerance = 0.001;
+                var steps = Math.PI / Math.acos(1 - tolerance / fragment.radius) * Math.abs(fragment.angularDistance) / (Math.PI * 2);
+                var points = [];
+                for (var j = 0; j <= steps; j++) {
+                    var point = simulation.COMPONENT_TYPES['arc'].pointAtRatio(fragment, j / steps, true);
+                    points.push(point);
+                    accumulatePoint(point, fragment);
+                }
+                map[fragment.lineNo] = points;
+            }
+        }
+
+        var toolPath = parser.evaluate(code, null, null, null, errors, fragmentListener);
+        closeFragment();
 
         var totalTime = 0;
         var xmin = +Infinity, ymin = +Infinity, zmin = +Infinity;
         var xmax = -Infinity, ymax = -Infinity, zmax = -Infinity;
-
 
         function pushPoint(x, y, z, t) {
             totalTime = Math.max(t, totalTime);
@@ -62,17 +66,29 @@ define(['cnc/simulation', 'cnc/parser', 'require'], function (simulation, parser
         }
 
         simulation.simulate2(toolPath, pushPoint);
-        closeFragment();
-        return {totalTime: totalTime, simulatedPath: simulationFragments,
+
+        return {
+            totalTime: totalTime, simulatedPath: simulationFragments,
             min: {x: xmin, y: ymin, z: zmin}, max: {x: xmax, y: ymax, z: zmax},
             errors: errors, lineSegmentMap: map};
     }
 
-    function parseImmediately(code, resultHandler) {
-        resultHandler(simulateGCode(code));
+    function simulateWorkerSide(event) {
+        try {
+            self.postMessage(simulateGCode(event.data.code, function (fragment) {
+                self.postMessage({
+                    type: 'fragment',
+                    fragment: fragment
+                });
+            }));
+        } catch (error) {
+            console.log('error');
+        } finally {
+            self.close();
+        }
     }
 
-    function parseInWorker(code, resultHandler) {
+    function parseInWorker(code, resultHandler, fragmentHandler) {
         var worker = new Worker(require.toUrl('worker.js'));
         worker.onerror = function (error) {
             console.log('worker error', error);
@@ -84,8 +100,12 @@ define(['cnc/simulation', 'cnc/parser', 'require'], function (simulation, parser
             worker.onerror = function (error) {
                 console.log('worker error', error);
             };
-            resultHandler(event.data);
-            window.myWorker = null;
+            if (event.data.type == 'fragment')
+                fragmentHandler(event.data.fragment);
+            else {
+                resultHandler(event.data);
+                window.myWorker = null;
+            }
         };
         worker.postMessage({
             operation: 'simulateGCode',
@@ -93,18 +113,24 @@ define(['cnc/simulation', 'cnc/parser', 'require'], function (simulation, parser
         });
     }
 
-    function tryToParseInWorker(code, resultHandler) {
+    function parseImmediately(code, resultHandler, fragmentHandler) {
+        resultHandler(simulateGCode(code, fragmentHandler));
+    }
+
+    function tryToParseInWorker(code, resultHandler, fragmentHandler) {
         try {
-            parseInWorker(code, resultHandler);
+            parseInWorker(code, resultHandler, fragmentHandler);
         } catch (error) {
             console.log('worker error', error);
             console.log('trying again without worker');
-            parseImmediately(code, resultHandler);
+            parseImmediately(code, resultHandler, fragmentHandler);
         }
     }
 
-    return {simulateGCode: simulateGCode,
+    return {
+        simulateGCode: simulateGCode,
         parseImmediately: parseImmediately,
         parseInWorker: parseInWorker,
-        tryToParseInWorker: tryToParseInWorker};
+        tryToParseInWorker: tryToParseInWorker,
+        simulateWorkerSide: simulateWorkerSide};
 });

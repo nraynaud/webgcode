@@ -4,43 +4,48 @@
 </div>
 <div class="editBlock">
     {{gcode-editor content=code annotations=errors currentRow=currentRow}}
-    <button id="simulateButton"  {{action "simulate"}}>Simulate</button>
-    <div id="loader">&nbsp;</div>
-    <div>
-        <dl>
-            <dt>Total Duration:</dt>
-            <dd>{{num totalTime}}s</dd>
-        </dl>
-        <dl>
-            <dt>Bounds (@tool center):</dt>
-            <dd>
-                <table class="boundsTable" style="text-align:right;">
-                    <thead>
-                    <tr>
-                        <th>&nbsp;</th>
-                        <th>min</th>
-                        <th>max</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <th>X</th>
-                        <td>{{num bbox.min.x}}</td>
-                        <td>{{num bbox.max.x}}</td>
-                    </tr>
-                    <tr>
-                        <th>Y</th>
-                        <td>{{num bbox.min.y}}</td>
-                        <td>{{num bbox.max.y}}</td>
-                    </tr>
-                    <tr>
-                        <th>Z</th>
-                        <td>{{num bbox.min.z}}</td>
-                        <td>{{num bbox.max.z}}</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </dd>
-        </dl>
-    </div>
+    <button {{action "simulate"}} {{bind-attr disabled="computing"}}>Simulate</button>
+    <button {{action "loadBigSample"}} {{bind-attr disabled="computing"}}>Load a bigger sample</button>
+
+    {{#if computing}}
+        <div id="loader">&nbsp;</div>
+    {{else}}
+        <div>
+            <dl>
+                <dt>Total Duration:</dt>
+                <dd>{{num totalTime}}s</dd>
+            </dl>
+            <dl>
+                <dt>Bounds (@tool center):</dt>
+                <dd>
+                    <table class="boundsTable" style="text-align:right;">
+                        <thead>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th>min</th>
+                            <th>max</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <th>X</th>
+                            <td>{{num bbox.min.x}}</td>
+                            <td>{{num bbox.max.x}}</td>
+                        </tr>
+                        <tr>
+                            <th>Y</th>
+                            <td>{{num bbox.min.y}}</td>
+                            <td>{{num bbox.max.y}}</td>
+                        </tr>
+                        <tr>
+                            <th>Z</th>
+                            <td>{{num bbox.min.z}}</td>
+                            <td>{{num bbox.max.z}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </dd>
+            </dl>
+        </div>
+    {{/if}}
 </div>

@@ -118,7 +118,7 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
             hadMovement = hadMovement || Math.abs(point[axis] - machineState.position[axis]) > 0.00001;
         });
         if (hadMovement) {
-            machineState.path.push({type: 'line', from: cloneObject(machineState.position), to: cloneObject(point),
+            machineState.addPathFragment({type: 'line', from: cloneObject(machineState.position), to: cloneObject(point),
                 feedRate: speed, lineNo: machineState.lineNo, speedTag: speedTag});
             machineState.position = point;
         }
@@ -180,7 +180,7 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
         if (!clockwise && angularDiff <= 0)
             angularDiff += 2 * Math.PI;
         var angularStart = Math.atan2(-toCenterY, -toCenterX);
-        machineState.path.push({
+        machineState.addPathFragment({
             type: 'arc',
             from: currentPosition,
             to: targetPos,
@@ -195,14 +195,19 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
         machineState.position = targetPos;
     }
 
-    function createMachine(travelFeedRate, maxFeedRate, initialPosition) {
+    function createMachine(travelFeedRate, maxFeedRate, initialPosition, pathListener) {
+        if (pathListener == null)
+            pathListener = function () {
+            };
         if (initialPosition == null) {
             initialPosition = {};
             $.each(util.AXES, function (_, axis) {
                 initialPosition[axis] = 0;
             });
         }
-        var machineState = {position: {},
+        var path = [];
+        var machineState = {
+            position: {},
             distanceMode: absoluteDistance,
             motionMode: moveTraverseRate,
             unitMode: mmConverter,
@@ -210,8 +215,13 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
             feedRate: Math.min(200, maxFeedRate),
             travelFeedRate: Math.min(travelFeedRate, maxFeedRate),
             pathControl: 61,
-            path: [],
-            parser: createParser()};
+            path: path,
+            parser: createParser(),
+            addPathFragment: function (fragment) {
+                path.push(fragment);
+                pathListener(fragment);
+            }
+        };
         $.each(util.AXES, function (_, axis) {
             machineState.position[axis] = initialPosition[axis];
         });
@@ -409,7 +419,7 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
         machineState.motionMode(parsed, machineState);
     }
 
-    function evaluate(text, travelFeedRate, maxFeedRate, initialPosition, errorCollector) {
+    function evaluate(text, travelFeedRate, maxFeedRate, initialPosition, errorCollector, fragmentListener) {
         if (errorCollector == null)
             errorCollector = [];
         if (travelFeedRate == null)
@@ -420,7 +430,7 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
             maxFeedRate = 3000;
             travelFeedRate = 3000;
         }
-        var machineState = createMachine(travelFeedRate, maxFeedRate, initialPosition);
+        var machineState = createMachine(travelFeedRate, maxFeedRate, initialPosition, fragmentListener);
         var arrayOfLines = text.match(/[^\r\n]+/g);
         for (var lineNo = 0; lineNo < arrayOfLines.length; lineNo++) {
             var originalLine = arrayOfLines[lineNo];

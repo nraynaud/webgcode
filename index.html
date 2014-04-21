@@ -149,14 +149,23 @@
                     didInsertElement: function () {
                         var threeDView = new threeD.ThreeDView(this.$());
                         this.set('nativeComponent', threeDView);
-                        this.simulatedPathChanged();
                         this.highlightChanged();
+                        this.get('controller.simulatedPath').addArrayObserver({
+                            arrayWillChange: function (observedObj, start, removeCount, addCount) {
+                                for (var i = removeCount - 1; i >= 0; i--)
+                                    threeDView.toolpath.remove((threeDView.toolpath.children[start + i]));
+                            },
+                            arrayDidChange: function (observedObj, start, removeCount, addCount) {
+                                for (var i = 0; i < addCount; i++)
+                                    threeDView.addToolpathFragment(threeDView.toolpath, observedObj[start + i]);
+                                threeDView.zoomExtent();
+                            }
+                        });
                     },
                     simulatedPathChanged: function () {
-                        var simulatedPath = this.get('controller.simulatedPath');
-                        this.get('nativeComponent').displayPath(simulatedPath);
-                        this.get('nativeComponent').zoomExtent();
-                    }.observes('controller.simulatedPath'),
+                        if (!this.get('controller.computing'))
+                            this.get('nativeComponent').zoomExtent();
+                    }.observes('controller.computing'),
                     highlightChanged: function () {
                         var highlight = this.get('controller.currentHighLight');
                         if (highlight)
@@ -170,7 +179,29 @@
                     didInsertElement: function () {
                         var view = emberTwoDView.EmberTwoDView.create({element: this.$()});
                         this.set('nativeComponent', view);
+                        var toolpath = view.paper.group();
                         this.simulatedPathChanged();
+                        var _this = this;
+                        this.get('controller.simulatedPath').addArrayObserver({
+                            arrayWillChange: function (observedObj, start, removeCount, addCount) {
+                                for (var i = removeCount - 1; i >= 0; i--)
+                                    toolpath.get([start + i]).remove();
+                            },
+                            arrayDidChange: function (observedObj, start, removeCount, addCount) {
+                                for (var i = 0; i < addCount; i++)
+                                    toolpath.add(_this.createFragment(view.paper, observedObj[start + i]), start + i);
+                                view.zoomExtent();
+                            }
+                        });
+                    },
+                    createFragment: function (parent, fragment) {
+                        var paper = this.get('nativeComponent.paper');
+                        var polyline = [];
+                        var vertices = fragment.vertices;
+                        for (var i = 0; i < vertices.length; i += 3)
+                            polyline.push({X: vertices[i], Y: vertices[i + 1]});
+                        return paper.path(cam.simplifyScaleAndCreatePathDef([polyline], 1, 0.001, false))
+                                .attr({class: 'toolpath ' + (fragment.speedTag == 'rapid' ? 'rapidMove' : 'normalMove')});
                     },
                     simulatedPathChanged: function () {
                         var path = this.get('controller.simulatedPath');
@@ -219,13 +250,21 @@
                     actions: {
                         simulate: function () {
                             this.launchSimulation();
+                        },
+                        loadBigSample: function () {
+                            var _this = this;
+                            require(['text!samples/webgcode.ngc'], function (text) {
+                                _this.set('code', text);
+                                _this.launchSimulation();
+                            });
                         }
                     },
                     launchSimulation: function () {
                         var _this = this;
-
+                        this.set('computing', true);
+                        console.time('simulation');
                         function handleResult(result) {
-                            _this.set('simulatedPath', result.simulatedPath);
+                            console.timeEnd('simulation');
                             var errors = [];
                             for (var i = 0; i < result.errors.length; i++) {
                                 var error = result.errors[i];
@@ -235,14 +274,13 @@
                             _this.set('bbox', {min: result.min, max: result.max});
                             _this.set('totalTime', result.totalTime);
                             _this.set('lineSegmentMap', result.lineSegmentMap);
-                            $('#loader').hide();
-                            $('#simulateButton').prop('disabled', false);
+                            _this.set('computing', false);
                         }
 
-                        this.set('simulatedPath', []);
-                        $('#loader').show();
-                        $('#simulateButton').prop('disabled', true);
-                        gcodeSimulation.tryToParseInWorker(this.get('code'), handleResult);
+                        this.get('simulatedPath').clear();
+                        gcodeSimulation.tryToParseInWorker(this.get('code'), Ember.run.bind(_this, handleResult), Ember.run.bind(_this, function (fragment) {
+                            _this.get('simulatedPath').pushObject(fragment);
+                        }));
                     },
                     currentHighLight: function () {
                         return this.get('lineSegmentMap')[this.get('currentRow')];
@@ -253,7 +291,8 @@
                     totalTime: 0,
                     lineSegmentMap: [],
                     currentRow: null,
-                    simulatedPath: []
+                    simulatedPath: [],
+                    computing: false
                 });
             });
 </script>
