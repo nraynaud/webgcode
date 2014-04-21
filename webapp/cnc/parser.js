@@ -431,7 +431,7 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
             travelFeedRate = 3000;
         }
         var machineState = createMachine(travelFeedRate, maxFeedRate, initialPosition, fragmentListener);
-        var arrayOfLines = text.match(/[^\r\n]+/g);
+        var arrayOfLines = text.split(/\r?\n/);
         for (var lineNo = 0; lineNo < arrayOfLines.length; lineNo++) {
             var originalLine = arrayOfLines[lineNo];
             if (originalLine.match(/[\t ]*%[\t ]*/))
