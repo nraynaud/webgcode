@@ -146,7 +146,9 @@
                 buffer[i * 3 + 1] = path[i].y;
                 buffer[i * 3 + 2] = path[i].z;
             }
-            threeDView.displayPath(buffer);
+            threeDView.displayPath([
+                {vertices: buffer.buffer, speedTag: 'normal'}
+            ]);
         }
 
         function refresh(callback) {
