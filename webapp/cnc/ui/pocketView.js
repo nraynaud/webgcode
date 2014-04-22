@@ -227,6 +227,7 @@ define(['cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView'], function (cam, rbrush
                     for (var i = 0; i < addCount; i++)
                         add.push(observedObj[start + i]);
                     _this.addPockets(add, start);
+                    _this.get('nativeComponent').zoomExtent();
                 }
             });
         },
