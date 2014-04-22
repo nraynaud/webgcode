@@ -104,10 +104,8 @@ define(function () {
             geom.attributes.position.array = float32Array;
             geom.verticesNeedUpdate = true;
             toolpathObject.add(new THREE.Line(geom, fragment.speedTag == 'rapid' ? this.rapidMaterial : this.normalMaterial));
-            console.log('addToolpathFragment', fragment)
         },
         displayPath: function (path) {
-            console.log('displayPath');
             this.clearToolpath();
             for (var i = 0; i < path.length; i++)
                 this.addToolpathFragment(this.toolpath, path[i]);
