@@ -2,6 +2,8 @@
     <label for="text">Text:</label><br>
     {{input type="text" id="text" valueBinding="text" title="your text"}}
     <br>
+    {{view Ember.Select content=fontList value=font}}
+    <br>
     <label for="toolDiameter" title="in mm">Tool Diameter:</label><br>
     {{view TextApplication.NumberField id="toolDiameter" placeholder="tool diameter"
     numericValueBinding="toolDiameter" min="0" action="launchComputationImmediately"}}

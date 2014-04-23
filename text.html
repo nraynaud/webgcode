@@ -100,6 +100,17 @@
                     template: textTemplate
                 });
                 TextApplication.TextController = Ember.ObjectController.extend({
+                    init: function () {
+                        var _this = this;
+                        text.getFontList()
+                                .then(function (list) {
+                                    _this.set('fontList', list.map(function (element) {
+                                        return element.family;
+                                    }));
+                                }).catch(function (error) {
+                                    console.error(error, error.stack);
+                                });
+                    },
                     actions: {
                         launchComputationImmediately: function () {
                             this.computePocket();
@@ -112,15 +123,16 @@
                     workBatch: null,
                     textChanged: function () {
                         this.abortComputation();
-                        Ember.run.debounce(this, this.recomputeText, 150);
-                    }.observes('text').on('init'),
+                        Ember.run.throttle(this, this.recomputeText, 150);
+                    }.observes('text', 'font', 'fontList'),
                     recomputeText: function () {
                         this.abortComputation();
                         var t = this.get('text');
                         if (t == null || t.trim().length == 0)
                             return;
+                        console.log('recomputeText', this.get('text'), this.get('font'));
                         var _this = this;
-                        text.getText('Seymour One', t, 30)
+                        text.getText(_this.get('font'), t, 30)
                                 .then(function (textOutline) {
                                     if (t != _this.get('text'))
                                         return;
@@ -135,9 +147,10 @@
                         return this.get('pocketToolPaths').isAny('isComputing');
                     }.property('pocketToolPaths.@each.isComputing'),
                     timeComputing: function () {
-                        if (this.get('computing'))
+                        if (this.get('computing')) {
+                            this.set('code', '');
                             console.time('computing');
-                        else
+                        } else
                             console.timeEnd('computing');
                     }.observes('computing').on('init'),
                     computePocket: function () {
@@ -174,7 +187,6 @@
                         this.set('workBatch', null);
                     },
                     dumpGCode: function () {
-                        console.time('gcode dump');
                         var _this = this;
                         var code = cam.dumpGCode(_this.get('feedRate'), function (collector) {
                             collector.goToTravelSpeed({z: _this.get('travelZ')});
@@ -183,7 +195,6 @@
                             });
                         });
                         _this.set('code', code);
-                        console.timeEnd('gcode dump');
                     }
                 });
 
@@ -241,7 +252,8 @@
                             radialEngagementRatio: 0.9,
                             workZ: -1,
                             travelZ: 3,
-                            feedRate: 500
+                            feedRate: 500,
+                            font: 'Seymour One'
                         }
                     },
                     controllerName: 'text'

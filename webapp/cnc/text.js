@@ -14,20 +14,26 @@ define(['libs/rsvp-latest', 'cnc/cam', 'cnc/clipper', 'libs/opentype'], function
         });
     };
 
-    function getText(fontFamily, text, fontSize) {
+    function getFontList() {
         return new RSVP.Promise(
             function (resolve, reject) {
                 $.get('https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyC9qzOvN5FgIPj-xDohd64xz0kxW1dcTB8',function (result) {
-                    for (var i = 0; i < result.items.length; i++) {
-                        var font = result.items[i];
-                        if (font.family == fontFamily) {
-                            Ember.run(null, resolve, font);
-                            return;
-                        }
-                    }
-                    Ember.run(null, reject, this);
-                }).fail(reject);
-            }).then(function (fontData) {
+                    Ember.run(null, resolve, result.items);
+                }).fail(Ember.run.bind(null, reject));
+            });
+    }
+
+    function getText(fontFamily, text, fontSize) {
+        return getFontList()
+            .then(function (fontList) {
+                for (var i = 0; i < fontList.length; i++) {
+                    var font = fontList[i];
+                    if (font.family == fontFamily)
+                        return font;
+                }
+                throw {name: 'FontNotFound'}
+            })
+            .then(function (fontData) {
                 return getFont(fontData.files['regular']);
             }).then(function (font) {
                 var path = font.getPath(text, 0, 0, fontSize);
@@ -53,5 +59,5 @@ define(['libs/rsvp-latest', 'cnc/cam', 'cnc/clipper', 'libs/opentype'], function
             });
     }
 
-    return {getText: getText};
+    return {getText: getText, getFontList: getFontList};
 });
