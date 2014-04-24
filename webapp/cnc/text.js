@@ -23,7 +23,7 @@ define(['libs/rsvp-latest', 'cnc/cam', 'cnc/clipper', 'libs/opentype'], function
             });
     }
 
-    function getText(fontFamily, text, fontSize) {
+    function getText(fontFamily, fontVariant, text, fontSize) {
         return getFontList()
             .then(function (fontList) {
                 for (var i = 0; i < fontList.length; i++) {
@@ -34,7 +34,9 @@ define(['libs/rsvp-latest', 'cnc/cam', 'cnc/clipper', 'libs/opentype'], function
                 throw {name: 'FontNotFound'}
             })
             .then(function (fontData) {
-                return getFont(fontData.files['regular']);
+                if (fontVariant == null)
+                    fontVariant = 'regular';
+                return getFont(fontData.files[fontVariant]);
             }).then(function (font) {
                 var path = font.getPath(text, 0, 0, fontSize);
                 var res = '';

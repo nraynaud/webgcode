@@ -77,192 +77,206 @@
 </head>
 <body>
 <script>
-    require(['cnc/cam', 'cnc/text', 'cnc/pocket', 'cnc/ui/views', 'cnc/ui/pocketView', 'text!templates/textApp.hbs'],
-            function (cam, text, pocket, views, pocketView, textSource) {
-                var textTemplate = Ember.Handlebars.compile(textSource);
-                window.TextApplication = Ember.Application.create({
-                    customEvents: {
-                        mousewheel: "mousewheel"
+require(['cnc/cam', 'cnc/text', 'cnc/pocket', 'cnc/ui/views', 'cnc/ui/pocketView', 'text!templates/textApp.hbs'],
+        function (cam, text, pocket, views, pocketView, textSource) {
+            var textTemplate = Ember.Handlebars.compile(textSource);
+            window.TextApplication = Ember.Application.create({
+                customEvents: {
+                    mousewheel: "mousewheel"
+                }
+            });
+            TextApplication.Router.reopen({
+                rootURL: '/webgcode/'
+            });
+            TextApplication.Router.map(function () {
+                this.resource('text', {path: '/'});
+            });
+            //TODO: find how to inject this into the template scope directly
+            TextApplication.NumberField = views.NumberField;
+            $.extend(TextApplication, pocketView);
+
+            TextApplication.TextView = Ember.View.extend({
+                classNames: ['global'],
+                template: textTemplate
+            });
+            TextApplication.FontsController = Ember.ArrayController.extend({
+                getFont: function (fontFamily) {
+                    var fontList = this.get('content');
+                    for (var i = 0; i < fontList.length; i++) {
+                        var font = fontList[i];
+                        if (font.family == fontFamily)
+                            return font;
                     }
-                });
-                TextApplication.Router.reopen({
-                    rootURL: '/webgcode/'
-                });
-                TextApplication.Router.map(function () {
-                    this.resource('text', {path: '/'});
-                });
-                //TODO: find how to inject this into the template scope directly
-                TextApplication.NumberField = views.NumberField;
-                $.extend(TextApplication, pocketView);
-
-                TextApplication.TextView = Ember.View.extend({
-                    classNames: ['global'],
-                    template: textTemplate
-                });
-                TextApplication.FontsController = Ember.ArrayController.extend({
-
-                });
-                TextApplication.TextController = Ember.ObjectController.extend({
-                    needs: "fonts",
-                    init: function () {
+                    return null;
+                }
+            });
+            TextApplication.TextController = Ember.ObjectController.extend({
+                needs: "fonts",
+                init: function () {
+                },
+                actions: {
+                    launchComputationImmediately: function () {
+                        this.computePocket();
                     },
-                    actions: {
-                        launchComputationImmediately: function () {
-                            this.computePocket();
-                        },
-                        computeGCode: function () {
-                            this.dumpGCode();
-                        }
-                    },
-                    pocketToolPaths: [],
-                    workBatch: null,
-                    textChanged: function () {
-                        this.abortComputation();
-                        Ember.run.throttle(this, this.recomputeText, 150);
-                    }.observes('text', 'fontName', 'fontList'),
-                    recomputeText: function () {
-                        this.abortComputation();
-                        var t = this.get('text');
-                        if (t == null || t.trim().length == 0)
-                            return;
-                        console.log('recomputeText', this.get('text'), this.get('fontName'));
-                        var _this = this;
-                        text.getText(_this.get('fontName'), t, 30)
-                                .then(function (textOutline) {
-                                    if (t != _this.get('text'))
-                                        return;
-                                    _this.set('textOutline', textOutline);
-                                    _this.computePocket();
-                                })
-                                .catch(function (error) {
-                                    console.error(error, error.stack);
-                                });
-                    },
-                    computing: function () {
-                        return this.get('pocketToolPaths').isAny('isComputing');
-                    }.property('pocketToolPaths.@each.isComputing'),
-                    timeComputing: function () {
-                        if (this.get('computing')) {
-                            this.set('code', '');
-                            console.time('computing');
-                        } else
-                            console.timeEnd('computing');
-                    }.observes('computing').on('init'),
-                    computePocket: function () {
-                        this.abortComputation();
-                        var pocketToolPaths = this.get('pocketToolPaths');
-                        pocketToolPaths.clear();
-                        var toolRadius = this.get('toolDiameter') / 2 * cam.CLIPPER_SCALE;
-                        var poly2 = cam.pathDefToClipper(this.get('textOutline'));
-                        var radialEngagementRatio = this.get('radialEngagementRatio');
-                        console.time('computing pocket');
-                        var _this = this;
-                        var promises = [];
-                        var work = pocket.createPocket(poly2, toolRadius, radialEngagementRatio, false);
-                        this.set('workBatch', work);
-                        work.workArray.forEach(function (workUnit) {
-                            pocketToolPaths.pushObject(
-                                    TextApplication.PocketToolPath.create({polygon: workUnit.polygon, promise: workUnit.promise,
-                                        undercutPromise: workUnit.undercutPromise, separation: radialEngagementRatio * toolRadius}));
-                            promises.pushObject(workUnit.promise, workUnit.undercutPromise);
-                        });
-                        RSVP.all(promises)
-                                .then(function () {
-                                    _this.dumpGCode();
-                                })
-                                .finally(function () {
-                                    console.timeEnd('computing pocket');
-                                });
-                    },
-                    abortComputation: function () {
-                        var work = this.get('workBatch');
-                        if (work == null)
-                            return;
-                        work.abort();
-                        this.set('workBatch', null);
-                    },
-                    dumpGCode: function () {
-                        var _this = this;
-                        var code = cam.dumpGCode(_this.get('feedRate'), function (collector) {
-                            collector.goToTravelSpeed({z: _this.get('travelZ')});
-                            _this.get('pocketToolPaths').forEach(function (pocket) {
-                                pocket.dumpOn(collector, _this.get('travelZ'), _this.get('workZ'));
+                    computeGCode: function () {
+                        this.dumpGCode();
+                    }
+                },
+                pocketToolPaths: [],
+                workBatch: null,
+                textChanged: function () {
+                    this.abortComputation();
+                    Ember.run.throttle(this, this.recomputeText, 150);
+                }.observes('text', 'fontName', 'fontVariant'),
+                recomputeText: function () {
+                    this.abortComputation();
+                    var t = this.get('text');
+                    if (t == null || t.trim().length == 0)
+                        return;
+                    var _this = this;
+                    text.getText(_this.get('fontName'), _this.get('fontVariant'), t, 30)
+                            .then(function (textOutline) {
+                                if (t != _this.get('text'))
+                                    return;
+                                _this.set('textOutline', textOutline);
+                                _this.computePocket();
+                            })
+                            .catch(function (error) {
+                                console.error(error, error.stack);
                             });
+                },
+                computing: function () {
+                    return this.get('pocketToolPaths').isAny('isComputing');
+                }.property('pocketToolPaths.@each.isComputing'),
+                timeComputing: function () {
+                    if (this.get('computing')) {
+                        this.set('code', '');
+                        console.time('computing');
+                    } else
+                        console.timeEnd('computing');
+                }.observes('computing').on('init'),
+                computePocket: function () {
+                    this.abortComputation();
+                    var pocketToolPaths = this.get('pocketToolPaths');
+                    pocketToolPaths.clear();
+                    var toolRadius = this.get('toolDiameter') / 2 * cam.CLIPPER_SCALE;
+                    var poly2 = cam.pathDefToClipper(this.get('textOutline'));
+                    var radialEngagementRatio = this.get('radialEngagementRatio');
+                    console.time('computing pocket');
+                    var _this = this;
+                    var promises = [];
+                    var work = pocket.createPocket(poly2, toolRadius, radialEngagementRatio, false);
+                    this.set('workBatch', work);
+                    work.workArray.forEach(function (workUnit) {
+                        pocketToolPaths.pushObject(
+                                TextApplication.PocketToolPath.create({polygon: workUnit.polygon, promise: workUnit.promise,
+                                    undercutPromise: workUnit.undercutPromise, separation: radialEngagementRatio * toolRadius}));
+                        promises.pushObject(workUnit.promise, workUnit.undercutPromise);
+                    });
+                    RSVP.all(promises)
+                            .then(function () {
+                                _this.dumpGCode();
+                            })
+                            .finally(function () {
+                                console.timeEnd('computing pocket');
+                            });
+                },
+                abortComputation: function () {
+                    var work = this.get('workBatch');
+                    if (work == null)
+                        return;
+                    work.abort();
+                    this.set('workBatch', null);
+                },
+                dumpGCode: function () {
+                    var _this = this;
+                    var code = cam.dumpGCode(_this.get('feedRate'), function (collector) {
+                        collector.goToTravelSpeed({z: _this.get('travelZ')});
+                        _this.get('pocketToolPaths').forEach(function (pocket) {
+                            pocket.dumpOn(collector, _this.get('travelZ'), _this.get('workZ'));
                         });
-                        _this.set('code', code);
+                    });
+                    _this.set('code', code);
+                },
+                font: function () {
+                    return this.get('controllers.fonts').getFont(this.get('fontName'));
+                }.property('fontName', 'controllers.fonts'),
+                hasFontVariants: function () {
+                    return this.get('controllers.fonts').getFont(this.get('fontName')).variants.length > 1;
+                }.property('fontName', 'controllers.fonts')
+            });
+
+            TextApplication.PocketToolPath = Ember.Object.extend({
+                init: function () {
+                    var _this = this;
+                    this.get('promise').then(function (toolPathArray) {
+                        _this.set('toolPathArray', toolPathArray);
+                    }).catch(function (error) {
+                                console.error(error.stack);
+                            }).finally(function () {
+                                _this.set('isComputing', false);
+                            });
+                    this.get('undercutPromise').then(function (undercut) {
+                        _this.set('undercut', undercut);
+                    }).catch(function (error) {
+                                console.error(error.stack);
+                            });
+                },
+                isComputing: true,
+                dumpOn: function (collector, travelZ, workZ) {
+                    function p(clipperPoint) {
+                        return {x: clipperPoint.X / cam.CLIPPER_SCALE, y: clipperPoint.Y / cam.CLIPPER_SCALE};
                     }
-                });
 
-                TextApplication.PocketToolPath = Ember.Object.extend({
-                    init: function () {
-                        var _this = this;
-                        this.get('promise').then(function (toolPathArray) {
-                            _this.set('toolPathArray', toolPathArray);
-                        }).catch(function (error) {
-                                    console.error(error.stack);
-                                }).finally(function () {
-                                    _this.set('isComputing', false);
-                                });
-                        this.get('undercutPromise').then(function (undercut) {
-                            _this.set('undercut', undercut);
-                        }).catch(function (error) {
-                                    console.error(error.stack);
-                                });
-                    },
-                    isComputing: true,
-                    dumpOn: function (collector, travelZ, workZ) {
-                        function p(clipperPoint) {
-                            return {x: clipperPoint.X / cam.CLIPPER_SCALE, y: clipperPoint.Y / cam.CLIPPER_SCALE};
-                        }
-
-                        function dumpPolylines(polylines, collector) {
-                            for (var i = 0; i < polylines.length; i++) {
-                                var polyline = polylines[i];
-                                if (polyline.length) {
-                                    collector.goToTravelSpeed(p(polyline[0]));
-                                    collector.goToWorkSpeed({z: workZ});
-                                    for (var j = 0; j < polyline.length; j++)
-                                        collector.goToWorkSpeed(p(polyline[j]));
-                                    collector.goToTravelSpeed({z: travelZ});
-                                }
+                    function dumpPolylines(polylines, collector) {
+                        for (var i = 0; i < polylines.length; i++) {
+                            var polyline = polylines[i];
+                            if (polyline.length) {
+                                collector.goToTravelSpeed(p(polyline[0]));
+                                collector.goToWorkSpeed({z: workZ});
+                                for (var j = 0; j < polyline.length; j++)
+                                    collector.goToWorkSpeed(p(polyline[j]));
+                                collector.goToTravelSpeed({z: travelZ});
                             }
                         }
-
-                        function dumpLayer(layer, collector) {
-                            for (var i = 0; i < layer.children.length; i++)
-                                dumpLayer(layer.children[i], collector);
-                            dumpPolylines(layer.spiraledToolPath ? [layer.spiraledToolPath.path] : layer.contour, collector);
-                        }
-
-                        for (var i = 0; i < this.get('toolPathArray').length; i++)
-                            dumpLayer(this.get('toolPathArray')[i], collector);
                     }
-                });
-                TextApplication.TextRoute = Ember.Route.extend({
-                    model: function () {
-                        var route = this;
-                        return text.getFontList()
-                                .then(function (list) {
-                                    route.set('fontList', list);
-                                    return {
-                                        id: 1,
-                                        text: 'Webgcode',
-                                        toolDiameter: 2,
-                                        radialEngagementRatio: 0.9,
-                                        workZ: -1,
-                                        travelZ: 3,
-                                        feedRate: 500,
-                                        fontName: 'Seymour One'
-                                    }
-                                });
-                    },
-                    controllerName: 'text',
-                    setupController: function () {
-                        this.controllerFor('fonts').set('content', this.get('fontList'));
-                        return this._super.apply(this, arguments);
+
+                    function dumpLayer(layer, collector) {
+                        for (var i = 0; i < layer.children.length; i++)
+                            dumpLayer(layer.children[i], collector);
+                        dumpPolylines(layer.spiraledToolPath ? [layer.spiraledToolPath.path] : layer.contour, collector);
                     }
-                });
+
+                    for (var i = 0; i < this.get('toolPathArray').length; i++)
+                        dumpLayer(this.get('toolPathArray')[i], collector);
+                }
             });
+            TextApplication.TextRoute = Ember.Route.extend({
+                model: function () {
+                    var route = this;
+                    return text.getFontList()
+                            .then(function (list) {
+                                route.set('fontList', list);
+                                return {
+                                    id: 1,
+                                    text: 'Webgcode',
+                                    toolDiameter: 2,
+                                    radialEngagementRatio: 0.9,
+                                    workZ: -1,
+                                    travelZ: 3,
+                                    feedRate: 500,
+                                    fontName: 'Seymour One',
+                                    fontVariant: 'regular'
+                                }
+                            });
+                },
+                controllerName: 'text',
+                setupController: function () {
+                    this.controllerFor('fonts').set('content', this.get('fontList'));
+                    return this._super.apply(this, arguments);
+                }
+            });
+        });
 </script>
 </body>
 </html>

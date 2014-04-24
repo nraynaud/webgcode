@@ -27,7 +27,7 @@ define(['libs/rsvp-latest', 'cnc/cam', 'cnc/clipper', 'libs/opentype', 'cnc/text
             }
 
             machine.setParams(-1, 1, 1000);
-            text.getText('Seymour One', 'Quite long text', 30).then(function (textOutline) {
+            text.getText('Seymour One', null, 'Quite long text', 30).then(function (textOutline) {
                 var toolRadius = 2 / 2;
                 var radialEngagementRatio = 0.9;
                 var outline = machine.createOutline(textOutline, 'gray');

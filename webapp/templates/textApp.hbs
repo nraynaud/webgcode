@@ -4,6 +4,12 @@
     <br>
     {{view Ember.Select content=controllers.fonts value=fontName optionLabelPath="content.family" optionValuePath="content.family"}}
     <br>
+    {{#if hasFontVariants}}
+        {{view Ember.Select content=font.variants value=fontVariant}}
+    {{else}}
+        {{font.variants}}
+    {{/if}}
+    <br>
     <label for="toolDiameter" title="in mm">Tool Diameter:</label><br>
     {{view TextApplication.NumberField id="toolDiameter" placeholder="tool diameter"
     numericValueBinding="toolDiameter" min="0" action="launchComputationImmediately"}}
