@@ -198,11 +198,15 @@ require(['cnc/cam', 'cnc/text', 'cnc/pocket', 'cnc/ui/views', 'cnc/ui/pocketView
                     });
                     _this.set('code', code);
                 },
+                checkVariant: function () {
+                    if (this.get('font').variants.indexOf(this.get('fontVariant')) == -1)
+                        this.set('fontVariant', this.get('font').variants[0])
+                }.observes('fontName', 'controllers.fonts', 'fontVariant'),
                 font: function () {
                     return this.get('controllers.fonts').getFont(this.get('fontName'));
                 }.property('fontName', 'controllers.fonts'),
                 hasFontVariants: function () {
-                    return this.get('controllers.fonts').getFont(this.get('fontName')).variants.length > 1;
+                    return this.get('font').variants.length > 1;
                 }.property('fontName', 'controllers.fonts')
             });
 
