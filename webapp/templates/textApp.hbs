@@ -2,6 +2,9 @@
     <label for="text">Text:</label><br>
     {{input type="text" id="text" valueBinding="text" title="your text"}}
     <br>
+    <label for="fontSize">Font Size:</label><br>
+    {{view TextApplication.NumberField id="fontSize" placeholder="Font Size" numericValueBinding="fontSize" min="0.01" max="500"}}
+    <br>
     {{view Ember.Select content=controllers.fonts value=fontName optionLabelPath="content.family" optionValuePath="content.family"}}
     <br>
     {{#if hasFontVariants}}

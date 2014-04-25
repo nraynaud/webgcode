@@ -121,14 +121,14 @@
                     textChanged: function () {
                         this.abortComputation();
                         Ember.run.debounce(this, this.recomputeText, 150);
-                    }.observes('text', 'fontName', 'fontVariant'),
+                    }.observes('text', 'fontSize', 'fontName', 'fontVariant'),
                     recomputeText: function () {
                         this.abortComputation();
                         var t = this.get('text');
                         if (t == null || t.trim().length == 0)
                             return;
                         var _this = this;
-                        text.getTextFromData(_this.get('font'), _this.get('fontVariant'), t, 30)
+                        text.getTextFromData(_this.get('font'), _this.get('fontVariant'), t, _this.get('fontSize'))
                                 .then(function (textOutline) {
                                     if (t != _this.get('text'))
                                         return;
@@ -264,7 +264,8 @@
                                         travelZ: 3,
                                         feedRate: 500,
                                         fontName: 'Seymour One',
-                                        fontVariant: 'regular'
+                                        fontVariant: 'regular',
+                                        fontSize: 30
                                     }
                                 });
                     },
