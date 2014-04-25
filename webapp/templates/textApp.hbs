@@ -2,37 +2,44 @@
     <label for="text">Text:</label><br>
     {{input type="text" id="text" valueBinding="text" title="your text"}}
     <br>
-    <label for="fontSize">Font Size:</label><br>
-    {{view TextApplication.NumberField id="fontSize" placeholder="Font Size" numericValueBinding="fontSize" min="0.01" max="500"}}
+
+    <div class="font">
+        <h3>Font</h3>
+        <label for="fontSize">Size:</label><br>
+        {{view TextApplication.NumberField id="fontSize" placeholder="Font Size" numericValueBinding="fontSize" min="0.01" max="500"}}
+        <br>
+        {{view Ember.Select content=controllers.fonts value=fontName optionLabelPath="content.family" optionValuePath="content.family"}}
+        <br>
+        {{#if hasFontVariants}}
+            {{view Ember.Select content=font.variants value=fontVariant}}
+        {{else}}
+            {{font.variants}}
+        {{/if}}
+    </div>
     <br>
-    {{view Ember.Select content=controllers.fonts value=fontName optionLabelPath="content.family" optionValuePath="content.family"}}
-    <br>
-    {{#if hasFontVariants}}
-        {{view Ember.Select content=font.variants value=fontVariant}}
-    {{else}}
-        {{font.variants}}
-    {{/if}}
-    <br>
-    <label for="toolDiameter" title="in mm">Tool Diameter:</label><br>
-    {{view TextApplication.NumberField id="toolDiameter" placeholder="tool diameter"
-    numericValueBinding="toolDiameter" min="0" action="launchComputationImmediately"}}
-    <br>
-    <label for="radialEngagement" title="ratio ]0-1]">Radial Engagement:</label><br>
-    {{view TextApplication.NumberField id="radialEngagement" placeholder="radial engagement"
-    numericValueBinding="radialEngagementRatio" min="0" max="1" step="0.05" action="launchComputationImmediately"}}
-    <br>
-    <label for="workZ" title="in mm">Work Z:</label><br>
-    {{view TextApplication.NumberField id="workZ" placeholder="workZ"
-    numericValueBinding="workZ" action="computeGCode"}}
-    <br>
-    <label for="travelZ" title="in mm">Travel Z:</label><br>
-    {{view TextApplication.NumberField id="travelZ" placeholder="travelZ"
-    numericValueBinding="travelZ" action="computeGCode"}}
-    <br>
-    <label for="feedRate" title="in mm/min">Feed Rate:</label><br>
-    {{view TextApplication.NumberField id="feedRate" placeholder="feedRate"
-    numericValueBinding="feedRate" action="computeGCode"}}
-    <br>
+
+    <div class="operation">
+        <h3>Operation</h3>
+        <label for="toolDiameter" title="in mm">Tool Diameter:</label><br>
+        {{view TextApplication.NumberField id="toolDiameter" placeholder="tool diameter"
+        numericValueBinding="toolDiameter" min="0" action="launchComputationImmediately"}}
+        <br>
+        <label for="radialEngagement" title="ratio ]0-1]">Radial Engagement:</label><br>
+        {{view TextApplication.NumberField id="radialEngagement" placeholder="radial engagement"
+        numericValueBinding="radialEngagementRatio" min="0" max="1" step="0.05" action="launchComputationImmediately"}}
+        <br>
+        <label for="workZ" title="in mm">Work Z:</label><br>
+        {{view TextApplication.NumberField id="workZ" placeholder="workZ"
+        numericValueBinding="workZ" action="computeGCode"}}
+        <br>
+        <label for="travelZ" title="in mm">Travel Z:</label><br>
+        {{view TextApplication.NumberField id="travelZ" placeholder="travelZ"
+        numericValueBinding="travelZ" action="computeGCode"}}
+        <br>
+        <label for="feedRate" title="in mm/min">Feed Rate:</label><br>
+        {{view TextApplication.NumberField id="feedRate" placeholder="feedRate"
+        numericValueBinding="feedRate" action="computeGCode"}}
+    </div>
 </div>
 <div id="drawing">
     {{view TextApplication.OperationView}}
