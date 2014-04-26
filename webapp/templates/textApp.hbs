@@ -1,10 +1,11 @@
 <div class="controls">
-    <label for="text">Text:</label><br>
-    {{input type="text" id="text" valueBinding="text" title="your text"}}
-    <br>
-
-    <div class="font">
-        <h3>Font</h3>
+    <div class="controlPanel">
+        <h3><label for="text">Text</label></h3>
+        {{input type="text" id="text" valueBinding="text" title="your text"}}
+        <br>
+    </div>
+    <div class="controlPanel">
+    <h3>Font</h3>
         <label for="fontSize">Size:</label><br>
         {{view TextApplication.NumberField id="fontSize" placeholder="Font Size" numericValueBinding="fontSize" min="0.01" max="500"}}
         <br>
@@ -16,10 +17,9 @@
             {{font.variants}}
         {{/if}}
     </div>
-    <br>
 
-    <div class="operation">
-        <h3>Operation</h3>
+    <div class="controlPanel">
+    <h3>Operation</h3>
         <label for="toolDiameter" title="in mm">Tool Diameter:</label><br>
         {{view TextApplication.NumberField id="toolDiameter" placeholder="tool diameter"
         numericValueBinding="toolDiameter" min="0" action="launchComputationImmediately"}}
