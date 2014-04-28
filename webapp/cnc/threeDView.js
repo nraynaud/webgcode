@@ -119,10 +119,11 @@ define(function () {
         computeDrawingBBox: function () {
             var bbox = new THREE.Box3();
             this.drawing.updateMatrixWorld(true);
+            var _this = this;
             this.drawing.traverse(function (node) {
                 if (node.geometry) {
                     node.geometry.computeBoundingBox();
-                    bbox.union(node.geometry.boundingBox);
+                    bbox.union(node.geometry.boundingBox.clone().applyMatrix4(_this.drawing.matrixWorld));
                 }
             });
             return bbox;
@@ -130,8 +131,12 @@ define(function () {
         zoomExtent: function () {
             var bbox = this.computeDrawingBBox();
             var extentMiddle = bbox.center();
+            var radius = bbox.getBoundingSphere().radius;
             this.controls.target = extentMiddle.clone();
-            var cameraPos = extentMiddle.add(new THREE.Vector3(0, -40, 80));
+            var cameraOrientation = new THREE.Vector3(0, -40, 80).normalize();
+            var distance = radius / Math.tan(this.camera.fov / 2);
+            cameraOrientation.multiplyScalar(distance);
+            var cameraPos = extentMiddle.add(cameraOrientation);
             this.camera.position.copy(cameraPos);
             this.controls.update();
             this.reRender();
