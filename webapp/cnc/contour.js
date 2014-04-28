@@ -6,8 +6,8 @@ function contour(altitude, geom) {
     function edgeCrossesPlan(p1Index, p2Index, otherIndex) {
         var p1 = geom.vertices[p1Index];
         var p2 = geom.vertices[p2Index];
-        var p1distance = altitude - p1.y;
-        var p2distance = altitude - p2.y;
+        var p1distance = altitude - p1.z;
+        var p2distance = altitude - p2.z;
         if (p1distance * p2distance >= 0)
             return null;
         var t = p1distance / (p1distance - p2distance);
