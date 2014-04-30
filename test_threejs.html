@@ -90,6 +90,7 @@ require(['cnc/threeDView'], function (threeDView) {
     var view = new threeDView.ThreeDView($('#container'));
     var elevator;
     var map;
+    var currentQueryId = 0;
     var center = new google.maps.LatLng(43.78025958500131, 3.814994812011694);
     var initialSelection = new google.maps.Rectangle({
         bounds: new google.maps.LatLngBounds(
@@ -211,13 +212,15 @@ require(['cnc/threeDView'], function (threeDView) {
         });
 
         function handleSelection(rectangle) {
+            currentQueryId++;
             if (currentSelection)
                 currentSelection.setMap(null);
             currentSelection = rectangle;
             drawingManager.setDrawingMode(null);
             var grid = new ShuffledGrid(40, 40);
             var batchSize = 200;
-
+            if (mesh != null)
+                view.drawing.remove(mesh);
             var south = rectangle.getBounds().getSouthWest().lat();
             var north = rectangle.getBounds().getNorthEast().lat();
             var west = rectangle.getBounds().getSouthWest().lng();
@@ -236,9 +239,12 @@ require(['cnc/threeDView'], function (threeDView) {
                     locations.push(new google.maps.LatLng(yratio * north + (1 - yratio) * south, xratio * east + (1 - xratio) * west));
                 }
                 workList.push(
-                        (function (startI, locations) {
+                        (function (startI, locations, queryId) {
                             return function (onQueryLimit) {
                                 elevator.getElevationForLocations({'locations': locations}, function (results, status) {
+                                    //if we were called back after this query has been superseded
+                                    if (queryId != currentQueryId)
+                                        return;
                                     if (status == google.maps.ElevationStatus.OK) {
                                         if (results)
                                             displayResults(startI, batchSize, grid, xspan, yspan, delaunayState, results);
@@ -251,7 +257,7 @@ require(['cnc/threeDView'], function (threeDView) {
                                         alert('Elevation service failed due to: ' + status);
                                 });
                             };
-                        })(startI, locations));
+                        })(startI, locations, currentQueryId));
             }
             setInterval(function () {
                 if (workList.length) {
