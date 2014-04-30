@@ -97,11 +97,7 @@ require(['cnc/threeDView'], function (threeDView) {
                 new google.maps.LatLng(43.80356206947803, 3.850879669189453))
     });
     var currentSelection;
-    var delaunayGeom = new THREE.Geometry();
-    delaunayGeom.dynamic = true;
-    var mesh = new THREE.Mesh(delaunayGeom, new THREE.MeshBasicMaterial({color: 0xAA0000, side: THREE.DoubleSide}));
-    view.drawing.add(mesh);
-    view.reRender();
+    var mesh;
     var contourMesh = null;
     var contourLines = [];
 
@@ -156,11 +152,12 @@ require(['cnc/threeDView'], function (threeDView) {
                     delaunayState);
             vertex.z = results[j].elevation;
         }
-        delaunayGeom = new THREE.Geometry();
+        var delaunayGeom = new THREE.Geometry();
         delaunayToGeom(delaunayState, delaunayGeom);
         delaunayGeom.computeBoundingBox();
         displayContours(325, delaunayGeom);
-        view.drawing.remove(mesh);
+        if (mesh != null)
+            view.drawing.remove(mesh);
         mesh = new THREE.Mesh(delaunayGeom, new THREE.MeshBasicMaterial({wireframe: true, color: 0xAA0000, side: THREE.DoubleSide}));
         view.drawing.add(mesh);
         view.zoomExtent();
