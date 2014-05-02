@@ -1,5 +1,5 @@
 "use strict";
-define(['cnc/util', 'cnc/geometry'], function (util, geometry) {
+define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
 
     function scaledLine(axis, line, ratio) {
         return line.from[axis] + ratio * (line.to[axis] - line.from[axis]);

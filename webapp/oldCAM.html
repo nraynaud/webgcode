@@ -97,7 +97,7 @@
         return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null;
     }
 
-    require(['cnc/threeDView', 'cnc/simulation', 'cnc/gcodeSimulation'], function (threeD, simulation, gcodeSimulation) {
+    require(['cnc/threeDView', 'cnc/gcode/simulation', 'cnc/gcode/gcodeSimulation'], function (threeD, simulation, gcodeSimulation) {
         var editor = ace.edit("codebox");
         editor.setTheme("ace/theme/twilight");
 

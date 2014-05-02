@@ -43,7 +43,7 @@ var tasks = {
         });
     },
     acceptProgram: function (event) {
-        require(['cnc/parser', 'cnc/simulation'], function (parser, simulation) {
+        require(['cnc/gcode/parser', 'cnc/gcode/simulation'], function (parser, simulation) {
             function handleFragment(program) {
                 var programLength = program.length * 3;
                 var formattedData = new ArrayBuffer(programLength + 4);
@@ -82,7 +82,7 @@ var tasks = {
         });
     },
     simulateGCode: function (event) {
-        require(['cnc/gcodeSimulation'], function (gcodeSimulation) {
+        require(['cnc/gcode/gcodeSimulation'], function (gcodeSimulation) {
             gcodeSimulation.simulateWorkerSide(event);
         });
     }

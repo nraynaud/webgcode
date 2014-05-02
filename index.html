@@ -106,7 +106,7 @@
 
 </div>
 <script>
-require(['cnc/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/util', 'cnc/ui/gcodeEditor', 'cnc/gcodeSimulation', 'text!templates/gcodeSimulator.hbs'],
+require(['cnc/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/util', 'cnc/ui/gcodeEditor', 'cnc/gcode/gcodeSimulation', 'text!templates/gcodeSimulator.hbs'],
         function (threeD, emberTwoDView, cam, util, gcodeEditor, gcodeSimulation, applicationTemplate) {
             var demoCode = 'G0 Y10 Z-5\n' +
                     'G1 Z-10\n' +

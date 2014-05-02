@@ -1,5 +1,5 @@
 "use strict";
-require(['libs/jsparse', 'cnc/parser', 'cnc/simulation'], function (jp, parser, simulation) {
+require(['libs/jsparse', 'cnc/gcode/parser', 'cnc/gcode/simulation'], function (jp, parser, simulation) {
     test("G0 evaluation", function () {
         var code = 'G0 X10';
         var result = parser.evaluate(code);

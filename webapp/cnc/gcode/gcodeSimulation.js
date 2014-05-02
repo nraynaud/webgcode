@@ -1,6 +1,6 @@
 "use strict";
 
-define(['cnc/simulation', 'cnc/parser', 'require'], function (simulation, parser, require) {
+define(['cnc/gcode/simulation', 'cnc/gcode/parser', 'require'], function (simulation, parser, require) {
     function simulateGCode(code, fragmentHandler) {
         var currentSpeedTag = null;
         var simulatedPath = [];
