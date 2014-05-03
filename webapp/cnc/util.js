@@ -11,11 +11,40 @@ define(function () {
         },
         sub: function (p) {
             return new Point(this.x - p.x, this.y - p.y);
+        },
+        add: function (p) {
+            return new Point(this.x + p.x, this.y + p.y);
+        },
+        sqDistance: function (p) {
+            var dx = this.x - p.x;
+            var dy = (this.y - p.y);
+            return dx * dx + dy * dy;
+        },
+        distance: function (p) {
+            return Math.sqrt(this.sqDistance(p));
+        },
+        lerp: function (p, alpha) {
+            return new Point(this.x + (p.x - this.x) * alpha, this.y + (p.y - this.y) * alpha);
         }
     };
+    function toggleClass(svgElement, className, toggle) {
+        var classAttr = svgElement.attr('class');
+        if (classAttr == null)
+            classAttr = '';
+        var classes = classAttr.split(' ');
+        var index = classes.indexOf(className);
+        if (toggle) {
+            if (index == -1)
+                svgElement.attr('class', classAttr + ' ' + className);
+        } else if (index != -1) {
+            classes.splice(index, 1);
+            svgElement.attr('class', classes.join(' '));
+        }
+    }
 
     return {
         Point: Point,
+        toggleClass: toggleClass,
         //variadic, just pass x,y,z ...
         length: function () {
             var squaredSum = 0;
