@@ -1,6 +1,6 @@
 "use strict";
 
-define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
+define(['cnc/clipper', 'cnc/cam', 'require'], function (clipper, cam, require) {
 
     function lastItem(array) {
         return array[array.length - 1];
@@ -169,6 +169,21 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
         return children;
     }
 
+    function createPocketWorkerSide(event) {
+        function resolveUndercut(polygon) {
+            self.postMessage({
+                operation: 'displayUndercutPoly',
+                polygon: polygon
+            });
+        }
+
+        var data = event.data;
+        self.postMessage({
+            finished: true,
+            result: doCreatePocket(data.poly, data.scaledToolRadius, data.radialEngagementRatio, resolveUndercut)
+        });
+    }
+
     function createWorkerPool(workerUrl, workArray, maxWorkers) {
         var workersCount = Math.min(maxWorkers, workArray.length);
         var workers = [];
@@ -259,7 +274,7 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
         var workArray = polygons.map(function (poly) {
             return createWork(poly, scaledToolRadius, radialEngagementRatio);
         });
-        window.workerPool = createWorkerPool('webapp/worker.js', workArray, 6);
+        window.workerPool = createWorkerPool(require.toUrl('worker.js'), workArray, 6);
         return {workArray: workArray, abort: window.workerPool.abort};
     }
 
@@ -285,6 +300,7 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
 
     return {
         doCreatePocket: doCreatePocket,
-        createPocket: createPocket
+        createPocket: createPocket,
+        createPocketWorkerSide: createPocketWorkerSide
     };
 });

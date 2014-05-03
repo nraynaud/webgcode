@@ -28,18 +28,7 @@ importScripts('libs/require.js');
 var tasks = {
     createPocket: function (event) {
         require(['cnc/pocket'], function (pocket) {
-            function resolveUndercut(polygon) {
-                self.postMessage({
-                    operation: 'displayUndercutPoly',
-                    polygon: polygon
-                });
-            }
-
-            var data = event.data;
-            self.postMessage({
-                finished: true,
-                result: pocket.doCreatePocket(data.poly, data.scaledToolRadius, data.radialEngagementRatio, resolveUndercut)
-            });
+            pocket.createPocketWorkerSide(event);
         });
     },
     acceptProgram: function (event) {
