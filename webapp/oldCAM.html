@@ -4,12 +4,8 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1"/>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <title>g-code simulator</title>
-    <script src="libs/jquery.min.js"></script>
-    <script src="libs/Three.min.js"></script>
-    <script src="libs/TrackballControls.js"></script>
-    <script src="libs/OrbitControls.js"></script>
-    <script src="libs/ace/src-noconflict/ace.js"></script>
     <script src="libs/require.js"></script>
+    <script src="config.js"></script>
 
     <style>
         html, body {
@@ -97,61 +93,62 @@
         return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null;
     }
 
-    require(['cnc/threeDView', 'cnc/gcode/simulation', 'cnc/gcode/gcodeSimulation'], function (threeD, simulation, gcodeSimulation) {
-        var editor = ace.edit("codebox");
-        editor.setTheme("ace/theme/twilight");
+    require(['cnc/threeDView', 'cnc/gcode/simulation', 'cnc/gcode/gcodeSimulation', 'ace', 'jQuery'],
+            function (threeD, simulation, gcodeSimulation, ace, $) {
+                var editor = ace.edit("codebox");
+                editor.setTheme("ace/theme/twilight");
 
-        function refreshView() {
-            console.time('simulation');
-            $('#simulateButton').prop('disabled', true);
-            $('#loader').show();
-            editor.getSession().clearAnnotations();
-            threeDView.clearToolpath();
-            var simulatedPath = [];
+                function refreshView() {
+                    console.time('simulation');
+                    $('#simulateButton').prop('disabled', true);
+                    $('#loader').show();
+                    editor.getSession().clearAnnotations();
+                    threeDView.clearToolpath();
+                    var simulatedPath = [];
 
-            function handleResult(result) {
-                threeDView.displayPath(simulatedPath);
-                console.timeEnd('simulation');
-                var annotations = [];
-                for (var i = 0; i < result.errors.length; i++) {
-                    var error = result.errors[i];
-                    annotations.push({row: error.lineNo, text: error.message, type: "error"});
+                    function handleResult(result) {
+                        threeDView.displayPath(simulatedPath);
+                        console.timeEnd('simulation');
+                        var annotations = [];
+                        for (var i = 0; i < result.errors.length; i++) {
+                            var error = result.errors[i];
+                            annotations.push({row: error.lineNo, text: error.message, type: "error"});
+                        }
+                        editor.getSession().setAnnotations(annotations);
+                        if (annotations.length)
+                            editor.gotoLine(annotations[0].row);
+                        $('#loader').hide();
+                        $('#simulateButton').prop('disabled', false);
+                    }
+
+                    var code = editor.getValue();
+                    gcodeSimulation.tryToParseInWorker(code, handleResult, function (fragment) {
+                        simulatedPath.push(fragment);
+                    });
                 }
-                editor.getSession().setAnnotations(annotations);
-                if (annotations.length)
-                    editor.gotoLine(annotations[0].row);
-                $('#loader').hide();
-                $('#simulateButton').prop('disabled', false);
-            }
 
-            var code = editor.getValue();
-            gcodeSimulation.tryToParseInWorker(code, handleResult, function (fragment) {
-                simulatedPath.push(fragment);
-            });
-        }
-
-        $('#simulateButton').click(refreshView);
-        var $container = $('#container');
-        var threeDView = new threeD.ThreeDView($container);
-        window.addEventListener("message", function (event) {
-            if (event.data['type'] == 'gimme program')
-                event.ports[0].postMessage({type: 'gcode', program: editor.getValue(), parameters: event.data.parameters});
-            if (event.data['type'] == 'toolPosition') {
-                var pos = event.data['position'];
-                threeDView.setToolPosition(pos.x, pos.y, pos.z);
-                threeDView.setToolVisibility(true);
-                threeDView.reRender();
-            }
-            if (event.data['type'] == 'setCode') {
-                editor.setValue(event.data['code']);
+                $('#simulateButton').click(refreshView);
+                var $container = $('#container');
+                var threeDView = new threeD.ThreeDView($container);
+                window.addEventListener("message", function (event) {
+                    if (event.data['type'] == 'gimme program')
+                        event.ports[0].postMessage({type: 'gcode', program: editor.getValue(), parameters: event.data.parameters});
+                    if (event.data['type'] == 'toolPosition') {
+                        var pos = event.data['position'];
+                        threeDView.setToolPosition(pos.x, pos.y, pos.z);
+                        threeDView.setToolVisibility(true);
+                        threeDView.reRender();
+                    }
+                    if (event.data['type'] == 'setCode') {
+                        editor.setValue(event.data['code']);
+                        refreshView();
+                    }
+                }, false);
+                editor.getSession().on('change', function () {
+                    parent.postMessage({type: 'codeChange', code: editor.getValue()}, '*');
+                });
                 refreshView();
-            }
-        }, false);
-        editor.getSession().on('change', function () {
-            parent.postMessage({type: 'codeChange', code: editor.getValue()}, '*');
-        });
-        refreshView();
-    });
+            });
 </script>
 </body>
 </html>

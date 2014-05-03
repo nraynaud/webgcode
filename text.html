@@ -4,18 +4,11 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1"/>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <title>CNC Text Tool</title>
-    <script src="webapp/libs/jquery.min.js"></script>
-    <script src="webapp/libs/jquery.mousewheel.js"></script>
     <script src="webapp/libs/require.js"></script>
-    <script src="webapp/libs/handlebars-v1.3.0.js"></script>
-    <script src="webapp/libs/ember-1.5.0-beta5.pre7.js"></script>
-
+    <script src="webapp/config.js"></script>
     <script>
         requirejs.config({
-            baseUrl: 'webapp',
-            paths: {
-                text: 'libs/require_text'
-            }
+            baseUrl: 'webapp'
         });
     </script>
 
@@ -104,8 +97,8 @@
 </head>
 <body>
 <script>
-    require(['cnc/cam', 'cnc/text', 'cnc/pocket', 'cnc/ui/views', 'cnc/ui/pocketView', 'text!templates/textApp.hbs'],
-            function (cam, text, pocket, views, pocketView, textSource) {
+    require(['cnc/cam', 'cnc/text', 'cnc/pocket', 'cnc/ui/views', 'cnc/ui/pocketView', 'text!templates/textApp.hbs', 'Ember'],
+            function (cam, text, pocket, views, pocketView, textSource, Ember) {
                 var textTemplate = Ember.Handlebars.compile(textSource);
                 window.TextApplication = Ember.Application.create({
                     customEvents: {

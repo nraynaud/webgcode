@@ -1,5 +1,5 @@
 "use strict";
-define(function () {
+define(['Three', 'libs/OrbitControls'], function (THREE, OrbitControls) {
 
     function webglSupported() {
         try {
@@ -38,7 +38,7 @@ define(function () {
         $(window).resize(resize);
         $container.append(this.renderer.domElement);
         this.scene.add(this.camera);
-        this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.rotateSpeed = 1.0;
         this.controls.zoomSpeed = 1.2;
         this.controls.panSpeed = 0.8;

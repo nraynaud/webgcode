@@ -1,6 +1,6 @@
 "use strict";
 
-define(['libs/svg', 'cnc/svg.marker'], function () {
+define(['Ember', 'libs/svg', 'libs/jquery.mousewheel', 'cnc/svg.marker'], function (Ember, SVG) {
 
     var BackgroundGrid = Ember.Object.extend({
         init: function () {

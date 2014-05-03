@@ -1,9 +1,9 @@
-define(function () {
+define(['Ember', 'ace'], function (Em, ace) {
     var GcodeEditorComponent = Em.Component.extend({
         tagName: 'pre',
         didInsertElement: function () {
             var _this = this;
-            this.set('editor', window.ace.edit(this.get('element')));
+            this.set('editor', ace.edit(this.get('element')));
             var editor = this.get('editor');
             editor.setTheme("ace/theme/chaos");
             editor.on('change', function () {

@@ -226,10 +226,14 @@ define(['cnc/clipper', 'cnc/cam'], function (clipper, cam) {
             messageHandler: function (data) {
                 if (data['finished']) {
                     var result = data['result'];
-                    Ember.run(deferred, deferred.resolve, result);
+                    require(['Ember'], function (Ember) {
+                        Ember.run(deferred, deferred.resolve, result);
+                    });
                     return true;
                 } else if (data['operation'] == 'displayUndercutPoly')
-                    Ember.run(undercutDeferred, undercutDeferred.resolve, data['polygon']);
+                    require(['Ember'], function (Ember) {
+                        Ember.run(undercutDeferred, undercutDeferred.resolve, data['polygon']);
+                    });
                 return false;
             },
             promise: deferred.promise,

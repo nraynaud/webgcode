@@ -1,5 +1,5 @@
 "use strict";
-define(['libs/svg'], (function () {
+define(['libs/svg'], (function (SVG) {
     SVG.Marker = SVG.invent({
         create: 'marker',
         inherit: SVG.Container,

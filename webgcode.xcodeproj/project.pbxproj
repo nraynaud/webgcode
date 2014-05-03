@@ -486,6 +486,7 @@
 		DDAA5D0293351E6A014CDE68 /* mode-less.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54B8902BC87DE0AD6BA7 /* mode-less.js */; };
 		DDAA5D05B00AA61FA47E48CB /* theme-crimson_editor.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA59BD2B719054D2D415E9 /* theme-crimson_editor.js */; };
 		DDAA5D06C08D31677798C9B4 /* mode-livescript.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5E5C7F001E903E907DD4 /* mode-livescript.js */; };
+		DDAA5D0B161CD906FAD9253F /* config.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53B8DAE05E27A375FE9B /* config.js */; };
 		DDAA5D10592DC8725871A067 /* mode-d.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5E6DC9E39A770193B400 /* mode-d.js */; };
 		DDAA5D12F538DA6581E71559 /* mode-jsx.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA551C43E444537DDFC497 /* mode-jsx.js */; };
 		DDAA5D142AAB86B7AFE85988 /* mode-haxe.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5A4AEE4A521F092724BE /* mode-haxe.js */; };
@@ -783,6 +784,7 @@
 		DDAA53AA1AA0B33FDC424095 /* mode-css.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-css.js"; sourceTree = "<group>"; };
 		DDAA53ABFAC4B27BB224D30A /* theme-clouds.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-clouds.js"; sourceTree = "<group>"; };
 		DDAA53AF85392416DCB81692 /* opentype.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = opentype.js; sourceTree = "<group>"; };
+		DDAA53B8DAE05E27A375FE9B /* config.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = config.js; sourceTree = "<group>"; };
 		DDAA53BC2DF0C9B74F250819 /* csg.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = csg.js; path = webapp/libs/csg.js; sourceTree = "<group>"; };
 		DDAA53C424B774AE05FC4E8B /* mode-lisp.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-lisp.js"; sourceTree = "<group>"; };
 		DDAA53C4425482405DFB2FDB /* ext-themelist.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-themelist.js"; sourceTree = "<group>"; };
@@ -2036,6 +2038,7 @@
 				DDAA5BD8FB474BF2657E0885 /* gcodeSimulator.hbs */,
 				DDAA54E2136E795D172E250D /* templates */,
 				DDAA5E107A0690EF14F64382 /* samples */,
+				DDAA53B8DAE05E27A375FE9B /* config.js */,
 			);
 			path = webapp;
 			sourceTree = "<group>";
@@ -2876,6 +2879,7 @@
 				DDAA5ACF27FBFF82B945B8C5 /* simulation.js in Sources */,
 				DDAA5D90EE9DE4EC61C33CDF /* gcodeSimulation.js in Sources */,
 				DDAA5B116FD23E8192E7F356 /* geometry.js in Sources */,
+				DDAA5D0B161CD906FAD9253F /* config.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

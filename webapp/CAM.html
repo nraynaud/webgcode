@@ -3,19 +3,9 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <title>CNC CAM</title>
-    <script src="libs/jquery.min.js"></script>
-    <script src="libs/jquery.flot.min.js"></script>
-    <script src="libs/jquery.flot.resize.js"></script>
-    <script src="libs/Three.min.js"></script>
-    <script src="libs/TrackballControls.js"></script>
-    <script src="libs/OrbitControls.js"></script>
-    <script src="libs/jsparse.js"></script>
-    <script src="libs/jquery.mousewheel.js"></script>
     <script src="libs/extractedRaphael.js"></script>
-    <script src="libs/ace/src-noconflict/ace.js"></script>
     <script src="libs/require.js"></script>
-    <script src="libs/handlebars-v1.3.0.js"></script>
-    <script src="libs/ember-1.5.0-beta5.pre7.js"></script>
+    <script src="config.js"></script>
 
     <link rel="stylesheet" href="twoDView.css" type="text/css">
     <style>
@@ -25,7 +15,6 @@
         }
 
         body {
-
             display: flex;
             margin: 0;
         }
@@ -104,74 +93,76 @@
     </div>
 </div>
 <script>
-    var inChromeApp = window.location.hash == '#fromApp';
-    var editor = ace.edit("codebox");
-    editor.setTheme("ace/theme/twilight");
-    if (inChromeApp) //https://code.google.com/p/chromium/issues/detail?id=159303
-        editor.session.setUseWorker(false);
-    editor.session.setMode("ace/mode/javascript");
-    require(['cnc/ui/emberTwoDView', 'cnc/threeDView', 'cnc/cam'], function (twoD, threeD, cam) {
-        var threeDView = new threeD.ThreeDView($('#container'));
-        window.addEventListener("message", function (event) {
-            if (event.data['type'] == 'gimme program') {
-                var port = event.ports[0];
-                refresh(function (machine) {
-                    refreshViews(machine);
-                    var parameters = event.data.parameters;
-                    port.postMessage({type: 'toolpath', toolPath: machine.getToolPath(parameters), parameters: parameters});
+    require(['ace'], function (ace) {
+        var inChromeApp = window.location.hash == '#fromApp';
+        var editor = ace.edit("codebox");
+        editor.setTheme("ace/theme/twilight");
+        if (inChromeApp) //https://code.google.com/p/chromium/issues/detail?id=159303
+            editor.session.setUseWorker(false);
+        editor.session.setMode("ace/mode/javascript");
+        require(['cnc/ui/emberTwoDView', 'cnc/threeDView', 'cnc/cam'], function (twoD, threeD, cam) {
+            var threeDView = new threeD.ThreeDView($('#container'));
+            window.addEventListener("message", function (event) {
+                if (event.data['type'] == 'gimme program') {
+                    var port = event.ports[0];
+                    refresh(function (machine) {
+                        refreshViews(machine);
+                        var parameters = event.data.parameters;
+                        port.postMessage({type: 'toolpath', toolPath: machine.getToolPath(parameters), parameters: parameters});
+                    });
+                }
+                if (event.data['type'] == 'toolPosition') {
+                    var pos = event.data['position'];
+                    threeDView.setToolPosition(pos.x, pos.y, pos.z);
+                    threeDView.setToolVisibility(true);
+                    threeDView.reRender();
+                }
+            }, false);
+            var twoDView = twoD.EmberTwoDView.create({element: $('#drawing').find('.TwoDView')});
+            if (!inChromeApp) {
+                var code = localStorage.getItem('JSCode');
+                if (code)
+                    editor.setValue(code);
+                editor.getSession().on('change', function () {
+                    localStorage.setItem('JSCode', editor.getValue());
                 });
             }
-            if (event.data['type'] == 'toolPosition') {
-                var pos = event.data['position'];
-                threeDView.setToolPosition(pos.x, pos.y, pos.z);
-                threeDView.setToolVisibility(true);
-                threeDView.reRender();
+            function refreshViews(machine) {
+                twoDView.zoomExtent();
+                var path = machine.dumpPath();
+                var buffer = new Float32Array(path.length * 3);
+                for (var i = 0; i < path.length; i++) {
+                    buffer[i * 3] = path[i].x;
+                    buffer[i * 3 + 1] = path[i].y;
+                    buffer[i * 3 + 2] = path[i].z;
+                }
+                threeDView.displayPath([
+                    {vertices: buffer.buffer, speedTag: 'normal'}
+                ]);
             }
-        }, false);
-        var twoDView = twoD.EmberTwoDView.create({element: $('#drawing').find('.TwoDView')});
-        if (!inChromeApp) {
-            var code = localStorage.getItem('JSCode');
-            if (code)
-                editor.setValue(code);
-            editor.getSession().on('change', function () {
-                localStorage.setItem('JSCode', editor.getValue());
+
+            function refresh(callback) {
+                var machine = new cam.Machine(twoDView.paper);
+                var whenDone = callback || function () {
+                };
+                twoDView.clear();
+                var resWasFalse;
+                var res = new Function(['machine', 'whenDone', 'cam'], editor.getValue() + '//# sourceURL=user_code')(machine, function () {
+                    if (resWasFalse)
+                        throw new Error('you called whenDone() also you didn\'t return true in your code.');
+                    whenDone(machine);
+                }, cam);
+                if (!res) {
+                    resWasFalse = true;
+                    whenDone(machine);
+                }
+            }
+
+            $('#simulationButton').click(function () {
+                refresh(refreshViews);
             });
-        }
-        function refreshViews(machine) {
-            twoDView.zoomExtent();
-            var path = machine.dumpPath();
-            var buffer = new Float32Array(path.length * 3);
-            for (var i = 0; i < path.length; i++) {
-                buffer[i * 3] = path[i].x;
-                buffer[i * 3 + 1] = path[i].y;
-                buffer[i * 3 + 2] = path[i].z;
-            }
-            threeDView.displayPath([
-                {vertices: buffer.buffer, speedTag: 'normal'}
-            ]);
-        }
-
-        function refresh(callback) {
-            var machine = new cam.Machine(twoDView.paper);
-            var whenDone = callback || function () {
-            };
-            twoDView.clear();
-            var resWasFalse;
-            var res = new Function(['machine', 'whenDone', 'cam'], editor.getValue() + '//# sourceURL=user_code')(machine, function () {
-                if (resWasFalse)
-                    throw new Error('you called whenDone() also you didn\'t return true in your code.');
-                whenDone(machine);
-            }, cam);
-            if (!res) {
-                resWasFalse = true;
-                whenDone(machine);
-            }
-        }
-
-        $('#simulationButton').click(function () {
             refresh(refreshViews);
         });
-        refresh(refreshViews);
     });
 </script>
 </body>

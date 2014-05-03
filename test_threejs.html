@@ -26,21 +26,13 @@
 <a id="downloadLink" href='#'>Download .stl</a>
 
 </body>
-<script src="webapp/libs/jquery.min.js"></script>
-<script src="webapp/libs/jquery.min.js"></script>
-<script src="webapp/libs/jquery.mousewheel.js"></script>
 <script src="webapp/cnc/delaunay.js"></script>
 <script src="webapp/cnc/contour.js"></script>
-<script src="webapp/libs/Three.min.js"></script>
-<script src="webapp/libs/OrbitControls.js"></script>
-
 <script src="webapp/libs/require.js"></script>
+<script src="webapp/config.js"></script>
 <script>
     requirejs.config({
-        baseUrl: 'webapp',
-        paths: {
-            text: 'libs/require_text'
-        }
+        baseUrl: 'webapp'
     });
 </script>
 <script type="text/javascript">
@@ -86,7 +78,7 @@ function randomOrderRange(start, stop, cseed, aseed, first) {
     return result;
 }
 
-require(['cnc/threeDView'], function (threeDView) {
+require(['jQuery', 'cnc/threeDView'], function ($, threeDView) {
     var view = new threeDView.ThreeDView($('#container'));
     var elevator;
     var map;
