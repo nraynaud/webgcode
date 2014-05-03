@@ -5,15 +5,12 @@ requirejs.config({
         Handlebars: "libs/handlebars-v1.3.0",
         jQuery: "libs/jquery.min",
         Three: 'libs/Three.min',
-        ace: 'libs/ace/src-noconflict/ace'
+        ace: 'libs/ace/src-noconflict/ace',
+        RSVP: 'libs/rsvp-latest'
     },
     shim: {
-        jQuery: {
-            exports: "$"
-        },
-        'libs/jquery.mousewheel': {
-            deps: ["jQuery"]
-        },
+        jQuery: {exports: "$"},
+        'libs/jquery.mousewheel': {deps: ["jQuery"]},
         Ember: {
             deps: ["jQuery", "Handlebars"],
             exports: "Ember"
@@ -21,6 +18,7 @@ requirejs.config({
         Three: {exports: 'THREE'},
         'libs/OrbitControls': {deps: ['Three'], exports: 'THREE.OrbitControls'},
         ace: {exports: 'ace'},
-        'libs/svj.js': {exports: 'SVG'}
+        'libs/svj.js': {exports: 'SVG'},
+        RSVP: {exports: 'RSVP'}
     }
 });

@@ -542,6 +542,7 @@
 		DDAA5E529388856F597B88CA /* mode-coffee.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA57D80E2226CDFD50A730 /* mode-coffee.js */; };
 		DDAA5E54D8B293F57EC95E71 /* ThreeCSG.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA55E6B4083B853B68026E /* ThreeCSG.js */; };
 		DDAA5E61B6B46C2701BAA7A4 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5A6BDC42A63AB6AA6792 /* main.c */; };
+		DDAA5E6777BA6453817AB34E /* device.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA57E81EA5833C3BCF913F /* device.js */; };
 		DDAA5E6AF20157D3F3AAD6EC /* mode-text.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53204DA05F0256039029 /* mode-text.js */; };
 		DDAA5E743FA52561B2B0FF84 /* manual.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53D0D9AE21EE52463EAE /* manual.c */; };
 		DDAA5E7C53C80446B3712043 /* mode-assembly_x86.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA50841D9C79A44D30E3B5 /* mode-assembly_x86.js */; };
@@ -960,6 +961,7 @@
 		DDAA57D80E2226CDFD50A730 /* mode-coffee.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-coffee.js"; sourceTree = "<group>"; };
 		DDAA57D96ECC3B0E815CFD02 /* mode-sql.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-sql.js"; sourceTree = "<group>"; };
 		DDAA57DFCFBB92B1670CD410 /* theme-solarized_light.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-solarized_light.js"; sourceTree = "<group>"; };
+		DDAA57E81EA5833C3BCF913F /* device.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = device.js; sourceTree = "<group>"; };
 		DDAA57EC5BF49CA63E23EA57 /* draft.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = draft.html; sourceTree = "<group>"; };
 		DDAA57ECDA508D55B86A4413 /* mode-livescript.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-livescript.js"; sourceTree = "<group>"; };
 		DDAA57F9D455ACD442ECCF46 /* theme-tomorrow_night_blue.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-tomorrow_night_blue.js"; sourceTree = "<group>"; };
@@ -2039,6 +2041,7 @@
 				DDAA54E2136E795D172E250D /* templates */,
 				DDAA5E107A0690EF14F64382 /* samples */,
 				DDAA53B8DAE05E27A375FE9B /* config.js */,
+				DDAA57E81EA5833C3BCF913F /* device.js */,
 			);
 			path = webapp;
 			sourceTree = "<group>";
@@ -2880,6 +2883,7 @@
 				DDAA5D90EE9DE4EC61C33CDF /* gcodeSimulation.js in Sources */,
 				DDAA5B116FD23E8192E7F356 /* geometry.js in Sources */,
 				DDAA5D0B161CD906FAD9253F /* config.js in Sources */,
+				DDAA5E6777BA6453817AB34E /* device.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
