@@ -1,5 +1,5 @@
 "use strict";
-define(function () {
+define(['jQuery'], function ($) {
     var ENDPOINT = 1;
     var SET_FEATURE = 0x03;
     var CLEAR_FEATURE = 0x01;

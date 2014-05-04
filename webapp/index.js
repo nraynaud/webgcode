@@ -1,5 +1,5 @@
 "use strict";
-require(['device', 'runner'], function (Device, Runner) {
+require(['device', 'runner', 'jQuery'], function (Device, Runner, $) {
     var device = Device.create({});
     var runner = new Runner(device);
     var PERMISSIONS = {permissions: [

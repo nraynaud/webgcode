@@ -1,5 +1,5 @@
 "use strict";
-define(['RSVP', 'Ember'], function (rsvp, Ember) {
+define(['RSVP', 'jQuery', 'Ember'], function (rsvp, $, Ember) {
     rsvp.on('error', function (reason) {
         console.error(reason, reason.stack);
     });
