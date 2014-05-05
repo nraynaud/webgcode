@@ -186,7 +186,7 @@ define(['Ember', 'libs/svg', 'libs/jquery.mousewheel', 'cnc/svg.marker'], functi
             newScale = Math.min(this.get('maxZoom'), newScale);
             var m = this.get('svg.node').createSVGMatrix();
             m = m.scaleNonUniform(newScale, -newScale);
-            m = m.translate((width / newScale - box.width ) / 2, -(height / newScale + box.height) / 2);
+            m = m.translate((width / newScale - box.width) / 2 - box.x, -(height / newScale + box.height) / 2 - box.y);
             this.setMatrix(m);
         },
         setMatrix: function (matrix) {
