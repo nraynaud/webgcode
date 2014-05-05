@@ -65,15 +65,20 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
                 .html(face.name)
                 .addClass('cubeFace');
 
-            function clickHandler(event) {
+            function mouseMoveHandler() {
+                element.unbind('click', clickHandler);
+                element.unbind('mousemove', mouseMoveHandler);
+            }
+
+            function clickHandler() {
                 view.zoomExtent(new THREE.Vector3().fromArray(face.camera));
+                element.unbind('click', clickHandler);
+                element.unbind('mousemove', mouseMoveHandler);
             }
 
             element.mousedown(function () {
                 element.click(clickHandler);
-                element.mousemove(function () {
-                    element.unbind('click', clickHandler);
-                });
+                element.mousemove(mouseMoveHandler);
             });
             var object = new THREE.CSS3DObject(element[0]);
             object.position.fromArray(face.pos);
@@ -249,9 +254,9 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
             this.tool.position.setY(y);
             this.tool.position.setZ(z);
         },
-        actuallyRender: function (time) {
+        actuallyRender: function () {
             this.renderRequested = false;
-            var reanimate = TWEEN.update(time);
+            var reanimate = TWEEN.update();
             this.controls.update();
             this.renderer.clear();
             this.renderer.render(this.scene, this.camera);
