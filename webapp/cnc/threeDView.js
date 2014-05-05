@@ -1,5 +1,5 @@
 "use strict";
-define(['Three', 'libs/OrbitControls'], function (THREE, OrbitControls) {
+define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRenderer'], function (THREE, TWEEN, OrbitControls, CSS3DRenderer) {
 
     function webglSupported() {
         try {
@@ -10,23 +10,25 @@ define(['Three', 'libs/OrbitControls'], function (THREE, OrbitControls) {
         }
     }
 
+    function tweenVector(v) {
+        return {x: v.x, y: v.y, z: v.z};
+    }
+
     function ThreeDView($container) {
         var self = this;
-        var WIDTH = $container.width();
-        var HEIGHT = $container.height();
+        var width = $container.width();
+        var height = $container.height();
         if (webglSupported())
             this.renderer = new THREE.WebGLRenderer({antialias: true});
         else
             this.renderer = new THREE.CanvasRenderer();
-        this.camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, 20000);
+        this.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 20000);
         this.scene = new THREE.Scene();
         this.overlayScene = new THREE.Scene();
-        this.camera.position.x = 30;
-        this.camera.position.y = -30;
-        this.camera.position.z = 60;
+        this.camera.position.copy(new THREE.Vector3(0, -40, 80));
         this.camera.up.set(0, 0, 1);
         this.renderer.sortObjects = false;
-        this.renderer.setSize(WIDTH, HEIGHT);
+        this.renderer.setSize(width, height);
         this.renderer.autoClear = false;
         function resize() {
             self.camera.aspect = $container.width() / $container.height();
@@ -61,7 +63,7 @@ define(['Three', 'libs/OrbitControls'], function (THREE, OrbitControls) {
 
         this.scene.add(createGrid());
         function createAxis(x, y, z, color) {
-            return  new THREE.ArrowHelper(new THREE.Vector3(x, y, z), new THREE.Vector3(0, 0, 0), 10, color, 1, 1);
+            return new THREE.ArrowHelper(new THREE.Vector3(x, y, z), new THREE.Vector3(0, 0, 0), 10, color, 1, 1);
         }
 
         var axes = new THREE.Object3D();
@@ -87,12 +89,10 @@ define(['Three', 'libs/OrbitControls'], function (THREE, OrbitControls) {
         this.normalMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFFFFFF});
         this.rapidMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFF0000});
 
-        function animate() {
-            requestAnimationFrame(animate);
-            self.controls.update();
-        }
+        this.requestAnimationFrameCallback = function (time) {
+            self.actuallyRender(time);
+        };
 
-        animate();
         this.reRender();
     }
 
@@ -128,21 +128,18 @@ define(['Three', 'libs/OrbitControls'], function (THREE, OrbitControls) {
             });
             return bbox;
         },
-        zoomExtent: function () {
+        zoomExtent: function (newRelativePosition) {
             var bbox = this.computeDrawingBBox();
             var extentMiddle = bbox.center();
             var radius = bbox.getBoundingSphere().radius;
-            this.controls.target = extentMiddle.clone();
-            var cameraOrientation = new THREE.Vector3(0, -40, 80).normalize();
+            var previousTarget = this.controls.target.clone();
+            new TWEEN.Tween(this.controls.target).to(tweenVector(extentMiddle), 500).start();
             var distance = radius / Math.tan(this.camera.fov / 2);
-            cameraOrientation.multiplyScalar(distance);
-            var cameraPos = extentMiddle.add(cameraOrientation);
-            this.camera.position.copy(cameraPos);
+            var relativePosition = newRelativePosition != null ? newRelativePosition : this.camera.position.clone().sub(previousTarget);
+            var newPosition = relativePosition.normalize().multiplyScalar(distance).add(extentMiddle);
+            new TWEEN.Tween(this.camera.position).to(tweenVector(newPosition), 500).start();
             this.controls.update();
             this.reRender();
-        },
-        displayVector: function (origin, vector, color, id) {
-            this.displayPath([origin, {x: origin.x + vector.x, y: origin.y + vector.y, z: origin.z + vector.z}]);
         },
         displayHighlight: function (polyline) {
             this.hideHighlight();
@@ -173,12 +170,26 @@ define(['Three', 'libs/OrbitControls'], function (THREE, OrbitControls) {
             this.tool.position.setY(y);
             this.tool.position.setZ(z);
         },
-        reRender: function () {
+        actuallyRender: function (time) {
+            this.renderRequested = false;
+            var reanimate = TWEEN.update(time);
+            this.controls.update();
             this.renderer.clear();
             this.renderer.render(this.scene, this.camera);
             if (this.renderer instanceof THREE.WebGLRenderer)
                 this.renderer.clear(false, true, false);
             this.renderer.render(this.overlayScene, this.camera);
+            if (reanimate)
+                this.reRender();
+        },
+        reRender: function () {
+            if (!this.renderRequested) {
+                this.renderRequested = true;
+                requestAnimationFrame(this.requestAnimationFrameCallback);
+            }
+        },
+        showTopView: function () {
+            this.zoomExtent(new THREE.Vector3(0, 0, 10));
         }
     };
     return {ThreeDView: ThreeDView};

@@ -150,7 +150,7 @@ require(['cnc/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/util', 'cnc/u
                         arrayDidChange: function (observedObj, start, removeCount, addCount) {
                             for (var i = 0; i < addCount; i++)
                                 threeDView.addToolpathFragment(threeDView.toolpath, observedObj[start + i]);
-                            Ember.run.throttle(threeDView, threeDView.zoomExtent, 1000);
+                            Ember.run.throttle(threeDView, threeDView.zoomExtent, 5000);
                         }
                     });
                 },

@@ -39,7 +39,7 @@
 </head>
 <body>
 <script>
-    require(['Ember', 'cnc/ui/emberTwoDView', 'text!templates/draftApp.hbs', 'libs/Three.min', 'cnc/util'],
+    require(['Ember', 'cnc/ui/emberTwoDView', 'text!templates/draftApp.hbs', 'THREE', 'cnc/util'],
             function (Ember, twoDView, draftApp, three, util) {
                 Ember.TEMPLATES['draft'] = Ember.Handlebars.compile(draftApp);
                 var App = Ember.Application.create({
