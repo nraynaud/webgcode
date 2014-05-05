@@ -20,7 +20,7 @@ requirejs.config({
         TWEEN: {exports: 'TWEEN'},
         'libs/threejs/OrbitControls': {deps: ['THREE'], exports: 'THREE.OrbitControls'},
         'libs/threejs/TrackballControls': {deps: ['THREE'], exports: 'THREE.TrackballControls'},
-        'libs/threejs/CSS3DRenderer': {deps: ['THREE']},
+        'libs/threejs/CSS3DRenderer': {deps: ['THREE'], exports: 'THREE.CSS3DRenderer'},
         ace: {exports: 'ace'},
         'libs/svj.js': {exports: 'SVG'},
         RSVP: {exports: 'RSVP'}

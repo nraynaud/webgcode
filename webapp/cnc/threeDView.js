@@ -15,13 +15,15 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
     }
 
     function createIcon(view) {
-        var renderer = new THREE.CSS3DRenderer();
-        renderer.setSize(100, 100);
+        var renderer = new CSS3DRenderer();
+        var width = 100;
+        var height = 100;
+        renderer.setSize(width, height);
         renderer.domElement.style.position = 'absolute';
         renderer.domElement.style.top = 0;
         $(renderer.domElement).addClass('viewCube');
         var scene = new THREE.Scene();
-        var camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 100);
+        var camera = new THREE.PerspectiveCamera(40, width / height, 1, 100);
         camera.up.set(0, 0, 1);
         camera.position.set(200, 100, 250);
         var controls = new OrbitControls(camera, renderer.domElement);
@@ -29,12 +31,12 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
         controls.noPan = true;
         controls.maxDistance = 250;
         controls.minDistance = 250;
-
+        controls.update();
         function myChangePropagator() {
             var radius = view.camera.position.clone().sub(view.controls.target).length();
             view.camera.position.copy(camera.position);
             view.camera.position.normalize().multiplyScalar(radius).add(view.controls.target);
-            view.controls.update();
+            view.reRender();
         }
 
         controls.addEventListener('change', function () {
@@ -96,7 +98,6 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
         }
 
         view.controls.addEventListener('change', updatePositionFromView);
-        //updatePositionFromView();
         return $(renderer.domElement);
     }
 
