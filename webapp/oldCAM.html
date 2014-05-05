@@ -7,6 +7,7 @@
     <script src="libs/require.js"></script>
     <script src="config.js"></script>
 
+    <link rel="stylesheet" href="threeDView.css" type="text/css">
     <style>
         html, body {
             height: 100%;
@@ -39,6 +40,7 @@
             flex: 1;
             display: flex;
             flex-direction: column;
+            position: relative;
         }
 
         #loader {
@@ -87,7 +89,7 @@
     </div>
 </div>
 
-<div id="container"></div>
+<div id="container" class="ThreeDView"></div>
 <script>
     function getURLParameter(name) {
         return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [, ""])[1].replace(/\+/g, '%20')) || null;
