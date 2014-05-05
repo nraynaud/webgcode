@@ -1,0 +1,12 @@
+.ThreeDView .viewCube .cubeFace {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    font-family: sans-serif;
+    width: 100px;
+    height: 100px;
+    background: lightgray;
+    font-size: 25px;
+    text-align: center;
+    border: darkgray 10px solid;
+}

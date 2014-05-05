@@ -14,8 +14,89 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
         return {x: v.x, y: v.y, z: v.z};
     }
 
+    function createIcon(view) {
+        var renderer = new THREE.CSS3DRenderer();
+        renderer.setSize(100, 100);
+        renderer.domElement.style.position = 'absolute';
+        renderer.domElement.style.top = 0;
+        $(renderer.domElement).addClass('viewCube');
+        var scene = new THREE.Scene();
+        var camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 100);
+        camera.up.set(0, 0, 1);
+        camera.position.set(200, 100, 250);
+        var controls = new OrbitControls(camera, renderer.domElement);
+        controls.noZoom = true;
+        controls.noPan = true;
+        controls.maxDistance = 250;
+        controls.minDistance = 250;
+
+        function myChangePropagator() {
+            var radius = view.camera.position.clone().sub(view.controls.target).length();
+            view.camera.position.copy(camera.position);
+            view.camera.position.normalize().multiplyScalar(radius).add(view.controls.target);
+            view.controls.update();
+        }
+
+        controls.addEventListener('change', function () {
+            renderer.render(scene, camera);
+        });
+        controls.addEventListener('start', function () {
+            view.controls.removeEventListener('change', updatePositionFromView);
+            controls.addEventListener('change', myChangePropagator);
+        });
+        controls.addEventListener('end', function () {
+            controls.removeEventListener('change', myChangePropagator);
+            view.controls.addEventListener('change', updatePositionFromView);
+        });
+        var r = Math.PI / 2;
+        var d = 50;
+        var faces = [
+            {pos: [d, 0, 0], rot: [r, r, 0], name: 'Right', camera: [1, 0, 0]},
+            {pos: [-d, 0, 0], rot: [r, -r, 0], name: 'Left', camera: [-1, 0, 0]},
+            {pos: [0, d, 0], rot: [-r, 0, 2 * r], name: 'Back', camera: [0, 1, 0]},
+            {pos: [0, -d, 0], rot: [r, 0, 0], name: 'Front', camera: [0, -1, 0]},
+            {pos: [0, 0, d], rot: [0, 0, 0], name: 'Top', camera: [0, 0, 1]},
+            {pos: [0, 0, -d], rot: [0, 2 * r, 2 * r], name: 'Bottom', camera: [0, 0, -1]}
+        ];
+        var cube = new THREE.Object3D();
+        scene.add(cube);
+        function createFace(face) {
+            var element = $('<div></div>')
+                .html(face.name)
+                .addClass('cubeFace');
+
+            function clickHandler(event) {
+                view.zoomExtent(new THREE.Vector3().fromArray(face.camera));
+            }
+
+            element.mousedown(function () {
+                element.click(clickHandler);
+                element.mousemove(function () {
+                    element.unbind('click', clickHandler);
+                });
+            });
+            var object = new THREE.CSS3DObject(element[0]);
+            object.position.fromArray(face.pos);
+            object.rotation.fromArray(face.rot);
+            return object;
+        }
+
+        for (var i = 0; i < faces.length; i++)
+            cube.add(createFace(faces[i]));
+        renderer.render(scene, camera);
+        function updatePositionFromView() {
+            camera.position.copy(view.camera.position);
+            camera.position.sub(view.controls.target);
+            controls.update();
+        }
+
+        view.controls.addEventListener('change', updatePositionFromView);
+        //updatePositionFromView();
+        return $(renderer.domElement);
+    }
+
     function ThreeDView($container) {
-        var self = this;
+        var _this = this;
         var width = $container.width();
         var height = $container.height();
         if (webglSupported())
@@ -31,10 +112,10 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
         this.renderer.setSize(width, height);
         this.renderer.autoClear = false;
         function resize() {
-            self.camera.aspect = $container.width() / $container.height();
-            self.camera.updateProjectionMatrix();
-            self.renderer.setSize($container.width(), $container.height());
-            self.reRender();
+            _this.camera.aspect = $container.width() / $container.height();
+            _this.camera.updateProjectionMatrix();
+            _this.renderer.setSize($container.width(), $container.height());
+            _this.reRender();
         }
 
         $(window).resize(resize);
@@ -51,7 +132,7 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
         this.controls.minDistance = 3;
         this.controls.keys = [ 65, 83, 68 ];
         this.controls.addEventListener('change', function () {
-            self.reRender();
+            _this.reRender();
         });
         function createGrid() {
             var size = 10, step = 5;
@@ -88,11 +169,9 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
         this.drawing.add(this.toolpath);
         this.normalMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFFFFFF});
         this.rapidMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFF0000});
-
-        this.requestAnimationFrameCallback = function (time) {
-            self.actuallyRender(time);
-        };
-
+        //needed because requestAnimationFrame can't pass a "this".
+        this.requestAnimationFrameCallback = this.actuallyRender.bind(this);
+        $container.prepend(createIcon(this));
         this.reRender();
     }
 
@@ -187,9 +266,6 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
                 this.renderRequested = true;
                 requestAnimationFrame(this.requestAnimationFrameCallback);
             }
-        },
-        showTopView: function () {
-            this.zoomExtent(new THREE.Vector3(0, 0, 10));
         }
     };
     return {ThreeDView: ThreeDView};

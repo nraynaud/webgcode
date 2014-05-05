@@ -1306,6 +1306,7 @@
 		DDAA5F6CCB4380C0F7BE88D0 /* usbdesc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = usbdesc.c; path = interpolator/usbdesc.c; sourceTree = SOURCE_ROOT; };
 		DDAA5F732629F6D51B917DCB /* usb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = usb.c; path = interpolator/usb.c; sourceTree = SOURCE_ROOT; };
 		DDAA5F766C58A6F2C20AF3CD /* theme-twilight.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-twilight.js"; sourceTree = "<group>"; };
+		DDAA5F7BC2F729E4D954E307 /* threeDView.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = threeDView.css; sourceTree = "<group>"; };
 		DDAA5F7F6333BA473520A6D7 /* theme-tomorrow_night.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-tomorrow_night.js"; sourceTree = "<group>"; };
 		DDAA5F891E17E72AB60AB914 /* theme-tomorrow_night_bright.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-tomorrow_night_bright.js"; sourceTree = "<group>"; };
 		DDAA5F8B571E095C82D54144 /* mode-ruby.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-ruby.js"; sourceTree = "<group>"; };
@@ -2054,6 +2055,7 @@
 				DDAA5E107A0690EF14F64382 /* samples */,
 				DDAA53B8DAE05E27A375FE9B /* config.js */,
 				DDAA57E81EA5833C3BCF913F /* device.js */,
+				DDAA5F7BC2F729E4D954E307 /* threeDView.css */,
 			);
 			path = webapp;
 			sourceTree = "<group>";

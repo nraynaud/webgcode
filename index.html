@@ -13,9 +13,22 @@
     </script>
 
     <link rel="stylesheet" href="webapp/twoDView.css" type="text/css">
+    <link rel="stylesheet" href="webapp/threeDView.css" type="text/css">
     <style>
+
+        body, html {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            margin: 0;
+        }
+
         body {
-            margin-top: 0;
+            padding-left: 8px;
+            padding-right: 8px;
         }
 
         h1 {
@@ -33,9 +46,6 @@
 
         .editBlock pre {
             width: 100%;
-            -webkit-box-sizing: border-box;
-            -moz-box-sizing: border-box;
-            box-sizing: border-box;
             height: 350px;
             margin: 0;
         }
@@ -66,12 +76,17 @@
             border: solid gray 1px;
             background: #000;
             height: 400px;
+            position: relative;
         }
 
         .TwoDView {
             border: solid gray 1px;
             background: #000;
             height: 400px;
+        }
+
+        #app {
+            position: relative;
         }
     </style>
 </head>
@@ -150,7 +165,7 @@ require(['cnc/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/util', 'cnc/u
                         arrayDidChange: function (observedObj, start, removeCount, addCount) {
                             for (var i = 0; i < addCount; i++)
                                 threeDView.addToolpathFragment(threeDView.toolpath, observedObj[start + i]);
-                            Ember.run.throttle(threeDView, threeDView.zoomExtent, 5000);
+                            threeDView.reRender();
                         }
                     });
                 },
