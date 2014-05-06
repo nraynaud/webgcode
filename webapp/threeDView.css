@@ -10,3 +10,7 @@
     text-align: center;
     border: darkgray 10px solid;
 }
+
+.ThreeDView .viewCube .cubeFace:hover {
+    background: white;
+}
