@@ -148,7 +148,6 @@
 		DDAA53994705FE97EEB15B68 /* theme-merbivore.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA524613FA7F852A2C6C00 /* theme-merbivore.js */; };
 		DDAA53A5AED0CCFCBD7A5780 /* mode-powershell.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5B9C6FE319AD6BB4099D /* mode-powershell.js */; };
 		DDAA53A6D78134A646F7907F /* ace.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5E26DC7454168D3419DC /* ace.js */; };
-		DDAA53ACEAEFE21072003E4D /* threeDView.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA505EBA7A9908C0974B77 /* threeDView.js */; };
 		DDAA53B4FD823BB196128AFB /* mode-toml.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA554BF5B73CFBCF2F7E21 /* mode-toml.js */; };
 		DDAA53E1E1EB277A58EF0080 /* mode-haml.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA567474C25C75CB1DF6C5 /* mode-haml.js */; };
 		DDAA53E34E2E3A05C21230BF /* theme-chrome.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54E082CD42F9317354DA /* theme-chrome.js */; };
@@ -450,6 +449,7 @@
 		DDAA5C049A462A70364AFD01 /* mode-properties.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA56DDFADE93551258155A /* mode-properties.js */; };
 		DDAA5C04D7AA338ADF317DCE /* theme-chrome.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5ACD8599A5990F6F70BE /* theme-chrome.js */; };
 		DDAA5C0609E78C9EB2BEE8D4 /* theme-crimson_editor.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5439FC93CCBEA94DA1D4 /* theme-crimson_editor.js */; };
+		DDAA5C08E864DE4AE70AD325 /* threeDView.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C0935B9A14147485CB2 /* threeDView.js */; };
 		DDAA5C0EB01DAA6D2346EBF2 /* worker-css.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5528A8431B4A124D5AE6 /* worker-css.js */; };
 		DDAA5C19BA0F247244694E46 /* ext-static_highlight.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5D6124B41AD6DD5DDB6F /* ext-static_highlight.js */; };
 		DDAA5C2080793E5D20E60388 /* threeDView.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53A88FF1511A72FDAAE0 /* threeDView.js */; };
@@ -641,7 +641,6 @@
 		DDAA505087A0A6C358660674 /* mode-sh.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-sh.js"; sourceTree = "<group>"; };
 		DDAA5058B28E22113ECE0D4C /* mode-erlang.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-erlang.js"; sourceTree = "<group>"; };
 		DDAA505B61C07BA276C7359B /* tween.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = tween.min.js; sourceTree = "<group>"; };
-		DDAA505EBA7A9908C0974B77 /* threeDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = threeDView.js; sourceTree = "<group>"; };
 		DDAA506AD57A112EBE8FDA9C /* worker-css.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "worker-css.js"; sourceTree = "<group>"; };
 		DDAA506BF65A53D45700C4B7 /* mode-snippets.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-snippets.js"; sourceTree = "<group>"; };
 		DDAA506D660CDF73A8A17F3B /* mode-lucene.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-lucene.js"; sourceTree = "<group>"; };
@@ -740,7 +739,7 @@
 		DDAA52AC511B68FA1D1EEB38 /* mode-rust.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-rust.js"; sourceTree = "<group>"; };
 		DDAA52B1A4915275E73497A2 /* box2.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = box2.js; sourceTree = "<group>"; };
 		DDAA52CA23E7C9E2511B674A /* worker-xquery.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "worker-xquery.js"; sourceTree = "<group>"; };
-		DDAA52CAC3926B8B4F4B829A /* threeDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = threeDView.js; sourceTree = "<group>"; };
+		DDAA52CAC3926B8B4F4B829A /* threeDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = threeDView.js; path = ui/threeDView.js; sourceTree = "<group>"; };
 		DDAA52CB6FF22E7DE12133D8 /* manual.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = manual.c; path = interpolator/manual.c; sourceTree = SOURCE_ROOT; };
 		DDAA52D4BD9F4D4843B488A2 /* mode-curly.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-curly.js"; sourceTree = "<group>"; };
 		DDAA52D4C31684BCDE54D42E /* usb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = usb.c; path = interpolator/usb.c; sourceTree = SOURCE_ROOT; };
@@ -782,7 +781,7 @@
 		DDAA5381CD33151305E34F64 /* mode-matlab.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-matlab.js"; sourceTree = "<group>"; };
 		DDAA538FFE9F5E4C61C3CB33 /* main.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; name = main.o; path = interpolator/main.o; sourceTree = SOURCE_ROOT; };
 		DDAA53A570F2E41DCD08DD65 /* text.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = text.html; sourceTree = "<group>"; };
-		DDAA53A88FF1511A72FDAAE0 /* threeDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = threeDView.js; path = webapp/cnc/threeDView.js; sourceTree = "<group>"; };
+		DDAA53A88FF1511A72FDAAE0 /* threeDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = threeDView.js; path = webapp/cnc/ui/threeDView.js; sourceTree = "<group>"; };
 		DDAA53AA1AA0B33FDC424095 /* mode-css.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-css.js"; sourceTree = "<group>"; };
 		DDAA53ABFAC4B27BB224D30A /* theme-clouds.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-clouds.js"; sourceTree = "<group>"; };
 		DDAA53AF85392416DCB81692 /* opentype.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = opentype.js; sourceTree = "<group>"; };
@@ -1146,6 +1145,7 @@
 		DDAA5C047D614A61BB2B2D82 /* main.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; name = main.o; path = interpolator/main.o; sourceTree = SOURCE_ROOT; };
 		DDAA5C07A1FDA87161376116 /* mode-actionscript.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-actionscript.js"; sourceTree = "<group>"; };
 		DDAA5C09110133C42C9C9CCC /* ThreeCSG.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = ThreeCSG.js; sourceTree = "<group>"; };
+		DDAA5C0935B9A14147485CB2 /* threeDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = threeDView.js; sourceTree = "<group>"; };
 		DDAA5C0A39EF75836582584E /* mode-pascal.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-pascal.js"; sourceTree = "<group>"; };
 		DDAA5C0DAEC1B3B61CB9BCD1 /* mode-xml.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-xml.js"; sourceTree = "<group>"; };
 		DDAA5C0EF0AB3FDF7E4604D2 /* mode-logiql.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-logiql.js"; sourceTree = "<group>"; };
@@ -1666,6 +1666,7 @@
 				DDAA5A55C036357C8CD5193C /* emberTwoDView.js */,
 				DDAA50DB79A1ADCAFA5BA02C /* pocketView.js */,
 				DDAA572B976576EFEEC3D1E4 /* gcodeEditor.js */,
+				DDAA5C0935B9A14147485CB2 /* threeDView.js */,
 			);
 			path = ui;
 			sourceTree = "<group>";
@@ -1850,7 +1851,6 @@
 				DDAA5367902362964A0915C2 /* elliptic.js */,
 				DDAA5AAFC3B9C67160FA662D /* geometry.js */,
 				DDAA54613393642E5474B2DC /* simulation.js */,
-				DDAA505EBA7A9908C0974B77 /* threeDView.js */,
 			);
 			name = cnc;
 			path = webapp/cnc;
@@ -2839,7 +2839,6 @@
 				DDAA580B449779665EC9B1BB /* elliptic.js in Sources */,
 				DDAA56105E019F8318F45B2F /* geometry.js in Sources */,
 				DDAA5FC42305B4290E9C0612 /* simulation.js in Sources */,
-				DDAA53ACEAEFE21072003E4D /* threeDView.js in Sources */,
 				DDAA5AFE14FB7FD88E60515B /* usb.c in Sources */,
 				DDAA55077788665F7286A2A0 /* main.c in Sources */,
 				DDAA5257D2298240E4CB7F9B /* Makefile in Sources */,
@@ -2898,6 +2897,7 @@
 				DDAA5C37C64A75B06E05C2C5 /* OrbitControls.js in Sources */,
 				DDAA5DF7724EA709A0C8BF77 /* CSS3DRenderer.js in Sources */,
 				DDAA5EA9B7B8982A4312A62E /* tween.min.js in Sources */,
+				DDAA5C08E864DE4AE70AD325 /* threeDView.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

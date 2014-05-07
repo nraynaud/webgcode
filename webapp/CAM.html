@@ -101,7 +101,7 @@
         if (inChromeApp) //https://code.google.com/p/chromium/issues/detail?id=159303
             editor.session.setUseWorker(false);
         editor.session.setMode("ace/mode/javascript");
-        require(['cnc/ui/emberTwoDView', 'cnc/threeDView', 'cnc/cam'], function (twoD, threeD, cam) {
+        require(['cnc/ui/emberTwoDView', 'cnc/ui/threeDView', 'cnc/cam'], function (twoD, threeD, cam) {
             var threeDView = new threeD.ThreeDView($('#container'));
             window.addEventListener("message", function (event) {
                 if (event.data['type'] == 'gimme program') {
