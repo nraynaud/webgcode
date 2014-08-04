@@ -51,7 +51,7 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
             view.controls.addEventListener('change', updatePositionFromView);
         });
         var r = Math.PI / 2;
-        var d = 50;
+        var d = 49.5;//slight inset to help mask the seams between the faces
         var faces = [
             {pos: [d, 0, 0], rot: [r, r, 0], name: 'Right', camera: [1, 0, 0]},
             {pos: [-d, 0, 0], rot: [r, -r, 0], name: 'Left', camera: [-1, 0, 0]},
