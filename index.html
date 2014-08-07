@@ -110,8 +110,8 @@
 
 </div>
 <script>
-require(['cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/util', 'cnc/ui/gcodeEditor', 'cnc/gcode/gcodeSimulation', 'text!templates/gcodeSimulator.hbs'],
-        function (threeD, emberTwoDView, cam, util, gcodeEditor, gcodeSimulation, applicationTemplate) {
+require(['Ember', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/util', 'cnc/ui/gcodeEditor', 'cnc/gcode/gcodeSimulation', 'templates'],
+        function (Ember, threeD, emberTwoDView, cam, util, gcodeEditor, gcodeSimulation) {
             var demoCode = 'G0 Y10 Z-5\n' +
                     'G1 Z-10\n' +
                     'G1 Y20\n' +
@@ -143,7 +143,7 @@ require(['cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/util', 'cn
             Ember.Handlebars.helper('num', function (value) {
                 return new Handlebars.SafeString(Handlebars.Utils.escapeExpression(util.formatCoord(value)));
             });
-            Ember.TEMPLATES['application'] = Ember.Handlebars.compile(applicationTemplate);
+            Ember.TEMPLATES['application'] = Ember.TEMPLATES['gcodeSimulator'];
 
             window.Simulator = Ember.Application.create({
                 rootElement: '#app'

@@ -23,6 +23,7 @@ requirejs.config({
         'libs/threejs/CSS3DRenderer': {deps: ['THREE'], exports: 'THREE.CSS3DRenderer'},
         ace: {exports: 'ace'},
         'libs/svj.js': {exports: 'SVG'},
-        RSVP: {exports: 'RSVP'}
+        RSVP: {exports: 'RSVP'},
+        'templates': {deps: ['Ember']}
     }
 });
