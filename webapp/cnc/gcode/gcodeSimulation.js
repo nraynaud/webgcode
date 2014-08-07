@@ -117,13 +117,22 @@ define(['cnc/gcode/simulation', 'cnc/gcode/parser', 'require'], function (simula
         resultHandler(simulateGCode(code, fragmentHandler));
     }
 
+    /**
+     *
+     * why not always in worker? because workers don't work in webviews in chrome apps
+     * https://code.google.com/p/chromium/issues/detail?id=159303
+     */
     function tryToParseInWorker(code, resultHandler, fragmentHandler) {
         try {
             parseInWorker(code, resultHandler, fragmentHandler);
         } catch (error) {
             console.log('worker error', error);
             console.log('trying again without worker');
-            parseImmediately(code, resultHandler, fragmentHandler);
+            // It doesn't work in immediate code, maybe some ember thing with run.bind.
+            // Ember code is not readable enough to find a good explanation.
+            setTimeout(function () {
+                parseImmediately(code, resultHandler, fragmentHandler);
+            }, 0);
         }
     }
 
