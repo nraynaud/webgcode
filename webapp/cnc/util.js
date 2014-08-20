@@ -42,6 +42,63 @@ define(function () {
         }
     }
 
+    function createSimulationAccumulator(fragmentHandler) {
+        var currentSpeedTag = null;
+        var simulationFragments = [];
+        var simulatedPath = [];
+
+        function closeFragment() {
+            if (simulatedPath.length > 3) {
+                var fragment = {vertices: new Float32Array(simulatedPath).buffer, speedTag: currentSpeedTag};
+                simulationFragments.push(fragment);
+                //repeat the last point as ne new first point, because we're breaking the polyline
+                simulatedPath = simulatedPath.slice(-3);
+                fragmentHandler(fragment);
+            }
+        }
+
+        function accumulatePoint(point, speedTag) {
+            if (currentSpeedTag != speedTag || simulatedPath.length >= 10000) {
+                closeFragment();
+                currentSpeedTag = speedTag;
+            }
+            simulatedPath.push(point.x, point.y, point.z);
+        }
+
+        function isEmpty() {
+            return simulationFragments.length == 0 && simulatedPath.length == 0;
+        }
+
+        return {accumulatePoint: accumulatePoint, closeFragment: closeFragment, isEmpty: isEmpty};
+    }
+
+    /**
+     * returns something like "2h34m" or "55m12s"
+     * @param seconds
+     * @returns {string}
+     */
+    function humanizeDuration(seconds) {
+        var result = [];
+        var ranges = [
+            {type: 'y', time: 60 * 60 * 24 * 365},
+            {type: 'mo', time: 60 * 60 * 24 * 30},
+            {type: 'd', time: 60 * 60 * 24},
+            {type: 'h', time: 60 * 60},
+            {type: 'm', time: 60},
+            {type: 's', time: 1}
+        ];
+
+        ranges.forEach(function (step) {
+            var interval = Math.floor(seconds / step.time);
+            if (interval) {
+                result.push(interval + step.type);
+                seconds -= interval * step.time;
+            }
+        });
+
+        return result.slice(0, 2).join('');
+    }
+
     return {
         Point: Point,
         toggleClass: toggleClass,
@@ -68,6 +125,8 @@ define(function () {
                     return res.substring(0, i);
             }
             return res;
-        }
+        },
+        createSimulationAccumulator: createSimulationAccumulator,
+        humanizeDuration: humanizeDuration
     };
 });

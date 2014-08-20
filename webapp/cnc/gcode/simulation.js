@@ -274,9 +274,29 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
         });
     }
 
+    function collectToolpathInfo(toolpath) {
+        var totalTime = 0;
+        var xmin = +Infinity, ymin = +Infinity, zmin = +Infinity;
+        var xmax = -Infinity, ymax = -Infinity, zmax = -Infinity;
+
+        function pushPoint(x, y, z, t) {
+            totalTime = Math.max(t, totalTime);
+            xmin = Math.min(x, xmin);
+            ymin = Math.min(y, ymin);
+            zmin = Math.min(z, zmin);
+            xmax = Math.max(x, xmax);
+            ymax = Math.max(y, ymax);
+            zmax = Math.max(z, zmax);
+        }
+
+        simulate2(toolpath, pushPoint);
+        return {totalTime: totalTime, min: {x: xmin, y: ymin, z: zmin}, max: {x: xmax, y: ymax, z: zmax}};
+    }
+
     return {
         planSpeed: planSpeed,
         simulate2: simulate2,
+        collectToolpathInfo: collectToolpathInfo,
         planProgram: planProgram,
         COMPONENT_TYPES: COMPONENT_TYPES
     }

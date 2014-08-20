@@ -107,14 +107,6 @@
             background: #000;
             color: lightgray;
         }
-
-        .inputLanguagePanel {
-            align-self: flex-start;
-            border-right: solid gray 2px;
-            border-bottom: solid gray 2px;
-            border-bottom-right-radius: 10px;
-            padding: 5px;
-        }
     </style>
 </head>
 <body id="body">
@@ -192,13 +184,7 @@
     </div>
 </div>
 <div class="camPanel">
-    <div class="inputLanguagePanel">
-        <label><input class="inputLanguageCheckbox" type="radio" name="inputLanguage"
-                      data-url="CAM.html#fromApp" checked="true">Javascript</input></label>
-        <label><input class="inputLanguageCheckbox" type="radio" name="inputLanguage"
-                      data-url="oldCAM.html#fromApp">Gcode</input></label>
-    </div>
-    <iframe id="webView" src="CAM.html#fromApp"></iframe>
+    <iframe id="webView" src="CAM.html"></iframe>
 </div>
 </body>
 <script src="libs/require.js"></script>

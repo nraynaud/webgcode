@@ -98,16 +98,22 @@ define(['RSVP', 'jQuery', 'Ember'], function (rsvp, $, Ember) {
         bulkTransfer: function (transfer) {
             return this.promisedTransfer(chrome.usb.bulkTransfer, [transfer]);
         },
-        guardedTransfer: function (tranferFunc, guardName, tranfert) {
+        guardedTransfer: function (transferFunc, guardName, tranfert) {
             var _this = this;
             var usbObservers = _this.get('usbObservers');
-            if (_this.get('currentDevice') && !usbObservers[guardName]) {
+            if (!_this.get('currentDevice'))
+                return new rsvp.Promise(function (resolve, reject) {
+                    reject('no device open');
+                });
+            if (!usbObservers[guardName]) {
                 usbObservers[guardName] = true;
-                return this.promisedTransfer(tranferFunc, [tranfert]).finally(function () {
+                return this.promisedTransfer(transferFunc, [tranfert]).finally(function () {
                     usbObservers[guardName] = false;
                 });
             }
-            return new rsvp.Promise();
+            return new rsvp.Promise(function (resolve, reject) {
+                reject('guarded');
+            });
         },
         opened: function () {
             return this.get('currentDevice') != null;

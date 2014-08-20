@@ -1,171 +1,396 @@
 <!DOCTYPE html >
 <html>
 <head>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1"/>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
-    <title>CNC CAM</title>
-    <script src="libs/extractedRaphael.js"></script>
+    <title>g-code simulator</title>
     <script src="libs/require.js"></script>
     <script src="config.js"></script>
 
     <link rel="stylesheet" href="twoDView.css" type="text/css">
     <link rel="stylesheet" href="threeDView.css" type="text/css">
     <style>
-        html, body {
+
+        body, html {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            position: absolute;
             height: 100%;
+            width: 100%;
+            margin: 0;
             background: #000;
+            color: white;
         }
 
         body {
-            display: flex;
-            margin: 0;
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+
+        h1 {
+            margin-top: 0;
         }
 
         .editBlock {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-        }
-
-        #codebox {
+            position: relative;
+            float: left;
+            width: 39%;
+            height: 400px;
+            padding: 1px;
             margin: 0;
-            flex: 1;
         }
 
-        #simulationButton {
-            align-self: flex-end;
+        .editBlock pre {
+            width: 100%;
+            height: 350px;
+            margin: 0;
         }
 
-        #views {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+        .viewContainer {
+            float: right;
+            width: 60%;
         }
 
-        #container {
-            background: #2F2F2F;
-            flex: 1;
+        #loader {
+            display: inline-block;
+            background-size: 100% 100%;
+            background-image: url(spinner.svg);
+            width: 20px;
+            height: 20px;
         }
 
-        #drawing {
-            display: flex;
-            display: -webkit-flex;
-            align-items: stretch;
-            flex: 1;
-            overflow: hidden;
+        .boundsTable {
+            border-collapse: collapse;
         }
 
+        .boundsTable td {
+            border: dashed gray 1px;
+            padding: 3px;
+        }
 
+        .ThreeDView {
+            border: solid gray 1px;
+            background: #000;
+            height: 400px;
+            position: relative;
+        }
+
+        .TwoDView {
+            border: solid gray 1px;
+            background: #000;
+            height: 400px;
+        }
+
+        #app {
+            position: relative;
+        }
     </style>
 </head>
 <body>
-<div class="editBlock">
-    <pre id="codebox">
-    var outerWidth = 100;
-    var angle = 100;
-    var angleRadian = angle * Math.PI / 180;
-    var backsideMinWidth = 4;
-    var outerHeight = 25;
-    var virtualMeetingPointY = -1;
-    var ratio = Math.tan(angleRadian / 2);
-    var slopeDX = (outerHeight - backsideMinWidth) * ratio;
-    var topDx = outerWidth / 2 - (outerHeight - virtualMeetingPointY) * ratio;
-    var plankThickness = 18;
-
-    function createBracket(machine) {
-        var toolRadius = 3 / 2;
-        var shape = cam.geom.op('M', 0, 0) + cam.geom.op('l', outerWidth, 0) + cam.geom.op('l', 0, outerHeight)
-            + cam.geom.op('l', -topDx, 0)
-            + cam.geom.op('l', -slopeDX, -(outerHeight - backsideMinWidth))
-            + cam.geom.op('l', -(outerWidth - topDx * 2 - slopeDX * 2), 0)
-            + cam.geom.op('l', -slopeDX, outerHeight - backsideMinWidth)
-            + cam. geom.op('l', -topDx, 0) + 'Z';
-        var outline = machine.createOutline(shape);
-        machine.setParams(-17, 10, 1000);
-        machine.registerToolPathArray(machine.rampToolPathArray(machine.contouring(outline, toolRadius, false, true), -0, -plankThickness, 3));
-    }
-    createBracket(machine);
-    </pre>
-    <button id="simulationButton">Simulate</button>
-</div>
-<div id="views">
-    <div id="container" class="ThreeDView"></div>
-    <div id="drawing">
-        <div class="TwoDView"></div>
-    </div>
+<div id="app">
 </div>
 <script>
-    require(['ace'], function (ace) {
-        var inChromeApp = window.location.hash == '#fromApp';
-        var editor = ace.edit("codebox");
-        editor.setTheme("ace/theme/twilight");
-        if (inChromeApp) //https://code.google.com/p/chromium/issues/detail?id=159303
-            editor.session.setUseWorker(false);
-        editor.session.setMode("ace/mode/javascript");
-        require(['cnc/ui/emberTwoDView', 'cnc/ui/threeDView', 'cnc/cam'], function (twoD, threeD, cam) {
-            var threeDView = new threeD.ThreeDView($('#container'));
-            window.addEventListener("message", function (event) {
-                if (event.data['type'] == 'gimme program') {
-                    var port = event.ports[0];
-                    refresh(function (machine) {
-                        refreshViews(machine);
-                        var parameters = event.data.parameters;
-                        port.postMessage({type: 'toolpath', toolPath: machine.getToolPath(parameters), parameters: parameters});
-                    });
-                }
-                if (event.data['type'] == 'toolPosition') {
-                    var pos = event.data['position'];
-                    threeDView.setToolPosition(pos.x, pos.y, pos.z);
-                    threeDView.setToolVisibility(true);
-                    threeDView.reRender();
-                }
-            }, false);
-            var twoDView = twoD.EmberTwoDView.create({element: $('#drawing').find('.TwoDView')});
-            if (!inChromeApp) {
-                var code = localStorage.getItem('JSCode');
-                if (code)
-                    editor.setValue(code);
-                editor.getSession().on('change', function () {
-                    localStorage.setItem('JSCode', editor.getValue());
-                });
-            }
-            function refreshViews(machine) {
-                twoDView.zoomExtent();
-                var path = machine.dumpPath();
-                var buffer = new Float32Array(path.length * 3);
-                for (var i = 0; i < path.length; i++) {
-                    buffer[i * 3] = path[i].x;
-                    buffer[i * 3 + 1] = path[i].y;
-                    buffer[i * 3 + 2] = path[i].z;
-                }
-                threeDView.displayPath([
-                    {vertices: buffer.buffer, speedTag: 'normal'}
-                ]);
-            }
+require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/util', 'cnc/ui/gcodeEditor', 'cnc/ui/jsEditor', 'cnc/gcode/gcodeSimulation', 'cnc/gcode/simulation', 'templates'],
+        function (Ember, RSVP, threeD, emberTwoDView, cam, util, gcodeEditor, jsEditor, gcodeSimulation, simulation) {
+            var demoCode = 'G0 X0 Y10 Z-5\n' +
+                    'G1 Z-10\n' +
+                    'G1 Y20\n' +
+                    'G02 X10 Y30 R10\n' +
+                    'G1 X30\n' +
+                    'G2 X40 Y20 R10\n' +
+                    'G1 Y10\n' +
+                    'G2 X30 Y0 R10\n' +
+                    'G1 X10\n' +
+                    'G2 X0 Y10 Z-15 R10 (yeah spiral !)\n' +
+                    'G3 X-10 Y20 R-10 (yeah, long arc !)\n' +
+                    'G3 X0 Y10 I10 (center)\n' +
+                    'G91 G1 X10 Z10\n' +
+                    'G3 Y10 R5 Z3 (circle in incremental)\n' +
+                    'Y10 R5 Z3 (again, testing modal state)\n' +
+                    'G20 G0 X1 (one inch to the right)\n' +
+                    'G3 X-1 R1 (radius in inches)\n' +
+                    'G3 X1 Z0.3 I0.5 J0.5 (I,J in inches)\n' +
+                    'G21 (back to mm)\n' +
+                    'G80 X10 (do nothing)\n' +
+                    'G90\n' +
+                    'G0 X30 Y30 Z30\n' +
+                    'G18 (X-Z plane)\n' +
+                    'G3 Z40 I0 K5\n' +
+                    'G19 (Y-Z plane)\n' +
+                    'G3 Z50 J0 K5\n' +
+                    'G17 (back to X-Y plane)\n';
+            var demoJSCode = 'var outerWidth = 100;\n'
+                    + 'var angle = 100;\n'
+                    + 'var angleRadian = angle * Math.PI / 180;\n'
+                    + 'var backsideMinWidth = 4;\n'
+                    + 'var outerHeight = 25;\n'
+                    + 'var virtualMeetingPointY = -1;\n'
+                    + 'var ratio = Math.tan(angleRadian / 2);\n'
+                    + 'var slopeDX = (outerHeight - backsideMinWidth) * ratio;\n'
+                    + 'var topDx = outerWidth / 2 - (outerHeight - virtualMeetingPointY) * ratio;\n'
+                    + 'var plankThickness = 18;\n'
 
-            function refresh(callback) {
-                var machine = new cam.Machine(twoDView.paper);
-                var whenDone = callback || function () {
-                };
-                twoDView.clear();
-                var resWasFalse;
-                var res = new Function(['machine', 'whenDone', 'cam'], editor.getValue() + '//# sourceURL=user_code')(machine, function () {
-                    if (resWasFalse)
-                        throw new Error('you called whenDone() also you didn\'t return true in your code.');
-                    whenDone(machine);
-                }, cam);
-                if (!res) {
-                    resWasFalse = true;
-                    whenDone(machine);
-                }
-            }
+                    + 'function createBracket(machine) {\n'
+                    + '    var toolRadius = 3 / 2;\n'
+                    + "    var shape = cam.geom.op('M', 0, 0) + cam.geom.op('l', outerWidth, 0) + cam.geom.op('l', 0, outerHeight)\n"
+                    + "        + cam.geom.op('l', -topDx, 0)\n"
+                    + "        + cam.geom.op('l', -slopeDX, -(outerHeight - backsideMinWidth))\n"
+                    + "            + cam.geom.op('l', -(outerWidth - topDx * 2 - slopeDX * 2), 0)\n"
+                    + "            + cam.geom.op('l', -slopeDX, outerHeight - backsideMinWidth)\n"
+                    + "            + cam. geom.op('l', -topDx, 0) + 'Z';\n"
+                    + '    var outline = machine.createOutline(shape);\n'
+                    + '    machine.setParams(-17, 10, 1000);\n'
+                    + '    machine.registerToolPathArray(machine.rampToolPathArray(machine.contouring(outline, toolRadius, false, true), -0, -plankThickness, 3));\n'
+                    + '}\n'
+                    + 'createBracket(machine);';
 
-            $('#simulationButton').click(function () {
-                refresh(refreshViews);
+            Ember.Handlebars.helper('num', function (value) {
+                return new Handlebars.SafeString(Handlebars.Utils.escapeExpression(util.formatCoord(value)));
             });
-            refresh(refreshViews);
+
+            Ember.TEMPLATES['application'] = Ember.TEMPLATES['cam'];
+
+            window.Simulator = Ember.Application.create({
+                rootElement: '#app'
+            });
+
+            Simulator.GcodeEditorComponent = gcodeEditor.GcodeEditorComponent;
+            Simulator.JsEditorComponent = jsEditor.JSEditorComponent;
+
+            Simulator.ThreeDView = Ember.View.extend({
+                classNames: ['ThreeDView'],
+                didInsertElement: function () {
+                    var threeDView = new threeD.ThreeDView(this.$());
+                    this.set('nativeComponent', threeDView);
+                    this.highlightChanged();
+                    this.get('controller.simulatedPath').addArrayObserver({
+                        arrayWillChange: function (observedObj, start, removeCount, addCount) {
+                            for (var i = removeCount - 1; i >= 0; i--)
+                                threeDView.toolpath.remove((threeDView.toolpath.children[start + i]));
+                        },
+                        arrayDidChange: function (observedObj, start, removeCount, addCount) {
+                            for (var i = 0; i < addCount; i++)
+                                threeDView.addToolpathFragment(threeDView.toolpath, observedObj[start + i]);
+                            threeDView.reRender();
+                        }
+                    });
+                },
+                simulatedPathChanged: function () {
+                    if (!this.get('controller.computing'))
+                        this.get('nativeComponent').zoomExtent();
+                }.observes('controller.computing'),
+                highlightChanged: function () {
+                    var highlight = this.get('controller.currentHighLight');
+                    if (highlight)
+                        this.get('nativeComponent').displayHighlight(highlight);
+                    else
+                        this.get('nativeComponent').hideHighlight();
+                }.observes('controller.currentHighLight'),
+                toolMoved: function () {
+                    var position = this.get('controller.toolPosition');
+                    this.get('nativeComponent').setToolVisibility(true);
+                    this.get('nativeComponent').setToolPosition(position.x, position.y, position.z);
+
+                }.observes('controller.toolPosition')
+            });
+            Simulator.TwoDView = Ember.View.extend({
+                classNames: ['TwoDView'],
+                didInsertElement: function () {
+                    var view = emberTwoDView.EmberTwoDView.create({element: this.$()});
+                    this.set('nativeComponent', view);
+                    var toolpath = view.paper.group();
+                    var _this = this;
+                    this.get('controller.simulatedPath').addArrayObserver({
+                        arrayWillChange: function (observedObj, start, removeCount, addCount) {
+                            for (var i = removeCount - 1; i >= 0; i--)
+                                toolpath.get([start + i]).remove();
+                        },
+                        arrayDidChange: function (observedObj, start, removeCount, addCount) {
+                            for (var i = 0; i < addCount; i++)
+                                toolpath.add(_this.createFragment(view.paper, observedObj[start + i]), start + i);
+                            view.zoomExtent();
+                        }
+                    });
+                    //dirty hack to get JS CAM rolling
+                    this.set('controller.paper', view.paper.group());
+                },
+                createFragment: function (parent, fragment) {
+                    var polyline = [];
+                    var vertices = new Float32Array(fragment.vertices);
+                    for (var i = 0; i < vertices.length; i += 3)
+                        polyline.push({X: vertices[i], Y: vertices[i + 1]});
+                    return parent.path(cam.simplifyScaleAndCreatePathDef([polyline], 1, 0.001, false))
+                            .attr({class: 'toolpath ' + (fragment.speedTag == 'rapid' ? 'rapidMove' : 'normalMove')});
+                },
+                highlightChanged: function () {
+                    var highlight = this.get('controller.currentHighLight');
+                    var currentHighlight = this.get('highlight');
+                    if (currentHighlight) {
+                        currentHighlight.remove();
+                        currentHighlight = null;
+                    }
+                    if (highlight) {
+                        currentHighlight = this.get('nativeComponent.paper')
+                                .path(cam.simplifyScaleAndCreatePathDef([highlight.map(function (point) {
+                                    return {X: point.x, Y: point.y};
+                                })], 1, 0.001, false))
+                                .attr({fill: 'none', 'stroke': '#FF00FF', 'stroke-width': 6, 'stroke-linecap': 'round'});
+                    }
+                    this.set('highlight', currentHighlight);
+                }.observes('controller.currentHighLight')
+            });
+
+            Simulator.ApplicationController = Ember.ObjectController.extend({
+                init: function () {
+                    this._super();
+                    var _this = this;
+                    window.addEventListener("message", function (event) {
+                        if (event.data['type'] == 'gimme program') {
+                            if (_this.get('usingGcode'))
+                                event.ports[0].postMessage({type: 'gcode', program: _this.get('code'), parameters: event.data.parameters});
+                            else
+                                _this.getMachinePromise().then(function (machine) {
+                                    var toolpath = machine.dumpSimulation(event.data.parameters.position, function (fragment) {
+                                    });
+                                    event.ports[0].postMessage({type: 'toolPath', toolPath: toolpath, parameters: event.data.parameters});
+                                });
+                        }
+                        if (event.data['type'] == 'toolPosition') {
+                            var pos = event.data['position'];
+                            _this.set('toolPosition', pos);
+                        }
+                        if (event.data['type'] == 'setCode') {
+                            editor.setValue(event.data['code']);
+                            refreshView();
+                        }
+                    }, false);
+                    this.launchSimulation();
+                },
+                actions: {
+                    simulate: function () {
+                        this.launchSimulation();
+                    },
+                    loadBigSample: function () {
+                        this.set('computing', true);
+                        var _this = this;
+                        require(['text!samples/aztec_calendar.ngc'], function (text) {
+                            _this.set('code', text);
+                            _this.launchSimulation();
+                        });
+                    }
+                },
+                launchSimulation: function () {
+                    this.set('computing', true);
+                    this.set('lineSegmentMap', []);
+                    this.get('simulatedPath').clear();
+                    var _this = this;
+                    var promise = this.get('usingGcode') ? this.simulateGCode() : this.simulateJS();
+                    return promise.then(function () {
+                        _this.set('computing', false);
+                    }, function (error) {
+                        console.log('error', error, error.stack);
+                        _this.set('computing', false);
+                    });
+                },
+                flushFragmentFile: function () {
+                    this.get('simulatedPath').pushObjects(this.get('fragmentFile'));
+                    this.get('fragmentFile').clear();
+                },
+                simulateGCode: function () {
+                    var _this = this;
+                    return new RSVP.Promise(function (resolve, reject) {
+                        console.time('simulation');
+                        gcodeSimulation.tryToParseInWorker(_this.get('code'), _this.get('toolPosition'),
+                                Ember.run.bind(_this, resolve),
+                                Ember.run.bind(_this, function (fragment) {
+                                    _this.get('fragmentFile').pushObject(fragment);
+                                    Ember.run.throttle(_this, _this.flushFragmentFile, 500);
+                                }));
+                    }).then(function (result) {
+                                _this.flushFragmentFile();
+                                var errors = [];
+                                for (var i = 0; i < result.errors.length; i++) {
+                                    var error = result.errors[i];
+                                    errors.push({row: error.lineNo, text: error.message, type: "error"});
+                                }
+                                _this.set('errors', errors);
+                                _this.set('bbox', {min: result.min, max: result.max});
+                                _this.set('totalTime', result.totalTime);
+                                _this.set('lineSegmentMap', result.lineSegmentMap);
+                                console.timeEnd('simulation');
+                            }, function (error) {
+                                console.log('error', error, error.stack);
+                            });
+                },
+                simulateJS: function () {
+                    var _this = this;
+                    return this.getMachinePromise().then(function (machine) {
+                        var toolpath = machine.dumpSimulation(_this.get('toolPosition'), function (fragment) {
+                            _this.get('fragmentFile').pushObject(fragment);
+                            Ember.run.throttle(_this, _this.flushFragmentFile, 500);
+                        });
+                        _this.flushFragmentFile();
+                        var info = simulation.collectToolpathInfo(toolpath);
+                        _this.set('bbox', info);
+                        _this.set('totalTime', info.totalTime);
+                    }, function (error) {
+                        console.log('error', error, error.stack);
+                    });
+                },
+                usingGcode: function () {
+                    return this.get('selectedLanguage') == 'gcode';
+                }.property('selectedLanguage'),
+                currentHighLight: function () {
+                    return this.get('lineSegmentMap')[this.get('currentRow')];
+                }.property('currentRow', 'lineSegmentMap').readOnly(),
+                codeChanged: function () {
+                    parent.postMessage({type: 'codeChange', code: this.get('code')}, '*');
+                }.observes('code'),
+                selectLanguageChanged: function () {
+                    this.get('paper').clear();
+                    this.launchSimulation();
+                }.observes('selectedLanguage'),
+                formattedTotalTime: function () {
+                    var totalTime = this.get('totalTime');
+                    var humanized = util.humanizeDuration(totalTime);
+                    return {humanized: humanized, detailed: Math.round(totalTime) + 's'};
+                }.property('totalTime'),
+                getMachinePromise: function () {
+                    var _this = this;
+                    return new RSVP.Promise(function (resolve, reject) {
+                        _this.get('paper').clear();
+                        var machine = new cam.Machine(_this.get('paper'));
+                        var resWasFalse;
+                        var decoratedCode = _this.get('jscode') + '//# sourceURL=user_code';
+                        var res = new Function(['machine', 'whenDone', 'cam'], decoratedCode)(machine, function () {
+                            if (resWasFalse)
+                                reject('you called whenDone() also you didn\'t return true in your code.');
+                            else
+                                resolve(machine);
+                        }, cam);
+                        if (!res) {
+                            resWasFalse = true;
+                            resolve(machine);
+                        }
+                    });
+                },
+                toolPosition: {x: 0, y: 0, z: 0},
+                code: demoCode,
+                jscode: demoJSCode,
+                errors: [],
+                bbox: {},
+                totalTime: 0,
+                lineSegmentMap: [],
+                currentRow: null,
+                simulatedPath: [],
+                computing: false,
+                fragmentFile: [],
+                languages: ['gcode', 'javascript'],
+                selectedLanguage: 'gcode',
+                paper: null
+            });
         });
-    });
 </script>
 </body>
 </html>
-

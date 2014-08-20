@@ -93,7 +93,13 @@ require(['device', 'runner', 'jQuery'], function (Device, Runner, $) {
 
     function pollInterrupt() {
         device.guardedTransfer(chrome.usb.interruptTransfer, 'interrupt', {direction: 'in', endpoint: 1, length: 16})
-            .then(handleInterrupt);
+            .then(handleInterrupt)
+            .catch(function (error) {
+                if (error != 'guarded')
+                    return new RSVP.Promise(function (resolve, reject) {
+                        reject(error);
+                    });
+            });
     }
 
     function handleInterrupt(data) {
@@ -134,6 +140,11 @@ require(['device', 'runner', 'jQuery'], function (Device, Runner, $) {
                 console.log('state: RUNNING_PROGRAM');
             }
             currentState = state;
+        }).catch(function (error) {
+            if (error != 'guarded')
+                return new RSVP.Promise(function (resolve, reject) {
+                    reject(error);
+                });
         });
         var positionTransfer = device.createTransferPacket({request: CONTROL_COMMANDS.REQUEST_POSITION, length: 16});
         device.guardedTransfer(chrome.usb.controlTransfer, 'position', positionTransfer).then(function (data) {
@@ -148,6 +159,11 @@ require(['device', 'runner', 'jQuery'], function (Device, Runner, $) {
             $('#ypos').text(y.toFixed(3));
             $('#zpos').text(z.toFixed(3));
             webView.contentWindow.postMessage({type: 'toolPosition', position: parameters.position}, '*');
+        }).catch(function (error) {
+            if (error != 'guarded')
+                return new RSVP.Promise(function (resolve, reject) {
+                    reject(error);
+                });
         });
     }
 

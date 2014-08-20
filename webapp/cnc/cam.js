@@ -3,6 +3,10 @@
 define(['cnc/bezier', 'cnc/clipper', 'libs/simplify', 'cnc/util', 'libs/extractedRaphael'], function (bezier, clipper, simplify, util, _) {
     var CLIPPER_SCALE = Math.pow(2, 20);
 
+    function positionEquals(p1, p2) {
+        return p1.x == p2.x && p1.y == p2.y && p1.z == p2.z;
+    }
+
     function pushOnPath(path, toolpath) {
         var firstPoint = toolpath.getStartPoint();
         path.node.pathSegList.appendItem(path.node.createSVGPathSegMovetoAbs(firstPoint.x, firstPoint.y));
@@ -297,13 +301,51 @@ define(['cnc/bezier', 'cnc/clipper', 'libs/simplify', 'cnc/util', 'libs/extracte
         return dumpGCode(this.feedRate, this.dumpOnCollector.bind(this));
     };
 
+    Machine.prototype.dumpSimulation = function (initialPosition, fragmentHandler) {
+        var _this = this;
+        var toolpath = [];
+        var accumulator = util.createSimulationAccumulator(fragmentHandler);
+        var position = initialPosition;
+
+        function updatedPosition(point) {
+            var newPos = {x: point.x, y: point.y, z: point.z};
+            if (newPos.x == undefined)
+                newPos.x = position.x;
+            if (newPos.y == undefined)
+                newPos.y = position.y;
+            if (newPos.z == undefined)
+                newPos.z = position.z;
+            return newPos;
+        }
+
+        accumulator.accumulatePoint(position, 'rapid');
+        function createTravelerFunction(speedTag, overrideFeedRate) {
+            return function (point) {
+                var np = updatedPosition(point);
+                if (!positionEquals(np, position))
+                    toolpath.push({
+                        type: 'line',
+                        from: position,
+                        to: np,
+                        speedTag: speedTag,
+                        feedRate: overrideFeedRate ? overrideFeedRate : _this.feedRate
+                    });
+                accumulator.accumulatePoint(np, speedTag);
+                accumulator.closeFragment();
+                position = np;
+            };
+        }
+
+        this.dumpOnCollector({
+            goToTravelSpeed: createTravelerFunction('rapid', 3000),
+            goToWorkSpeed: createTravelerFunction('normal', null)
+        });
+        return toolpath;
+    };
+
     Machine.prototype.getToolPath = function (parameters) {
         var path = [];
         var position = parameters.position;
-
-        function positionEquals(p1, p2) {
-            return p1.x == p2.x && p1.y == p2.y && p1.z == p2.z;
-        }
 
         function createSpeedHandler(speed) {
             return function (point) {

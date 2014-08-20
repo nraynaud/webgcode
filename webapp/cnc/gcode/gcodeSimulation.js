@@ -1,40 +1,19 @@
 "use strict";
 
-define(['cnc/gcode/simulation', 'cnc/gcode/parser', 'require'], function (simulation, parser, require) {
-    function simulateGCode(code, fragmentHandler) {
-        var currentSpeedTag = null;
-        var simulatedPath = [];
-        var simulationFragments = [];
-
-        function closeFragment() {
-            if (simulatedPath.length) {
-                var fragment = {vertices: new Float32Array(simulatedPath).buffer, speedTag: currentSpeedTag};
-                simulationFragments.push(fragment);
-                //repeat the last point as ne new first point, because we're breaking the polyline
-                simulatedPath = simulatedPath.slice(-3);
-                fragmentHandler(fragment);
-            }
-        }
-
-        function accumulatePoint(point, segment) {
-            if (currentSpeedTag != segment.speedTag || simulatedPath.length >= 10000) {
-                closeFragment();
-                currentSpeedTag = segment.speedTag;
-            }
-            simulatedPath.push(point.x, point.y, point.z);
-        }
-
+define(['cnc/gcode/simulation', 'cnc/gcode/parser', 'cnc/util', 'require'], function (simulation, parser, util, require) {
+    function simulateGCode(code, initialPosition, fragmentHandler) {
+        var accumulator = util.createSimulationAccumulator(fragmentHandler);
         var errors = [];
         var map = [];
 
         function fragmentListener(fragment) {
-            if (simulationFragments.length == 0 && simulatedPath.length == 0)
-                accumulatePoint(fragment.from, fragment);
+            if (accumulator.isEmpty())
+                accumulator.accumulatePoint(fragment.from, fragment.speedTag);
             if (fragment.type == 'line') {
                 var array = [fragment.from, fragment.to];
                 array.speedTag = fragment.speedTag;
                 map[fragment.lineNo] = array;
-                accumulatePoint(fragment.to, fragment);
+                accumulator.accumulatePoint(fragment.to, fragment.speedTag);
             } else {
                 var tolerance = 0.001;
                 var steps = Math.PI / Math.acos(1 - tolerance / fragment.radius) * Math.abs(fragment.angularDistance) / (Math.PI * 2);
@@ -42,40 +21,24 @@ define(['cnc/gcode/simulation', 'cnc/gcode/parser', 'require'], function (simula
                 for (var j = 0; j <= steps; j++) {
                     var point = simulation.COMPONENT_TYPES['arc'].pointAtRatio(fragment, j / steps, true);
                     points.push(point);
-                    accumulatePoint(point, fragment);
+                    accumulator.accumulatePoint(point, fragment.speedTag);
                 }
                 map[fragment.lineNo] = points;
             }
         }
 
-        var toolPath = parser.evaluate(code, null, null, null, errors, fragmentListener);
-        closeFragment();
-
-        var totalTime = 0;
-        var xmin = +Infinity, ymin = +Infinity, zmin = +Infinity;
-        var xmax = -Infinity, ymax = -Infinity, zmax = -Infinity;
-
-        function pushPoint(x, y, z, t) {
-            totalTime = Math.max(t, totalTime);
-            xmin = Math.min(x, xmin);
-            ymin = Math.min(y, ymin);
-            zmin = Math.min(z, zmin);
-            xmax = Math.max(x, xmax);
-            ymax = Math.max(y, ymax);
-            zmax = Math.max(z, zmax);
-        }
-
-        simulation.simulate2(toolPath, pushPoint);
-
+        var toolPath = parser.evaluate(code, null, null, initialPosition, errors, fragmentListener);
+        accumulator.closeFragment();
+        var info = simulation.collectToolpathInfo(toolPath);
         return {
-            totalTime: totalTime,
-            min: {x: xmin, y: ymin, z: zmin}, max: {x: xmax, y: ymax, z: zmax},
+            totalTime: info.totalTime,
+            min: info.min, max: info.max,
             errors: errors, lineSegmentMap: map};
     }
 
     function simulateWorkerSide(event) {
         try {
-            self.postMessage(simulateGCode(event.data.code, function (fragment) {
+            self.postMessage(simulateGCode(event.data.code, event.data.initialPosition, function (fragment) {
                 self.postMessage({
                     type: 'fragment',
                     fragment: fragment
@@ -88,12 +51,12 @@ define(['cnc/gcode/simulation', 'cnc/gcode/parser', 'require'], function (simula
         }
     }
 
-    function parseInWorker(code, resultHandler, fragmentHandler) {
+    function parseInWorker(code, initialPosition, resultHandler, fragmentHandler) {
         var worker = new Worker(require.toUrl('worker.js'));
         worker.onerror = function (error) {
             console.log('worker error', error);
             console.log('trying again without worker');
-            parseImmediately(code, resultHandler);
+            parseImmediately(code, initialPosition, resultHandler);
         };
         window.myWorker = worker;
         worker.onmessage = function (event) {
@@ -109,12 +72,13 @@ define(['cnc/gcode/simulation', 'cnc/gcode/parser', 'require'], function (simula
         };
         worker.postMessage({
             operation: 'simulateGCode',
-            code: code
+            code: code,
+            initialPosition: initialPosition
         });
     }
 
-    function parseImmediately(code, resultHandler, fragmentHandler) {
-        resultHandler(simulateGCode(code, fragmentHandler));
+    function parseImmediately(code, initialPosition, resultHandler, fragmentHandler) {
+        resultHandler(simulateGCode(code, initialPosition, fragmentHandler));
     }
 
     /**
@@ -122,16 +86,17 @@ define(['cnc/gcode/simulation', 'cnc/gcode/parser', 'require'], function (simula
      * why not always in worker? because workers don't work in webviews in chrome apps
      * https://code.google.com/p/chromium/issues/detail?id=159303
      */
-    function tryToParseInWorker(code, resultHandler, fragmentHandler) {
+    function tryToParseInWorker(code, initialPosition, resultHandler, fragmentHandler) {
         try {
-            parseInWorker(code, resultHandler, fragmentHandler);
+            throw 'no worker';
+            parseInWorker(code, initialPosition, resultHandler, fragmentHandler);
         } catch (error) {
             console.log('worker error', error);
             console.log('trying again without worker');
             // It doesn't work in immediate code, maybe some ember thing with run.bind.
             // Ember code is not readable enough to find a good explanation.
             setTimeout(function () {
-                parseImmediately(code, resultHandler, fragmentHandler);
+                parseImmediately(code, initialPosition, resultHandler, fragmentHandler);
             }, 0);
         }
     }

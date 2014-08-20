@@ -18,6 +18,7 @@
         }
     </style>
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=drawing,geometry"></script>
+    <link rel="stylesheet" href="webapp/threeDView.css" type="text/css">
 </head>
 <body>
 
@@ -157,13 +158,15 @@ require(['jQuery', 'cnc/ui/threeDView'], function ($, threeDView) {
     }
 
     function initialize() {
+        console.log('initialize');
         function geomToStl(geom) {
             geom.computeBoundingBox();
+            geom.computeFaceNormals();
             var min = geom.boundingBox.min;
             var file = 'solid OBJECT\n';
 
             function printVector(v0) {
-                return [v0.x.toExponential(), v0.z.toExponential(), v0.y.toExponential()].join(' ');
+                return [v0.x.toExponential(), v0.y.toExponential(), v0.z.toExponential()].join(' ');
             }
 
             $.each(geom.faces, function (_, face) {
@@ -269,7 +272,8 @@ require(['jQuery', 'cnc/ui/threeDView'], function ($, threeDView) {
         drawingManager.setMap(map);
     }
 
-    google.maps.event.addDomListener(window, 'load', initialize);
+    console.log('google.maps.event.addDomListener');
+    initialize();
 });
 </script>
 </html>

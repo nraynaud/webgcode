@@ -254,6 +254,7 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
             this.tool.position.setX(x);
             this.tool.position.setY(y);
             this.tool.position.setZ(z);
+            this.reRender();
         },
         actuallyRender: function () {
             this.renderRequested = false;
