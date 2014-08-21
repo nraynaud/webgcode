@@ -160,13 +160,19 @@ Ember.TEMPLATES["gcodeSimulator"] = Ember.Handlebars.template(function anonymous
 
     function program3(depth0, data) {
 
-        var buffer = '', stack1, hashTypes, hashContexts, options;
-        data.buffer.push("\n        <div>\n            <dl>\n                <dt>Total Duration:</dt>\n                <dd>");
+        var buffer = '', stack1, hashContexts, hashTypes, options;
+        data.buffer.push("\n        <div>\n            <dl>\n                <dt>Total Duration:</dt>\n                <dd ");
+        hashContexts = {'title': depth0};
+        hashTypes = {'title': "ID"};
+        options = {hash: {
+            'title': ("formattedTotalTime.detailed")
+        }, contexts: [], types: [], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
+        data.buffer.push(escapeExpression(((stack1 = helpers['bind-attr'] || (depth0 && depth0['bind-attr'])), stack1 ? stack1.call(depth0, options) : helperMissing.call(depth0, "bind-attr", options))));
+        data.buffer.push(">");
         hashTypes = {};
         hashContexts = {};
-        options = {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
-        data.buffer.push(escapeExpression(((stack1 = helpers.num || (depth0 && depth0.num)), stack1 ? stack1.call(depth0, "totalTime", options) : helperMissing.call(depth0, "num", "totalTime", options))));
-        data.buffer.push("s</dd>\n            </dl>\n            <dl>\n                <dt>Bounds (@tool center):</dt>\n                <dd>\n                    <table class=\"boundsTable\" style=\"text-align:right;\">\n                        <thead>\n                        <tr>\n                            <th>&nbsp;</th>\n                            <th>min</th>\n                            <th>max</th>\n                        </tr>\n                        </thead>\n                        <tbody>\n                        <tr>\n                            <th>X</th>\n                            <td>");
+        data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "formattedTotalTime.humanized", {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
+        data.buffer.push("</dd>\n            </dl>\n            <dl>\n                <dt>Bounds (@tool center):</dt>\n                <dd>\n                    <table class=\"boundsTable\" style=\"text-align:right;\">\n                        <thead>\n                        <tr>\n                            <th>&nbsp;</th>\n                            <th>min</th>\n                            <th>max</th>\n                        </tr>\n                        </thead>\n                        <tbody>\n                        <tr>\n                            <th>X</th>\n                            <td>");
         hashTypes = {};
         hashContexts = {};
         options = {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data};

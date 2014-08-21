@@ -88,7 +88,6 @@ define(['cnc/gcode/simulation', 'cnc/gcode/parser', 'cnc/util', 'require'], func
      */
     function tryToParseInWorker(code, initialPosition, resultHandler, fragmentHandler) {
         try {
-            throw 'no worker';
             parseInWorker(code, initialPosition, resultHandler, fragmentHandler);
         } catch (error) {
             console.log('worker error', error);

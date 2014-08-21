@@ -13,7 +13,7 @@
         <div>
             <dl>
                 <dt>Total Duration:</dt>
-                <dd>{{num totalTime}}s</dd>
+                <dd {{bind-attr title=formattedTotalTime.detailed}}>{{formattedTotalTime.humanized}}</dd>
             </dl>
             <dl>
                 <dt>Bounds (@tool center):</dt>

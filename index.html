@@ -298,6 +298,11 @@ require(['Ember', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/u
                     this.get('simulatedPath').pushObjects(this.get('fragmentFile'));
                     this.get('fragmentFile').clear();
                 },
+                formattedTotalTime: function () {
+                    var totalTime = this.get('totalTime');
+                    var humanized = util.humanizeDuration(totalTime);
+                    return {humanized: humanized, detailed: Math.round(totalTime) + 's'};
+                }.property('totalTime'),
                 currentHighLight: function () {
                     return this.get('lineSegmentMap')[this.get('currentRow')];
                 }.property('currentRow', 'lineSegmentMap').readOnly(),
