@@ -149,7 +149,7 @@ require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam'
                 return new Handlebars.SafeString(Handlebars.Utils.escapeExpression(util.formatCoord(value)));
             });
 
-            Ember.TEMPLATES['application'] = Ember.TEMPLATES['cam'];
+            Ember.TEMPLATES['application'] = Ember.TEMPLATES['camApp'];
 
             window.Simulator = Ember.Application.create({
                 rootElement: '#app'

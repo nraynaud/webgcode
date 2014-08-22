@@ -708,7 +708,7 @@
 		DDAA51DE17B96DCF612B22D5 /* contour.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = contour.js; path = webapp/cnc/contour.js; sourceTree = "<group>"; };
 		DDAA51E1B3A6148A92300206 /* mode-logiql.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-logiql.js"; sourceTree = "<group>"; };
 		DDAA51EE6AFBC9F5E43B15B8 /* mode-scala.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-scala.js"; sourceTree = "<group>"; };
-		DDAA51F34BDB532649B2A0E7 /* cam.handlebars */ = {isa = PBXFileReference; lastKnownFileType = file.handlebars; path = cam.handlebars; sourceTree = "<group>"; };
+		DDAA51F34BDB532649B2A0E7 /* camApp.handlebars */ = {isa = PBXFileReference; lastKnownFileType = file.handlebars; path = camApp.handlebars; sourceTree = "<group>"; };
 		DDAA5200F7205844443BF91C /* jquery.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.min.js; sourceTree = "<group>"; };
 		DDAA52022936D610AC43A2B8 /* mode-latex.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-latex.js"; sourceTree = "<group>"; };
 		DDAA520681098606422E2C3F /* mode-lisp.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-lisp.js"; sourceTree = "<group>"; };
@@ -1462,7 +1462,7 @@
 				DDAA5D0CF378287552FFC123 /* textApp.handlebars */,
 				DDAA5B33C3707B748722BBB4 /* gcodeSimulator.handlebars */,
 				DDAA5612EBDD75ED97026C74 /* draftApp.handlebars */,
-				DDAA51F34BDB532649B2A0E7 /* cam.handlebars */,
+				DDAA51F34BDB532649B2A0E7 /* camApp.handlebars */,
 			);
 			path = templates;
 			sourceTree = "<group>";
