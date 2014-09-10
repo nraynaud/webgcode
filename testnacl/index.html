@@ -9,6 +9,8 @@ found in the LICENSE file.
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="-1">
     <title>Getting Started: Part 2</title>
+    <script type="text/javascript" src="loadnacl.js"></script>
+
     <script type="text/javascript" src="common.js"></script>
     <script type="text/javascript" src="example.js"></script>
 </head>
@@ -22,7 +24,17 @@ toolchain it supports, we set custom data attributes on the body. Those
 attributes are read by common.js to determine which toolchains are supported
 for the example.
 -->
-<body data-name="part1" data-tools="pnacl" data-configs="Release" data-path="{tc}/{config}">
+<body data-name="part1" data-configs="Debug" data-path="{tc}/{config}">
+<script type="text/javascript">
+
+    var body = document.querySelector('body');
+    if (nacl.hasPNaCl())
+        body.setAttribute("data-tc", 'pnacl');
+    else
+        body.setAttribute("data-tc", 'emscripten');
+
+    console.log('set data-tc');
+</script>
 <h1>Getting Started: Part 1</h1>
 <h2>Status: <code id="statusField">NO-STATUS</code></h2>
 

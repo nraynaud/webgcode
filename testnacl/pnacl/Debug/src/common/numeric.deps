@@ -1,0 +1,5 @@
+# Updated by fix_deps.py
+pnacl/Debug/src/common/numeric.o: src/common/numeric.cpp \
+  src/common/numeric.hpp
+src/common/numeric.cpp:
+src/common/numeric.hpp:

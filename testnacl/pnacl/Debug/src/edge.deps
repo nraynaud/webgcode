@@ -1,0 +1,9 @@
+# Updated by fix_deps.py
+pnacl/Debug/src/edge.o: src/edge.cpp src/edge.hpp src/common/point.hpp \
+  src/site.hpp src/common/numeric.hpp src/solvers/solution.hpp
+src/edge.cpp:
+src/edge.hpp:
+src/common/point.hpp:
+src/site.hpp:
+src/common/numeric.hpp:
+src/solvers/solution.hpp:

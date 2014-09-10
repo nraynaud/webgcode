@@ -1,0 +1,30 @@
+# Updated by fix_deps.py
+pnacl/Debug/src/vertex_positioner.o: src/vertex_positioner.cpp \
+  src/vertex_positioner.hpp src/graph.hpp src/common/point.hpp \
+  src/common/halfedgediagram.hpp src/vertex.hpp src/site.hpp \
+  src/common/numeric.hpp src/edge.hpp src/solvers/solution.hpp \
+  src/voronoidiagram.hpp src/filter.hpp src/kdtree.hpp \
+  src/solvers/solver_ppp.hpp src/solvers/solver.hpp \
+  src/solvers/solver_lll.hpp src/solvers/solver_lll_para.hpp \
+  src/solvers/solver_qll.hpp src/solvers/solver_sep.hpp \
+  src/solvers/solver_alt_sep.hpp
+src/vertex_positioner.cpp:
+src/vertex_positioner.hpp:
+src/graph.hpp:
+src/common/point.hpp:
+src/common/halfedgediagram.hpp:
+src/vertex.hpp:
+src/site.hpp:
+src/common/numeric.hpp:
+src/edge.hpp:
+src/solvers/solution.hpp:
+src/voronoidiagram.hpp:
+src/filter.hpp:
+src/kdtree.hpp:
+src/solvers/solver_ppp.hpp:
+src/solvers/solver.hpp:
+src/solvers/solver_lll.hpp:
+src/solvers/solver_lll_para.hpp:
+src/solvers/solver_qll.hpp:
+src/solvers/solver_sep.hpp:
+src/solvers/solver_alt_sep.hpp:

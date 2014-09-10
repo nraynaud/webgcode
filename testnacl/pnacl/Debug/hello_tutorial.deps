@@ -1,0 +1,78 @@
+# Updated by fix_deps.py
+pnacl/Debug/hello_tutorial.o: hello_tutorial.cc \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/instance.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_instance.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_macros.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_stdint.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_resource.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/ppb_console.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_bool.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_var.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/instance_handle.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/view.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/resource.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/pass_ref.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/rect.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_rect.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_point.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_size.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/point.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/size.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/logging.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/module.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_module.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/ppb.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/ppb_core.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_completion_callback.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_time.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/core.h \
+  /Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/var.h \
+  clipper.hpp src/voronoidiagram.hpp src/common/point.hpp src/graph.hpp \
+  src/common/halfedgediagram.hpp src/vertex.hpp src/site.hpp \
+  src/common/numeric.hpp src/edge.hpp src/solvers/solution.hpp \
+  src/vertex_positioner.hpp src/filter.hpp src/kdtree.hpp src/offset.hpp \
+  src/utility/vd2svg.hpp src/utility/simple_svg_1.0.0.hpp
+hello_tutorial.cc:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/instance.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_instance.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_macros.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_stdint.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_resource.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/ppb_console.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_bool.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_var.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/instance_handle.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/view.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/resource.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/pass_ref.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/rect.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_rect.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_point.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_size.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/point.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/size.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/logging.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/module.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_module.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/ppb.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/ppb_core.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_completion_callback.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/c/pp_time.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/core.h:
+/Users/nraynaud/dev/nacl_sdk/pepper_35/include/ppapi/cpp/var.h:
+clipper.hpp:
+src/voronoidiagram.hpp:
+src/common/point.hpp:
+src/graph.hpp:
+src/common/halfedgediagram.hpp:
+src/vertex.hpp:
+src/site.hpp:
+src/common/numeric.hpp:
+src/edge.hpp:
+src/solvers/solution.hpp:
+src/vertex_positioner.hpp:
+src/filter.hpp:
+src/kdtree.hpp:
+src/offset.hpp:
+src/utility/vd2svg.hpp:
+src/utility/simple_svg_1.0.0.hpp:

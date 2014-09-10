@@ -1,0 +1,15 @@
+# Updated by fix_deps.py
+pnacl/Debug/src/medial_axis_pocket.o: src/medial_axis_pocket.cpp \
+  src/medial_axis_pocket.hpp src/graph.hpp src/common/point.hpp \
+  src/common/halfedgediagram.hpp src/vertex.hpp src/site.hpp \
+  src/common/numeric.hpp src/edge.hpp src/solvers/solution.hpp
+src/medial_axis_pocket.cpp:
+src/medial_axis_pocket.hpp:
+src/graph.hpp:
+src/common/point.hpp:
+src/common/halfedgediagram.hpp:
+src/vertex.hpp:
+src/site.hpp:
+src/common/numeric.hpp:
+src/edge.hpp:
+src/solvers/solution.hpp:

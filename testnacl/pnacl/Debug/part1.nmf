@@ -1,0 +1,10 @@
+{
+  "files": {},
+  "program": {
+   "portable": {
+        "pnacl-translate": {
+          "url": "part1.pexe"
+        }
+      }
+      }
+}
