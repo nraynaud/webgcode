@@ -260,9 +260,7 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
                     if (parsedMove[axis] != null)
                         parsedMove[axis] -= currentOrigin[axis];
                 });
-                var localPoint = machineState.distanceMode(machineState.position, parsedMove);
-
-                return localPoint;
+                return machineState.distanceMode(machineState.position, parsedMove);
             }
         };
         $.each(util.AXES, function (_, axis) {
