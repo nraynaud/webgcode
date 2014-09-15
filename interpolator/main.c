@@ -19,7 +19,8 @@ static const struct {
 static const struct {
     GPIO_TypeDef *gpio;
     uint16_t eStopButton, eStopLed;
-    uint16_t stopInterruptLine, stopIrqN;
+    uint16_t stopInterruptLine;
+    uint8_t stopIrqN;
     uint8_t extiPortSource, extiPinSource;
 } eStopPinout = {
         .gpio = GPIOE,
