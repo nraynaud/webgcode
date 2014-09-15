@@ -318,9 +318,10 @@ require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam'
                                 _this.set('bbox', {min: result.min, max: result.max});
                                 _this.set('totalTime', result.totalTime);
                                 _this.set('lineSegmentMap', result.lineSegmentMap);
-                                console.timeEnd('simulation');
                             }, function (error) {
                                 console.log('error', error, error.stack);
+                            }).finally(function () {
+                                console.timeEnd('simulation');
                             });
                 },
                 simulateJS: function () {
