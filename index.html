@@ -289,7 +289,7 @@ require(['Ember', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/u
                     this.set('computing', true);
                     _this.set('lineSegmentMap', []);
                     this.get('simulatedPath').clear();
-                    gcodeSimulation.tryToParseInWorker(this.get('code'), {x: 0, y: 0, z: 0}, Ember.run.bind(_this, handleResult), Ember.run.bind(_this, function (fragment) {
+                    gcodeSimulation.parseInWorker(this.get('code'), {x: 0, y: 0, z: 0}, Ember.run.bind(_this, handleResult), Ember.run.bind(_this, function (fragment) {
                         _this.get('fragmentFile').pushObject(fragment);
                         Ember.run.throttle(_this, _this.flushFragmentFile, 500);
                     }));

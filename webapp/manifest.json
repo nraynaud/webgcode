@@ -20,6 +20,6 @@
         }
     },
     "sandbox": {
-        "pages": ["CAM.html", "oldCAM.html"]
+        "pages": ["js_sandbox.html"]
     }
 }

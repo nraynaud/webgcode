@@ -522,6 +522,8 @@ define(['cnc/bezier', 'cnc/clipper', 'libs/simplify', 'cnc/util', 'libs/extracte
         geom: geom,
         pushOnPath: pushOnPath,
         Machine: Machine,
+        ConstantZPolygonToolpath: ConstantZPolygonToolpath,
+        GeneralPolylineToolpath: GeneralPolylineToolpath,
         decomposePolytreeInTopLevelPolygons: decomposePolytreeInTopLevelPolygons,
         polyOp: polyOp,
         simplifyPolygons: simplifyPolygons,

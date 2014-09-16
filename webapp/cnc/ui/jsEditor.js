@@ -5,7 +5,7 @@ define(['Ember', 'ace'], function (Em, ace) {
             var _this = this;
             this.set('editor', ace.edit(this.get('element')));
             var editor = this.get('editor');
-            editor.session.setUseWorker(false);
+            editor.session.setUseWorker(true);
             editor.setTheme("ace/theme/chaos");
             editor.session.setMode("ace/mode/javascript");
             editor.on('change', function () {
