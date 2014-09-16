@@ -7,7 +7,7 @@ requirejs.config({
         THREE: 'libs/threejs/Three.min',
         TWEEN: 'libs/tween.min',
         ace: 'libs/ace/src-noconflict/ace',
-        RSVP: 'libs/rsvp-latest'
+        RSVP: 'libs/rsvp-latest',
     },
     shim: {
         jQuery: {exports: "$"},
@@ -22,7 +22,9 @@ requirejs.config({
         'libs/threejs/TrackballControls': {deps: ['THREE'], exports: 'THREE.TrackballControls'},
         'libs/threejs/CSS3DRenderer': {deps: ['THREE'], exports: 'THREE.CSS3DRenderer'},
         ace: {exports: 'ace'},
-        'libs/svj.js': {exports: 'SVG'},
+        'libs/svg': {exports: 'SVG'},
+        'libs/svg-parser': {deps: ['libs/svg']},
+        'libs/svg-import': {deps: ['libs/svg', 'libs/svg-parser']},
         RSVP: {exports: 'RSVP'},
         'templates': {deps: ['Ember']}
     }

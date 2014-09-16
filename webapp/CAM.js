@@ -1,4 +1,5 @@
-require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/util', 'cnc/ui/gcodeEditor', 'cnc/ui/jsEditor', 'cnc/gcode/gcodeSimulation', 'cnc/gcode/simulation', 'templates'],
+require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/util', 'cnc/ui/gcodeEditor',
+        'cnc/ui/jsEditor', 'cnc/gcode/gcodeSimulation', 'cnc/gcode/simulation', 'libs/svg-import', 'templates'],
     function (Ember, RSVP, threeD, emberTwoDView, cam, util, gcodeEditor, jsEditor, gcodeSimulation, simulation) {
         var demoCode = 'G0 X0 Y10 Z-5\n' +
             'G1 Z-10\n' +
@@ -277,9 +278,7 @@ require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam'
                                             operation.path = operationData.path;
                                             machine.operations.push(operation);
                                         }
-                                        var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                                        g.innerHTML = event.data.result.svg;
-                                        machine.paper.node.appendChild(g);
+                                        machine.paper.svg(event.data.result.svg);
                                         resolve(machine);
                                     } else {
                                         reject(event.data.error);
