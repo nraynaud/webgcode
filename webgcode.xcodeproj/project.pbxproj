@@ -964,6 +964,7 @@
 		DDAA592377E339201A975063 /* csg.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = csg.js; sourceTree = "<group>"; };
 		DDAA59240776C46200C93D09 /* delaunay.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = delaunay.js; sourceTree = "<group>"; };
 		DDAA59270122E777621608B9 /* theme-mono_industrial.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-mono_industrial.js"; sourceTree = "<group>"; };
+		DDAA59271DF6A4EFEC26F9A7 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = file.gitignore; path = .gitignore; sourceTree = "<group>"; };
 		DDAA5927FEF93C500A6BA20A /* worker-coffee.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "worker-coffee.js"; sourceTree = "<group>"; };
 		DDAA5931F75C90FB9844814F /* handlebars-v1.3.0.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "handlebars-v1.3.0.js"; sourceTree = "<group>"; };
 		DDAA59321B9A5D86851D999C /* jquery.flot.resize.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.flot.resize.js; sourceTree = "<group>"; };
@@ -2086,6 +2087,7 @@
 				DDAA5B90DC836FD949FF713C /* testnacl */,
 				DDAA54F3B578CC3FCC5E03A2 /* main.c */,
 				DDAA5F4033A35CFACA352CEE /* Makefile */,
+				DDAA59271DF6A4EFEC26F9A7 /* .gitignore */,
 			);
 			sourceTree = "<group>";
 		};
