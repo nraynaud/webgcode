@@ -5,6 +5,28 @@
 // speed in mm/s
 // angles in radians
 define(['libs/jsparse', 'cnc/util'], function (jp, util) {
+    // the line has to exactly match to be quick-parsed
+    var RE_CHECKER = /^([FGHIJKLMNPRSTXYZ][-+]?[0-9]*\.?[0-9]+)+$/i;
+    var RE_PARSER = /([FGHIJKLMNPRSTXYZ])([-+]?[0-9]*\.?[0-9]+)/ig;
+
+    function tryToQuicklyParse(str) {
+        //try a speedy parsing
+        if (RE_CHECKER.test(str)) {
+            var res = {};
+            var match;
+            while ((match = RE_PARSER.exec(str)) !== null) {
+                var key = match[1].toLowerCase();
+                var value = parseFloat(match[2]);
+                if (res[key] == null)
+                    res[key] = [ value];
+                else
+                    res[key].push(value);
+            }
+            return res;
+        }
+        return null;
+    }
+
     jp.memoize = false;
     var XY_PLANE = {
         firstCoord: 'x',
@@ -397,7 +419,7 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
         var affectation = jp.action(jp.wsequence(parameter, jp.expect('='), readExpression), function (ast) {
             return {variable: ast[0], value: ast[1]};
         });
-        var word = jp.wsequence(jp.choice.apply(null, 'FGIJKLMPRSTXYZfgijklmrpstxyz'.split('')), readExpression);
+        var word = jp.wsequence(jp.choice.apply(null, 'FGIJKLMNPRSTXYZ'.split('')), readExpression);
         var line = jp.action(jp.wsequence(jp.repeat0(jp.choice(affectation, word)), jp.end), function (ast) {
             var res = {};
             var affectations = [];
@@ -429,18 +451,20 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
                     if (memory.hasOwnProperty(key))
                         delete memory[key];
             }, parseLine: function (str) {
-                return  wholeLine(jp.ps(str));
+                var quick = tryToQuicklyParse(str);
+                if (quick)
+                    return quick;
+                //go uppercase for this parser
+                return wholeLine(jp.ps(str.toUpperCase())).ast;
             }};
     }
 
-    function cleanLine(originalLine) {
-        //drop spaces, go uppercase
-        var line = originalLine.replace(/[\t ]+/g, '').toUpperCase();
+    function cleanLineUp(originalLine) {
+        //drop spaces
+        var line = originalLine.replace(/[\t ]+/g, '');
         // drop comments
         line = line.replace(/[(][^)]*[)]/g, '');
         line = line.replace(/;.*$/, '');
-        //drop line number
-        line = line.replace(/^N[0-9]+/, '');
         return line;
     }
 
@@ -488,8 +512,8 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
             var originalLine = arrayOfLines[lineNo];
             if (originalLine.match(/[\t ]*%[\t ]*/))
                 continue;
-            var line = cleanLine(originalLine);
-            var parsed = machineState.parser.parseLine(line).ast;
+            var line = cleanLineUp(originalLine);
+            var parsed = machineState.parser.parseLine(line);
             machineState.lineNo = lineNo;
             if (parsed == undefined)
                 errorCollector.push({lineNo: lineNo, message: "did not understand line", line: originalLine});

@@ -507,12 +507,15 @@ define(['cnc/bezier', 'cnc/clipper', 'libs/simplify', 'cnc/util', 'libs/extracte
         polygons = simplifyPolygons(polygons, tolerance * scale);
         var d = '';
         polygons.forEach(function (poly) {
-            var firstPoint = poly[0];
-            d += ' M ' + firstPoint.X / scale + ',' + firstPoint.Y / scale;
-            for (var i = 1; i < poly.length; i++)
-                d += ' L ' + poly[i].X / scale + ',' + poly[i].Y / scale;
-            if (closed)
-                d += 'Z';
+            if (poly.length) {
+
+                var firstPoint = poly[0];
+                d += ' M ' + firstPoint.X / scale + ',' + firstPoint.Y / scale;
+                for (var i = 1; i < poly.length; i++)
+                    d += ' L ' + poly[i].X / scale + ',' + poly[i].Y / scale;
+                if (closed)
+                    d += 'Z';
+            }
         });
         return d;
     }
