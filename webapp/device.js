@@ -1,11 +1,15 @@
 "use strict";
 define(['RSVP', 'jQuery', 'Ember'], function (rsvp, $, Ember) {
-    rsvp.on('error', function (reason) {
-        console.error(reason, reason.stack);
-    });
     var DEVICE_INFO = {"vendorId": 0x0483, "productId": 0xFFFF};
 
     return Ember.Object.extend({
+        init: function () {
+            var _this = this;
+            rsvp.on('error', function (reason) {
+                console.error(reason, reason.stack);
+                _this.reset();
+            });
+        },
         currentDevice: null,
         usbObservers: {},
         DEVICE_INFO: DEVICE_INFO,
@@ -50,7 +54,7 @@ define(['RSVP', 'jQuery', 'Ember'], function (rsvp, $, Ember) {
                         var errorCode = usbEvent.resultCode;
                         if (errorCode) {
                             var error = chrome.runtime.lastError;
-                            console.log(error);
+                            console.log(errorCode, error);
                             reject(errorCode);
                         } else
                             resolve(usbEvent.data);
@@ -61,18 +65,24 @@ define(['RSVP', 'jQuery', 'Ember'], function (rsvp, $, Ember) {
         },
         reset: function () {
             var _this = this;
-            return new rsvp.Promise(function (resolve, reject) {
-                chrome.usb.resetDevice(_this.get('currentDevice'), resolve);
-            })
-                .then(function () {
-                    return _this.release();
+            if (_this.get('currentDevice') != null)
+                return new rsvp.Promise(function (resolve, reject) {
+                    chrome.usb.resetDevice(_this.get('currentDevice'), resolve);
                 })
-                .then(function () {
-                    return _this.close();
-                })
-                .then(function () {
-                    return _this.bind();
-                });
+                    .then(function () {
+                        return _this.release();
+                    })
+                    .then(function () {
+                        return _this.close();
+                    })
+                    .then(function () {
+                        return _this.bind();
+                    }).catch(function () {
+                        console.log('caught error in reset(), not re-trying');
+                    });
+            return _this.bind().catch(function () {
+                console.log('caught error in reset(), not re-trying');
+            });
         },
         close: function () {
             var _this = this;
