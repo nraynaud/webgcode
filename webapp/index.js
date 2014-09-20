@@ -6,7 +6,7 @@ require(['device', 'runner', 'jQuery'], function (Device, Runner, $) {
         {'usbDevices': [device.DEVICE_INFO]}
     ]};
     var CONTROL_COMMANDS = {REQUEST_POSITION: 0, REQUEST_PARAMETERS: 1, REQUEST_STATE: 2, REQUEST_TOGGLE_MANUAL_STATE: 3,
-        REQUEST_ZERO_AXIS: 4};
+        REQUEST_DEFINE_AXIS_POSITION: 4};
     var EVENTS = {PROGRAM_END: 1, PROGRAM_START: 2, MOVED: 3, ENTER_MANUAL_MODE: 4, EXIT_MANUAL_MODE: 5};
     var STATES = {READY: 0, RUNNING_PROGRAM: 1, MANUAL_CONTROL: 2};
 
@@ -218,9 +218,16 @@ require(['device', 'runner', 'jQuery'], function (Device, Runner, $) {
     manualControl.click(function () {
         device.controlTransfer({direction: 'out', request: CONTROL_COMMANDS.REQUEST_TOGGLE_MANUAL_STATE, data: new ArrayBuffer(0)});
     });
+    function setAxisValue(axis, valueInmm) {
+        var values = {X: 0, Y: 0, Z: 0};
+        values[axis] = valueInmm * parameters.stepsPerMillimeter;
+        var encodedAxis = parseInt({X: '001', Y: '010', Z: '100'}[axis], 2);
+        var data = new Int32Array([values.X, values.Y , values.Z]).buffer;
+        device.controlTransfer({direction: 'out', request: CONTROL_COMMANDS.REQUEST_DEFINE_AXIS_POSITION, value: encodedAxis, data: data});
+    }
+
     $('.zeroButton').click(function (event) {
         var axis = $(event.target).data('axis');
-        var value = parseInt({X: '001', Y: '010', Z: '100'}[axis], 2);
-        device.controlTransfer({direction: 'out', request: CONTROL_COMMANDS.REQUEST_ZERO_AXIS, value: value, data: new ArrayBuffer(0)});
+        setAxisValue(axis, 0);
     });
 });

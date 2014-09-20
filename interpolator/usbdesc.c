@@ -25,28 +25,48 @@ static const struct __attribute__((__packed__)) {
     uint8_t iManufacturer, iProduct, iSerialNumber;
     uint8_t bNumConfigurations;
 } deviceDescriptor __attribute__((aligned (4))) = {
-        .bLength = (uint8_t) sizeof(deviceDescriptor),
-        .bDescriptorType = USB_DEVICE_DESCRIPTOR_TYPE,
-        .bcdUSBL = 0x00,
-        .bcdUSBH = 0x02,
-        .bDeviceClass = 0x00,
-        .bDeviceSubClass = 0x00,
-        .bDeviceProtocol = 0x00,
-        .bMaxPacketSize = USB_OTG_MAX_EP0_SIZE,
-        .idVendorL = LOBYTE(USBD_VID),
-        .idVendorH = HIBYTE(USBD_VID),
-        .idProductL = LOBYTE(USBD_PID),
-        .idProductH = HIBYTE(USBD_PID),
-        .bcdDeviceL = 0x00,
-        .bcdDeviceH = 0x02,
-        .iManufacturer = USBD_IDX_MFC_STR,
-        .iProduct = USBD_IDX_PRODUCT_STR,
-        .iSerialNumber = USBD_IDX_SERIAL_STR,
-        .bNumConfigurations = USBD_CFG_MAX_NUM};
+        .bLength = (uint8_t)
+sizeof(deviceDescriptor),
+.
+bDescriptorType = USB_DEVICE_DESCRIPTOR_TYPE,
+.
+bcdUSBL = 0x00,
+.
+bcdUSBH = 0x02,
+.
+bDeviceClass = 0x00,
+.
+bDeviceSubClass = 0x00,
+.
+bDeviceProtocol = 0x00,
+.
+bMaxPacketSize = USB_OTG_MAX_EP0_SIZE,
+.
+idVendorL = LOBYTE(USBD_VID),
+.
+idVendorH = HIBYTE(USBD_VID),
+.
+idProductL = LOBYTE(USBD_PID),
+.
+idProductH = HIBYTE(USBD_PID),
+.
+bcdDeviceL = 0x00,
+.
+bcdDeviceH = 0x02,
+.
+iManufacturer = USBD_IDX_MFC_STR,
+.
+iProduct = USBD_IDX_PRODUCT_STR,
+.
+iSerialNumber = USBD_IDX_SERIAL_STR,
+.
+bNumConfigurations = USBD_CFG_MAX_NUM
+};
 
 static uint8_t *getDeviceDescriptor(uint8_t speed, uint16_t *length) {
-    *length = (uint16_t) sizeof(deviceDescriptor);
-    return (uint8_t *) &deviceDescriptor;
+    *length = (uint16_t)
+    sizeof(deviceDescriptor);
+    return (uint8_t * ) & deviceDescriptor;
 }
 
 static uint8_t USBD_LangIDDesc[USB_SIZ_STRING_LANGID] __attribute__((aligned (4))) = {
@@ -57,7 +77,8 @@ static uint8_t USBD_LangIDDesc[USB_SIZ_STRING_LANGID] __attribute__((aligned (4)
 };
 
 static uint8_t *getLangIDDescriptor(uint8_t speed, uint16_t *length) {
-    *length = (uint16_t) sizeof(USBD_LangIDDesc);
+    *length = (uint16_t)
+    sizeof(USBD_LangIDDesc);
     return USBD_LangIDDesc;
 }
 
@@ -121,7 +142,7 @@ static const struct __attribute__((packed)) {
                         .bLength = 7,
                         .bDescriptorType = USB_ENDPOINT_DESCRIPTOR_TYPE,
                         .bEndpointAddress = INTERRUPT_ENDPOINT,
-                        .bmAttributes = 0b00000011,
+                        .bmAttributes = (uint8_t) 0b00000011,
                         .wMaxPacketSizeL = LOBYTE(INTERRUPT_PACKET_SIZE),
                         .wMaxPacketSizeH = HIBYTE(INTERRUPT_PACKET_SIZE),
                         .bInterval = 100},
@@ -129,7 +150,7 @@ static const struct __attribute__((packed)) {
                         .bLength = 7,
                         .bDescriptorType = USB_ENDPOINT_DESCRIPTOR_TYPE,
                         .bEndpointAddress = BULK_ENDPOINT,
-                        .bmAttributes = 0b00000010,
+                        .bmAttributes = (uint8_t) 0b00000010,
                         .wMaxPacketSizeL = LOBYTE(BULK_PACKET_SIZE),
                         .wMaxPacketSizeH = HIBYTE(BULK_PACKET_SIZE),
                         .bInterval = 0}
@@ -137,8 +158,9 @@ static const struct __attribute__((packed)) {
 };
 
 uint8_t *cncGetCfgDesc(uint8_t speed, uint16_t *length) {
-    *length = (uint16_t) sizeof (configurationDescriptor);
-    return (uint8_t *) &configurationDescriptor;
+    *length = (uint16_t)
+    sizeof(configurationDescriptor);
+    return (uint8_t * ) & configurationDescriptor;
 }
 
 const USBD_DEVICE USR_desc = {

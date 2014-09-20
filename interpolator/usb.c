@@ -33,7 +33,7 @@ enum {
     REQUEST_PARAMETERS = 1,
     REQUEST_STATE = 2,
     REQUEST_TOGGLE_MANUAL_STATE = 3,
-    REQUEST_ZERO_AXIS = 4
+    REQUEST_DEFINE_AXIS_POSITION = 4
 };
 
 typedef enum {
@@ -83,6 +83,38 @@ static struct {
 
 static volatile uint64_t state;
 
+typedef enum {
+    CONTROL_READY = 0,
+    CONTROL_WAITING_AXES_VALUES = 1
+} control_endpoint_mode_t;
+
+static struct {
+    control_endpoint_mode_t state;
+    int32_t positionBuffer[3];
+    uint8_t axesMasks;
+    USB_SETUP_REQ request;
+} controlEndpointState = {
+        .state = CONTROL_READY,
+        .positionBuffer = {0, 0, 0},
+        .axesMasks = 0
+};
+
+static uint8_t setPositionFromUSB(void *pdev, USB_SETUP_REQ *req, uint16_t axisMask, int32_t position[3]) {
+    controlEndpointState.state = CONTROL_READY;
+    if (cncMemory.state == MANUAL_CONTROL || cncMemory.state == READY) {
+        if (axisMask & 0b001)
+            cncMemory.position.x = position[0];
+        if (axisMask & 0b010)
+            cncMemory.position.y = position[1];
+        if (axisMask & 0b100)
+            cncMemory.position.z = position[2];
+        return USBD_OK;
+    } else {
+        USBD_CtlError(pdev, req);
+        return USBD_FAIL;
+    }
+}
+
 static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
     bmRequest_t parsed =
             ((union {
@@ -120,20 +152,13 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                                 USBD_CtlError(pdev, req);
                                 return USBD_FAIL;
                             }
-                        case REQUEST_ZERO_AXIS:
-                            if (cncMemory.state == MANUAL_CONTROL || cncMemory.state == READY) {
-                                if (req->wValue & 0b001)
-                                    cncMemory.position.x = 0;
-                                if (req->wValue & 0b010)
-                                    cncMemory.position.y = 0;
-                                if (req->wValue & 0b100)
-                                    cncMemory.position.z = 0;
-                                USBD_CtlSendStatus(pdev);
-                                return USBD_OK;
-                            } else {
-                                USBD_CtlError(pdev, req);
-                                return USBD_FAIL;
-                            }
+                        case REQUEST_DEFINE_AXIS_POSITION:
+                            controlEndpointState.state = CONTROL_WAITING_AXES_VALUES;
+                            controlEndpointState.axesMasks = (uint8_t) req->wValue;
+                            controlEndpointState.request = *req;
+                            USBD_CtlPrepareRx(pdev, (uint8_t *) controlEndpointState.positionBuffer, sizeof(controlEndpointState.positionBuffer));
+                            USBD_CtlSendStatus(pdev);
+                            return USBD_OK;
                         default:
                             USBD_CtlError(pdev, req);
                             return USBD_FAIL;
@@ -143,7 +168,7 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
         case STANDARD:
             if (req->wIndex == BULK_ENDPOINT && req->wValue == USB_FEATURE_EP_HALT) {
                 //the stall/clear stall has been done by the lib.
-                if (req->bRequest == USB_REQ_SET_FEATURE ) {
+                if (req->bRequest == USB_REQ_SET_FEATURE) {
                     circularBuffer.programLength = 0;
                     circularBuffer.flushing = 0;
                     circularBuffer.writeCount = 0;
@@ -151,7 +176,7 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                     circularBuffer.signaled = 0;
                     cncMemory.state = ABORTING_PROGRAM;
                     DCD_EP_Flush(pdev, BULK_ENDPOINT_NUM);
-                } else if (req->bRequest == USB_REQ_CLEAR_FEATURE ) {
+                } else if (req->bRequest == USB_REQ_CLEAR_FEATURE) {
                     cncMemory.state = READY;
                     sendEvent(PROGRAM_END);
                     DCD_EP_Flush(pdev, BULK_ENDPOINT_NUM);
@@ -163,6 +188,12 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
             return USBD_OK;
     }
     return USBD_OK;
+}
+
+uint8_t cncReceiveControlData(void *pdev) {
+    if (controlEndpointState.state == CONTROL_WAITING_AXES_VALUES)
+        return setPositionFromUSB(pdev, &(controlEndpointState.request), controlEndpointState.axesMasks, controlEndpointState.positionBuffer);
+    return USBD_FAIL;
 }
 
 uint16_t fillLevel() {
@@ -257,6 +288,7 @@ static struct {
                 .Init = cncInit,
                 .DeInit = cncDeInit,
                 .Setup = cncSetup,
+                .EP0_TxSent = cncReceiveControlData,
                 .DataOut = cncDataOut,
                 .GetConfigDescriptor = cncGetCfgDesc},
         .usrCB = {
