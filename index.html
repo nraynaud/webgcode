@@ -166,7 +166,7 @@ require(['Ember', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/u
                         arrayDidChange: function (observedObj, start, removeCount, addCount) {
                             for (var i = 0; i < addCount; i++)
                                 threeDView.addToolpathFragment(threeDView.toolpath, observedObj[start + i]);
-                            threeDView.reRender();
+                            Ember.run.throttle(threeDView, threeDView.reRender, 500);
                         }
                     });
                 },
@@ -198,7 +198,7 @@ require(['Ember', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/u
                         arrayDidChange: function (observedObj, start, removeCount, addCount) {
                             for (var i = 0; i < addCount; i++)
                                 toolpath.add(_this.createFragment(view.paper, observedObj[start + i]), start + i);
-                            view.zoomExtent();
+                            Ember.run.throttle(view, view.zoomExtent, 500);
                         }
                     });
                 },
@@ -308,10 +308,11 @@ require(['Ember', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/u
                     this.set('computing', true);
                     _this.set('lineSegmentMap', []);
                     this.get('simulatedPath').clear();
-                    gcodeSimulation.parseInWorker(this.get('code'), {x: 0, y: 0, z: 0}, Ember.run.bind(_this, handleResult), Ember.run.bind(_this, function (fragment) {
-                        _this.get('fragmentFile').pushObject(fragment);
-                        Ember.run.throttle(_this, _this.flushFragmentFile, 500);
-                    }));
+                    gcodeSimulation.parseInWorker(this.get('code'), {x: 0, y: 0, z: 0}, Ember.run.bind(_this, handleResult),
+                            Ember.run.bind(_this, function (fragment) {
+                                _this.get('fragmentFile').pushObject(fragment);
+                                Ember.run.throttle(_this, _this.flushFragmentFile, 500);
+                            }));
                 },
                 flushFragmentFile: function () {
                     this.get('simulatedPath').pushObjects(this.get('fragmentFile'));

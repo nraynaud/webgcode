@@ -508,7 +508,6 @@ define(['cnc/bezier', 'cnc/clipper', 'libs/simplify', 'cnc/util', 'libs/extracte
         var d = '';
         polygons.forEach(function (poly) {
             if (poly.length) {
-
                 var firstPoint = poly[0];
                 d += ' M ' + firstPoint.X / scale + ',' + firstPoint.Y / scale;
                 for (var i = 1; i < poly.length; i++)

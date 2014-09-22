@@ -182,13 +182,47 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
     }
 
     ThreeDView.prototype = {
-        addToolpathFragment: function (toolpathObject, fragment) {
-            var geom = new THREE.BufferGeometry();
+        addRapid: function (toolpathObject, fragment, attributeName, material) {
+
+            function typedArrayConcat(first, second, constructor) {
+                var firstLength = first.length,
+                    result = new constructor(firstLength + second.length);
+                result.set(first);
+                result.set(second, firstLength);
+                return result;
+            }
+
             var float32Array = new Float32Array(fragment.vertices);
-            geom.addAttribute('position', new THREE.Float32Attribute(float32Array.length / 3, 3));
-            geom.attributes.position.array = float32Array;
-            geom.verticesNeedUpdate = true;
-            toolpathObject.add(new THREE.Line(geom, fragment.speedTag == 'rapid' ? this.rapidMaterial : this.normalMaterial));
+            var pointsAdded = float32Array.length / 3;
+            if (this[attributeName] && (float32Array.length + this[attributeName].attributes.position.array.length >= 3000)) {
+                this[attributeName] = null;
+            }
+            var startIndex = this[attributeName] ? this[attributeName].attributes.position.array.length / 3 : 0;
+            var newIndices = new Uint16Array((pointsAdded - 1) * 2);
+            for (var i = 0; i < pointsAdded - 1; i++) {
+                newIndices[i * 2] = startIndex + i;
+                newIndices[i * 2 + 1] = startIndex + i + 1;
+            }
+            if (this[attributeName] == null) {
+                this[attributeName] = new THREE.BufferGeometry();
+                this[attributeName].addAttribute('position', new THREE.Float32Attribute(pointsAdded, 3));
+                this[attributeName].addAttribute('index', new THREE.Uint16Attribute((pointsAdded - 1) * 2, 1));
+                this[attributeName].attributes.position.array = float32Array;
+                this[attributeName].attributes.index.array = newIndices;
+                toolpathObject.add(new THREE.Line(this[attributeName], material));
+            } else {
+                var attributes = this[attributeName].attributes;
+                attributes.position.array = typedArrayConcat(attributes.position.array, float32Array, Float32Array);
+                attributes.index.array = typedArrayConcat(attributes.index.array, newIndices, Uint16Array);
+                attributes.position.needsUpdate = true;
+                attributes.index.needsUpdate = true;
+            }
+        },
+        addToolpathFragment: function (toolpathObject, fragment) {
+            if (fragment.speedTag == 'rapid')
+                return this.addRapid(toolpathObject, fragment, 'rapidMoves', this.rapidMaterial);
+            else
+                return this.addRapid(toolpathObject, fragment, 'normalMoves', this.normalMaterial);
         },
         displayPath: function (path) {
             this.clearToolpath();
