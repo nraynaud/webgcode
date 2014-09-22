@@ -194,10 +194,12 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
 
             var float32Array = new Float32Array(fragment.vertices);
             var pointsAdded = float32Array.length / 3;
-            if (this[attributeName] && (float32Array.length + this[attributeName].attributes.position.array.length >= 3000)) {
+            var currentPoints = this[attributeName] ? this[attributeName].attributes.position.array.length / 3 : 0;
+            if (this[attributeName] && (pointsAdded + currentPoints >= 30000)) {
                 this[attributeName] = null;
+                currentPoints = 0;
             }
-            var startIndex = this[attributeName] ? this[attributeName].attributes.position.array.length / 3 : 0;
+            var startIndex = currentPoints;
             var newIndices = new Uint16Array((pointsAdded - 1) * 2);
             for (var i = 0; i < pointsAdded - 1; i++) {
                 newIndices[i * 2] = startIndex + i;
@@ -205,8 +207,8 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
             }
             if (this[attributeName] == null) {
                 this[attributeName] = new THREE.BufferGeometry();
-                this[attributeName].addAttribute('position', new THREE.Float32Attribute(pointsAdded, 3));
-                this[attributeName].addAttribute('index', new THREE.Uint16Attribute((pointsAdded - 1) * 2, 1));
+                this[attributeName].addAttribute('position', new THREE.Float32Attribute(0, 3));
+                this[attributeName].addAttribute('index', new THREE.Uint16Attribute(0, 1));
                 this[attributeName].attributes.position.array = float32Array;
                 this[attributeName].attributes.index.array = newIndices;
                 toolpathObject.add(new THREE.Line(this[attributeName], material));
@@ -232,6 +234,8 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
             return this.toolpath;
         },
         clearToolpath: function () {
+            this.rapidMoves = null;
+            this.normalMoves = null;
             while (this.toolpath.children.length)
                 this.toolpath.remove(this.toolpath.children[0]);
         },
