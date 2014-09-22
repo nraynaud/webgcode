@@ -1,0 +1,81 @@
+<div id="header" {{bind-attr class="connection.opened:connected"}}>
+    {{#if connection.opened}}
+        {{#if isProgramRunnable}}
+            <button id='send' {{action "sendProgram"}}>Send Program</button>
+        {{/if}}
+        {{#if isProgramAbortable}}
+            <button id='abort' {{action "abort"}}>Abort</button>
+        {{/if}}
+        {{#if isManualModeTogglable}}
+            <button id='manualControl' {{action "setManualMode"}}>{{manualButtonLabel}}</button>
+        {{/if}}
+    {{else}}
+        <button id='connect' {{action "connect"}}>Connect</button>
+    {{/if}}
+    <div class="control">
+        <div class="position">
+            <table>
+                <colgroup>
+                    <col>
+                    <col>
+                </colgroup>
+                <tbody>
+                {{#each axes itemController="axis"}}
+                    <tr {{bind-attr title="helpText"}} {{action "editAxis" on="doubleClick"}} >
+                        <th>{{name}}:</th>
+                        <td class="posAxis">
+                            {{#if isEditing}}
+                                {{edit-axis size="6" value=bufferedPosition
+                                insert-newline="acceptChanges" escape-press="cancelChanges"}}
+                            {{else}}
+                                <span class="pos">{{formattedPosition}}</span>
+                            {{/if}}
+                        </td>
+                    </tr>
+                {{/each}}
+                </tbody>
+            </table>
+        </div>
+        <div class="controlButtons">
+            <div class="xyBlock">
+                <button class="axisButton" {{action "move" "Y+" }}>Y+</button>
+                <div class="centerRow">
+                    <button class="axisButton" {{action "move" "X-" }}>X-</button>
+                    <button class="axisButton" {{action "move" "X+" }}>X+</button>
+                </div>
+                <button class="axisButton" {{action "move" "Y-" }}>Y-</button>
+            </div>
+            <div class="zBlock">
+                <button class="axisButton" {{action "move" "Z+" }}>Z+</button>
+                <div>&nbsp;</div>
+                <button class="axisButton" {{action "move" "Z-" }}>Z-</button>
+            </div>
+        </div>
+        <div class="controlParams">
+            <table>
+                <tr title="mm">
+                    <th><label for="incrementField">increment:</label></th>
+                    <td>{{input type=number class='paramField'  min="0" max="100" step="0.01" size="4" value="10" value=increment}}</td>
+                </tr>
+                <tr title="mm/min">
+                    <th><label for="feedRateField">feedrate:</label></th>
+                    <td>{{input type=number class='paramField'  min="0" max="3000" step="10" size="4" value="10" value=jogFeedrate}}</td>
+                </tr>
+                <tr title="mm/min">
+                    <th>current speed:</th>
+                    <td><span id="currentFeedrate">{{feedrate}}</span></td>
+                </tr>
+                <tr title="mm/min">
+                    <th>current state:</th>
+                    <td><span>{{displayableState}}</span></td>
+                </tr>
+            </table>
+            <div class="units"><span id="spinner"><img src="ajax-loader.gif"></span><span
+                    title="ISO units, there is no way to change it.">mm</span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="camPanel">
+    <iframe id="webView" src="CAM.html"></iframe>
+</div>

@@ -1,23 +1,22 @@
 "use strict";
-define(['jQuery'], function ($) {
+define(['RSVP'], function (RSVP) {
     var ENDPOINT = 1;
     var SET_FEATURE = 0x03;
     var CLEAR_FEATURE = 0x01;
     var ENDPOINT_HALT = 0;
     var STALL_ERROR = 4;
 
-    function Runner(device) {
-        this.device = device;
+    function Runner(connection) {
+        this.connection = connection;
         this.worker = null;
     }
 
     Runner.prototype = {
         haltRestartEndPoint: function (setClear) {
-            return this.device.controlTransfer({direction: 'out', recipient: 'endpoint', requestType: 'standard',
+            return this.connection.controlTransfer({direction: 'out', recipient: 'endpoint', requestType: 'standard',
                 request: setClear, value: ENDPOINT_HALT, index: ENDPOINT, data: new ArrayBuffer(0)});
         },
-        getCodeChannel: function () {
-            $(this).trigger('running');
+        getCodeChannel: function (deferred) {
             this.worker = new Worker("worker.js");
             var workQueue = [];
             var running = false;
@@ -29,11 +28,9 @@ define(['jQuery'], function ($) {
                     sendSpeed(workQueue.shift()).then(loop, function (errorCode) {
                         console.log('sendSpeed errorCode', errorCode);
                         _this.terminateWorker();
-                        if (errorCode == STALL_ERROR)
-                            return _this.haltRestartEndPoint(CLEAR_FEATURE);
-                        else
+                        if (errorCode != STALL_ERROR)
                             console.log('error in bulkSend', errorCode, chrome.runtime.lastError);
-                        $(this).trigger('available');
+                        deferred.reject(chrome.runtime.lastError, arguments);
                         return null;
                     });
                 } else {
@@ -41,13 +38,13 @@ define(['jQuery'], function ($) {
                     running = false;
                     if (_this.worker == null)
                         sendSpeed(new ArrayBuffer(0)).finally(function () {//flush
-                            $(_this).trigger('available');
+                            deferred.resolve();
                         });
                 }
             }
 
             function sendSpeed(formattedData) {
-                return _this.device.bulkTransfer({direction: 'out', endpoint: ENDPOINT, data: formattedData});
+                return _this.connection.bulkTransfer({direction: 'out', endpoint: ENDPOINT, data: formattedData});
             }
 
             this.worker.onmessage = function (event) {
@@ -63,6 +60,11 @@ define(['jQuery'], function ($) {
             this.worker.postMessage({operation: 'acceptProgram'}, [channel.port1]);
             return channel.port2;
         },
+        executeProgram: function (programMessage) {
+            var deferred = RSVP.defer();
+            this.getCodeChannel(deferred).postMessage(programMessage);
+            return deferred.promise;
+        },
         terminateWorker: function () {
             if (this.worker) {
                 this.worker.terminate();
@@ -75,11 +77,6 @@ define(['jQuery'], function ($) {
                 .then(function () {
                     _this.terminateWorker();
                     return _this.haltRestartEndPoint(CLEAR_FEATURE);
-                })
-                .then(function () {
-                    // restart the whole device to clear the stall
-                    // http://stackoverflow.com/questions/20646868/how-to-recover-from-a-stall-in-chrome-usb
-                    return _this.device.reset();
                 });
         }
     };

@@ -107,88 +107,24 @@
             background: #000;
             color: lightgray;
         }
+
+        .mainDiv {
+            height: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #header.connected {
+            background-color: blue;
+        }
     </style>
-    <link rel="shortcut icon" href="images/icon_fraise_48.png" />
+    <link rel="shortcut icon" href="images/icon_fraise_48.png"/>
 </head>
 <body id="body">
-<div id="header">
-    <button id='connect'>Connect</button>
-    <button id='send'>Send Program</button>
-    <button id='abort'>Abort</button>
-    <button id='manualControl'>Manual control</button>
-    <div class="control">
-        <div class="position">
-            <table>
-                <colgroup>
-                    <col>
-                    <col>
-                </colgroup>
-                <tr>
-                    <th>
-                        <button class="zeroButton" title="Zero X axis" data-axis="X">0</button>
-                        X:
-                    </th>
-                    <td class="posAxis"><span id="xpos" class="pos">--</span></td>
-                </tr>
-                <tr>
-                    <th>
-                        <button class="zeroButton" title="Zero Y axis" data-axis="Y">0</button>
-                        Y:
-                    </th>
-                    <td class="posAxis"><span id="ypos" class="pos">--</span></td>
-                </tr>
-                <tr>
-                    <th>
-                        <button class="zeroButton" title="Zero Z axis" data-axis="Z">0</button>
-                        Z:
-                    </th>
-                    <td class="posAxis"><span id="zpos" class="pos">--</span></td>
-                </tr>
-            </table>
-        </div>
-        <div class="controlButtons">
-            <div class="xyBlock">
-                <button data-axis="Y+" class="axisButton">Y+</button>
-                <div class="centerRow">
-                    <button data-axis="X-" class="axisButton">X-</button>
-                    <button data-axis="X+" class="axisButton">X+</button>
-                </div>
-                <button data-axis="Y-" class="axisButton">Y-</button>
-            </div>
-            <div class="zBlock">
-                <button data-axis="Z+" class="axisButton">Z+</button>
-                <div>&nbsp;</div>
-                <button data-axis="Z-" class="axisButton">Z-</button>
-            </div>
-        </div>
-        <div class="controlParams">
-            <table>
-                <tr>
-                    <th><label for="feedRateField">feedrate:</label></th>
-                    <td><input id="feedRateField" type="number" class='paramField' size="4" value="200" max="3000"
-                               required="true"></td>
-                </tr>
-                <tr>
-                    <th><label for="incrementField">increment:</label></th>
-                    <td><input id="incrementField" class='paramField' type="number" min="0" max="100" step="0.01"
-                               size="4" value="10" required="true"></td>
-                </tr>
-                <tr>
-                    <th>current speed:</th>
-                    <td><span id="currentFeedrate" title="mm/min">--</span></td>
-                </tr>
-            </table>
-            <div class="units"><span id="spinner"><img src="ajax-loader.gif"></span><span
-                    title="ISO units, there is no way to change it.">mm</span>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="camPanel">
-    <iframe id="webView" src="CAM.html"></iframe>
-</div>
+
 </body>
 <script src="libs/require.js"></script>
 <script src="config.js"></script>
-<script src="index.js"></script>
+<script src="controllerEmber.js"></script>
 </html>

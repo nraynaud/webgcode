@@ -3,7 +3,7 @@ requirejs.config({
         text: 'libs/require_text',
         Ember: "libs/ember-1.5.0-beta5.pre7",
         Handlebars: "libs/handlebars-v1.3.0",
-        jQuery: "libs/jquery.min",
+        jQuery: "libs/jquery-1.11.1.min",
         THREE: 'libs/threejs/Three.min',
         TWEEN: 'libs/tween.min',
         ace: 'libs/ace/src-noconflict/ace',
