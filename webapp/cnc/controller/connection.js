@@ -40,9 +40,6 @@ define(['RSVP', 'jQuery', 'Ember'], function (rsvp, $, Ember) {
      Just an object holding a USB connection to the device, and exposing a low-level communication API.
      */
     return Ember.Object.extend({
-        init: function () {
-            var _this = this;
-        },
         currentDevice: null,
         usbObservers: {},
         DEVICE_INFO: DEVICE_INFO,
@@ -74,7 +71,6 @@ define(['RSVP', 'jQuery', 'Ember'], function (rsvp, $, Ember) {
             });
         },
         promisedTransfer: function (usbFunction, transferInfo) {
-            var _this = this;
             return emberizePromisize(usbFunction, [this.get('currentDevice'), transferInfo])
                 .then(function (usbEvent) {
                     var errorCode = usbEvent.resultCode;
@@ -116,23 +112,6 @@ define(['RSVP', 'jQuery', 'Ember'], function (rsvp, $, Ember) {
         },
         interruptTransfer: function (transfer) {
             return this.promisedTransfer(chrome.usb.interruptTransfer, transfer);
-        },
-        guardedTransfer: function (transferFunc, guardName, transfer) {
-            var _this = this;
-            var usbObservers = _this.get('usbObservers');
-            if (!_this.get('currentDevice'))
-                return new rsvp.Promise(function (resolve, reject) {
-                    reject('no device open');
-                });
-            if (!usbObservers[guardName]) {
-                usbObservers[guardName] = true;
-                return this.promisedTransfer(transferFunc, transfer).finally(function () {
-                    usbObservers[guardName] = false;
-                });
-            }
-            return new rsvp.Promise(function (resolve, reject) {
-                reject('guarded');
-            });
         },
         opened: function () {
             return this.get('currentDevice') != null;

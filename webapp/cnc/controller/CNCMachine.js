@@ -1,5 +1,5 @@
 "use strict";
-define(['RSVP', 'jQuery', 'Ember', 'connection', 'runner' ], function (rsvp, $, Ember, Connection, Runner) {
+define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/runner' ], function (rsvp, $, Ember, Connection, Runner) {
     var CONTROL_COMMANDS = {REQUEST_POSITION: 0, REQUEST_PARAMETERS: 1, REQUEST_STATE: 2, REQUEST_TOGGLE_MANUAL_STATE: 3,
         REQUEST_DEFINE_AXIS_POSITION: 4};
     var EVENTS = {PROGRAM_END: 1, PROGRAM_START: 2, MOVED: 3, ENTER_MANUAL_MODE: 4, EXIT_MANUAL_MODE: 5};

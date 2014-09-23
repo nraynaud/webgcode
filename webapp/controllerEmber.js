@@ -1,5 +1,5 @@
 "use strict";
-require(['Ember', 'templates', 'cnc/ui/views', 'CNCMachine'], function (Ember, templates, views, CNCMachine) {
+require(['Ember', 'templates', 'cnc/ui/views', 'cnc/controller/CNCMachine'], function (Ember, templates, views, CNCMachine) {
     window.CNCController = Ember.Application.create({
         rootElement: '#body'
     });
