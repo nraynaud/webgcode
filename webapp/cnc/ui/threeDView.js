@@ -207,11 +207,9 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
             }
             if (this[attributeName] == null) {
                 this[attributeName] = new THREE.BufferGeometry();
-                this[attributeName].addAttribute('position', new THREE.Float32Attribute(0, 3));
-                this[attributeName].addAttribute('index', new THREE.Uint16Attribute(0, 1));
-                this[attributeName].attributes.position.array = float32Array;
-                this[attributeName].attributes.index.array = newIndices;
-                toolpathObject.add(new THREE.Line(this[attributeName], material));
+                this[attributeName].addAttribute('position', new THREE.BufferAttribute(float32Array, 3));
+                this[attributeName].addAttribute('index', new THREE.BufferAttribute(newIndices, 1));
+                toolpathObject.add(new THREE.Line(this[attributeName], material, THREE.LinePieces));
             } else {
                 var attributes = this[attributeName].attributes;
                 attributes.position.array = typedArrayConcat(attributes.position.array, float32Array, Float32Array);
