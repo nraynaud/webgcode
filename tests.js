@@ -208,16 +208,16 @@ require(['libs/jsparse', 'cnc/gcode/parser', 'cnc/gcode/simulation'], function (
             ['#<v2>', 1],
             ['#<v1>', 10]
         ], p2);
-        deepEqual(parser.createParser().parseLine("#4 = 4.000000 #5 = 5.000000 G1 X10 F[3000] X [12+#4]").ast, {
+        deepEqual(parser.createParser().parseLine("#4 = 4.000000 #5 = 5.000000 G1 X10 F[3000] X [12+#4]"), {
             f: [3000],
             g: [1],
             x: [10, 12]});
-        deepEqual(parser.createParser().parseLine('G02X10Y30R10 ').ast, {
+        deepEqual(parser.createParser().parseLine('G02X10Y30R10 '), {
             g: [2],
             r: [10],
             x: [10],
             y: [30]});
-        deepEqual(parser.createParser().parseLine('G01Z[-1.000000*#7+#10]F#4 ').ast, {
+        deepEqual(parser.createParser().parseLine('G01Z[-1.000000*#7+#10]F#4 '), {
             g: [1],
             f: [0],
             z: [0]});
