@@ -33,7 +33,7 @@ require(['Ember', 'templates', 'cnc/ui/views', 'cnc/controller/CNCMachine'], fun
                 this.get('model').transmitProgram();
             }
         },
-        increment: 11,
+        increment: 10,
         jogFeedrate: 200,
         feedrate: function () {
             return this.get('model.feedRate').toFixed(0);
@@ -56,10 +56,13 @@ require(['Ember', 'templates', 'cnc/ui/views', 'cnc/controller/CNCMachine'], fun
             return this.get('model.currentState') != CNCMachine.STATES.RUNNING_PROGRAM;
         }.property('model.currentState'),
         isProgramRunnable: function () {
-            return this.get('model.currentState') != CNCMachine.STATES.RUNNING_PROGRAM
+            return this.get('model.currentState') != CNCMachine.STATES.RUNNING_PROGRAM;
         }.property('model.currentState'),
         isProgramAbortable: function () {
-            return this.get('model.currentState') == CNCMachine.STATES.RUNNING_PROGRAM
+            return this.get('model.currentState') == CNCMachine.STATES.RUNNING_PROGRAM;
+        }.property('model.currentState'),
+        isBusy: function () {
+            return this.get('model.currentState') == CNCMachine.STATES.RUNNING_PROGRAM;
         }.property('model.currentState')
     });
     CNCController.ApplicationView = Ember.View.extend({

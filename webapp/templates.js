@@ -275,6 +275,12 @@ Ember.TEMPLATES["controllerPanel"] = Ember.Handlebars.template(function anonymou
         return buffer;
     }
 
+    function program15(depth0, data) {
+
+
+        data.buffer.push("\n                    <div id=\"loader\">&nbsp;</div>\n                ");
+    }
+
     data.buffer.push("<div id=\"header\" ");
     hashContexts = {'class': depth0};
     hashTypes = {'class': "STRING"};
@@ -358,7 +364,14 @@ Ember.TEMPLATES["controllerPanel"] = Ember.Handlebars.template(function anonymou
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "displayableState", {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
-    data.buffer.push("</span></td>\n                </tr>\n            </table>\n            <div class=\"units\"><span id=\"spinner\"><img src=\"ajax-loader.gif\"></span><span\n                    title=\"ISO units, there is no way to change it.\">mm</span>\n            </div>\n        </div>\n    </div>\n</div>\n<div class=\"camPanel\">\n    <iframe id=\"webView\" src=\"CAM.html\"></iframe>\n</div>");
+    data.buffer.push("</span></td>\n                </tr>\n            </table>\n            <div class=\"units\">\n                ");
+    hashTypes = {};
+    hashContexts = {};
+    stack2 = helpers['if'].call(depth0, "isBusy", {hash: {}, inverse: self.noop, fn: self.program(15, program15, data), contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data});
+    if (stack2 || stack2 === 0) {
+        data.buffer.push(stack2);
+    }
+    data.buffer.push("<span\n                    title=\"ISO units, there is no way to change it.\">mm</span>\n            </div>\n        </div>\n    </div>\n</div>\n<div class=\"camPanel\">\n    <iframe id=\"webView\" src=\"CAM.html\"></iframe>\n</div>");
     return buffer;
 
 });

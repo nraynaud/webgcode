@@ -70,7 +70,10 @@
                     <td><span>{{displayableState}}</span></td>
                 </tr>
             </table>
-            <div class="units"><span id="spinner"><img src="ajax-loader.gif"></span><span
+            <div class="units">
+                {{#if isBusy}}
+                    <div id="loader">&nbsp;</div>
+                {{/if}}<span
                     title="ISO units, there is no way to change it.">mm</span>
             </div>
         </div>

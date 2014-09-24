@@ -941,7 +941,6 @@
 		DDAA582290686F5150739A5D /* worker-css.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "worker-css.js"; sourceTree = "<group>"; };
 		DDAA583A8C2C09A8DAF848FF /* mode-ocaml.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-ocaml.js"; sourceTree = "<group>"; };
 		DDAA58422CF9EADC8397599D /* background.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = background.js; path = webapp/background.js; sourceTree = "<group>"; };
-		DDAA5846BE331E69A0311E40 /* ajax-loader.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = "ajax-loader.gif"; path = "webapp/ajax-loader.gif"; sourceTree = "<group>"; };
 		DDAA5846DC8D832C25364711 /* mode-mushcode_high_rules.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-mushcode_high_rules.js"; sourceTree = "<group>"; };
 		DDAA584BFDA15E844B048D27 /* usb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = usb.c; sourceTree = "<group>"; };
 		DDAA5852C21094C5D9ACA26E /* ember-1.5.0-beta5.pre7.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = "ember-1.5.0-beta5.pre7.js"; path = "webapp/libs/ember-1.5.0-beta5.pre7.js"; sourceTree = "<group>"; };
@@ -1113,7 +1112,6 @@
 		DDAA5C3A1FEC24549068DB0B /* mode-scad.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-scad.js"; sourceTree = "<group>"; };
 		DDAA5C47F734A40C5B6CBDB3 /* mode-sh.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-sh.js"; sourceTree = "<group>"; };
 		DDAA5C4D298ECCA00A214D21 /* jquery.flot.resize.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jquery.flot.resize.js; sourceTree = "<group>"; };
-		DDAA5C4F4476F0E52C5B5B0B /* ajax-loader.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "ajax-loader.gif"; sourceTree = "<group>"; };
 		DDAA5C540B906C544541D05B /* dremel_bracket.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = dremel_bracket.js; path = webapp/samples/dremel_bracket.js; sourceTree = "<group>"; };
 		DDAA5C59F7AC68683BDD9BCD /* mode-abap.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-abap.js"; sourceTree = "<group>"; };
 		DDAA5C5A8AECDC951F8642BA /* mode-xquery.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-xquery.js"; sourceTree = "<group>"; };
@@ -2039,7 +2037,6 @@
 				DDAA54D6E2B749291B054589 /* index.html */,
 				DDAA593347EC813B12F6ABB6 /* background.js */,
 				DDAA5BD4D3436F114AB6921D /* manifest.json */,
-				DDAA5C4F4476F0E52C5B5B0B /* ajax-loader.gif */,
 				DDAA578CF1A78A375FB0D041 /* twoDView.css */,
 				DDAA59E3CD1BC8E48FD71658 /* textApp.handlebars */,
 				DDAA5C173C2C592D36400815 /* spinner.svg */,
@@ -2091,7 +2088,6 @@
 				DDAA5C13154AE7ADC61D5403 /* test.html */,
 				DDAA568D3480E5D010BB2D93 /* index.html */,
 				DDAA550CF317C3168B90577A /* tests.js */,
-				DDAA5846BE331E69A0311E40 /* ajax-loader.gif */,
 				DDAA5E4E5A44413C0E0942C6 /* test_pycam.ngc */,
 				DDAA5321C32220FC1AD72230 /* images */,
 				DDAA5078181F6AC3CEA77C2A /* libs */,
