@@ -182,7 +182,7 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
     }
 
     ThreeDView.prototype = {
-        addRapid: function (toolpathObject, fragment, attributeName, material) {
+        addCollated: function (toolpathObject, fragment, attributeName, material) {
 
             function typedArrayConcat(first, second, constructor) {
                 var firstLength = first.length,
@@ -219,10 +219,9 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
             }
         },
         addToolpathFragment: function (toolpathObject, fragment) {
-            if (fragment.speedTag == 'rapid')
-                return this.addRapid(toolpathObject, fragment, 'rapidMoves', this.rapidMaterial);
-            else
-                return this.addRapid(toolpathObject, fragment, 'normalMoves', this.normalMaterial);
+            return fragment.speedTag == 'rapid'
+                ? this.addCollated(toolpathObject, fragment, 'rapidMoves', this.rapidMaterial)
+                : this.addCollated(toolpathObject, fragment, 'normalMoves', this.normalMaterial);
         },
         displayPath: function (path) {
             this.clearToolpath();
