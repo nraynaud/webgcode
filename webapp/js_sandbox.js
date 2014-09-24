@@ -26,7 +26,8 @@ require(['libs/svg', 'cnc/cam', 'jQuery'], function (SVG, cam, $) {
                             success: true,
                             result: {
                                 operations: operationsData,
-                                outlines: machine.outlines
+                                outlines: machine.outlines,
+                                params: {workZ: machine.workZ, travelZ: machine.travelZ, feedRate: machine.feedRate}
                             },
                             requestIndex: event.data.requestIndex
                         }, event.origin);
@@ -36,10 +37,9 @@ require(['libs/svg', 'cnc/cam', 'jQuery'], function (SVG, cam, $) {
                     var waitForWhenDone = true;
 
                     var whenDone = function () {
-                        if (waitForWhenDone) {
+                        if (waitForWhenDone)
                             sendResponse();
-
-                        } else
+                        else
                             throw new Error("You must return true at the end of your code if you use whenDone");
                     };
 

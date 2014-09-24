@@ -258,23 +258,6 @@ require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam'
                     console.log('error', error, error.stack);
                 });
             },
-            usingGcode: function () {
-                return this.get('selectedLanguage') == 'gcode';
-            }.property('selectedLanguage'),
-            currentHighLight: function () {
-                return this.get('lineSegmentMap')[this.get('currentRow')];
-            }.property('currentRow', 'lineSegmentMap').readOnly(),
-            codeChanged: function () {
-                parent.postMessage({type: 'codeChange', code: this.get('code')}, '*');
-            }.observes('code'),
-            selectLanguageChanged: function () {
-                this.launchSimulation();
-            }.observes('selectedLanguage'),
-            formattedTotalTime: function () {
-                var totalTime = this.get('totalTime');
-                var humanized = util.humanizeDuration(totalTime);
-                return {humanized: humanized, detailed: Math.round(totalTime) + 's'};
-            }.property('totalTime'),
             getMachinePromise: function () {
                 var _this = this;
                 return new RSVP.Promise(function (resolve, reject) {
@@ -291,6 +274,7 @@ require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam'
                                         var outlines = event.data.result.outlines;
                                         for (i = 0; i < outlines.length; i++)
                                             this.get('decorations').pushObject(outlines[i]);
+                                        $.extend(machine, event.data.result.params);
                                         resolve(machine);
                                     } else
                                         reject(event.data.error);
@@ -308,6 +292,23 @@ require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam'
                     }, '*');
                 });
             },
+            usingGcode: function () {
+                return this.get('selectedLanguage') == 'gcode';
+            }.property('selectedLanguage'),
+            currentHighLight: function () {
+                return this.get('lineSegmentMap')[this.get('currentRow')];
+            }.property('currentRow', 'lineSegmentMap').readOnly(),
+            codeChanged: function () {
+                parent.postMessage({type: 'codeChange', code: this.get('code')}, '*');
+            }.observes('code'),
+            selectLanguageChanged: function () {
+                this.launchSimulation();
+            }.observes('selectedLanguage'),
+            formattedTotalTime: function () {
+                var totalTime = this.get('totalTime');
+                var humanized = util.humanizeDuration(totalTime);
+                return {humanized: humanized, detailed: Math.round(totalTime) + 's'};
+            }.property('totalTime'),
             toolPosition: {x: 0, y: 0, z: 0},
             code: demoCode,
             jscode: demoJSCode,
