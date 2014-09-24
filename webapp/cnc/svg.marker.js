@@ -40,4 +40,5 @@ define(['libs/svg'], (function (SVG) {
         }
 
     });
+    return SVG;
 }));
