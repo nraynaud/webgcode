@@ -24,7 +24,7 @@ var $ = {
     }
 };
 
-importScripts('libs/require.js');
+importScripts('libs/require.js', 'config.js');
 var tasks = {
     createPocket: function (event) {
         require(['cnc/pocket'], function (pocket) {
