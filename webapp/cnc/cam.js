@@ -1,6 +1,6 @@
 "use strict";
 
-define(['cnc/bezier', 'cnc/clipper', 'libs/simplify', 'cnc/util', 'libs/extractedRaphael'], function (bezier, clipper, simplify, util, _) {
+define(['cnc/bezier', 'clipper', 'libs/simplify', 'cnc/util', 'libs/extractedRaphael'], function (bezier, clipper, simplify, util, _) {
     var CLIPPER_SCALE = Math.pow(2, 20);
 
     function positionEquals(p1, p2) {
@@ -123,6 +123,10 @@ define(['cnc/bezier', 'cnc/clipper', 'libs/simplify', 'cnc/util', 'libs/extracte
         this.path = [];
     }
 
+    ConstantZPolygonToolpath.prototype.getTypeName = function () {
+        return 'constant-z-toolpath';
+    };
+
     ConstantZPolygonToolpath.prototype.pushPoint = function (x, y) {
         this.path.push([x, y]);
     };
@@ -154,6 +158,10 @@ define(['cnc/bezier', 'cnc/clipper', 'libs/simplify', 'cnc/util', 'libs/extracte
         this.path = [];
     }
 
+    GeneralPolylineToolpath.prototype.getTypeName = function () {
+        return 'general-toolpath';
+    };
+
     GeneralPolylineToolpath.prototype.pushPoint = function (x, y, z) {
         this.path.push([x, y, z]);
     };
@@ -183,8 +191,19 @@ define(['cnc/bezier', 'cnc/clipper', 'libs/simplify', 'cnc/util', 'libs/extracte
         return newPath;
     };
 
+    function decodeToolPath(operationData) {
+        var toolPathTypes = {
+            'general-toolpath': GeneralPolylineToolpath,
+            'constant-z-toolpath': ConstantZPolygonToolpath
+        };
+        var operation = new toolPathTypes[operationData.className]();
+        operation.path = operationData.path;
+        return operation;
+    }
+
     function Machine(paper) {
         this.paper = paper;
+        this.outlines = [];
         this.operations = [];
         this.clipperScale = CLIPPER_SCALE;
     }
@@ -194,8 +213,9 @@ define(['cnc/bezier', 'cnc/clipper', 'libs/simplify', 'cnc/util', 'libs/extracte
         this.travelZ = travelZ;
         this.feedRate = feedRate;
     };
-    Machine.prototype.createOutline = function (defintion, color) {
-        return this.paper.path(defintion, true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: color == null ? 'red' : color});
+    Machine.prototype.createOutline = function (definition, color) {
+        this.outlines.push({definition: definition, color: color});
+        return this.paper.path(definition, true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: color == null ? 'red' : color});
     };
     Machine.prototype.contouring = function (shapePath, toolRadius, inside, climbMilling) {
         var clipperPolygon = this.toClipper(shapePath);
@@ -210,8 +230,6 @@ define(['cnc/bezier', 'cnc/clipper', 'libs/simplify', 'cnc/util', 'libs/extracte
     };
 
     Machine.prototype.registerToolPath = function (toolpath) {
-        var path = this.paper.path('', true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: 'blue'});
-        toolpath.pushOnPath(path);
         this.operations.push(toolpath);
     };
     Machine.prototype.registerToolPathArray = function (toolpathArray) {
@@ -531,6 +549,7 @@ define(['cnc/bezier', 'cnc/clipper', 'libs/simplify', 'cnc/util', 'libs/extracte
         simplifyPolygons: simplifyPolygons,
         pathDefToClipper: pathDefToClipper,
         dumpGCode: dumpGCode,
-        simplifyScaleAndCreatePathDef: simplifyScaleAndCreatePathDef
+        simplifyScaleAndCreatePathDef: simplifyScaleAndCreatePathDef,
+        decodeToolPath: decodeToolPath
     };
 });

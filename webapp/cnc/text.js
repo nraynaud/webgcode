@@ -1,5 +1,5 @@
 "use strict";
-define(['libs/rsvp-latest', 'cnc/cam', 'cnc/clipper', 'libs/opentype'], function (rsvp, cam, clipper, opentype) {
+define(['libs/rsvp-latest', 'cnc/cam', 'clipper', 'libs/opentype'], function (rsvp, cam, clipper, opentype) {
     RSVP.on('error', function (reason) {
         console.log(reason.stack);
     });
@@ -17,7 +17,7 @@ define(['libs/rsvp-latest', 'cnc/cam', 'cnc/clipper', 'libs/opentype'], function
     function getFontList() {
         return new RSVP.Promise(
             function (resolve, reject) {
-                $.get('https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyC9qzOvN5FgIPj-xDohd64xz0kxW1dcTB8',function (result) {
+                $.get('https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyC9qzOvN5FgIPj-xDohd64xz0kxW1dcTB8', function (result) {
                     Ember.run(null, resolve, result.items);
                 }).fail(Ember.run.bind(null, reject));
             });

@@ -4,65 +4,6 @@
 <div id="paper"></div>
 <script src="libs/require.js"></script>
 <script src="config.js"></script>
-<script>
-    require(['cnc/cam', 'libs/svg', 'jQuery'], function (cam, svg, $) {
-        window.addEventListener('message', function (event) {
-            switch (event.data.command) {
-                case 'eval':
-                    try {
-                        var code = event.data.code;
-                        var paper = new svg(document.getElementById("paper"));
-                        var machine = new cam.Machine(paper);
-
-                        function sendResponse() {
-                            var operationsData = [];
-                            for (var i = 0; i < machine.operations.length; ++i) {
-                                var operation = machine.operations[i];
-                                operationsData.push({
-                                    className: operation.constructor.name,
-                                    path: operation.path
-                                });
-                            }
-                            event.source.postMessage({
-                                command: 'eval-result',
-                                success: true,
-                                result: {
-                                    operations: operationsData,
-                                    svg: paper.node.innerHTML
-                                },
-                                requestIndex: event.data.requestIndex
-                            }, event.origin);
-                        }
-
-                        function sendError(message) {
-                            event.source.postMessage({
-                                command: 'eval-result',
-                                success: false,
-                                error: message,
-                                requestIndex: event.data.requestIndex
-                            }, event.origin);
-                        }
-
-                        var waitForWhenDone = true;
-
-                        function whenDone() {
-                            if (waitForWhenDone)
-                                sendResponse();
-                            else
-                                throw new Exception("You must return true at the end of your code if you use whenDone");
-                        }
-
-                        waitForWhenDone = new Function(['cam', 'machine', 'whenDone'], code)(cam, machine, whenDone);
-                    } catch (error) {
-                        sendError(error.message);
-                        return;
-                    }
-                    if (!waitForWhenDone)
-                        sendResponse();
-                    break;
-            }
-        });
-    });
-</script>
+<script src="js_sandbox.js"></script>
 </body>
 </html>

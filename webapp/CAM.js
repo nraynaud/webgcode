@@ -1,3 +1,4 @@
+"use strict";
 require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/util', 'cnc/ui/gcodeEditor',
         'cnc/ui/jsEditor', 'cnc/gcode/gcodeSimulation', 'cnc/gcode/simulation', 'libs/svg-import', 'templates'],
     function (Ember, RSVP, threeD, emberTwoDView, cam, util, gcodeEditor, jsEditor, gcodeSimulation, simulation) {
@@ -74,8 +75,8 @@ require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam'
                 this.highlightChanged();
                 this.get('controller.simulatedPath').addArrayObserver({
                     arrayWillChange: function (observedObj, start, removeCount, addCount) {
-                        for (var i = removeCount - 1; i >= 0; i--)
-                            threeDView.toolpath.remove((threeDView.toolpath.children[start + i]));
+                        if (removeCount == observedObj.length)
+                            threeDView.clearToolpath();
                     },
                     arrayDidChange: function (observedObj, start, removeCount, addCount) {
                         for (var i = 0; i < addCount; i++)
@@ -108,6 +109,7 @@ require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam'
                 var view = emberTwoDView.EmberTwoDView.create({element: this.$()});
                 this.set('nativeComponent', view);
                 var toolpath = view.paper.group();
+                var decorations = view.paper.group();
                 var _this = this;
                 this.get('controller.simulatedPath').addArrayObserver({
                     arrayWillChange: function (observedObj, start, removeCount, addCount) {
@@ -116,12 +118,24 @@ require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam'
                     },
                     arrayDidChange: function (observedObj, start, removeCount, addCount) {
                         for (var i = 0; i < addCount; i++)
-                            toolpath.add(_this.createFragment(view.paper, observedObj[start + i]), start + i);
+                            toolpath.add(_this.createFragment(toolpath, observedObj[start + i]), start + i);
                         view.zoomExtent();
                     }
                 });
-                //dirty hack to get JS CAM rolling
-                this.set('controller.paper', view.paper.group());
+                this.get('controller.decorations').addArrayObserver({
+                    arrayWillChange: function (observedObj, start, removeCount, addCount) {
+                        for (var i = removeCount - 1; i >= 0; i--)
+                            decorations.get([start + i]).remove();
+                    },
+                    arrayDidChange: function (observedObj, start, removeCount, addCount) {
+                        for (var i = 0; i < addCount; i++)
+                            decorations.add(_this.createDecoration(decorations, observedObj[start + i]), start + i);
+                    }
+                });
+            },
+            createDecoration: function (parent, decorationDescription) {
+                var color = decorationDescription.color;
+                return parent.path(decorationDescription.definition, true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: color == null ? 'red' : color})
             },
             createFragment: function (parent, fragment) {
                 var polyline = [];
@@ -139,7 +153,7 @@ require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam'
                     currentHighlight = null;
                 }
                 if (highlight) {
-                    currentHighlight = this.get('nativeComponent.paper')
+                    currentHighlight = this.get('nativeComponent.overlay')
                         .path(cam.simplifyScaleAndCreatePathDef([highlight.map(function (point) {
                             return {X: point.x, Y: point.y};
                         })], 1, 0.001, false))
@@ -188,6 +202,7 @@ require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam'
                 this.set('computing', true);
                 this.set('lineSegmentMap', []);
                 this.get('simulatedPath').clear();
+                this.get('decorations').clear();
                 var _this = this;
                 var promise = this.get('usingGcode') ? this.simulateGCode() : this.simulateJS();
                 return promise.then(function () {
@@ -253,7 +268,6 @@ require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam'
                 parent.postMessage({type: 'codeChange', code: this.get('code')}, '*');
             }.observes('code'),
             selectLanguageChanged: function () {
-                this.get('paper').clear();
                 this.launchSimulation();
             }.observes('selectedLanguage'),
             formattedTotalTime: function () {
@@ -265,29 +279,26 @@ require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam'
                 var _this = this;
                 return new RSVP.Promise(function (resolve, reject) {
                     var requestIndex = _this.nextRequestIndex++;
-                    var messageListener = window.addEventListener('message', function (event) {
+                    var messageListener = window.addEventListener('message', Ember.run.bind(_this, function (event) {
                         if (event.data.requestIndex == requestIndex) {
                             switch (event.data.command) {
                                 case 'eval-result':
                                     if (event.data.success) {
-                                        var machine = new cam.Machine(_this.get('paper'));
+                                        var machine = new cam.Machine(null);
                                         var operationsData = event.data.result.operations;
-                                        for (var i = 0; i < operationsData.length; ++i) {
-                                            var operationData = operationsData[i];
-                                            var operation = new cam[operationData.className]();
-                                            operation.path = operationData.path;
-                                            machine.operations.push(operation);
-                                        }
-                                        machine.paper.svg(event.data.result.svg);
+                                        for (var i = 0; i < operationsData.length; ++i)
+                                            machine.operations.push(cam.decodeToolPath(operationsData[i]));
+                                        var outlines = event.data.result.outlines;
+                                        for (i = 0; i < outlines.length; i++)
+                                            this.get('decorations').pushObject(outlines[i]);
                                         resolve(machine);
-                                    } else {
+                                    } else
                                         reject(event.data.error);
-                                    }
                                     break;
                             }
                             window.removeEventListener('message', messageListener);
                         }
-                    });
+                    }));
                     var decoratedCode = _this.get('jscode') + '//# sourceURL=user_code';
                     var js_sandbox = document.getElementById('js_sandbox');
                     js_sandbox.contentWindow.postMessage({
@@ -306,11 +317,11 @@ require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam'
             lineSegmentMap: [],
             currentRow: null,
             simulatedPath: [],
+            decorations: [],
             computing: false,
             fragmentFile: [],
             languages: ['gcode', 'javascript'],
             selectedLanguage: 'gcode',
-            nextRequestIndex: 1,
-            paper: null
+            nextRequestIndex: 1
         });
     });

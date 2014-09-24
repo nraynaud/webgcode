@@ -8,9 +8,10 @@ requirejs.config({
         TWEEN: 'libs/tween.min',
         ace: 'libs/ace/src-noconflict/ace',
         RSVP: 'libs/rsvp-latest',
+        clipper: 'libs/clipper_unminified'
     },
     shim: {
-        jQuery: {exports: "$"},
+        'jQuery': {exports: '$'},
         'libs/jquery.mousewheel': {deps: ["jQuery"]},
         Ember: {
             deps: ["jQuery", "Handlebars"],
@@ -22,10 +23,10 @@ requirejs.config({
         'libs/threejs/TrackballControls': {deps: ['THREE'], exports: 'THREE.TrackballControls'},
         'libs/threejs/CSS3DRenderer': {deps: ['THREE'], exports: 'THREE.CSS3DRenderer'},
         ace: {exports: 'ace'},
-        'libs/svg': {exports: 'SVG'},
         'libs/svg-parser': {deps: ['libs/svg']},
         'libs/svg-import': {deps: ['libs/svg', 'libs/svg-parser']},
         RSVP: {exports: 'RSVP'},
-        'templates': {deps: ['Ember']}
+        'templates': {deps: ['Ember']},
+        'clipper': {exports: 'ClipperLib'}
     }
 });
