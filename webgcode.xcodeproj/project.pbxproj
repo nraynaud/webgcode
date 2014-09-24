@@ -847,6 +847,7 @@
 		DDAA5572562F48D0091F09F4 /* mode-jsoniq.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-jsoniq.js"; sourceTree = "<group>"; };
 		DDAA55741B28FD9C80A6A8FD /* mode-xml.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-xml.js"; sourceTree = "<group>"; };
 		DDAA557E11AAA24C9679FF7B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = file.md; path = README.md; sourceTree = "<group>"; };
+		DDAA5583FA74E90180E93A59 /* jobView.handlebars */ = {isa = PBXFileReference; lastKnownFileType = file.handlebars; path = jobView.handlebars; sourceTree = "<group>"; };
 		DDAA558683C664A324BEE43A /* ext-options.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-options.js"; sourceTree = "<group>"; };
 		DDAA558AF2FDC2E0F88BA47C /* ext-options.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-options.js"; sourceTree = "<group>"; };
 		DDAA559157956C413610075C /* theme-monokai.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-monokai.js"; sourceTree = "<group>"; };
@@ -1173,6 +1174,7 @@
 		DDAA5E01868FF3EB68AA8C96 /* theme-clouds.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-clouds.js"; sourceTree = "<group>"; };
 		DDAA5E067F9A865B4605E101 /* OrbitControls.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = OrbitControls.js; sourceTree = "<group>"; };
 		DDAA5E07D516D6BA1AE88B69 /* pocket.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = pocket.js; sourceTree = "<group>"; };
+		DDAA5E122DE608E329B07F71 /* compile_ember.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = compile_ember.sh; sourceTree = "<group>"; };
 		DDAA5E15EAF5AE95CE3E3221 /* jquery.mousewheel.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jquery.mousewheel.js; path = webapp/libs/jquery.mousewheel.js; sourceTree = "<group>"; };
 		DDAA5E1979B9A72E31B3FBFE /* box.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = box.js; path = webapp/samples/box.js; sourceTree = "<group>"; };
 		DDAA5E1B69DA0F7EDC644B7D /* theme-pastel_on_dark.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-pastel_on_dark.js"; sourceTree = "<group>"; };
@@ -1395,6 +1397,7 @@
 				DDAA5612EBDD75ED97026C74 /* draftApp.handlebars */,
 				DDAA51F34BDB532649B2A0E7 /* camApp.handlebars */,
 				DDAA571C07D4352852D807BF /* controllerPanel.handlebars */,
+				DDAA5583FA74E90180E93A59 /* jobView.handlebars */,
 			);
 			path = templates;
 			sourceTree = "<group>";
@@ -2058,6 +2061,7 @@
 				DDAA5F7F528A51ECF8A211B8 /* build-cam.js */,
 				DDAA52E5A7394BAD5D0799D3 /* build-sandbox.js */,
 				DDAA5FD621B8DA11F0ECD11B /* js_sandbox.js */,
+				DDAA5E122DE608E329B07F71 /* compile_ember.sh */,
 			);
 			path = webapp;
 			sourceTree = "<group>";

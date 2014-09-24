@@ -1,0 +1,37 @@
+<div>
+    <dl>
+        <dt>Total Duration:</dt>
+        <dd {{bind-attr title=formattedTotalTime.detailed}}>{{formattedTotalTime.humanized}}</dd>
+    </dl>
+    <dl>
+        <dt>Bounds (@tool center):</dt>
+        <dd>
+            <table class="boundsTable" style="text-align:right;">
+                <thead>
+                <tr>
+                    <th>&nbsp;</th>
+                    <th>min</th>
+                    <th>max</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th>X</th>
+                    <td>{{num bbox.min.x}}</td>
+                    <td>{{num bbox.max.x}}</td>
+                </tr>
+                <tr>
+                    <th>Y</th>
+                    <td>{{num bbox.min.y}}</td>
+                    <td>{{num bbox.max.y}}</td>
+                </tr>
+                <tr>
+                    <th>Z</th>
+                    <td>{{num bbox.min.z}}</td>
+                    <td>{{num bbox.max.z}}</td>
+                </tr>
+                </tbody>
+            </table>
+        </dd>
+    </dl>
+</div>

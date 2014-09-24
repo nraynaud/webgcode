@@ -44,49 +44,13 @@ Ember.TEMPLATES["camApp"] = Ember.Handlebars.template(function anonymous(Handleb
 
     function program7(depth0, data) {
 
-        var buffer = '', stack1, hashContexts, hashTypes, options;
-        data.buffer.push("\n        <div>\n            <dl>\n                <dt>Total Duration:</dt>\n                <dd ");
-        hashContexts = {'title': depth0};
-        hashTypes = {'title': "ID"};
-        options = {hash: {
-            'title': ("formattedTotalTime.detailed")
-        }, contexts: [], types: [], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
-        data.buffer.push(escapeExpression(((stack1 = helpers['bind-attr'] || (depth0 && depth0['bind-attr'])), stack1 ? stack1.call(depth0, options) : helperMissing.call(depth0, "bind-attr", options))));
-        data.buffer.push(">");
+        var buffer = '', stack1, hashTypes, hashContexts, options;
+        data.buffer.push("\n        ");
         hashTypes = {};
         hashContexts = {};
-        data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "formattedTotalTime.humanized", {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
-        data.buffer.push("</dd>\n            </dl>\n            <dl>\n                <dt>Bounds (@tool center):</dt>\n                <dd>\n                    <table class=\"boundsTable\" style=\"text-align:right;\">\n                        <thead>\n                        <tr>\n                            <th>&nbsp;</th>\n                            <th>min</th>\n                            <th>max</th>\n                        </tr>\n                        </thead>\n                        <tbody>\n                        <tr>\n                            <th>X</th>\n                            <td>");
-        hashTypes = {};
-        hashContexts = {};
-        options = {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
-        data.buffer.push(escapeExpression(((stack1 = helpers.num || (depth0 && depth0.num)), stack1 ? stack1.call(depth0, "bbox.min.x", options) : helperMissing.call(depth0, "num", "bbox.min.x", options))));
-        data.buffer.push("</td>\n                            <td>");
-        hashTypes = {};
-        hashContexts = {};
-        options = {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
-        data.buffer.push(escapeExpression(((stack1 = helpers.num || (depth0 && depth0.num)), stack1 ? stack1.call(depth0, "bbox.max.x", options) : helperMissing.call(depth0, "num", "bbox.max.x", options))));
-        data.buffer.push("</td>\n                        </tr>\n                        <tr>\n                            <th>Y</th>\n                            <td>");
-        hashTypes = {};
-        hashContexts = {};
-        options = {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
-        data.buffer.push(escapeExpression(((stack1 = helpers.num || (depth0 && depth0.num)), stack1 ? stack1.call(depth0, "bbox.min.y", options) : helperMissing.call(depth0, "num", "bbox.min.y", options))));
-        data.buffer.push("</td>\n                            <td>");
-        hashTypes = {};
-        hashContexts = {};
-        options = {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
-        data.buffer.push(escapeExpression(((stack1 = helpers.num || (depth0 && depth0.num)), stack1 ? stack1.call(depth0, "bbox.max.y", options) : helperMissing.call(depth0, "num", "bbox.max.y", options))));
-        data.buffer.push("</td>\n                        </tr>\n                        <tr>\n                            <th>Z</th>\n                            <td>");
-        hashTypes = {};
-        hashContexts = {};
-        options = {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
-        data.buffer.push(escapeExpression(((stack1 = helpers.num || (depth0 && depth0.num)), stack1 ? stack1.call(depth0, "bbox.min.z", options) : helperMissing.call(depth0, "num", "bbox.min.z", options))));
-        data.buffer.push("</td>\n                            <td>");
-        hashTypes = {};
-        hashContexts = {};
-        options = {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
-        data.buffer.push(escapeExpression(((stack1 = helpers.num || (depth0 && depth0.num)), stack1 ? stack1.call(depth0, "bbox.max.z", options) : helperMissing.call(depth0, "num", "bbox.max.z", options))));
-        data.buffer.push("</td>\n                        </tr>\n                        </tbody>\n                    </table>\n                </dd>\n            </dl>\n        </div>\n    ");
+        options = {hash: {}, contexts: [depth0], types: ["STRING"], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
+        data.buffer.push(escapeExpression(((stack1 = helpers.partial || (depth0 && depth0.partial)), stack1 ? stack1.call(depth0, "jobView", options) : helperMissing.call(depth0, "partial", "jobView", options))));
+        data.buffer.push("\n    ");
         return buffer;
     }
 
@@ -401,49 +365,13 @@ Ember.TEMPLATES["gcodeSimulator"] = Ember.Handlebars.template(function anonymous
 
     function program3(depth0, data) {
 
-        var buffer = '', stack1, hashContexts, hashTypes, options;
-        data.buffer.push("\n        <div>\n            <dl>\n                <dt>Total Duration:</dt>\n                <dd ");
-        hashContexts = {'title': depth0};
-        hashTypes = {'title': "ID"};
-        options = {hash: {
-            'title': ("formattedTotalTime.detailed")
-        }, contexts: [], types: [], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
-        data.buffer.push(escapeExpression(((stack1 = helpers['bind-attr'] || (depth0 && depth0['bind-attr'])), stack1 ? stack1.call(depth0, options) : helperMissing.call(depth0, "bind-attr", options))));
-        data.buffer.push(">");
+        var buffer = '', stack1, hashTypes, hashContexts, options;
+        data.buffer.push("\n        ");
         hashTypes = {};
         hashContexts = {};
-        data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "formattedTotalTime.humanized", {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
-        data.buffer.push("</dd>\n            </dl>\n            <dl>\n                <dt>Bounds (@tool center):</dt>\n                <dd>\n                    <table class=\"boundsTable\" style=\"text-align:right;\">\n                        <thead>\n                        <tr>\n                            <th>&nbsp;</th>\n                            <th>min</th>\n                            <th>max</th>\n                        </tr>\n                        </thead>\n                        <tbody>\n                        <tr>\n                            <th>X</th>\n                            <td>");
-        hashTypes = {};
-        hashContexts = {};
-        options = {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
-        data.buffer.push(escapeExpression(((stack1 = helpers.num || (depth0 && depth0.num)), stack1 ? stack1.call(depth0, "bbox.min.x", options) : helperMissing.call(depth0, "num", "bbox.min.x", options))));
-        data.buffer.push("</td>\n                            <td>");
-        hashTypes = {};
-        hashContexts = {};
-        options = {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
-        data.buffer.push(escapeExpression(((stack1 = helpers.num || (depth0 && depth0.num)), stack1 ? stack1.call(depth0, "bbox.max.x", options) : helperMissing.call(depth0, "num", "bbox.max.x", options))));
-        data.buffer.push("</td>\n                        </tr>\n                        <tr>\n                            <th>Y</th>\n                            <td>");
-        hashTypes = {};
-        hashContexts = {};
-        options = {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
-        data.buffer.push(escapeExpression(((stack1 = helpers.num || (depth0 && depth0.num)), stack1 ? stack1.call(depth0, "bbox.min.y", options) : helperMissing.call(depth0, "num", "bbox.min.y", options))));
-        data.buffer.push("</td>\n                            <td>");
-        hashTypes = {};
-        hashContexts = {};
-        options = {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
-        data.buffer.push(escapeExpression(((stack1 = helpers.num || (depth0 && depth0.num)), stack1 ? stack1.call(depth0, "bbox.max.y", options) : helperMissing.call(depth0, "num", "bbox.max.y", options))));
-        data.buffer.push("</td>\n                        </tr>\n                        <tr>\n                            <th>Z</th>\n                            <td>");
-        hashTypes = {};
-        hashContexts = {};
-        options = {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
-        data.buffer.push(escapeExpression(((stack1 = helpers.num || (depth0 && depth0.num)), stack1 ? stack1.call(depth0, "bbox.min.z", options) : helperMissing.call(depth0, "num", "bbox.min.z", options))));
-        data.buffer.push("</td>\n                            <td>");
-        hashTypes = {};
-        hashContexts = {};
-        options = {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
-        data.buffer.push(escapeExpression(((stack1 = helpers.num || (depth0 && depth0.num)), stack1 ? stack1.call(depth0, "bbox.max.z", options) : helperMissing.call(depth0, "num", "bbox.max.z", options))));
-        data.buffer.push("</td>\n                        </tr>\n                        </tbody>\n                    </table>\n                </dd>\n            </dl>\n        </div>\n    ");
+        options = {hash: {}, contexts: [depth0], types: ["STRING"], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
+        data.buffer.push(escapeExpression(((stack1 = helpers.partial || (depth0 && depth0.partial)), stack1 ? stack1.call(depth0, "jobView", options) : helperMissing.call(depth0, "partial", "jobView", options))));
+        data.buffer.push("\n    ");
         return buffer;
     }
 
@@ -494,6 +422,58 @@ Ember.TEMPLATES["gcodeSimulator"] = Ember.Handlebars.template(function anonymous
         data.buffer.push(stack2);
     }
     data.buffer.push("\n</div>");
+    return buffer;
+
+});
+Ember.TEMPLATES["jobView"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data) {
+    this.compilerInfo = [4, '>= 1.0.0'];
+    helpers = this.merge(helpers, Ember.Handlebars.helpers);
+    data = data || {};
+    var buffer = '', stack1, hashContexts, hashTypes, options, helperMissing = helpers.helperMissing, escapeExpression = this.escapeExpression;
+
+
+    data.buffer.push("<div>\n    <dl>\n        <dt>Total Duration:</dt>\n        <dd ");
+    hashContexts = {'title': depth0};
+    hashTypes = {'title': "ID"};
+    options = {hash: {
+        'title': ("formattedTotalTime.detailed")
+    }, contexts: [], types: [], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
+    data.buffer.push(escapeExpression(((stack1 = helpers['bind-attr'] || (depth0 && depth0['bind-attr'])), stack1 ? stack1.call(depth0, options) : helperMissing.call(depth0, "bind-attr", options))));
+    data.buffer.push(">");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "formattedTotalTime.humanized", {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
+    data.buffer.push("</dd>\n    </dl>\n    <dl>\n        <dt>Bounds (@tool center):</dt>\n        <dd>\n            <table class=\"boundsTable\" style=\"text-align:right;\">\n                <thead>\n                <tr>\n                    <th>&nbsp;</th>\n                    <th>min</th>\n                    <th>max</th>\n                </tr>\n                </thead>\n                <tbody>\n                <tr>\n                    <th>X</th>\n                    <td>");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.num || (depth0 && depth0.num)), stack1 ? stack1.call(depth0, "bbox.min.x", options) : helperMissing.call(depth0, "num", "bbox.min.x", options))));
+    data.buffer.push("</td>\n                    <td>");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.num || (depth0 && depth0.num)), stack1 ? stack1.call(depth0, "bbox.max.x", options) : helperMissing.call(depth0, "num", "bbox.max.x", options))));
+    data.buffer.push("</td>\n                </tr>\n                <tr>\n                    <th>Y</th>\n                    <td>");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.num || (depth0 && depth0.num)), stack1 ? stack1.call(depth0, "bbox.min.y", options) : helperMissing.call(depth0, "num", "bbox.min.y", options))));
+    data.buffer.push("</td>\n                    <td>");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.num || (depth0 && depth0.num)), stack1 ? stack1.call(depth0, "bbox.max.y", options) : helperMissing.call(depth0, "num", "bbox.max.y", options))));
+    data.buffer.push("</td>\n                </tr>\n                <tr>\n                    <th>Z</th>\n                    <td>");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.num || (depth0 && depth0.num)), stack1 ? stack1.call(depth0, "bbox.min.z", options) : helperMissing.call(depth0, "num", "bbox.min.z", options))));
+    data.buffer.push("</td>\n                    <td>");
+    hashTypes = {};
+    hashContexts = {};
+    options = {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.num || (depth0 && depth0.num)), stack1 ? stack1.call(depth0, "bbox.max.z", options) : helperMissing.call(depth0, "num", "bbox.max.z", options))));
+    data.buffer.push("</td>\n                </tr>\n                </tbody>\n            </table>\n        </dd>\n    </dl>\n</div>");
     return buffer;
 
 });
