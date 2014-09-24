@@ -289,7 +289,8 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
             zmax = Math.max(z, zmax);
         }
 
-        simulate2(toolpath, pushPoint);
+        if (toolpath.length)
+            simulate2(toolpath, pushPoint);
         return {totalTime: totalTime, min: {x: xmin, y: ymin, z: zmin}, max: {x: xmax, y: ymax, z: zmax}};
     }
 
