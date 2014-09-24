@@ -29,7 +29,7 @@ define(['cnc/bezier', 'clipper', 'libs/simplify', 'cnc/util', 'libs/extractedRap
 
     function showClipperPolygon(group, polygon, stroke) {
         $.each(polygon, function (_, polygon) {
-            var path = group.path('', true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: stroke == null ? 'red' : stroke});
+            var path = group.path('', true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: stroke == null ? 'yellow' : stroke});
             pushPolygonOn(path, polygon);
         });
     }
@@ -218,7 +218,7 @@ define(['cnc/bezier', 'clipper', 'libs/simplify', 'cnc/util', 'libs/extractedRap
         },
         createOutline: function (definition, color) {
             this.outlines.push({definition: definition, color: color});
-            return this.paper.path(definition, true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: color == null ? 'red' : color});
+            return this.paper.path(definition, true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: color == null ? 'yellow' : color});
         },
         contouring: function (shapePath, toolRadius, inside, climbMilling) {
             var clipperPolygon = this.toClipper(shapePath);

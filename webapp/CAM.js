@@ -135,7 +135,7 @@ require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam'
             },
             createDecoration: function (parent, decorationDescription) {
                 var color = decorationDescription.color;
-                return parent.path(decorationDescription.definition, true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: color == null ? 'red' : color})
+                return parent.path(decorationDescription.definition, true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: color == null ? 'yellow' : color})
             },
             createFragment: function (parent, fragment) {
                 var polyline = [];
