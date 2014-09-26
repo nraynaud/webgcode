@@ -147,6 +147,17 @@ define(['cnc/bezier', 'clipper', 'libs/simplify', 'cnc/util', 'libs/extractedRap
             pushOnPath(path, this);
             path.node.pathSegList.appendItem(path.node.createSVGPathSegClosePath());
         },
+        asPathDef: function () {
+            var poly = this.path;
+            var d = '';
+            if (poly.length) {
+                var firstPoint = poly[0];
+                d += ' M ' + firstPoint[0] + ',' + firstPoint[1];
+                for (var i = 1; i < poly.length; i++)
+                    d += ' L ' + poly[i][0] + ',' + poly[i][1];
+            }
+            return d;
+        },
         translate: function (dx, dy) {
             $.each(this.path, function (index, point) {
                 point[0] += dx;
@@ -183,6 +194,17 @@ define(['cnc/bezier', 'clipper', 'libs/simplify', 'cnc/util', 'libs/extractedRap
         },
         pushOnPath: function (path) {
             pushOnPath(path, this);
+        },
+        asPathDef: function () {
+            var poly = this.path;
+            var d = '';
+            if (poly.length) {
+                var firstPoint = poly[0];
+                d += ' M ' + firstPoint[0] + ',' + firstPoint[1];
+                for (var i = 1; i < poly.length; i++)
+                    d += ' L ' + poly[i][0] + ',' + poly[i][1];
+            }
+            return d;
         },
         translated: function (dx, dy, dz) {
             var newPath = new GeneralPolylineToolpath();
@@ -240,15 +262,18 @@ define(['cnc/bezier', 'clipper', 'libs/simplify', 'cnc/util', 'libs/extractedRap
             });
         },
         rampToolPath: function (toolpath, startZ, stopZ, turns) {
-            var path = this.paper.defs().path('', true);
-            toolpath.pushOnPath(path);
-            var toolpathLength = path.node.getTotalLength();
-            var segmentsLen = getPathLengths(path);
-            path.remove();
+            var distances = [0];
+            var toolpathLength = 0;
+            for (var i = 0; i < toolpath.path.length - 1; i++) {
+                var p1 = toolpath.path[i];
+                var p2 = toolpath.path[i + 1];
+                toolpathLength += new util.Point(p1[0], p1[1]).distance(new util.Point(p2[0], p2[1]));
+                distances.push(toolpathLength);
+            }
             var resultPolyline = new GeneralPolylineToolpath();
-            for (var i = 0; i < turns; i++) {
+            for (i = 0; i < turns; i++) {
                 toolpath.forEachPoint(function (x, y, z, index) {
-                    var xyLength = segmentsLen[index + 2];
+                    var xyLength = distances[index];
                     z = startZ + (stopZ - startZ) * ((i + xyLength / toolpathLength) / turns);
                     resultPolyline.pushPoint(x, y, z);
                 }, null);
