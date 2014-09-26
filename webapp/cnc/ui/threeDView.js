@@ -192,8 +192,8 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
                 return result;
             }
 
-            var float32Array = new Float32Array(fragment.vertices);
-            var pointsAdded = float32Array.length / 3;
+            var vertices = new Float32Array(fragment.vertices);
+            var pointsAdded = vertices.length / 3;
             var currentPoints = this[attributeName] ? this[attributeName].attributes.position.array.length / 3 : 0;
             if (this[attributeName] && (pointsAdded + currentPoints >= 30000)) {
                 this[attributeName] = null;
@@ -207,12 +207,12 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
             }
             if (this[attributeName] == null) {
                 this[attributeName] = new THREE.BufferGeometry();
-                this[attributeName].addAttribute('position', new THREE.BufferAttribute(float32Array, 3));
+                this[attributeName].addAttribute('position', new THREE.BufferAttribute(vertices, 3));
                 this[attributeName].addAttribute('index', new THREE.BufferAttribute(newIndices, 1));
                 toolpathObject.add(new THREE.Line(this[attributeName], material, THREE.LinePieces));
             } else {
                 var attributes = this[attributeName].attributes;
-                attributes.position.array = typedArrayConcat(attributes.position.array, float32Array, Float32Array);
+                attributes.position.array = typedArrayConcat(attributes.position.array, vertices, Float32Array);
                 attributes.index.array = typedArrayConcat(attributes.index.array, newIndices, Uint16Array);
                 attributes.position.needsUpdate = true;
                 attributes.index.needsUpdate = true;
