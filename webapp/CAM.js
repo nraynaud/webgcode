@@ -76,7 +76,7 @@ require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/twoDView', 'cnc/cam', 'cn
                 this.get('controller.simulatedPath').addArrayObserver({
                     arrayWillChange: function (observedObj, start, removeCount, addCount) {
                         if (removeCount == observedObj.length)
-                            threeDView.clearToolpath();
+                            threeDView.clearView();
                     },
                     arrayDidChange: function (observedObj, start, removeCount, addCount) {
                         for (var i = 0; i < addCount; i++)

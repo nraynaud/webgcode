@@ -173,8 +173,11 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
         this.scene.add(this.drawing);
         this.toolpath = new THREE.Object3D();
         this.drawing.add(this.toolpath);
+        this.outline = new THREE.Object3D();
+        this.drawing.add(this.outline);
         this.normalMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFFFFFF});
         this.rapidMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFF0000});
+        this.outlineMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFFFF00});
         //needed because requestAnimationFrame can't pass a "this".
         this.requestAnimationFrameCallback = this.actuallyRender.bind(this);
         $container.prepend(createIcon(this));
@@ -182,7 +185,7 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
     }
 
     ThreeDView.prototype = {
-        addCollated: function (toolpathObject, fragment, attributeName, material) {
+        addCollated: function (parentObject, rawVertices, attributeName, material) {
 
             function typedArrayConcat(first, second, constructor) {
                 var firstLength = first.length,
@@ -192,7 +195,7 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
                 return result;
             }
 
-            var vertices = new Float32Array(fragment.vertices);
+            var vertices = new Float32Array(rawVertices);
             var pointsAdded = vertices.length / 3;
             var currentPoints = this[attributeName] ? this[attributeName].attributes.position.array.length / 3 : 0;
             if (this[attributeName] && (pointsAdded + currentPoints >= 30000)) {
@@ -209,7 +212,7 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
                 this[attributeName] = new THREE.BufferGeometry();
                 this[attributeName].addAttribute('position', new THREE.BufferAttribute(vertices, 3));
                 this[attributeName].addAttribute('index', new THREE.BufferAttribute(newIndices, 1));
-                toolpathObject.add(new THREE.Line(this[attributeName], material, THREE.LinePieces));
+                parentObject.add(new THREE.Line(this[attributeName], material, THREE.LinePieces));
             } else {
                 var attributes = this[attributeName].attributes;
                 attributes.position.array = typedArrayConcat(attributes.position.array, vertices, Float32Array);
@@ -220,21 +223,24 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
         },
         addToolpathFragment: function (toolpathObject, fragment) {
             return fragment.speedTag == 'rapid'
-                ? this.addCollated(toolpathObject, fragment, 'rapidMoves', this.rapidMaterial)
-                : this.addCollated(toolpathObject, fragment, 'normalMoves', this.normalMaterial);
+                ? this.addCollated(toolpathObject, fragment.vertices, 'rapidMoves', this.rapidMaterial)
+                : this.addCollated(toolpathObject, fragment.vertices, 'normalMoves', this.normalMaterial);
         },
         displayPath: function (path) {
-            this.clearToolpath();
+            this.clearView();
             for (var i = 0; i < path.length; i++)
                 this.addToolpathFragment(this.toolpath, path[i]);
             this.zoomExtent();
             return this.toolpath;
         },
-        clearToolpath: function () {
+        clearView: function () {
             this.rapidMoves = null;
             this.normalMoves = null;
+            this.outlineDisplay = null;
             while (this.toolpath.children.length)
                 this.toolpath.remove(this.toolpath.children[0]);
+            while (this.outline.children.length)
+                this.outline.remove(this.outline.children[0]);
         },
         computeDrawingBBox: function () {
             var bbox = new THREE.Box3();
