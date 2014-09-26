@@ -466,6 +466,9 @@ define(['cnc/bezier', 'clipper', 'libs/simplify', 'cnc/util', 'libs/extractedRap
         }
     };
 
+    function pathDefToPolygons(pathDef) {
+        return bezier.pathToPolygons(R.path2curve(pathDef), {a: 1, b: 0, c: 0, d: 1, e: 0, f: 0}, 0.0001);
+    }
 
     /**
      *
@@ -473,7 +476,7 @@ define(['cnc/bezier', 'clipper', 'libs/simplify', 'cnc/util', 'libs/extractedRap
      * @returns a Clipper polygon array
      */
     function pathDefToClipper(pathDef) {
-        var polygons = bezier.pathToPolygons(R.path2curve(pathDef), {a: 1, b: 0, c: 0, d: 1, e: 0, f: 0}, 0.0001);
+        var polygons = pathDefToPolygons(pathDef);
         $.each(polygons, function (_, poly) {
             $.each(poly, function (_, point) {
                 point.X = Math.round(CLIPPER_SCALE * point.X);
@@ -567,6 +570,7 @@ define(['cnc/bezier', 'clipper', 'libs/simplify', 'cnc/util', 'libs/extractedRap
         decomposePolytreeInTopLevelPolygons: decomposePolytreeInTopLevelPolygons,
         polyOp: polyOp,
         simplifyPolygons: simplifyPolygons,
+        pathDefToPolygons: pathDefToPolygons,
         pathDefToClipper: pathDefToClipper,
         dumpGCode: dumpGCode,
         simplifyScaleAndCreatePathDef: simplifyScaleAndCreatePathDef,
