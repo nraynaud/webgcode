@@ -477,6 +477,21 @@ Ember.TEMPLATES["jobView"] = Ember.Handlebars.template(function anonymous(Handle
     return buffer;
 
 });
+Ember.TEMPLATES["operation"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data) {
+    this.compilerInfo = [4, '>= 1.0.0'];
+    helpers = this.merge(helpers, Ember.Handlebars.helpers);
+    data = data || {};
+    var buffer = '', hashTypes, hashContexts, escapeExpression = this.escapeExpression;
+
+
+    data.buffer.push("<strong>");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "name", {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
+    data.buffer.push("</strong>");
+    return buffer;
+
+});
 Ember.TEMPLATES["textApp"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data) {
     this.compilerInfo = [4, '>= 1.0.0'];
     helpers = this.merge(helpers, Ember.Handlebars.helpers);
@@ -606,6 +621,57 @@ Ember.TEMPLATES["textApp"] = Ember.Handlebars.template(function anonymous(Handle
         'rows': ("400")
     }, contexts: [], types: [], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
     data.buffer.push(escapeExpression(((stack1 = helpers.textarea || (depth0 && depth0.textarea)), stack1 ? stack1.call(depth0, options) : helperMissing.call(depth0, "textarea", options))));
+    return buffer;
+
+});
+Ember.TEMPLATES["visucamApp"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data) {
+    this.compilerInfo = [4, '>= 1.0.0'];
+    helpers = this.merge(helpers, Ember.Handlebars.helpers);
+    data = data || {};
+    var buffer = '', stack1, hashTypes, hashContexts, escapeExpression = this.escapeExpression, self = this, helperMissing = helpers.helperMissing;
+
+    function program1(depth0, data) {
+
+        var buffer = '', stack1, stack2, hashTypes, hashContexts, options;
+        data.buffer.push("\n            ");
+        hashTypes = {};
+        hashContexts = {};
+        options = {hash: {}, inverse: self.noop, fn: self.program(2, program2, data), contexts: [depth0, depth0], types: ["STRING", "ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
+        stack2 = ((stack1 = helpers['link-to'] || (depth0 && depth0['link-to'])), stack1 ? stack1.call(depth0, "operation", "", options) : helperMissing.call(depth0, "link-to", "operation", "", options));
+        if (stack2 || stack2 === 0) {
+            data.buffer.push(stack2);
+        }
+        data.buffer.push("\n        ");
+        return buffer;
+    }
+
+    function program2(depth0, data) {
+
+        var buffer = '', hashTypes, hashContexts;
+        data.buffer.push("\n                <li>");
+        hashTypes = {};
+        hashContexts = {};
+        data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "name", {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
+        data.buffer.push("</li>\n            ");
+        return buffer;
+    }
+
+    data.buffer.push("<div class=\"operations\">\n    <ol>\n        ");
+    hashTypes = {};
+    hashContexts = {};
+    stack1 = helpers.each.call(depth0, {hash: {}, inverse: self.noop, fn: self.program(1, program1, data), contexts: [], types: [], hashContexts: hashContexts, hashTypes: hashTypes, data: data});
+    if (stack1 || stack1 === 0) {
+        data.buffer.push(stack1);
+    }
+    data.buffer.push("\n    </ol>\n</div>\n<div class=\"currentOperation\">");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "outlet", {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
+    data.buffer.push("</div>\n<div class=\"viewContainer\">\n    ");
+    hashTypes = {};
+    hashContexts = {};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.TwoDView", {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
+    data.buffer.push("\n</div>");
     return buffer;
 
 });

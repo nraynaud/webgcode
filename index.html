@@ -111,8 +111,8 @@
 
 </div>
 <script>
-require(['Ember', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/util', 'cnc/ui/gcodeEditor', 'cnc/gcode/gcodeSimulation', 'templates'],
-        function (Ember, threeD, emberTwoDView, cam, util, gcodeEditor, gcodeSimulation) {
+require(['Ember', 'cnc/ui/threeDView', 'cnc/ui/twoDView', 'cnc/cam', 'cnc/util', 'cnc/ui/gcodeEditor', 'cnc/gcode/gcodeSimulation', 'templates'],
+        function (Ember, threeD, TwoDView, cam, util, gcodeEditor, gcodeSimulation) {
             var demoCode = 'G0 Y10 Z-5\n' +
                     'G1 Z-10\n' +
                     'G1 Y20\n' +
@@ -185,7 +185,7 @@ require(['Ember', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/u
             Simulator.TwoDView = Ember.View.extend({
                 classNames: ['TwoDView'],
                 didInsertElement: function () {
-                    var view = emberTwoDView.EmberTwoDView.create({element: this.$()});
+                    var view = TwoDView.TwoDView.create({element: this.$()});
                     this.set('nativeComponent', view);
                     var toolpath = view.paper.group();
                     this.simulatedPathChanged();

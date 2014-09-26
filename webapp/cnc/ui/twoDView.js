@@ -60,7 +60,7 @@ define(['Ember', 'libs/svg', 'libs/jquery.mousewheel', 'cnc/svg.marker'], functi
         }.observes('view.ctm', 'view.visibleBox')
     });
 
-    var EmberTwoDView = Ember.Object.extend({
+    var TwoDView = Ember.Object.extend({
         minZoom: 0.4,
         maxZoom: 80,
         init: function () {
@@ -198,6 +198,6 @@ define(['Ember', 'libs/svg', 'libs/jquery.mousewheel', 'cnc/svg.marker'], functi
         }.property('ctm')
     });
 
-    return {EmberTwoDView: EmberTwoDView};
+    return {TwoDView: TwoDView};
 });
 

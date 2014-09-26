@@ -1,7 +1,7 @@
 "use strict";
-require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam', 'cnc/util', 'cnc/ui/gcodeEditor',
+require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/twoDView', 'cnc/cam', 'cnc/util', 'cnc/ui/gcodeEditor',
         'cnc/ui/jsEditor', 'cnc/gcode/gcodeSimulation', 'cnc/gcode/simulation', 'libs/svg-import', 'templates'],
-    function (Ember, RSVP, threeD, emberTwoDView, cam, util, gcodeEditor, jsEditor, gcodeSimulation, simulation) {
+    function (Ember, RSVP, threeD, TwoDView, cam, util, gcodeEditor, jsEditor, gcodeSimulation, simulation) {
         var demoCode = 'G0 X0 Y10 Z-5\n' +
             'G1 Z-10\n' +
             'G1 Y20\n' +
@@ -106,7 +106,7 @@ require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/emberTwoDView', 'cnc/cam'
         Simulator.TwoDView = Ember.View.extend({
             classNames: ['TwoDView'],
             didInsertElement: function () {
-                var view = emberTwoDView.EmberTwoDView.create({element: this.$()});
+                var view = TwoDView.TwoDView.create({element: this.$()});
                 this.set('nativeComponent', view);
                 var toolpath = view.paper.group();
                 var decorations = view.paper.group();

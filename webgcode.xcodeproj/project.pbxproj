@@ -172,6 +172,7 @@
 		DDAA548C136664BF276C7129 /* mode-autohotkey.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C82CF843715BE324D16 /* mode-autohotkey.js */; };
 		DDAA549E453FCC4AA07C898E /* mode-django.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA528722C1D41E199E1479 /* mode-django.js */; };
 		DDAA549F73A6605A6D1A55B2 /* mode-xml.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C0DAEC1B3B61CB9BCD1 /* mode-xml.js */; };
+		DDAA54A183E699E9FC378EA6 /* visucam.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C9FEE3CFFBDD4F6E9D2 /* visucam.js */; };
 		DDAA54A549411B946A47CD17 /* mode-verilog.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5FF455D8494A277ED942 /* mode-verilog.js */; };
 		DDAA54AB684683AB79857EE5 /* mode-mushcode_high_rules.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA51571D87D14603031877 /* mode-mushcode_high_rules.js */; };
 		DDAA54ADB34C5B4D478D30C5 /* jquery.flot.min.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5A1213D0288F1D22B4BF /* jquery.flot.min.js */; };
@@ -186,7 +187,7 @@
 		DDAA54D2FD784075CBBFAE57 /* mode-svg.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA598FCD563229B3C9C177 /* mode-svg.js */; };
 		DDAA54D3473556EC0B93F92B /* ext-options.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA586F6DBF760EB89D45F2 /* ext-options.js */; };
 		DDAA54D65635F2743D24E8F1 /* mode-batchfile.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA55FB9013844B5A76FD74 /* mode-batchfile.js */; };
-		DDAA54D76ECEC7A8B4F7AB6B /* emberTwoDView.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5A55C036357C8CD5193C /* emberTwoDView.js */; };
+		DDAA54D76ECEC7A8B4F7AB6B /* twoDView.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5A55C036357C8CD5193C /* twoDView.js */; };
 		DDAA54D89E9E248B236C3E79 /* ext-spellcheck.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5526963C0E04E95BFE1E /* ext-spellcheck.js */; };
 		DDAA54DE0F20CCE148C6E657 /* mode-html_ruby.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA51CFE282C3F1F99DC15A /* mode-html_ruby.js */; };
 		DDAA54F6E0E3E391A282D127 /* theme-mono_industrial.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54FA588E5018E48E44B2 /* theme-mono_industrial.js */; };
@@ -504,6 +505,7 @@
 		DDAA5D6C847AA2C7E9608326 /* threeDView.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA52CAC3926B8B4F4B829A /* threeDView.js */; };
 		DDAA5D6C8C9C3AB7DBDE6606 /* mode-mushcode.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5E524DC565DA731F8C82 /* mode-mushcode.js */; };
 		DDAA5D6E4E2AFD02DD05691A /* box2.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA52B1A4915275E73497A2 /* box2.js */; };
+		DDAA5D6EE86074E5A8E3E0AF /* svg.marker.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5957E406CDDA9E6840E6 /* svg.marker.js */; };
 		DDAA5D7ADB5D8BDC546E1E8F /* theme-textmate.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA554AA19A3163F6FB6B9E /* theme-textmate.js */; };
 		DDAA5D8522CC01C3FDEDF044 /* views.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5D362B64EEE93DE54810 /* views.js */; };
 		DDAA5D8D3AE5D6059877050B /* mode-css.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53AA1AA0B33FDC424095 /* mode-css.js */; };
@@ -723,6 +725,7 @@
 		DDAA52AC511B68FA1D1EEB38 /* mode-rust.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-rust.js"; sourceTree = "<group>"; };
 		DDAA52AFFAE054B9E7D1FA72 /* cnc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cnc.h; sourceTree = "<group>"; };
 		DDAA52B1A4915275E73497A2 /* box2.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = box2.js; sourceTree = "<group>"; };
+		DDAA52C2B9404C75FFDEBFC4 /* operation.handlebars */ = {isa = PBXFileReference; lastKnownFileType = file.handlebars; path = operation.handlebars; sourceTree = "<group>"; };
 		DDAA52CA23E7C9E2511B674A /* worker-xquery.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "worker-xquery.js"; sourceTree = "<group>"; };
 		DDAA52CAC3926B8B4F4B829A /* threeDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = threeDView.js; path = ui/threeDView.js; sourceTree = "<group>"; };
 		DDAA52D4BD9F4D4843B488A2 /* mode-curly.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-curly.js"; sourceTree = "<group>"; };
@@ -991,6 +994,7 @@
 		DDAA594C449D5B00B5010F79 /* mode-twig.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-twig.js"; sourceTree = "<group>"; };
 		DDAA594E8EF545C3CD0D0873 /* geometry.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = geometry.js; path = gcode/geometry.js; sourceTree = "<group>"; };
 		DDAA5950A619B90125653E97 /* fontExample.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = fontExample.js; sourceTree = "<group>"; };
+		DDAA5957E406CDDA9E6840E6 /* svg.marker.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svg.marker.js; sourceTree = "<group>"; };
 		DDAA595C2CB1A92F1FA2917C /* mode-asciidoc.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-asciidoc.js"; sourceTree = "<group>"; };
 		DDAA5967FF98DB253D27F1EB /* mode-groovy.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-groovy.js"; sourceTree = "<group>"; };
 		DDAA59726FEC6E4C481ACFBF /* TrackballControls.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = TrackballControls.js; sourceTree = "<group>"; };
@@ -1021,13 +1025,14 @@
 		DDAA5A2832E1C0EA02A1C19C /* mode-ini.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-ini.js"; sourceTree = "<group>"; };
 		DDAA5A30D2D2797B48690977 /* theme-mono_industrial.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-mono_industrial.js"; sourceTree = "<group>"; };
 		DDAA5A399CE1A7EBEC3B6D80 /* mode-vbscript.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-vbscript.js"; sourceTree = "<group>"; };
+		DDAA5A4300864DA095799734 /* visucamApp.handlebars */ = {isa = PBXFileReference; lastKnownFileType = file.handelbars; path = visucamApp.handlebars; sourceTree = "<group>"; };
 		DDAA5A44472B927702931CDD /* ember-data-1.0.0-beta7.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ember-data-1.0.0-beta7.js"; sourceTree = "<group>"; };
 		DDAA5A47A7F070BF331595D4 /* mode-jsx.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-jsx.js"; sourceTree = "<group>"; };
 		DDAA5A4AEE4A521F092724BE /* mode-haxe.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-haxe.js"; sourceTree = "<group>"; };
 		DDAA5A4B426FA2031B60ED96 /* ext-statusbar.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-statusbar.js"; sourceTree = "<group>"; };
 		DDAA5A50F53BA396E1733E04 /* require_text.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = require_text.js; sourceTree = "<group>"; };
 		DDAA5A52751E1F666910B8D0 /* mode-scss.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-scss.js"; sourceTree = "<group>"; };
-		DDAA5A55C036357C8CD5193C /* emberTwoDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = emberTwoDView.js; sourceTree = "<group>"; };
+		DDAA5A55C036357C8CD5193C /* twoDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = twoDView.js; sourceTree = "<group>"; };
 		DDAA5A58AA2235B4497F9E98 /* mode-actionscript.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-actionscript.js"; sourceTree = "<group>"; };
 		DDAA5A6953BC079E94FCF489 /* theme-github.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-github.js"; sourceTree = "<group>"; };
 		DDAA5A7401620FDAACB4DB87 /* mode-glsl.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-glsl.js"; sourceTree = "<group>"; };
@@ -1130,6 +1135,7 @@
 		DDAA5C7E74F73301E2625A6D /* mode-glsl.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-glsl.js"; sourceTree = "<group>"; };
 		DDAA5C82CF843715BE324D16 /* mode-autohotkey.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-autohotkey.js"; sourceTree = "<group>"; };
 		DDAA5C9D2FE99E063854ECFA /* mode-rdoc.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-rdoc.js"; sourceTree = "<group>"; };
+		DDAA5C9FEE3CFFBDD4F6E9D2 /* visucam.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = visucam.js; sourceTree = "<group>"; };
 		DDAA5CA510F880D541F1D37A /* theme-tomorrow_night.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-tomorrow_night.js"; sourceTree = "<group>"; };
 		DDAA5CAC3C32480CB09CFBE4 /* mode-cobol.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-cobol.js"; sourceTree = "<group>"; };
 		DDAA5CAE296C7F5DD6472C44 /* svg.memory.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svg.memory.js; sourceTree = "<group>"; };
@@ -1398,6 +1404,8 @@
 				DDAA51F34BDB532649B2A0E7 /* camApp.handlebars */,
 				DDAA571C07D4352852D807BF /* controllerPanel.handlebars */,
 				DDAA5583FA74E90180E93A59 /* jobView.handlebars */,
+				DDAA5A4300864DA095799734 /* visucamApp.handlebars */,
+				DDAA52C2B9404C75FFDEBFC4 /* operation.handlebars */,
 			);
 			path = templates;
 			sourceTree = "<group>";
@@ -1600,6 +1608,7 @@
 				DDAA526E8216C0F4B90FC84F /* connection.js */,
 				DDAA513A9EE7AC2438C9E111 /* runner.js */,
 				DDAA5C74CF7DB45DBB47525E /* controller */,
+				DDAA5957E406CDDA9E6840E6 /* svg.marker.js */,
 			);
 			path = cnc;
 			sourceTree = "<group>";
@@ -1629,7 +1638,7 @@
 			isa = PBXGroup;
 			children = (
 				DDAA5D362B64EEE93DE54810 /* views.js */,
-				DDAA5A55C036357C8CD5193C /* emberTwoDView.js */,
+				DDAA5A55C036357C8CD5193C /* twoDView.js */,
 				DDAA50DB79A1ADCAFA5BA02C /* pocketView.js */,
 				DDAA572B976576EFEEC3D1E4 /* gcodeEditor.js */,
 				DDAA5C0935B9A14147485CB2 /* threeDView.js */,
@@ -2062,6 +2071,7 @@
 				DDAA52E5A7394BAD5D0799D3 /* build-sandbox.js */,
 				DDAA5FD621B8DA11F0ECD11B /* js_sandbox.js */,
 				DDAA5E122DE608E329B07F71 /* compile_ember.sh */,
+				DDAA5C9FEE3CFFBDD4F6E9D2 /* visucam.js */,
 			);
 			path = webapp;
 			sourceTree = "<group>";
@@ -2753,7 +2763,7 @@
 				DDAA52AB326C153DC3BC16E4 /* handlebars-v1.3.0.js in Sources */,
 				DDAA5D8522CC01C3FDEDF044 /* views.js in Sources */,
 				DDAA513250107BC899C6708D /* simplify.js in Sources */,
-				DDAA54D76ECEC7A8B4F7AB6B /* emberTwoDView.js in Sources */,
+				DDAA54D76ECEC7A8B4F7AB6B /* twoDView.js in Sources */,
 				DDAA5FF8AE3F69093DDAC5CC /* rbrush.js in Sources */,
 				DDAA5EA8781DF5F9C0E660F7 /* pocketView.js in Sources */,
 				DDAA52EC89706119108AA97B /* require_text.js in Sources */,
@@ -2805,6 +2815,8 @@
 				DDAA55540BD64EEFE07C6C79 /* build-cam.js in Sources */,
 				DDAA51E5DC9B01FFC2D2154E /* build-sandbox.js in Sources */,
 				DDAA5647D1988D2672299EA5 /* js_sandbox.js in Sources */,
+				DDAA54A183E699E9FC378EA6 /* visucam.js in Sources */,
+				DDAA5D6EE86074E5A8E3E0AF /* svg.marker.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
