@@ -1,7 +1,7 @@
 "use strict";
 
-define(['Ember', 'cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView', 'cnc/util'],
-    function (Ember, cam, rbrush, emberTwoDView, util) {
+define(['Ember', 'cnc/cam', 'libs/rbrush', 'cnc/ui/twoDView', 'cnc/util'],
+    function (Ember, cam, rbrush, TwoDView, util) {
 
         function unionBox(box1, box2) {
             var x = Math.min(box1.x, box2.x);
@@ -40,7 +40,7 @@ define(['Ember', 'cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView', 'cnc/util'],
 
         function bboxIntersect(a, b) {
             return !(a.x >= b.x + b.width || a.y >= b.y + b.height
-                || b.x >= a.x + a.width || b.y >= a.y + a.height);
+            || b.x >= a.x + a.width || b.y >= a.y + a.height);
         }
 
         function prepareForTreeElement(object, bboxedElement) {
@@ -193,7 +193,7 @@ define(['Ember', 'cnc/cam', 'libs/rbrush', 'cnc/ui/emberTwoDView', 'cnc/util'],
                 this.set('tree', rbrush());
             },
             didInsertElement: function () {
-                var view = emberTwoDView.EmberTwoDView.create({element: this.$()});
+                var view = TwoDView.TwoDView.create({element: this.$()});
                 this.set('nativeComponent', view);
                 this.set('pocketGroup', view.paper.group());
                 var _this = this;
