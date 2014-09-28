@@ -1,6 +1,6 @@
 "use strict";
 
-define(['cnc/bezier', 'clipper', 'libs/simplify', 'cnc/util', 'libs/extractedRaphael'], function (bezier, clipper, simplify, util, _) {
+define(['cnc/bezier', 'clipper', 'cnc/toolpath', 'libs/simplify', 'cnc/util', 'libs/extractedRaphael'], function (bezier, clipper, tp, simplify, util, _) {
     var CLIPPER_SCALE = Math.pow(2, 20);
 
     function positionEquals(p1, p2) {
@@ -59,7 +59,7 @@ define(['cnc/bezier', 'clipper', 'libs/simplify', 'cnc/util', 'libs/extractedRap
                 if (area >= 0 && !areaPositive || area < 0 && areaPositive)
                     polygon.reverse();
             }
-            var newPoly = new ConstantZPolygonToolpath();
+            var newPoly = new tp.ConstantZPolygonToolpath();
             $.each(polygon, function (_, point) {
                 newPoly.pushPoint(point.X / scale, point.Y / scale);
             });
@@ -114,116 +114,11 @@ define(['cnc/bezier', 'clipper', 'libs/simplify', 'cnc/util', 'libs/extractedRap
     })();
 
     function createDrillHole(x, y) {
-        var toolPath = new ConstantZPolygonToolpath();
+        var toolPath = new tp.ConstantZPolygonToolpath();
         toolPath.pushPoint(x, y);
         return toolPath;
     }
 
-    function ConstantZPolygonToolpath() {
-        this.path = [];
-    }
-
-    ConstantZPolygonToolpath.prototype = {
-        getTypeName: function () {
-            return 'constant-z-toolpath';
-        },
-        pushPoint: function (x, y) {
-            this.path.push([x, y]);
-        },
-        getStartPoint: function (defaultZ) {
-            var p = this.path[0];
-            return {x: p[0], y: p[1], z: defaultZ};
-        },
-        getStopPoint: function (defaultZ) {
-            var p = this.path[this.path.length - 1];
-            return {x: p[0], y: p[1], z: defaultZ};
-        },
-        forEachPoint: function (pointHandler, defaultZ) {
-            $.each(this.path, function (index, point) {
-                pointHandler(point[0], point[1], defaultZ, index);
-            });
-        },
-        pushOnPath: function (path) {
-            pushOnPath(path, this);
-            path.node.pathSegList.appendItem(path.node.createSVGPathSegClosePath());
-        },
-        asPathDef: function () {
-            var poly = this.path;
-            var d = '';
-            if (poly.length) {
-                var firstPoint = poly[0];
-                d += ' M ' + firstPoint[0] + ',' + firstPoint[1];
-                for (var i = 1; i < poly.length; i++)
-                    d += ' L ' + poly[i][0] + ',' + poly[i][1];
-            }
-            return d;
-        },
-        translate: function (dx, dy) {
-            $.each(this.path, function (index, point) {
-                point[0] += dx;
-                point[1] += dy;
-            });
-        }
-    };
-
-    function GeneralPolylineToolpath() {
-        this.path = [];
-    }
-
-    GeneralPolylineToolpath.prototype = {
-        getTypeName: function () {
-            return 'general-toolpath';
-        },
-        pushPoint: function (x, y, z) {
-            this.path.push([x, y, z]);
-        },
-        getStartPoint: function () {
-            var p = this.path[0];
-            return {x: p[0], y: p[1], z: p[2]};
-        },
-        getStopPoint: function () {
-            var p = this.path[this.path.length - 1];
-            return {x: p[0], y: p[1], z: p[2]};
-        },
-        forEachPoint: function (pointHandler, defaultZ) {
-            $.each(this.path, function (index, point) {
-                pointHandler(point[0], point[1], point[2], index);
-            });
-            var lastPoint = this.getStopPoint(defaultZ);
-            pointHandler(lastPoint.x, lastPoint.y, lastPoint.z);
-        },
-        pushOnPath: function (path) {
-            pushOnPath(path, this);
-        },
-        asPathDef: function () {
-            var poly = this.path;
-            var d = '';
-            if (poly.length) {
-                var firstPoint = poly[0];
-                d += ' M ' + firstPoint[0] + ',' + firstPoint[1];
-                for (var i = 1; i < poly.length; i++)
-                    d += ' L ' + poly[i][0] + ',' + poly[i][1];
-            }
-            return d;
-        },
-        translated: function (dx, dy, dz) {
-            var newPath = new GeneralPolylineToolpath();
-            $.each(this.path, function (index, point) {
-                newPath.pushPoint(point[0] + dx, point[1] + dy, point[2] + dz);
-            });
-            return newPath;
-        }
-    };
-
-    function decodeToolPath(operationData) {
-        var toolPathTypes = {
-            'general-toolpath': GeneralPolylineToolpath,
-            'constant-z-toolpath': ConstantZPolygonToolpath
-        };
-        var operation = new toolPathTypes[operationData.className]();
-        operation.path = operationData.path;
-        return operation;
-    }
 
     function Machine(paper) {
         this.paper = paper;
@@ -270,7 +165,7 @@ define(['cnc/bezier', 'clipper', 'libs/simplify', 'cnc/util', 'libs/extractedRap
                 toolpathLength += new util.Point(p1[0], p1[1]).distance(new util.Point(p2[0], p2[1]));
                 distances.push(toolpathLength);
             }
-            var resultPolyline = new GeneralPolylineToolpath();
+            var resultPolyline = new tp.GeneralPolylineToolpath();
             for (i = 0; i < turns; i++) {
                 toolpath.forEachPoint(function (x, y, z, index) {
                     var xyLength = distances[index];
@@ -432,7 +327,7 @@ define(['cnc/bezier', 'clipper', 'libs/simplify', 'cnc/util', 'libs/extractedRap
          * @returns {*}
          */
         fromClipper: function (polygon, reorder, areaPositive) {
-            if (polygon[0] instanceof ConstantZPolygonToolpath)
+            if (polygon[0] instanceof tp.ConstantZPolygonToolpath)
                 throw 'oops';
             return fromClipper(polygon, this.clipperScale, reorder, areaPositive);
         },
@@ -457,7 +352,7 @@ define(['cnc/bezier', 'clipper', 'libs/simplify', 'cnc/util', 'libs/extractedRap
         },
 
         peckDrill: function (x, y, z, topZ, steps) {
-            var polyline = new GeneralPolylineToolpath();
+            var polyline = new tp.GeneralPolylineToolpath();
             for (var i = 1; i <= steps; i++) {
                 polyline.pushPoint(x, y, topZ);
                 polyline.pushPoint(x, y, topZ - (topZ - z) * i / steps);
@@ -565,15 +460,12 @@ define(['cnc/bezier', 'clipper', 'libs/simplify', 'cnc/util', 'libs/extractedRap
         geom: geom,
         pushOnPath: pushOnPath,
         Machine: Machine,
-        ConstantZPolygonToolpath: ConstantZPolygonToolpath,
-        GeneralPolylineToolpath: GeneralPolylineToolpath,
         decomposePolytreeInTopLevelPolygons: decomposePolytreeInTopLevelPolygons,
         polyOp: polyOp,
         simplifyPolygons: simplifyPolygons,
         pathDefToPolygons: pathDefToPolygons,
         pathDefToClipper: pathDefToClipper,
         dumpGCode: dumpGCode,
-        simplifyScaleAndCreatePathDef: simplifyScaleAndCreatePathDef,
-        decodeToolPath: decodeToolPath
+        simplifyScaleAndCreatePathDef: simplifyScaleAndCreatePathDef
     };
 });
