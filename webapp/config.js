@@ -2,7 +2,7 @@ requirejs.config({
     paths: {
         text: 'libs/require_text',
         Ember: "libs/ember-1.5.0-beta5.pre7",
-        EmberData: "libs/ember-data-1.0.0-beta7",
+        EmberData: "libs/ember-data-1.0.0-beta10",
         Handlebars: "libs/handlebars-v1.3.0",
         jQuery: "libs/jquery-1.11.1.min",
         THREE: 'libs/threejs/Three.min',
