@@ -1,7 +1,7 @@
 "use strict";
 require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/twoDView', 'cnc/cam', 'cnc/util', 'cnc/ui/gcodeEditor',
-        'cnc/ui/jsEditor', 'cnc/gcode/gcodeSimulation', 'cnc/gcode/simulation', 'libs/svg-import', 'templates'],
-    function (Ember, RSVP, threeD, TwoDView, cam, util, gcodeEditor, jsEditor, gcodeSimulation, simulation) {
+        'cnc/ui/jsEditor', 'cnc/gcode/gcodeSimulation', 'cnc/gcode/simulation', 'cnc/toolpath', 'libs/svg-import', 'templates'],
+    function (Ember, RSVP, threeD, TwoDView, cam, util, gcodeEditor, jsEditor, gcodeSimulation, simulation, tp) {
         var demoCode = 'G0 X0 Y10 Z-5\n' +
             'G1 Z-10\n' +
             'G1 Y20\n' +
@@ -270,7 +270,7 @@ require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/twoDView', 'cnc/cam', 'cn
                                         var machine = new cam.Machine(null);
                                         var operationsData = event.data.result.operations;
                                         for (var i = 0; i < operationsData.length; ++i)
-                                            machine.operations.push(cam.decodeToolPath(operationsData[i]));
+                                            machine.operations.push(tp.decodeToolPath(operationsData[i]));
                                         var outlines = event.data.result.outlines;
                                         for (i = 0; i < outlines.length; i++)
                                             this.get('decorations').pushObject(outlines[i]);
