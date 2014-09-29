@@ -178,6 +178,8 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
         this.normalMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFFFFFF});
         this.rapidMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFF0000});
         this.outlineMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFFFF00});
+        this.highlightMaterial = new THREE.LineBasicMaterial({depthWrite: false, overdraw: true, linewidth: 6,
+            color: 0xFF00FF, opacity: 0.5, transparent: true});
         //needed because requestAnimationFrame can't pass a "this".
         this.requestAnimationFrameCallback = this.actuallyRender.bind(this);
         $container.prepend(createIcon(this));
@@ -279,8 +281,7 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
             for (var i = 0; i < polyline.length; i++)
                 lineGeometry.vertices.push(new THREE.Vector3(polyline[i].x, polyline[i].y, polyline[i].z));
             lineGeometry.verticesNeedUpdate = true;
-            var material = new THREE.LineBasicMaterial({depthWrite: false, overdraw: true, linewidth: 6, color: 0xFF00FF});
-            this.highlight = new THREE.Line(lineGeometry, material);
+            this.highlight = new THREE.Line(lineGeometry, this.highlightMaterial);
             this.highlight.renderDepth = 1;
             this.overlayScene.add(this.highlight);
             this.reRender();
