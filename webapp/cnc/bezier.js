@@ -26,9 +26,6 @@ define(['cnc/util'], function (util) {
     }
 
     function cubicToPoints(curve, flatness_limit, collector) {
-        function cPoint(x, y) {
-            return new util.Point(x, y);
-        }
 
         recursive_bezier(curve, 0, 1);
         collector(curve[6], curve[7]);
