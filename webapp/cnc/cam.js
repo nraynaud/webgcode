@@ -159,9 +159,9 @@ define(['cnc/bezier', 'clipper', 'cnc/toolpath', 'libs/simplify', 'cnc/util', 'l
         rampToolPath: function (toolpath, startZ, stopZ, turns) {
             var distances = [0];
             var toolpathLength = 0;
-            for (var i = 0; i < toolpath.path.length - 1; i++) {
+            for (var i = 0; i < toolpath.path.length; i++) {
                 var p1 = toolpath.path[i];
-                var p2 = toolpath.path[i + 1];
+                var p2 = toolpath.path[(i + 1) % toolpath.path.length];
                 toolpathLength += new util.Point(p1[0], p1[1]).distance(new util.Point(p2[0], p2[1]));
                 distances.push(toolpathLength);
             }
