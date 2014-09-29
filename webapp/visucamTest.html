@@ -1,0 +1,89 @@
+<!DOCTYPE html >
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+    <title>g-code simulator</title>
+    <script src="libs/require.js"></script>
+    <script src="config.js"></script>
+    <script src="visucam.js"></script>
+    <link rel="shortcut icon" href="images/icon_fraise_48.png"/>
+    <link rel="stylesheet" href="twoDView.css" type="text/css">
+    <link rel="stylesheet" href="threeDView.css" type="text/css">
+    <style>
+
+        body, html {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            background: #000;
+            color: white;
+        }
+
+        body {
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        .operations {
+            position: relative;
+            float: left;
+            width: 39%;
+            height: 400px;
+            padding: 1px;
+            margin: 0;
+        }
+
+        .viewContainer {
+            float: right;
+            width: 60%;
+        }
+
+        #loader {
+            display: inline-block;
+            background-size: 100% 100%;
+            background-image: url(spinner.svg);
+            width: 20px;
+            height: 20px;
+        }
+
+        .boundsTable {
+            border-collapse: collapse;
+        }
+
+        .boundsTable td {
+            border: dashed gray 1px;
+            padding: 3px;
+        }
+
+        .ThreeDView {
+            border: solid gray 1px;
+            background: #000;
+            height: 400px;
+            position: relative;
+        }
+
+        .TwoDView {
+            height: 400px;
+        }
+
+        .operations li {
+            cursor: pointer;
+        }
+
+        .operations li.current {
+            background-color: gray;
+        }
+    </style>
+</head>
+<body>
+</body>
+</html>

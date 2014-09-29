@@ -1,0 +1,9 @@
+<div style="border: solid gray 1px">
+    <label>Name: {{input value=name placeholder="name"}} </label>
+    <br>
+    <label>{{input type="checkbox" checked=inside}} Inside Shape</label>
+    <br>
+    <label title="mm">Tool Diameter: {{view Visucam.NumberView value=toolDiameter min=0}}</label>
+    <br>
+    {{partial specialTemplate}}
+</div>

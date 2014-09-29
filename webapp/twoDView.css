@@ -12,6 +12,11 @@
     align-items: stretch;
 }
 
+.TwoDView {
+    border: solid gray 1px;
+    background: #000;
+}
+
 .TwoDView > svg {
     flex: 1 0 auto;
     -webkit-flex: 1;
@@ -99,9 +104,14 @@
     stroke: red;
 }
 
+.outline {
+    stroke-width: 2px;
+}
+
 :not(.computing).outline {
     fill: none;
-    stroke: gray;
+    stroke: yellow;
+    vector-effect: non-scaling-stroke;
 }
 
 .TwoDView .outline.computing {

@@ -150,6 +150,7 @@
 		DDAA53A6D78134A646F7907F /* ace.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5E26DC7454168D3419DC /* ace.js */; };
 		DDAA53B4FD823BB196128AFB /* mode-toml.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA554BF5B73CFBCF2F7E21 /* mode-toml.js */; };
 		DDAA53E1E1EB277A58EF0080 /* mode-haml.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA567474C25C75CB1DF6C5 /* mode-haml.js */; };
+		DDAA53E27389259D5549D023 /* ember-data-1.0.0-beta10.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA50030E15763AB4E0CC18 /* ember-data-1.0.0-beta10.js */; };
 		DDAA53E34E2E3A05C21230BF /* theme-chrome.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54E082CD42F9317354DA /* theme-chrome.js */; };
 		DDAA53EB6E3F53DD1452FF40 /* contour.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA51DE17B96DCF612B22D5 /* contour.js */; };
 		DDAA53F30F2101B842BB679B /* mode-coldfusion.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5CDF37E9EE57B6093FF2 /* mode-coldfusion.js */; };
@@ -190,6 +191,7 @@
 		DDAA54D76ECEC7A8B4F7AB6B /* twoDView.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5A55C036357C8CD5193C /* twoDView.js */; };
 		DDAA54D89E9E248B236C3E79 /* ext-spellcheck.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5526963C0E04E95BFE1E /* ext-spellcheck.js */; };
 		DDAA54DE0F20CCE148C6E657 /* mode-html_ruby.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA51CFE282C3F1F99DC15A /* mode-html_ruby.js */; };
+		DDAA54E767541E95F295BCFE /* toolpath.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5DD5FC4B6328FC8A2106 /* toolpath.js */; };
 		DDAA54F6E0E3E391A282D127 /* theme-mono_industrial.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54FA588E5018E48E44B2 /* theme-mono_industrial.js */; };
 		DDAA55045FDEEBB380BB06CD /* theme-ambiance.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5D30B597998BDF0DB885 /* theme-ambiance.js */; };
 		DDAA5506300929D1EC7EE958 /* mode-cobol.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5CAC3C32480CB09CFBE4 /* mode-cobol.js */; };
@@ -259,7 +261,6 @@
 		DDAA5708EBAE819B89CD140D /* mode-c9search.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54278892E60060313E61 /* mode-c9search.js */; };
 		DDAA570A5795AAB5EEF1F593 /* mode-cobol.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5E59647984760A58E7C5 /* mode-cobol.js */; };
 		DDAA5710C0BF2344DE75A8FE /* mode-tex.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5F4B985EE831E0754EC0 /* mode-tex.js */; };
-		DDAA5714D0310E3A9E83D8CB /* ember-data-1.0.0-beta7.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5E875A1D96DAD1D0BA8F /* ember-data-1.0.0-beta7.js */; };
 		DDAA572636577D356E9FB42C /* mode-r.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5179BBB3FC8FBC4B6EAF /* mode-r.js */; };
 		DDAA572B98958C0644F7608D /* mode-vbscript.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5326176E1BD6A939649C /* mode-vbscript.js */; };
 		DDAA572BA7617C54EEA6AA7D /* usbdesc.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53AA7C3A8E851F307E47 /* usbdesc.c */; };
@@ -327,7 +328,6 @@
 		DDAA58A2B86A8ED7B79AAA0B /* mode-html.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54832E9B3E6F6A79F1D6 /* mode-html.js */; };
 		DDAA58A391BB48477CD7B7A3 /* TrackballControls.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C354F7059D05E9E2168 /* TrackballControls.js */; };
 		DDAA58A64DD6FF6C3D86B618 /* mode-abap.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C59F7AC68683BDD9BCD /* mode-abap.js */; };
-		DDAA58B0981B9B04E2B21D8F /* ember-data-1.0.0-beta7.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5E3EBB58941452E7B718 /* ember-data-1.0.0-beta7.js */; };
 		DDAA58BD6FF52244D374C479 /* mode-textile.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA555DE84E0A2564A58F96 /* mode-textile.js */; };
 		DDAA58C1711F581739D88604 /* mode-haskell.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5B6685C3C891643BBEEC /* mode-haskell.js */; };
 		DDAA58CB33093F03EAB94FB1 /* worker-coffee.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA51AF0FDDEC17981FD72B /* worker-coffee.js */; };
@@ -344,7 +344,6 @@
 		DDAA59342B2B5F1F3DC7D248 /* mode-luapage.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA593B31D0344C5D100346 /* mode-luapage.js */; };
 		DDAA5935ECFFE428D10544B4 /* theme-tomorrow_night_bright.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5B2C433D5DA41CDE7F6E /* theme-tomorrow_night_bright.js */; };
 		DDAA593A2D242BC3356BB856 /* theme-dreamweaver.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA50759D1C63D4614A946E /* theme-dreamweaver.js */; };
-		DDAA5948BEC9BA144A155C3E /* ember-data-1.0.0-beta7.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5A44472B927702931CDD /* ember-data-1.0.0-beta7.js */; };
 		DDAA5949946BDADD6DC40B79 /* mode-prolog.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5FD20284B63520148207 /* mode-prolog.js */; };
 		DDAA596CB7F373AFB00BB99F /* mode-rhtml.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5CCEC009EB95D808254A /* mode-rhtml.js */; };
 		DDAA5971038E68A0283971DB /* mode-sass.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5695249083A42E678208 /* mode-sass.js */; };
@@ -622,6 +621,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		DDAA50030E15763AB4E0CC18 /* ember-data-1.0.0-beta10.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ember-data-1.0.0-beta10.js"; sourceTree = "<group>"; };
 		DDAA50064A04CB76EF8F7AB3 /* mode-tmsnippet.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-tmsnippet.js"; sourceTree = "<group>"; };
 		DDAA50139A1CA71689A75AE6 /* mode-mushcode_high_rules.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-mushcode_high_rules.js"; sourceTree = "<group>"; };
 		DDAA50185E30B185EDE831CB /* mode-pgsql.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-pgsql.js"; sourceTree = "<group>"; };
@@ -670,6 +670,7 @@
 		DDAA515742698BE220E005E7 /* mode-ftl.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-ftl.js"; sourceTree = "<group>"; };
 		DDAA515819C1B80F1756F177 /* ember-1.5.0-beta5.pre7.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ember-1.5.0-beta5.pre7.js"; sourceTree = "<group>"; };
 		DDAA5160DEE7AB35AC21B4E7 /* ext-spellcheck.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-spellcheck.js"; sourceTree = "<group>"; };
+		DDAA516825B68A6E2F8C8BF2 /* rampingContour.handlebars */ = {isa = PBXFileReference; lastKnownFileType = file.handlebars; path = rampingContour.handlebars; sourceTree = "<group>"; };
 		DDAA516888443CF5EB03A6B1 /* mode-objectivec.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-objectivec.js"; sourceTree = "<group>"; };
 		DDAA516EAF5B21013A1D211D /* worker-coffee.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "worker-coffee.js"; sourceTree = "<group>"; };
 		DDAA517637B78668E611381C /* mode-powershell.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-powershell.js"; sourceTree = "<group>"; };
@@ -725,7 +726,6 @@
 		DDAA52AC511B68FA1D1EEB38 /* mode-rust.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-rust.js"; sourceTree = "<group>"; };
 		DDAA52AFFAE054B9E7D1FA72 /* cnc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cnc.h; sourceTree = "<group>"; };
 		DDAA52B1A4915275E73497A2 /* box2.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = box2.js; sourceTree = "<group>"; };
-		DDAA52C2B9404C75FFDEBFC4 /* operation.handlebars */ = {isa = PBXFileReference; lastKnownFileType = file.handlebars; path = operation.handlebars; sourceTree = "<group>"; };
 		DDAA52CA23E7C9E2511B674A /* worker-xquery.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "worker-xquery.js"; sourceTree = "<group>"; };
 		DDAA52CAC3926B8B4F4B829A /* threeDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = threeDView.js; path = ui/threeDView.js; sourceTree = "<group>"; };
 		DDAA52D4BD9F4D4843B488A2 /* mode-curly.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-curly.js"; sourceTree = "<group>"; };
@@ -1000,6 +1000,7 @@
 		DDAA59726FEC6E4C481ACFBF /* TrackballControls.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = TrackballControls.js; sourceTree = "<group>"; };
 		DDAA59813D34F81F7A58D0CF /* mode-latex.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-latex.js"; sourceTree = "<group>"; };
 		DDAA59844EA6AF2BC3FBC019 /* mode-luapage.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-luapage.js"; sourceTree = "<group>"; };
+		DDAA59854CED3DBBCA224A7B /* simpleContour.handlebars */ = {isa = PBXFileReference; lastKnownFileType = file.handlebars; path = simpleContour.handlebars; sourceTree = "<group>"; };
 		DDAA598FCD563229B3C9C177 /* mode-svg.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-svg.js"; sourceTree = "<group>"; };
 		DDAA599570A30F04E306C141 /* mode-luapage.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-luapage.js"; sourceTree = "<group>"; };
 		DDAA59A79C5E6CC7D5B880C2 /* mode-python.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-python.js"; sourceTree = "<group>"; };
@@ -1026,7 +1027,6 @@
 		DDAA5A30D2D2797B48690977 /* theme-mono_industrial.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-mono_industrial.js"; sourceTree = "<group>"; };
 		DDAA5A399CE1A7EBEC3B6D80 /* mode-vbscript.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-vbscript.js"; sourceTree = "<group>"; };
 		DDAA5A4300864DA095799734 /* visucamApp.handlebars */ = {isa = PBXFileReference; lastKnownFileType = file.handelbars; path = visucamApp.handlebars; sourceTree = "<group>"; };
-		DDAA5A44472B927702931CDD /* ember-data-1.0.0-beta7.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ember-data-1.0.0-beta7.js"; sourceTree = "<group>"; };
 		DDAA5A47A7F070BF331595D4 /* mode-jsx.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-jsx.js"; sourceTree = "<group>"; };
 		DDAA5A4AEE4A521F092724BE /* mode-haxe.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-haxe.js"; sourceTree = "<group>"; };
 		DDAA5A4B426FA2031B60ED96 /* ext-statusbar.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-statusbar.js"; sourceTree = "<group>"; };
@@ -1162,6 +1162,7 @@
 		DDAA5D675D414DC8548C15CF /* mode-abap.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-abap.js"; sourceTree = "<group>"; };
 		DDAA5D6B5EC182FF80C1FC87 /* mode-sql.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-sql.js"; sourceTree = "<group>"; };
 		DDAA5D70704E7B9083EF5615 /* svg.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svg.js; sourceTree = "<group>"; };
+		DDAA5D77A5D9B547BFD9190D /* operation.handlebars */ = {isa = PBXFileReference; lastKnownFileType = file.handebars; path = operation.handlebars; sourceTree = "<group>"; };
 		DDAA5D857D89E03A3279BD61 /* rsvp-latest.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "rsvp-latest.js"; sourceTree = "<group>"; };
 		DDAA5D89E024F5DD84D31467 /* ext-elastic_tabstops_lite.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-elastic_tabstops_lite.js"; sourceTree = "<group>"; };
 		DDAA5D91FE3FE4888D787189 /* mode-pascal.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-pascal.js"; sourceTree = "<group>"; };
@@ -1174,6 +1175,7 @@
 		DDAA5DADF1563A99CFD20E6D /* geometry.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = geometry.js; sourceTree = "<group>"; };
 		DDAA5DB4C2B6A132C9DA3C6B /* theme-pastel_on_dark.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-pastel_on_dark.js"; sourceTree = "<group>"; };
 		DDAA5DBED23BB93B2FA59786 /* util.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = util.js; sourceTree = "<group>"; };
+		DDAA5DD5FC4B6328FC8A2106 /* toolpath.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = toolpath.js; sourceTree = "<group>"; };
 		DDAA5DDCA36F2B4B6F78C981 /* mode-julia.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-julia.js"; sourceTree = "<group>"; };
 		DDAA5DEBD0518CF40BB50793 /* ext-searchbox.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-searchbox.js"; sourceTree = "<group>"; };
 		DDAA5E003714C64A203CE491 /* worker-lua.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "worker-lua.js"; sourceTree = "<group>"; };
@@ -1191,7 +1193,6 @@
 		DDAA5E29E75E8B35DC648443 /* mode-text.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-text.js"; sourceTree = "<group>"; };
 		DDAA5E3A977BABE01A9F3E78 /* CNCMachine.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = CNCMachine.js; sourceTree = "<group>"; };
 		DDAA5E3CEE3DCCFF62C1A978 /* mode-svg.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-svg.js"; sourceTree = "<group>"; };
-		DDAA5E3EBB58941452E7B718 /* ember-data-1.0.0-beta7.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ember-data-1.0.0-beta7.js"; sourceTree = "<group>"; };
 		DDAA5E46A861D0F402E8955C /* clipper_unminified.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = clipper_unminified.js; path = webapp/libs/clipper_unminified.js; sourceTree = "<group>"; };
 		DDAA5E4E5A44413C0E0942C6 /* test_pycam.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngc; name = test_pycam.ngc; path = webapp/samples/test_pycam.ngc; sourceTree = "<group>"; };
 		DDAA5E524DC565DA731F8C82 /* mode-mushcode.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-mushcode.js"; sourceTree = "<group>"; };
@@ -1211,7 +1212,6 @@
 		DDAA5E70E8831DB5DCBDC7AD /* mode-velocity.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-velocity.js"; sourceTree = "<group>"; };
 		DDAA5E77AD3A6A7DA2EB1C92 /* mode-tex.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-tex.js"; sourceTree = "<group>"; };
 		DDAA5E7E53A41AA2C6CE2738 /* mode-coldfusion.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-coldfusion.js"; sourceTree = "<group>"; };
-		DDAA5E875A1D96DAD1D0BA8F /* ember-data-1.0.0-beta7.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = "ember-data-1.0.0-beta7.js"; path = "webapp/libs/ember-data-1.0.0-beta7.js"; sourceTree = "<group>"; };
 		DDAA5E8B52A7177858500318 /* rbrush.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = rbrush.js; sourceTree = "<group>"; };
 		DDAA5E95C138F6447F7759C8 /* theme-vibrant_ink.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-vibrant_ink.js"; sourceTree = "<group>"; };
 		DDAA5E9874E6DFABA4E02B42 /* mode-tcl.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-tcl.js"; sourceTree = "<group>"; };
@@ -1312,7 +1312,6 @@
 				DDAA5C354F7059D05E9E2168 /* TrackballControls.js */,
 				DDAA5BCFA983556B8FE3BB11 /* clipper_unminified.js */,
 				DDAA5C4D298ECCA00A214D21 /* jquery.flot.resize.js */,
-				DDAA5A44472B927702931CDD /* ember-data-1.0.0-beta7.js */,
 				DDAA5D857D89E03A3279BD61 /* rsvp-latest.js */,
 				DDAA534B19EA1BB5E708603D /* require.js */,
 				DDAA5931F75C90FB9844814F /* handlebars-v1.3.0.js */,
@@ -1326,6 +1325,7 @@
 				DDAA55E38BB751C0CF4446E0 /* svg-parser.js */,
 				DDAA5F6A0190C351846B5102 /* jquery-1.11.1.min.map */,
 				DDAA5A9ECDFA8FDE9B474977 /* jquery-1.11.1.min.js */,
+				DDAA50030E15763AB4E0CC18 /* ember-data-1.0.0-beta10.js */,
 			);
 			name = libs;
 			path = webapp/libs;
@@ -1370,7 +1370,6 @@
 				DDAA5CB3C88DA72D514DE05A /* jquery.mousewheel.js */,
 				DDAA5F18D55500096C6B18DF /* clipper_unminified.js */,
 				DDAA59321B9A5D86851D999C /* jquery.flot.resize.js */,
-				DDAA5E3EBB58941452E7B718 /* ember-data-1.0.0-beta7.js */,
 			);
 			path = libs;
 			sourceTree = "<group>";
@@ -1405,7 +1404,9 @@
 				DDAA571C07D4352852D807BF /* controllerPanel.handlebars */,
 				DDAA5583FA74E90180E93A59 /* jobView.handlebars */,
 				DDAA5A4300864DA095799734 /* visucamApp.handlebars */,
-				DDAA52C2B9404C75FFDEBFC4 /* operation.handlebars */,
+				DDAA5D77A5D9B547BFD9190D /* operation.handlebars */,
+				DDAA59854CED3DBBCA224A7B /* simpleContour.handlebars */,
+				DDAA516825B68A6E2F8C8BF2 /* rampingContour.handlebars */,
 			);
 			path = templates;
 			sourceTree = "<group>";
@@ -1609,6 +1610,7 @@
 				DDAA513A9EE7AC2438C9E111 /* runner.js */,
 				DDAA5C74CF7DB45DBB47525E /* controller */,
 				DDAA5957E406CDDA9E6840E6 /* svg.marker.js */,
+				DDAA5DD5FC4B6328FC8A2106 /* toolpath.js */,
 			);
 			path = cnc;
 			sourceTree = "<group>";
@@ -2117,7 +2119,6 @@
 				DDAA5E46A861D0F402E8955C /* clipper_unminified.js */,
 				DDAA53BC2DF0C9B74F250819 /* csg.js */,
 				DDAA5852C21094C5D9ACA26E /* ember-1.5.0-beta5.pre7.js */,
-				DDAA5E875A1D96DAD1D0BA8F /* ember-data-1.0.0-beta7.js */,
 				DDAA501CEE6DBFCDD3C7BAC3 /* extractedRaphael.js */,
 				DDAA53EF634CF4C869C702DE /* jquery.flot.min.js */,
 				DDAA56622298ADD318B81F55 /* jquery.flot.resize.js */,
@@ -2402,7 +2403,6 @@
 				DDAA58A391BB48477CD7B7A3 /* TrackballControls.js in Sources */,
 				DDAA516260FEDD276DB0138F /* clipper_unminified.js in Sources */,
 				DDAA56034075BCE5D09B5609 /* jquery.flot.resize.js in Sources */,
-				DDAA5948BEC9BA144A155C3E /* ember-data-1.0.0-beta7.js in Sources */,
 				DDAA53A6D78134A646F7907F /* ace.js in Sources */,
 				DDAA5304131F91111894625D /* mode-d.js in Sources */,
 				DDAA572636577D356E9FB42C /* mode-r.js in Sources */,
@@ -2556,7 +2556,6 @@
 				DDAA5A577B1DFF58BFB3C509 /* clipper_unminified.js in Sources */,
 				DDAA533F10E117132B34362A /* csg.js in Sources */,
 				DDAA579A5961C510A476E6CF /* ember-1.5.0-beta5.pre7.js in Sources */,
-				DDAA5714D0310E3A9E83D8CB /* ember-data-1.0.0-beta7.js in Sources */,
 				DDAA599AF910894D966AD93E /* extractedRaphael.js in Sources */,
 				DDAA5093E9EF92004BEF6E8A /* jquery.flot.min.js in Sources */,
 				DDAA52646AD1BB80C7BC5679 /* jquery.flot.resize.js in Sources */,
@@ -2743,7 +2742,6 @@
 				DDAA5C6F60DBCF1E706AA640 /* jquery.mousewheel.js in Sources */,
 				DDAA5FA1F86C02F8E4C735B8 /* clipper_unminified.js in Sources */,
 				DDAA546BE47BDDF1E14097F1 /* jquery.flot.resize.js in Sources */,
-				DDAA58B0981B9B04E2B21D8F /* ember-data-1.0.0-beta7.js in Sources */,
 				DDAA5EE058BB441CC4362AC1 /* runner.js in Sources */,
 				DDAA513C5E9C37176C306B4B /* worker.js in Sources */,
 				DDAA52D5F1369521819B4C9E /* background.js in Sources */,
@@ -2817,6 +2815,8 @@
 				DDAA5647D1988D2672299EA5 /* js_sandbox.js in Sources */,
 				DDAA54A183E699E9FC378EA6 /* visucam.js in Sources */,
 				DDAA5D6EE86074E5A8E3E0AF /* svg.marker.js in Sources */,
+				DDAA53E27389259D5549D023 /* ember-data-1.0.0-beta10.js in Sources */,
+				DDAA54E767541E95F295BCFE /* toolpath.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

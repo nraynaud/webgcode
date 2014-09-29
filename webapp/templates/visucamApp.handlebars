@@ -1,0 +1,14 @@
+<div class="operations">
+    <ul>
+        {{#each operations itemController="operationListItem"}}
+            <li {{bind-attr class="isCurrent:current"}}>{{#link-to "operation" this}}{{name}}{{/link-to}}</li>
+        {{else}}
+            No operation yet.
+        {{/each}}
+    </ul>
+    {{outlet}}
+</div>
+<div class="viewContainer">
+    {{view Visucam.TreeDView}}
+    {{view Visucam.TwoDView}}
+</div>
