@@ -234,11 +234,17 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
             return this.toolpath;
         },
         clearView: function () {
+            this.clearToolpath();
+            this.clearOutlines();
+        },
+        clearToolpath: function () {
             this.rapidMoves = null;
             this.normalMoves = null;
-            this.outlineDisplay = null;
             while (this.toolpath.children.length)
                 this.toolpath.remove(this.toolpath.children[0]);
+        },
+        clearOutlines: function () {
+            this.outlineDisplay = null;
             while (this.outline.children.length)
                 this.outline.remove(this.outline.children[0]);
         },
