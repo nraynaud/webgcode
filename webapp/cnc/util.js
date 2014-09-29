@@ -27,26 +27,22 @@ define(function () {
             return new Point(this.x + (p.x - this.x) * alpha, this.y + (p.y - this.y) * alpha);
         }
     };
-    Object.defineProperty(Point.prototype, 'X', {
-        enumerable: false,
-        configurable: false,
-        get: function () {
-            return this.x;
-        },
-        set: function (newValue) {
-            this.x = newValue;
-        }
-    });
-    Object.defineProperty(Point.prototype, 'Y', {
-        enumerable: false,
-        configurable: false,
-        get: function () {
-            return this.y;
-        },
-        set: function (newValue) {
-            this.y = newValue;
-        }
-    });
+    [
+        ['X', 'x'],
+        ['Y', 'y'],
+        ['0', 'x'],
+        ['1', 'y']
+    ].forEach(function (mapping) {
+            Object.defineProperty(Point.prototype, mapping[0], {
+                get: function () {
+                    return this[mapping[1]];
+                },
+                set: function (newValue) {
+                    this[mapping[1]] = newValue;
+                }
+            });
+        });
+
     function toggleClass(svgElement, className, toggle) {
         var classAttr = svgElement.attr('class');
         if (classAttr == null)
