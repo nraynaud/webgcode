@@ -6,7 +6,7 @@ define(function () {
     }
 
     Point.prototype = {
-        get svgp() {
+        getSvgp: function () {
             return this.x + ', ' + this.y;
         },
         sub: function (p) {
@@ -27,6 +27,26 @@ define(function () {
             return new Point(this.x + (p.x - this.x) * alpha, this.y + (p.y - this.y) * alpha);
         }
     };
+    Object.defineProperty(Point.prototype, 'X', {
+        enumerable: false,
+        configurable: false,
+        get: function () {
+            return this.x;
+        },
+        set: function (newValue) {
+            this.x = newValue;
+        }
+    });
+    Object.defineProperty(Point.prototype, 'Y', {
+        enumerable: false,
+        configurable: false,
+        get: function () {
+            return this.y;
+        },
+        set: function (newValue) {
+            this.y = newValue;
+        }
+    });
     function toggleClass(svgElement, className, toggle) {
         var classAttr = svgElement.attr('class');
         if (classAttr == null)

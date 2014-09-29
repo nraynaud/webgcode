@@ -1,5 +1,5 @@
 "use strict";
-define(function () {
+define(['cnc/util'], function (util) {
 
     function subdivide(a, t) {
 
@@ -27,11 +27,11 @@ define(function () {
 
     function cubicToPoints(curve, flatness_limit, collector) {
         function cPoint(x, y) {
-            return {X: x, Y: y};
+            return new util.Point(x, y);
         }
 
         recursive_bezier(curve, 0, 1);
-        collector(cPoint(curve[6], curve[7]));
+        collector(curve[6], curve[7]);
         function recursive_bezier(curve, tstart, tend) {
             // http://hcklbrrfnn.files.wordpress.com/2012/08/bez.pdf
             // http://jeremykun.com/2013/05/11/bezier-curves-and-picasso/ (with a bug in the flatness computation)
@@ -49,7 +49,7 @@ define(function () {
             }
 
             if (isFlat(curve)) {
-                collector(cPoint(curve[0], curve[1]));
+                collector(curve[0], curve[1]);
                 return;
             }
 
@@ -74,13 +74,13 @@ define(function () {
     function pathToPolygons(parsedCurvedPath, matrix, flatness) {
 
         function noDuplicatePointCollector(collectionArray) {
-            return function (point) {
+            return function (x, y) {
                 if (collectionArray.length) {
                     var previousPoint = collectionArray[collectionArray.length - 1];
-                    if (previousPoint.X == point.X && previousPoint.Y == point.Y)
+                    if (previousPoint.X == x && previousPoint.Y == y)
                         return;
                 }
-                collectionArray.push(point);
+                collectionArray.push(new util.Point(x, y));
             }
         }
 
@@ -102,14 +102,14 @@ define(function () {
             if (currentSegment[0] == "M") {
                 flushPoly();
                 currentPos = matrixTransformSVG(currentSegment.slice(1, 3), matrix);
-                collector({X: currentPos[0], Y: currentPos[1]});
+                collector(currentPos[0], currentPos[1]);
             } else if (currentSegment[0] == "C") {
                 var curve = currentPos.concat(matrixTransformSVG(currentSegment.slice(1, 7), matrix));
                 cubicToPoints(curve, flatness, collector);
                 currentPos = curve.slice(6, 8);
             } else if (currentSegment[0] == "L") {
                 currentPos = matrixTransformSVG(currentSegment.slice(1, 3), matrix);
-                collector({X: currentPos[0], Y: currentPos[1]});
+                collector(currentPos[0], currentPos[1]);
             }
         }
         flushPoly();
