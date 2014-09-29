@@ -24,10 +24,10 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
             computeToolpath: function () {
                 var machine = new cam.Machine(null);
                 machine.setParams(this.get('contourZ'), 10, 100);
-                var toolpath = machine.fromClipper(machine.contourClipper(
-                    cam.pathDefToClipper(this.get('outline.definition')), parseFloat(this.get('toolDiameter')) / 2, this.get('inside')))[0];
-                this.set('toolpath', toolpath);
-            }.observes('contourZ', 'toolDiameter', 'inside')
+                var polygon = cam.pathDefToClipper(this.get('outline.definition'));
+                var polygon1 = machine.contourClipper(polygon, parseFloat(this.get('toolDiameter')) / 2, this.get('inside'));
+                this.set('toolpath', machine.fromClipper(polygon1)[0]);
+            }.observes('outline', 'contourZ', 'toolDiameter', 'inside')
         });
         Visucam.RampingContourOperation = Visucam.Operation.extend({
             init: function () {
@@ -44,7 +44,7 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 var toolpath = machine.rampToolPathArray(
                     machine.fromClipper(contour), parseFloat(this.get('startZ')), parseFloat(this.get('stopZ')), parseFloat(this.get('turns')))[0];
                 this.set('toolpath', toolpath);
-            }.observes('startZ', 'stopZ', 'turns', 'toolDiameter', 'inside')
+            }.observes('outline', 'startZ', 'stopZ', 'turns', 'toolDiameter', 'inside')
         });
 
         Visucam.Document = Ember.Object.extend({
@@ -128,6 +128,7 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 this.set('nativeComponent', view);
                 this.set('documentDisplay', view.get('paper').group());
                 this.set('currentOperationDisplay', view.get('paper').group());
+                this.set('highlight', view.get('overlay').group().attr('class', 'highlight'));
                 this.synchronizeCurrentOperation();
                 this.synchronizeDocument();
             },
@@ -139,6 +140,9 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 currentOperationDisplay.clear();
                 currentOperationDisplay.path(operation.get('toolpath').asPathDef())
                     .attr('class', 'toolpath normalMove');
+                var highlight = this.get('highlight');
+                highlight.clear();
+                highlight.path(operation.get('outline.definition'));
             }.observes('controller.currentOperation', 'controller.currentOperation.toolpath'),
             synchronizeDocument: function () {
                 var shapes = this.get('controller.shapes');
@@ -169,6 +173,7 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                     }, operation.get('contourZ'));
                     var vertices = new Float32Array(res);
                     threeDView.addToolpathFragment(threeDView.toolpath, {vertices: vertices.buffer, speedTag: 'normal'});
+                    threeDView.displayHighlight(cam.pathDefToPolygons(operation.get('outline.definition'))[0]);
                 }
                 threeDView.reRender();
             }.observes('controller.currentOperation', 'controller.currentOperation.toolpath'),
