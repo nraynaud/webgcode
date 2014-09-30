@@ -91,10 +91,9 @@ require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/twoDView', 'cnc/cam', 'cn
             }.observes('controller.computing'),
             highlightChanged: function () {
                 var highlight = this.get('controller.currentHighLight');
+                this.get('nativeComponent').hideHighlight();
                 if (highlight)
                     this.get('nativeComponent').displayHighlight(highlight);
-                else
-                    this.get('nativeComponent').hideHighlight();
             }.observes('controller.currentHighLight'),
             toolMoved: function () {
                 var position = this.get('controller.toolPosition');
