@@ -1,5 +1,16 @@
 <div class="operations">
-    <label>security Z: {{view Visucam.NumberView value=securityZ}}</label>
+    <table>
+        <tbody>
+        <tr>
+            <th>Safety Z:</th>
+            <td>{{view Visucam.NumberView value=safetyZ}}</td>
+        </tr>
+        <tr>
+            <th>Tool Diameter:</th>
+            <td>{{view Visucam.NumberView value=toolDiameter min=0}}</td>
+        </tr>
+        </tbody>
+    </table>
     <ul>
         {{#each operations itemController="operationListItem"}}
             <li {{bind-attr class="isCurrent:current"}}>{{#link-to "operation" this}}{{name}}{{/link-to}}</li>
