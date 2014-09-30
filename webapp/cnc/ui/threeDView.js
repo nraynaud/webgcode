@@ -175,6 +175,8 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
         this.drawing.add(this.toolpath);
         this.outline = new THREE.Object3D();
         this.drawing.add(this.outline);
+        this.highlight = new THREE.Object3D();
+        this.overlayScene.add(this.highlight);
         this.normalMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFFFFFF});
         this.rapidMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFF0000});
         this.outlineMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFFFF00});
@@ -276,22 +278,16 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
             this.reRender();
         },
         displayHighlight: function (polyline) {
-            this.hideHighlight();
             var lineGeometry = new THREE.Geometry();
             for (var i = 0; i < polyline.length; i++)
                 lineGeometry.vertices.push(new THREE.Vector3(polyline[i].x, polyline[i].y, polyline[i].z));
-            lineGeometry.verticesNeedUpdate = true;
-            this.highlight = new THREE.Line(lineGeometry, this.highlightMaterial);
-            this.highlight.renderDepth = 1;
-            this.overlayScene.add(this.highlight);
+            this.highlight.add(new THREE.Line(lineGeometry, this.highlightMaterial));
             this.reRender();
         },
         hideHighlight: function () {
-            if (this.highlight) {
-                this.overlayScene.remove(this.highlight);
-                this.highlight = null;
-                this.reRender();
-            }
+            while (this.highlight.children.length)
+                this.highlight.remove(this.highlight.children[0]);
+            this.reRender();
         },
         setToolVisibility: function (visible) {
             this.tool.traverse(function (child) {

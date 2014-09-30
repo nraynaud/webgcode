@@ -176,10 +176,9 @@ require(['Ember', 'cnc/ui/threeDView', 'cnc/ui/twoDView', 'cnc/cam', 'cnc/util',
                 }.observes('controller.computing'),
                 highlightChanged: function () {
                     var highlight = this.get('controller.currentHighLight');
+                    this.get('nativeComponent').hideHighlight();
                     if (highlight)
                         this.get('nativeComponent').displayHighlight(highlight);
-                    else
-                        this.get('nativeComponent').hideHighlight();
                 }.observes('controller.currentHighLight')
             });
             Simulator.TwoDView = Ember.View.extend({

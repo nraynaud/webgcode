@@ -269,7 +269,7 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                         var vertices = new Float32Array(res);
                         threeDView.addToolpathFragment(threeDView.toolpath, {vertices: vertices.buffer, speedTag: 'normal'});
                     });
-
+                    threeDView.hideHighlight();
                     cam.pathDefToPolygons(operation.get('outline.definition')).forEach(function (poly) {
                         threeDView.displayHighlight(poly);
                     });
