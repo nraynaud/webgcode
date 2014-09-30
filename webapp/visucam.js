@@ -8,6 +8,7 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
         Visucam.Shape = Ember.Object.extend({
             definition: null
         });
+
         /**
          * Here is the deal: the Operation grabs the tool at startPoint for X and Y and on the safety plane,
          * at zero speed, zero inertia.
@@ -23,11 +24,12 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
             inside: null,
             toolpath: null,
             startPoint: function () {
-                var pt = this.get('toolpath').getStartPoint();
+                var pt = this.get('toolpath')[0].getStartPoint();
                 return new util.Point(pt.x, pt.y);
             }.property('toolpath'),
             endPoint: function () {
-                return this.get('toolpath').getStopPoint();
+                var toolpath = this.get('toolpath');
+                return toolpath[toolpath.length - 1].getStopPoint();
             }.property('toolpath')
         });
         Visucam.SimpleContourOperation = Visucam.Operation.extend({
@@ -41,9 +43,14 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 machine.setParams(this.get('contourZ'), 10, 100);
                 var polygon = cam.pathDefToClipper(this.get('outline.definition'));
                 var polygon1 = machine.contourClipper(polygon, parseFloat(this.get('job.toolDiameter')) / 2, this.get('inside'));
-                var toolpath = machine.fromClipper(polygon1)[0].asGeneralToolpath(this.get('contourZ'));
-                var startPoint = toolpath.getStartPoint();
-                toolpath.pushPointInFront(startPoint.x, startPoint.y, this.get('job.safetyZ'));
+                var contourZ = this.get('contourZ');
+                var toolpath = machine.fromClipper(polygon1).map(function (path) {
+                    var startPoint = path.getStartPoint();
+                    path.pushPoint(startPoint.x, startPoint.y, startPoint.z);
+                    return path.asGeneralToolpath(contourZ);
+                });
+                var startPoint = toolpath[0].getStartPoint();
+                toolpath[0].pushPointInFront(startPoint.x, startPoint.y, this.get('job.safetyZ'));
                 this.set('toolpath', toolpath);
             }.observes('outline', 'contourZ', 'job.toolDiameter', 'inside', 'job.safetyZ')
         });
@@ -58,11 +65,16 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
             computeToolpath: function () {
                 var machine = new cam.Machine(null);
                 machine.setParams(this.get('contourZ'), 10, 100);
-                var contour = machine.contourClipper(cam.pathDefToClipper(this.get('outline.definition')), parseFloat(this.get('job.toolDiameter')) / 2, this.get('inside'));
-                var toolpath = machine.rampToolPathArray(
-                    machine.fromClipper(contour), parseFloat(this.get('startZ')), parseFloat(this.get('stopZ')), parseFloat(this.get('turns')))[0];
-                var startPoint = toolpath.getStartPoint();
-                toolpath.pushPointInFront(startPoint.x, startPoint.y, this.get('job.safetyZ'));
+                var clipperPolygon = cam.pathDefToClipper(this.get('outline.definition'));
+                var contour = machine.contourClipper(clipperPolygon, parseFloat(this.get('job.toolDiameter')) / 2, this.get('inside'));
+                var startZ = parseFloat(this.get('startZ'));
+                var stopZ = parseFloat(this.get('stopZ'));
+                var turns = parseFloat(this.get('turns'));
+
+                var toolpath = machine.rampToolPathArray(machine.fromClipper(contour), startZ, stopZ, turns);
+
+                var startPoint = toolpath[0].getStartPoint();
+                toolpath[0].pushPointInFront(startPoint.x, startPoint.y, this.get('job.safetyZ'));
                 this.set('toolpath', toolpath);
             }.observes('outline', 'startZ', 'stopZ', 'turns', 'job.toolDiameter', 'inside', 'job.safetyZ')
         });
@@ -135,18 +147,24 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
             id: 3,
             definition: 'M50,50L80,50L80,80L50,80 Z'
         });
+        var shape4 = Visucam.Shape.create({
+            id: 3,
+            definition: 'M-10,-10 L-100,-10 L-100,-100 L-10,-100Z M-20,-20 L-20,-80L-80,-80L-80,-20Z '
+        });
         var doc = Visucam.Job.create({
             safetyZ: 10,
             operations: [],
-            shapes: [shape1, shape2, shape3]
+            shapes: [shape1, shape2, shape3, shape4]
         });
         var op1 = doc.createSimpleContour(1, 'Outer Profiling', shape1, false, -10);
         var op2 = doc.createRampingContour(2, 'Inner Profiling 1', shape2, true, 0, -10, 3);
         var op3 = doc.createRampingContour(3, 'Inner Profiling 2', shape3, true, 0, -15, 4);
+        var op4 = doc.createRampingContour(4, 'Outer Profiling 3', shape4, false, 0, -15, 5);
         var operations = {
             1: op1,
             2: op2,
-            3: op3
+            3: op3,
+            4: op4
         };
 
         Visucam.Router.map(function () {
@@ -200,8 +218,10 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                     return;
                 var currentOperationDisplay = this.get('currentOperationDisplay');
                 currentOperationDisplay.clear();
-                currentOperationDisplay.path(operation.get('toolpath').asPathDef())
-                    .attr('class', 'toolpath normalMove');
+                operation.get('toolpath').forEach(function (path) {
+                    currentOperationDisplay.path(path.asPathDef())
+                        .attr('class', 'toolpath normalMove');
+                });
                 var highlight = this.get('highlight');
                 highlight.clear();
                 highlight.path(operation.get('outline.definition'));
@@ -240,21 +260,27 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 threeDView.clearToolpath();
                 var operation = this.get('controller.currentOperation');
                 if (operation) {
-                    var toolpath = operation.get('toolpath');
-                    var res = [];
-                    toolpath.forEachPoint(function (x, y, z, _) {
-                        res.push(x, y, z);
-                    }, operation.get('contourZ'));
-                    var vertices = new Float32Array(res);
-                    threeDView.addToolpathFragment(threeDView.toolpath, {vertices: vertices.buffer, speedTag: 'normal'});
-                    threeDView.displayHighlight(cam.pathDefToPolygons(operation.get('outline.definition'))[0]);
+                    var toolpath2 = operation.get('toolpath');
+                    toolpath2.forEach(function (toolpath) {
+                        var res = [];
+                        toolpath.forEachPoint(function (x, y, z, _) {
+                            res.push(x, y, z);
+                        }, operation.get('contourZ'));
+                        var vertices = new Float32Array(res);
+                        threeDView.addToolpathFragment(threeDView.toolpath, {vertices: vertices.buffer, speedTag: 'normal'});
+                    });
+
+                    cam.pathDefToPolygons(operation.get('outline.definition')).forEach(function (poly) {
+                        threeDView.displayHighlight(poly);
+                    });
+
                     var travelMoves = this.get('controller.transitionTravels');
                     for (var i = 0; i < travelMoves.length; i++) {
-                        res = [];
+                        var res = [];
                         var poly = travelMoves[i].path;
                         for (var j = 0; j < poly.length; j++)
                             res.push(poly[j][0], poly[j][1], poly[j][2]);
-                        vertices = new Float32Array(res);
+                        var vertices = new Float32Array(res);
                         threeDView.addToolpathFragment(threeDView.toolpath, {vertices: vertices.buffer, speedTag: 'rapid'});
                     }
                 }
