@@ -244,13 +244,10 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
         clearToolpath: function () {
             this.rapidMoves = null;
             this.normalMoves = null;
-            while (this.toolpath.children.length)
-                this.toolpath.remove(this.toolpath.children[0]);
+            this.clearNode(this.toolpath);
         },
         clearOutlines: function () {
-            this.outlineDisplay = null;
-            while (this.outline.children.length)
-                this.outline.remove(this.outline.children[0]);
+            this.clearNode(this.outline);
         },
         computeDrawingBBox: function () {
             var bbox = new THREE.Box3();
@@ -284,9 +281,12 @@ define(['THREE', 'TWEEN', 'libs/threejs/OrbitControls', 'libs/threejs/CSS3DRende
             this.highlight.add(new THREE.Line(lineGeometry, this.highlightMaterial));
             this.reRender();
         },
+        clearNode: function (node) {
+            while (node.children.length)
+                node.remove(node.children[0]);
+        },
         hideHighlight: function () {
-            while (this.highlight.children.length)
-                this.highlight.remove(this.highlight.children[0]);
+            this.clearNode(this.highlight);
             this.reRender();
         },
         setToolVisibility: function (visible) {

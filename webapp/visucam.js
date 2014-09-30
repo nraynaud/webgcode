@@ -1,6 +1,7 @@
 "use strict";
-require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeDView', 'cnc/cam.js', 'cnc/util.js', 'cnc/toolpath', 'templates'],
-    function (Ember, DS, views, TwoDView, TreeDView, cam, util, tp, templates) {
+require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeDView', 'cnc/cam.js', 'cnc/util.js',
+        'cnc/toolpath', 'THREE', 'templates'],
+    function (Ember, DS, views, TwoDView, TreeDView, cam, util, tp, THREE, templates) {
         Ember.TEMPLATES['application'] = Ember.TEMPLATES['visucamApp'];
 
         window.Visucam = Ember.Application.create({});
@@ -44,13 +45,16 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 var polygon = cam.pathDefToClipper(this.get('outline.definition'));
                 var polygon1 = machine.contourClipper(polygon, parseFloat(this.get('job.toolDiameter')) / 2, this.get('inside'));
                 var contourZ = this.get('contourZ');
+                var safetyZ = this.get('job.safetyZ');
                 var toolpath = machine.fromClipper(polygon1).map(function (path) {
                     var startPoint = path.getStartPoint();
-                    path.pushPoint(startPoint.x, startPoint.y, startPoint.z);
-                    return path.asGeneralToolpath(contourZ);
+                    var generalPath = path.asGeneralToolpath(contourZ);
+                    // plunge from safety plane
+                    generalPath.pushPointInFront(startPoint.x, startPoint.y, safetyZ);
+                    //close the loop
+                    generalPath.pushPoint(startPoint.x, startPoint.y, contourZ);
+                    return generalPath;
                 });
-                var startPoint = toolpath[0].getStartPoint();
-                toolpath[0].pushPointInFront(startPoint.x, startPoint.y, this.get('job.safetyZ'));
                 this.set('toolpath', toolpath);
             }.observes('outline', 'contourZ', 'job.toolDiameter', 'inside', 'job.safetyZ')
         });
@@ -70,11 +74,12 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 var startZ = parseFloat(this.get('startZ'));
                 var stopZ = parseFloat(this.get('stopZ'));
                 var turns = parseFloat(this.get('turns'));
-
                 var toolpath = machine.rampToolPathArray(machine.fromClipper(contour), startZ, stopZ, turns);
-
-                var startPoint = toolpath[0].getStartPoint();
-                toolpath[0].pushPointInFront(startPoint.x, startPoint.y, this.get('job.safetyZ'));
+                var safetyZ = this.get('job.safetyZ');
+                toolpath.forEach(function (path) {
+                    var startPoint = path.getStartPoint();
+                    path.pushPointInFront(startPoint.x, startPoint.y, safetyZ);
+                });
                 this.set('toolpath', toolpath);
             }.observes('outline', 'startZ', 'stopZ', 'turns', 'job.toolDiameter', 'inside', 'job.safetyZ')
         });
@@ -247,13 +252,26 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 this.get('nativeComponent').zoomExtent();
             }.observes('controller.shapes')
         });
+
+        function collectVertices(toolpath, defaultZ) {
+            var res = [];
+            toolpath.forEachPoint(function (x, y, z, _) {
+                res.push(x, y, z);
+            }, defaultZ);
+            return new Float32Array(res);
+        }
+
         Visucam.TreeDView = Ember.View.extend({
             classNames: ['ThreeDView'],
             didInsertElement: function () {
                 var threeDView = new TreeDView.ThreeDView(this.$());
                 this.set('nativeComponent', threeDView);
+                var travelDisplay = new THREE.Object3D();
+                threeDView.drawing.add(travelDisplay);
+                this.set('travelDisplay', travelDisplay);
                 this.synchronizeCurrentOperation();
                 this.synchronizeJob();
+                this.synchronizeOutlines();
             },
             synchronizeCurrentOperation: function () {
                 var threeDView = this.get('nativeComponent');
@@ -262,51 +280,46 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 if (operation) {
                     var toolpath2 = operation.get('toolpath');
                     toolpath2.forEach(function (toolpath) {
-                        var res = [];
-                        toolpath.forEachPoint(function (x, y, z, _) {
-                            res.push(x, y, z);
-                        }, operation.get('contourZ'));
-                        var vertices = new Float32Array(res);
+                        var vertices = collectVertices(toolpath, operation.get('contourZ'));
                         threeDView.addToolpathFragment(threeDView.toolpath, {vertices: vertices.buffer, speedTag: 'normal'});
                     });
                     threeDView.hideHighlight();
                     cam.pathDefToPolygons(operation.get('outline.definition')).forEach(function (poly) {
                         threeDView.displayHighlight(poly);
                     });
-
-                    var travelMoves = this.get('controller.transitionTravels');
-                    for (var i = 0; i < travelMoves.length; i++) {
-                        var res = [];
-                        var poly = travelMoves[i].path;
-                        for (var j = 0; j < poly.length; j++)
-                            res.push(poly[j][0], poly[j][1], poly[j][2]);
-                        var vertices = new Float32Array(res);
-                        threeDView.addToolpathFragment(threeDView.toolpath, {vertices: vertices.buffer, speedTag: 'rapid'});
-                    }
                 }
                 threeDView.reRender();
-            }.observes('controller.currentOperation', 'controller.currentOperation.toolpath', 'controller.safetyZ', 'controller.transitionTravels'),
+            }.observes('controller.currentOperation', 'controller.currentOperation.toolpath', 'controller.safetyZ'),
             synchronizeJob: function () {
                 var threeDView = this.get('nativeComponent');
-                threeDView.clearOutlines();
+                var travelDisplay = this.get('travelDisplay');
+                threeDView.clearNode(travelDisplay);
+                var travelMoves = this.get('controller.transitionTravels');
+                for (var i = 0; i < travelMoves.length; i++) {
+                    var lineGeometry = new THREE.Geometry();
+                    var poly = travelMoves[i].path;
+                    for (var j = 0; j < poly.length; j++)
+                        lineGeometry.vertices.push(new THREE.Vector3(poly[j][0], poly[j][1], poly[j][2]));
+                    travelDisplay.add(new THREE.Line(lineGeometry, threeDView.rapidMaterial));
+                }
+                threeDView.reRender();
+            }.observes('controller.shapes', 'controller.transitionTravels'),
+            synchronizeOutlines: function () {
+                var threeDView = this.get('nativeComponent');
+                threeDView.clearNode(threeDView.outline);
                 var shapes = this.get('controller.shapes');
                 shapes.forEach(function (shape) {
                     var res = [];
                     var polys = cam.pathDefToPolygons(shape.get('definition'));
                     for (var i = 0; i < polys.length; i++) {
                         var poly = polys[i];
-                        res = [];
+                        var lineGeometry = new THREE.Geometry();
                         for (var j = 0; j < poly.length; j++)
-                            res.push(poly[j].X, poly[j].Y, 0);
-                        threeDView.addCollated(threeDView.outline, new Float32Array(res), 'outlineDisplay', threeDView.outlineMaterial);
+                            lineGeometry.vertices.push(new THREE.Vector3(poly[j].X, poly[j].Y, 0));
+                        threeDView.outline.add(new THREE.Line(lineGeometry, threeDView.outlineMaterial));
                     }
                 });
-                threeDView.zoomExtent();
-                threeDView.reRender();
-            }.observes('controller.shapes'),
-            synchronizeTravel: function () {
-
-            }.observes('controller.transitionTravels')
+            }.observes('controller.shapes')
         });
 
     });
