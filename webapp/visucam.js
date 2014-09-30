@@ -1,6 +1,6 @@
 "use strict";
-require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeDView', 'cnc/cam.js', 'templates'],
-    function (Ember, DS, views, TwoDView, TreeDView, cam, templates) {
+require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeDView', 'cnc/cam.js', 'cnc/util.js', 'templates'],
+    function (Ember, DS, views, TwoDView, TreeDView, cam, util, templates) {
         Ember.TEMPLATES['application'] = Ember.TEMPLATES['visucamApp'];
 
         window.Visucam = Ember.Application.create({});
@@ -8,12 +8,28 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
         Visucam.Shape = Ember.Object.extend({
             definition: null
         });
+        /**
+         * Here is the deal: the Operation grabs the tool at startPoint for X and Y and on the security plane,
+         * at zero speed, zero inertia.
+         * Operation releases the tool at stopPoint, at the Z it wants at zero speed and zero inertia, but the document will
+         * pull the tool along Z+ to the security plane, so dovetail tools or slotting tools better be out at the end of the operation.
+         * The Document does the travel before, in between and after the operations.
+         * When this works we can try to be smarter and not stop uselessly.
+         */
         Visucam.Operation = Ember.Object.extend({
             name: null,
             outline: null,
             inside: null,
             toolDiameter: null,
-            toolpath: null
+            toolpath: null,
+            startPoint: function () {
+                var pt = this.get('toolpath').getStartPoint();
+                return new util.Point(pt.x, pt.y);
+            }.property('toolpath'),
+            endPoint: function () {
+                var pt = this.get('toolpath').getStopPoint();
+                return new util.Point(pt.x, pt.y);
+            }.property('toolpath')
         });
         Visucam.SimpleContourOperation = Visucam.Operation.extend({
             init: function () {
@@ -48,8 +64,16 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
         });
 
         Visucam.Document = Ember.Object.extend({
+            securityZ: 5,
             operations: [],
-            shapes: []
+            shapes: [],
+            transitionTravels: function () {
+                var operations = this.get('operations');
+                var travelBits = [];
+                for (var i = 0; i < operations.length - 1; i++)
+                    travelBits.push([operations[i].get('endPoint'), operations[i + 1].get('startPoint')]);
+                return travelBits;
+            }.property('operations.@each.startPoint', 'operations.@each.endPoint')
         });
 
         var shape1 = Visucam.Shape.create({
@@ -58,7 +82,11 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
         });
         var shape2 = Visucam.Shape.create({
             id: 2,
-            definition: 'M10,10L90,10L90,90L10,90Z'
+            definition: 'M25, 35 A10, 10 0 0 0 35, 25 A10, 10 0 0 0 25, 15 A10, 10 0 0 0 15, 25 A10, 10 0 0 0 25, 35Z'
+        });
+        var shape3 = Visucam.Shape.create({
+            id: 3,
+            definition: 'M50,50L80,50L80,80L50,80 Z'
         });
         var op1 = Visucam.SimpleContourOperation.create({
             id: 1,
@@ -70,7 +98,7 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
         });
         var op2 = Visucam.RampingContourOperation.create({
             id: 2,
-            name: 'Inner Profiling',
+            name: 'Inner Profiling 1',
             outline: shape2,
             toolDiameter: 3,
             inside: true,
@@ -78,14 +106,26 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
             stopZ: -10,
             turns: 2
         });
+
+        var op3 = Visucam.RampingContourOperation.create({
+            id: 2,
+            name: 'Inner Profiling 2',
+            outline: shape3,
+            toolDiameter: 3,
+            inside: true,
+            startZ: 0,
+            stopZ: -10,
+            turns: 2
+        });
         var doc = Visucam.Document.create({
-            operations: [op1, op2],
-            shapes: [shape1, shape2]
+            operations: [op1, op2, op3],
+            shapes: [shape1, shape2, shape3]
         });
 
         var operations = {
             1: op1,
-            2: op2
+            2: op2,
+            3: op3
         };
 
         Visucam.Router.map(function () {
@@ -163,8 +203,8 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
             },
             synchronizeCurrentOperation: function () {
                 var threeDView = this.get('nativeComponent');
-                var operation = this.get('controller.currentOperation');
                 threeDView.clearToolpath();
+                var operation = this.get('controller.currentOperation');
                 if (operation) {
                     var toolpath = operation.get('toolpath');
                     var res = [];
@@ -174,9 +214,19 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                     var vertices = new Float32Array(res);
                     threeDView.addToolpathFragment(threeDView.toolpath, {vertices: vertices.buffer, speedTag: 'normal'});
                     threeDView.displayHighlight(cam.pathDefToPolygons(operation.get('outline.definition'))[0]);
+                    var travelMoves = this.get('controller.transitionTravels');
+                    var securityZ = this.get('controller.securityZ');
+                    for (var i = 0; i < travelMoves.length; i++) {
+                        res = [];
+                        var poly = travelMoves[i];
+                        for (var j = 0; j < poly.length; j++)
+                            res.push(poly[j].X, poly[j].Y, securityZ);
+                        vertices = new Float32Array(res);
+                        threeDView.addToolpathFragment(threeDView.toolpath, {vertices: vertices.buffer, speedTag: 'rapid'});
+                    }
                 }
                 threeDView.reRender();
-            }.observes('controller.currentOperation', 'controller.currentOperation.toolpath'),
+            }.observes('controller.currentOperation', 'controller.currentOperation.toolpath', 'controller.securityZ', 'controller.transitionTravels'),
             synchronizeDocument: function () {
                 var threeDView = this.get('nativeComponent');
                 threeDView.clearOutlines();
@@ -194,7 +244,10 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 });
                 threeDView.zoomExtent();
                 threeDView.reRender();
-            }.observes('controller.shapes')
+            }.observes('controller.shapes'),
+            synchronizeTravel: function () {
+
+            }.observes('controller.transitionTravels')
         });
 
     });

@@ -1,4 +1,5 @@
 <div class="operations">
+    <label>security Z: {{view Visucam.NumberView value=securityZ}}</label>
     <ul>
         {{#each operations itemController="operationListItem"}}
             <li {{bind-attr class="isCurrent:current"}}>{{#link-to "operation" this}}{{name}}{{/link-to}}</li>
