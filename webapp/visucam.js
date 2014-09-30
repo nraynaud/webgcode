@@ -1,6 +1,6 @@
 "use strict";
-require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeDView', 'cnc/cam.js', 'cnc/util.js', 'templates'],
-    function (Ember, DS, views, TwoDView, TreeDView, cam, util, templates) {
+require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeDView', 'cnc/cam.js', 'cnc/util.js', 'cnc/toolpath', 'templates'],
+    function (Ember, DS, views, TwoDView, TreeDView, cam, util, tp, templates) {
         Ember.TEMPLATES['application'] = Ember.TEMPLATES['visucamApp'];
 
         window.Visucam = Ember.Application.create({});
@@ -28,8 +28,7 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 return new util.Point(pt.x, pt.y);
             }.property('toolpath'),
             endPoint: function () {
-                var pt = this.get('toolpath').getStopPoint();
-                return new util.Point(pt.x, pt.y);
+                return this.get('toolpath').getStopPoint();
             }.property('toolpath')
         });
         Visucam.SimpleContourOperation = Visucam.Operation.extend({
@@ -79,8 +78,15 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
             transitionTravels: function () {
                 var operations = this.get('operations');
                 var travelBits = [];
-                for (var i = 0; i < operations.length - 1; i++)
-                    travelBits.push([operations[i].get('endPoint'), operations[i + 1].get('startPoint')]);
+                for (var i = 0; i < operations.length - 1; i++) {
+                    var endPoint = operations[i].get('endPoint');
+                    var destinationPoint = operations[i + 1].get('startPoint');
+                    var travel = new tp.GeneralPolylineToolpath();
+                    travel.pushPoint(endPoint.x, endPoint.y, endPoint.z);
+                    travel.pushPoint(endPoint.x, endPoint.y, this.get('securityZ'));
+                    travel.pushPoint(destinationPoint.x, destinationPoint.y, this.get('securityZ'));
+                    travelBits.push(travel);
+                }
                 return travelBits;
             }.property('operations.@each.startPoint', 'operations.@each.endPoint'),
             syncSecurityZ: function () {
@@ -234,9 +240,9 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                     var securityZ = this.get('controller.securityZ');
                     for (var i = 0; i < travelMoves.length; i++) {
                         res = [];
-                        var poly = travelMoves[i];
+                        var poly = travelMoves[i].path;
                         for (var j = 0; j < poly.length; j++)
-                            res.push(poly[j].X, poly[j].Y, securityZ);
+                            res.push(poly[j][0], poly[j][1], poly[j][2]);
                         vertices = new Float32Array(res);
                         threeDView.addToolpathFragment(threeDView.toolpath, {vertices: vertices.buffer, speedTag: 'rapid'});
                     }
