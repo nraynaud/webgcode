@@ -46,6 +46,11 @@ define([], function () {
                 point[0] += dx;
                 point[1] += dy;
             });
+        },
+        asGeneralToolpath: function (defaultZ) {
+            var gt = new GeneralPolylineToolpath();
+            this.forEachPoint(gt.pushPoint.bind(gt), defaultZ);
+            return gt;
         }
     };
 
@@ -59,6 +64,9 @@ define([], function () {
         },
         pushPoint: function (x, y, z) {
             this.path.push([x, y, z]);
+        },
+        pushPointInFront: function (x, y, z) {
+            this.path.unshift([x, y, z]);
         },
         getStartPoint: function () {
             var p = this.path[0];
@@ -95,6 +103,9 @@ define([], function () {
                 newPath.pushPoint(point[0] + dx, point[1] + dy, point[2] + dz);
             });
             return newPath;
+        },
+        asGeneralToolpath: function (defaultZ) {
+            return this;
         }
     };
 
