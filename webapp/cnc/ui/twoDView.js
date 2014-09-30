@@ -76,7 +76,7 @@ define(['Ember', 'libs/svg', 'libs/jquery.mousewheel', 'cnc/svg.marker'], functi
             this.set('background', root.group().attr({class: 'background'}));
             this.set('paper', root.group().attr({class: 'paper'}));
             this.set('overlay', root.group().attr({class: 'overlay'}));
-            svg.defs().pattern(6, 6,function () {
+            svg.defs().pattern(6, 6, function () {
                 var group = this.group();
                 group.rect(6, 6).x(0).y(0);
                 group.line(-1, 5, 7, 13);
@@ -89,11 +89,11 @@ define(['Ember', 'libs/svg', 'libs/jquery.mousewheel', 'cnc/svg.marker'], functi
             origin.path('M0,0 L0,10 A 10,10 90 0 0 10,0 Z M0,0 L0,-10 A 10,10 90 0 0 -10,0 Z').attr({stroke: 'none', fill: 'red', transform: null});
             origin.ellipse(20, 20).cx(0).cy(0).attr({stroke: 'red', fill: 'none', transform: null});
             var _this = this;
-            var redArrowMarker = svg.marker(3, 1.5, 3, 3,function () {
+            var redArrowMarker = svg.marker(3, 1.5, 3, 3, function () {
                 var group = this.group();
                 group.path('M 3,1.5 L0,3 L0,0 Z').attr('fill', '#FF0000');
             }).attr({viewBox: '-5 -5 10 10'});
-            var greenArrowMarker = svg.marker(3, 1.5, 3, 3,function () {
+            var greenArrowMarker = svg.marker(3, 1.5, 3, 3, function () {
                 var group = this.group();
                 group.path('M 3,1.5 L0,3 L0,0 Z').attr('fill', '#00FF00');
             }).attr({viewBox: '-5 -5 10 10'});
