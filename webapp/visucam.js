@@ -13,7 +13,7 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
          * at zero speed, zero inertia.
          * Operation releases the tool at stopPoint, at the Z it wants at zero speed and zero inertia, but the document will
          * pull the tool along Z+ to the security plane, so dovetail tools or slotting tools better be out at the end of the operation.
-         * The Document does the travel before, in between and after the operations.
+         * The Job does the travel before, in between and after the operations.
          * When this works we can try to be smarter and not stop uselessly.
          */
         Visucam.Operation = Ember.Object.extend({
@@ -68,7 +68,7 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
             }.observes('outline', 'startZ', 'stopZ', 'turns', 'toolDiameter', 'inside', 'securityZ')
         });
 
-        Visucam.Document = Ember.Object.extend({
+        Visucam.Job = Ember.Object.extend({
             init: function () {
                 this.syncSecurityZ();
             },
@@ -138,7 +138,7 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
             stopZ: -10,
             turns: 2
         });
-        var doc = Visucam.Document.create({
+        var doc = Visucam.Job.create({
             securityZ: 10,
             operations: [op1, op2, op3],
             shapes: [shape1, shape2, shape3]
@@ -192,7 +192,7 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 this.set('currentOperationDisplay', view.get('paper').group());
                 this.set('highlight', view.get('overlay').group().attr('class', 'highlight'));
                 this.synchronizeCurrentOperation();
-                this.synchronizeDocument();
+                this.synchronizeJob();
             },
             synchronizeCurrentOperation: function () {
                 var operation = this.get('controller.currentOperation');
@@ -206,7 +206,7 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 highlight.clear();
                 highlight.path(operation.get('outline.definition'));
             }.observes('controller.currentOperation', 'controller.currentOperation.toolpath'),
-            synchronizeDocument: function () {
+            synchronizeJob: function () {
                 var shapes = this.get('controller.shapes');
                 var _this = this;
                 shapes.forEach(function (shape) {
@@ -221,7 +221,7 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 var threeDView = new TreeDView.ThreeDView(this.$());
                 this.set('nativeComponent', threeDView);
                 this.synchronizeCurrentOperation();
-                this.synchronizeDocument();
+                this.synchronizeJob();
             },
             synchronizeCurrentOperation: function () {
                 var threeDView = this.get('nativeComponent');
@@ -249,7 +249,7 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 }
                 threeDView.reRender();
             }.observes('controller.currentOperation', 'controller.currentOperation.toolpath', 'controller.securityZ', 'controller.transitionTravels'),
-            synchronizeDocument: function () {
+            synchronizeJob: function () {
                 var threeDView = this.get('nativeComponent');
                 threeDView.clearOutlines();
                 var shapes = this.get('controller.shapes');
