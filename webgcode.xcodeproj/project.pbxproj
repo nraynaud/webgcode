@@ -236,6 +236,7 @@
 		DDAA5660284AD78E316010DF /* theme-chaos.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5B415DF64C53C7DC0DA6 /* theme-chaos.js */; };
 		DDAA5660A1797BFCA5C3108D /* mode-lsl.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA590DA3E7B03B84F9A00F /* mode-lsl.js */; };
 		DDAA56652A99C8A22AD0B4AE /* mode-matlab.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5381CD33151305E34F64 /* mode-matlab.js */; };
+		DDAA566CEFB8F071A326DA0A /* cubeManipulator.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5235379E9AD793E3FF71 /* cubeManipulator.js */; };
 		DDAA567630AE1A676F5E3913 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54F3B578CC3FCC5E03A2 /* main.c */; };
 		DDAA567F81C6F3DC888C2653 /* bezier.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5B9DC9B92B70673AA0BE /* bezier.js */; };
 		DDAA56810159E34D753604F0 /* theme-cobalt.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA52528CE2E9656B8607EA /* theme-cobalt.js */; };
@@ -697,6 +698,7 @@
 		DDAA522508F0CC35FABEBD8B /* mode-sass.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-sass.js"; sourceTree = "<group>"; };
 		DDAA5227D3D3B4CB8918A306 /* mode-haml.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-haml.js"; sourceTree = "<group>"; };
 		DDAA5228431A8D5F19472995 /* qunit.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = qunit.css; sourceTree = "<group>"; };
+		DDAA5235379E9AD793E3FF71 /* cubeManipulator.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = cubeManipulator.js; sourceTree = "<group>"; };
 		DDAA523D7A9109D74C7BA499 /* util.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = util.js; sourceTree = "<group>"; };
 		DDAA524613FA7F852A2C6C00 /* theme-merbivore.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-merbivore.js"; sourceTree = "<group>"; };
 		DDAA524A8FA5BDD7C11E4366 /* mode-sql.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-sql.js"; sourceTree = "<group>"; };
@@ -1633,6 +1635,7 @@
 				DDAA572B976576EFEEC3D1E4 /* gcodeEditor.js */,
 				DDAA5C0935B9A14147485CB2 /* threeDView.js */,
 				DDAA59E7DF6E04578E0F4F11 /* jsEditor.js */,
+				DDAA5235379E9AD793E3FF71 /* cubeManipulator.js */,
 			);
 			path = ui;
 			sourceTree = "<group>";
@@ -2793,6 +2796,7 @@
 				DDAA5D6EE86074E5A8E3E0AF /* svg.marker.js in Sources */,
 				DDAA53E27389259D5549D023 /* ember-data-1.0.0-beta10.js in Sources */,
 				DDAA54E767541E95F295BCFE /* toolpath.js in Sources */,
+				DDAA566CEFB8F071A326DA0A /* cubeManipulator.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
