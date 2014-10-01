@@ -75,12 +75,36 @@
             height: 400px;
         }
 
+        .operations ul {
+            font-family: sans-serif;
+            list-style-type: none;
+            border: 1px dimgray solid;
+            padding: 0;
+        }
+
         .operations li {
+            padding: 3px;
             cursor: pointer;
+            list-style: none;
+            border-bottom: 1px dimgray solid;
+            margin: 0;
+        }
+
+        .operations li:last-of-type {
+            border-bottom: none;
         }
 
         .operations li.current {
             background-color: gray;
+        }
+
+        .operations a {
+            text-decoration: none;
+            display: block;
+        }
+
+        .operations a:visited {
+            color: inherit;
         }
 
         .highlight {
@@ -95,6 +119,10 @@
             stroke: rgba(255, 0, 0, 1);
             stroke-width: 2;
             stroke-linecap: round;
+        }
+
+        table.form th {
+            text-align: right;
         }
     </style>
 </head>
