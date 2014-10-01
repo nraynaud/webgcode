@@ -72,6 +72,7 @@ require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/twoDView', 'cnc/cam', 'cn
             didInsertElement: function () {
                 var threeDView = new threeD.ThreeDView(this.$());
                 this.set('nativeComponent', threeDView);
+                this.set('highlightDisplay', threeDView.createOverlayNode(threeDView.highlightMaterial));
                 this.highlightChanged();
                 this.get('controller.simulatedPath').addArrayObserver({
                     arrayWillChange: function (observedObj, start, removeCount, addCount) {
@@ -90,10 +91,12 @@ require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/twoDView', 'cnc/cam', 'cn
                     this.get('nativeComponent').zoomExtent();
             }.observes('controller.computing'),
             highlightChanged: function () {
+                var highlightDisplay = this.get('highlightDisplay');
                 var highlight = this.get('controller.currentHighLight');
-                this.get('nativeComponent').hideHighlight();
+                highlightDisplay.clear();
                 if (highlight)
-                    this.get('nativeComponent').displayHighlight(highlight);
+                    highlightDisplay.addPolyLines([highlight]);
+                this.get('nativeComponent').reRender();
             }.observes('controller.currentHighLight'),
             toolMoved: function () {
                 var position = this.get('controller.toolPosition');
@@ -308,7 +311,7 @@ require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/twoDView', 'cnc/cam', 'cn
                 var humanized = util.humanizeDuration(totalTime);
                 return {humanized: humanized, detailed: Math.round(totalTime) + 's'};
             }.property('totalTime'),
-            toolPosition: {x: 0, y: 0, z: 0},
+            toolPosition: new util.Point(0, 0, 0),
             code: demoCode,
             jscode: demoJSCode,
             errors: [],

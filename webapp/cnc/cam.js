@@ -219,7 +219,7 @@ define(['cnc/bezier', 'clipper', 'cnc/toolpath', 'libs/simplify', 'cnc/util', 'l
             var machine = this;
 
             function pos(point, zOverride) {
-                return {x: point.x, y: point.y, z: (zOverride != undefined) ? zOverride : point.z};
+                return new util.Point(point.x, point.y, (zOverride != undefined) ? zOverride : point.z);
             }
 
             //avoid traveling to start point at unknown Z (yes, I did hit a screw)
@@ -227,7 +227,7 @@ define(['cnc/bezier', 'clipper', 'cnc/toolpath', 'libs/simplify', 'cnc/util', 'l
             $.each(this.operations, function (_, op) {
                 pathCollector.goToTravelSpeed(pos(op.getStartPoint(machine.travelZ), machine.travelZ));
                 op.forEachPoint(function (x, y, z) {
-                    pathCollector.goToWorkSpeed(pos({x: x, y: y, z: z}));
+                    pathCollector.goToWorkSpeed(pos(new util.Point(x, y, z)));
                 }, machine.workZ);
                 pathCollector.goToTravelSpeed(pos(op.getStopPoint(machine.travelZ), machine.travelZ));
             });
@@ -249,7 +249,7 @@ define(['cnc/bezier', 'clipper', 'cnc/toolpath', 'libs/simplify', 'cnc/util', 'l
                     newPos.y = position.y;
                 if (newPos.z == undefined)
                     newPos.z = position.z;
-                return newPos;
+                return new util.Point(newPos.x, newPos.y, newPos.z);
             }
 
             accumulator.accumulatePoint(position, 'rapid');
@@ -301,12 +301,12 @@ define(['cnc/bezier', 'clipper', 'cnc/toolpath', 'libs/simplify', 'cnc/util', 'l
             var points = [];
             $.each(this.operations, function (_, op) {
                 var startPoint = op.getStartPoint(machine.travelZ);
-                points.push({x: startPoint.x, y: startPoint.y, z: machine.travelZ});
+                points.push(new util.Point(startPoint.x, startPoint.y, machine.travelZ));
                 op.forEachPoint(function (x, y, z) {
-                    points.push({x: x, y: y, z: z});
+                    points.push(new util.Point(x, y, z));
                 }, machine.workZ);
                 var stopPoint = op.getStopPoint(machine.travelZ);
-                points.push({x: stopPoint.x, y: stopPoint.y, z: machine.travelZ});
+                points.push(new util.Point(stopPoint.x, stopPoint.y, machine.travelZ));
             });
             return points;
         },

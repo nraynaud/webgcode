@@ -22,16 +22,16 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
                 var dy = line.to.y - line.from.y;
                 var dz = line.to.z - line.from.z;
                 var len = util.length(dx, dy, dz);
-                return {x: dx / len, y: dy / len, z: dz / len};
+                return new util.Point(dx, dy, dz).scale(1 / len);
             },
             exitDirection: function (line) {
                 return COMPONENT_TYPES.line.entryDirection(line);
             },
-            pointAtRatio: function (line, ratio, asObject) {
+            pointAtRatio: function (line, ratio) {
                 var x = scaledLine('x', line, ratio);
                 var y = scaledLine('y', line, ratio);
                 var z = scaledLine('z', line, ratio);
-                return asObject ? {x: x, y: y, z: z} : [x, y, z];
+                return new util.Point(x, y, z);
             },
             simulationSteps: function () {
                 return 40;
@@ -99,7 +99,7 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
         var dz = (arc.to[p.lastCoord] - arc.from[p.lastCoord]) / Math.abs(arc.angularDistance) / arc.radius;
         var len = util.length(rx, ry, dz);
         var direction = arc.angularDistance >= 0 ? 1 : -1;
-        return {x: -direction * ry / len, y: direction * rx / len, z: dz / len};
+        return new util.Point(-direction * ry / len, direction * rx / len, dz / len);
     }
 
     function limitSpeed(speedSegments, direction) {
@@ -200,7 +200,7 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
     function groupConnectedComponents(path, acceleration) {
         var groups = [];
         var currentGroup = null;
-        var lastExitDirection = {x: 0, y: 0, z: 0};
+        var lastExitDirection = new util.Point(0, 0, 0);
         for (var i = 0; i < path.length; i++) {
             var component = path[i];
             var trait = COMPONENT_TYPES[component.type];
@@ -291,7 +291,7 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
 
         if (toolpath.length)
             simulate2(toolpath, pushPoint);
-        return {totalTime: totalTime, min: {x: xmin, y: ymin, z: zmin}, max: {x: xmax, y: ymax, z: zmax}};
+        return {totalTime: totalTime, min: new util.Point(xmin, ymin, zmin), max: new util.Point(xmax, ymax, zmax)};
     }
 
     return {

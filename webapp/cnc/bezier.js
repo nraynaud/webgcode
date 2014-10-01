@@ -74,7 +74,7 @@ define(['cnc/util'], function (util) {
             return function (x, y) {
                 if (collectionArray.length) {
                     var previousPoint = collectionArray[collectionArray.length - 1];
-                    if (previousPoint.X == x && previousPoint.Y == y)
+                    if (previousPoint.x == x && previousPoint.y == y)
                         return;
                 }
                 collectionArray.push(new util.Point(x, y));

@@ -257,7 +257,7 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
         }
         var origins = [];
         for (var i = 0; i < 10; i++)
-            origins.push({x: 0, y: 0, z: 0});
+            origins.push(new util.Point(0, 0, 0));
         var path = [];
         var machineState = {
             position: {},

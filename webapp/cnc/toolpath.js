@@ -1,6 +1,6 @@
 "use strict";
 
-define([], function () {
+define(['cnc/util'], function (util) {
 
     function ConstantZPolygonToolpath() {
         this.path = [];
@@ -15,11 +15,11 @@ define([], function () {
         },
         getStartPoint: function (defaultZ) {
             var p = this.path[0];
-            return {x: p[0], y: p[1], z: defaultZ};
+            return new util.Point(p[0], p[1], defaultZ);
         },
         getStopPoint: function (defaultZ) {
             var p = this.path[this.path.length - 1];
-            return {x: p[0], y: p[1], z: defaultZ};
+            return new util.Point(p[0], p[1], defaultZ);
         },
         forEachPoint: function (pointHandler, defaultZ) {
             $.each(this.path, function (index, point) {
@@ -70,11 +70,11 @@ define([], function () {
         },
         getStartPoint: function () {
             var p = this.path[0];
-            return {x: p[0], y: p[1], z: p[2]};
+            return new util.Point(p[0], p[1], p[2]);
         },
         getStopPoint: function () {
             var p = this.path[this.path.length - 1];
-            return {x: p[0], y: p[1], z: p[2]};
+            return new util.Point(p[0], p[1], p[2]);
         },
         forEachPoint: function (pointHandler, defaultZ) {
             $.each(this.path, function (index, point) {

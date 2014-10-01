@@ -266,9 +266,9 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
             didInsertElement: function () {
                 var threeDView = new TreeDView.ThreeDView(this.$());
                 this.set('nativeComponent', threeDView);
-                var travelDisplay = new THREE.Object3D();
-                threeDView.drawing.add(travelDisplay);
-                this.set('travelDisplay', travelDisplay);
+                this.set('travelDisplay', threeDView.createDrawingNode(threeDView.rapidMaterial));
+                this.set('outlinesDisplay', threeDView.createDrawingNode(threeDView.outlineMaterial));
+                this.set('highlightDisplay', threeDView.createOverlayNode(threeDView.highlightMaterial));
                 this.synchronizeCurrentOperation();
                 this.synchronizeJob();
                 this.synchronizeOutlines();
@@ -283,43 +283,26 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                         var vertices = collectVertices(toolpath, operation.get('contourZ'));
                         threeDView.addToolpathFragment(threeDView.toolpath, {vertices: vertices.buffer, speedTag: 'normal'});
                     });
-                    threeDView.hideHighlight();
-                    cam.pathDefToPolygons(operation.get('outline.definition')).forEach(function (poly) {
-                        threeDView.displayHighlight(poly);
-                    });
+                    var highlightDisplay = this.get('highlightDisplay');
+                    highlightDisplay.clear();
+                    highlightDisplay.addPolyLines(cam.pathDefToPolygons(operation.get('outline.definition')));
                 }
                 threeDView.reRender();
             }.observes('controller.currentOperation', 'controller.currentOperation.toolpath', 'controller.safetyZ'),
             synchronizeJob: function () {
                 var threeDView = this.get('nativeComponent');
                 var travelDisplay = this.get('travelDisplay');
-                threeDView.clearNode(travelDisplay);
+                travelDisplay.clear();
                 var travelMoves = this.get('controller.transitionTravels');
-                for (var i = 0; i < travelMoves.length; i++) {
-                    var lineGeometry = new THREE.Geometry();
-                    var poly = travelMoves[i].path;
-                    for (var j = 0; j < poly.length; j++)
-                        lineGeometry.vertices.push(new THREE.Vector3(poly[j][0], poly[j][1], poly[j][2]));
-                    travelDisplay.add(new THREE.Line(lineGeometry, threeDView.rapidMaterial));
-                }
+                travelDisplay.addPolyLines(travelMoves);
                 threeDView.reRender();
             }.observes('controller.shapes', 'controller.transitionTravels'),
             synchronizeOutlines: function () {
-                var threeDView = this.get('nativeComponent');
-                threeDView.clearNode(threeDView.outline);
-                var shapes = this.get('controller.shapes');
-                shapes.forEach(function (shape) {
-                    var res = [];
-                    var polys = cam.pathDefToPolygons(shape.get('definition'));
-                    for (var i = 0; i < polys.length; i++) {
-                        var poly = polys[i];
-                        var lineGeometry = new THREE.Geometry();
-                        for (var j = 0; j < poly.length; j++)
-                            lineGeometry.vertices.push(new THREE.Vector3(poly[j].X, poly[j].Y, 0));
-                        threeDView.outline.add(new THREE.Line(lineGeometry, threeDView.outlineMaterial));
-                    }
+                var outlinesDisplay = this.get('outlinesDisplay');
+                outlinesDisplay.clear();
+                this.get('controller.shapes').forEach(function (shape) {
+                    outlinesDisplay.addPolyLines(cam.pathDefToPolygons(shape.get('definition')));
                 });
             }.observes('controller.shapes')
         });
-
     });

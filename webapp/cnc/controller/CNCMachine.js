@@ -1,5 +1,5 @@
 "use strict";
-define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/runner' ], function (rsvp, $, Ember, Connection, Runner) {
+define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/runner', 'cnc/util' ], function (rsvp, $, Ember, Connection, Runner, util) {
     var CONTROL_COMMANDS = {REQUEST_POSITION: 0, REQUEST_PARAMETERS: 1, REQUEST_STATE: 2, REQUEST_TOGGLE_MANUAL_STATE: 3,
         REQUEST_DEFINE_AXIS_POSITION: 4};
     var EVENTS = {PROGRAM_END: 1, PROGRAM_START: 2, MOVED: 3, ENTER_MANUAL_MODE: 4, EXIT_MANUAL_MODE: 5};
@@ -113,9 +113,7 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
             for (var i = 0; i < keys.length; i++)
                 res[keys[i]] = this.get(keys[i]);
             var axes = this.get('axes');
-            res.position = {x: axes[0].get('position'),
-                y: axes[1].get('position'),
-                z: axes[2].get('position')};
+            res.position = new util.Point(axes[0].get('position'), axes[1].get('position'), axes[2].get('position'));
             return res;
         },
         sendGcode: function (code) {

@@ -1,8 +1,9 @@
 "use strict";
 define(function () {
-    function Point(x, y) {
+    function Point(x, y, z) {
         this.x = x;
         this.y = y;
+        this.z = z === undefined ? 0 : z;
     }
 
     Point.prototype = {
@@ -10,28 +11,34 @@ define(function () {
             return this.x + ', ' + this.y;
         },
         sub: function (p) {
-            return new Point(this.x - p.x, this.y - p.y);
+            return new Point(this.x - p.x, this.y - p.y, this.z - p.z);
         },
         add: function (p) {
-            return new Point(this.x + p.x, this.y + p.y);
+            return new Point(this.x + p.x, this.y + p.y, this.z + p.z);
+        },
+        scale: function (val) {
+            return new Point(this.x * val, this.y * val, this.z * val);
         },
         sqDistance: function (p) {
             var dx = this.x - p.x;
-            var dy = (this.y - p.y);
-            return dx * dx + dy * dy;
+            var dy = this.y - p.y;
+            var dz = this.z - p.z;
+            return dx * dx + dy * dy + dz * dz;
         },
         distance: function (p) {
             return Math.sqrt(this.sqDistance(p));
         },
         lerp: function (p, alpha) {
-            return new Point(this.x + (p.x - this.x) * alpha, this.y + (p.y - this.y) * alpha);
+            return this.add(p.sub(this).scale(alpha));
         }
     };
     [
         ['X', 'x'],
         ['Y', 'y'],
+        ['Z', 'z'],
         ['0', 'x'],
-        ['1', 'y']
+        ['1', 'y'],
+        ['2', 'z']
     ].forEach(function (mapping) {
             Object.defineProperty(Point.prototype, mapping[0], {
                 get: function () {
