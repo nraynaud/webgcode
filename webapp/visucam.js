@@ -294,7 +294,9 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 var travelDisplay = this.get('travelDisplay');
                 travelDisplay.clear();
                 var travelMoves = this.get('controller.transitionTravels');
-                travelDisplay.addPolyLines(travelMoves);
+                travelDisplay.addPolyLines(travelMoves.map(function (move) {
+                    return move.path;
+                }));
                 threeDView.reRender();
             }.observes('controller.shapes', 'controller.transitionTravels'),
             synchronizeOutlines: function () {
