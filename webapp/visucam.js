@@ -1,7 +1,7 @@
 "use strict";
 require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeDView', 'cnc/cam.js', 'cnc/util.js',
-        'cnc/toolpath', 'THREE', 'templates'],
-    function (Ember, DS, views, TwoDView, TreeDView, cam, util, tp, THREE, templates) {
+        'cnc/toolpath', 'templates'],
+    function (Ember, DS, views, TwoDView, TreeDView, cam, util, tp, templates) {
         Ember.TEMPLATES['application'] = Ember.TEMPLATES['visucamApp'];
 
         window.Visucam = Ember.Application.create({});
