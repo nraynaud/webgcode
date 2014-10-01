@@ -11,7 +11,7 @@ define(['cnc/util'], function (util) {
             return 'constant-z-toolpath';
         },
         pushPoint: function (x, y) {
-            this.path.push([x, y]);
+            this.path.push(new util.Point(x, y));
         },
         getStartPoint: function (defaultZ) {
             var p = this.path[0];
@@ -63,7 +63,7 @@ define(['cnc/util'], function (util) {
             return 'general-toolpath';
         },
         pushPoint: function (x, y, z) {
-            this.path.push([x, y, z]);
+            this.path.push(new util.Point(x, y, z));
         },
         pushPointInFront: function (x, y, z) {
             this.path.unshift([x, y, z]);
