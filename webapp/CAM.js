@@ -80,8 +80,11 @@ require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/twoDView', 'cnc/cam', 'cn
                             threeDView.clearView();
                     },
                     arrayDidChange: function (observedObj, start, removeCount, addCount) {
-                        for (var i = 0; i < addCount; i++)
-                            threeDView.addToolpathFragment(threeDView.toolpath, observedObj[start + i]);
+                        for (var i = 0; i < addCount; i++) {
+                            var fragment = observedObj[start + i];
+                            threeDView[fragment.speedTag == 'rapid' ? 'rapidToolpathNode' : 'normalToolpathNode']
+                                .addCollated(fragment.vertices);
+                        }
                         threeDView.reRender();
                     }
                 });

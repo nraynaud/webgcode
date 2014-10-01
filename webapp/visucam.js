@@ -280,8 +280,7 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 if (operation) {
                     var toolpath2 = operation.get('toolpath');
                     toolpath2.forEach(function (toolpath) {
-                        var vertices = collectVertices(toolpath, operation.get('contourZ'));
-                        threeDView.addToolpathFragment(threeDView.toolpath, {vertices: vertices.buffer, speedTag: 'normal'});
+                        threeDView.normalToolpathNode.addCollated(collectVertices(toolpath, operation.get('contourZ')));
                     });
                     var highlightDisplay = this.get('highlightDisplay');
                     highlightDisplay.clear();

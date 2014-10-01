@@ -15,13 +15,15 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             return new util.Point(v.x, v.y, v.z);
         }
 
-        function Node(node, material) {
+        function PolylineNode(node, material) {
             this.node = node;
             this.material = material;
+            this.bufferedGeometry = null;
         }
 
-        Node.prototype = {
+        PolylineNode.prototype = {
             clear: function () {
+                this.bufferedGeometry = null;
                 var node = this.node;
                 while (node.children.length)
                     node.remove(node.children[0]);
@@ -33,6 +35,42 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                     for (var j = 0; j < poly.length; j++)
                         lineGeometry.vertices.push(new THREE.Vector3(poly[j].x, poly[j].y, poly[j].z));
                     this.node.add(new THREE.Line(lineGeometry, this.material));
+                }
+            },
+            addCollated: function (rawVertices) {
+
+                function typedArrayConcat(first, second, constructor) {
+                    var firstLength = first.length,
+                        result = new constructor(firstLength + second.length);
+                    result.set(first);
+                    result.set(second, firstLength);
+                    return result;
+                }
+
+                var vertices = new Float32Array(rawVertices);
+                var pointsAdded = vertices.length / 3;
+                var currentPoints = this.bufferedGeometry ? this.bufferedGeometry.attributes.position.array.length / 3 : 0;
+                if (this.bufferedGeometry && (pointsAdded + currentPoints >= 30000)) {
+                    this.bufferedGeometry = null;
+                    currentPoints = 0;
+                }
+                var startIndex = currentPoints;
+                var newIndices = new Uint16Array((pointsAdded - 1) * 2);
+                for (var i = 0; i < pointsAdded - 1; i++) {
+                    newIndices[i * 2] = startIndex + i;
+                    newIndices[i * 2 + 1] = startIndex + i + 1;
+                }
+                if (this.bufferedGeometry == null) {
+                    this.bufferedGeometry = new THREE.BufferGeometry();
+                    this.bufferedGeometry.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
+                    this.bufferedGeometry.addAttribute('index', new THREE.BufferAttribute(newIndices, 1));
+                    this.node.add(new THREE.Line(this.bufferedGeometry, this.material, THREE.LinePieces));
+                } else {
+                    var attributes = this.bufferedGeometry.attributes;
+                    attributes.position.array = typedArrayConcat(attributes.position.array, vertices, Float32Array);
+                    attributes.index.array = typedArrayConcat(attributes.index.array, newIndices, Uint16Array);
+                    attributes.position.needsUpdate = true;
+                    attributes.index.needsUpdate = true;
                 }
             }
         };
@@ -107,8 +145,6 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             this.setToolVisibility(false);
             this.scene.add(this.tool);
             this.scene.add(this.drawing);
-            this.toolpath = new THREE.Object3D();
-            this.drawing.add(this.toolpath);
             this.normalMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFFFFFF});
             this.rapidMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFF0000});
             this.outlineMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFFFF00});
@@ -117,65 +153,21 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             //needed because requestAnimationFrame can't pass a "this".
             this.requestAnimationFrameCallback = this.actuallyRender.bind(this);
             $container.prepend(cubeManipulator(this));
+            this.rapidToolpathNode = this.createDrawingNode(this.rapidMaterial);
+            this.normalToolpathNode = this.createDrawingNode(this.normalMaterial);
             this.reRender();
         }
 
         ThreeDView.prototype = {
-            addCollated: function (parentObject, rawVertices, attributeName, material) {
-
-                function typedArrayConcat(first, second, constructor) {
-                    var firstLength = first.length,
-                        result = new constructor(firstLength + second.length);
-                    result.set(first);
-                    result.set(second, firstLength);
-                    return result;
-                }
-
-                var vertices = new Float32Array(rawVertices);
-                var pointsAdded = vertices.length / 3;
-                var currentPoints = this[attributeName] ? this[attributeName].attributes.position.array.length / 3 : 0;
-                if (this[attributeName] && (pointsAdded + currentPoints >= 30000)) {
-                    this[attributeName] = null;
-                    currentPoints = 0;
-                }
-                var startIndex = currentPoints;
-                var newIndices = new Uint16Array((pointsAdded - 1) * 2);
-                for (var i = 0; i < pointsAdded - 1; i++) {
-                    newIndices[i * 2] = startIndex + i;
-                    newIndices[i * 2 + 1] = startIndex + i + 1;
-                }
-                if (this[attributeName] == null) {
-                    this[attributeName] = new THREE.BufferGeometry();
-                    this[attributeName].addAttribute('position', new THREE.BufferAttribute(vertices, 3));
-                    this[attributeName].addAttribute('index', new THREE.BufferAttribute(newIndices, 1));
-                    parentObject.add(new THREE.Line(this[attributeName], material, THREE.LinePieces));
-                } else {
-                    var attributes = this[attributeName].attributes;
-                    attributes.position.array = typedArrayConcat(attributes.position.array, vertices, Float32Array);
-                    attributes.index.array = typedArrayConcat(attributes.index.array, newIndices, Uint16Array);
-                    attributes.position.needsUpdate = true;
-                    attributes.index.needsUpdate = true;
-                }
-            },
-            addToolpathFragment: function (toolpathObject, fragment) {
-                return fragment.speedTag == 'rapid'
-                    ? this.addCollated(toolpathObject, fragment.vertices, 'rapidMoves', this.rapidMaterial)
-                    : this.addCollated(toolpathObject, fragment.vertices, 'normalMoves', this.normalMaterial);
-            },
-            displayPath: function (path) {
-                this.clearView();
-                for (var i = 0; i < path.length; i++)
-                    this.addToolpathFragment(this.toolpath, path[i]);
-                this.zoomExtent();
-                return this.toolpath;
+            addToolpathFragment: function (fragment) {
+                this[fragment.speedTag == 'rapid' ? 'rapidToolpathNode' : 'normalToolpathNode'].addCollated(fragment.vertices);
             },
             clearView: function () {
                 this.clearToolpath();
             },
             clearToolpath: function () {
-                this.rapidMoves = null;
-                this.normalMoves = null;
-                this.clearNode(this.toolpath);
+                this.rapidToolpathNode.clear();
+                this.normalToolpathNode.clear();
             },
             computeDrawingBBox: function () {
                 var bbox = new THREE.Box3();
@@ -232,12 +224,12 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             createDrawingNode: function (material) {
                 var node = new THREE.Object3D();
                 this.drawing.add(node);
-                return new Node(node, material);
+                return new PolylineNode(node, material);
             },
             createOverlayNode: function (material) {
                 var node = new THREE.Object3D();
                 this.overlayScene.add(node);
-                return new Node(node, material);
+                return new PolylineNode(node, material);
             },
             reRender: function () {
                 if (!this.renderRequested) {
@@ -247,5 +239,4 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             }
         };
         return {ThreeDView: ThreeDView};
-    })
-;
+    });
