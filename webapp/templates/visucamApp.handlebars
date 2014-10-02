@@ -1,6 +1,6 @@
 <div class="operations">
     <table class="form">
-    <tbody>
+        <tbody>
         <tr>
             <th>Safety Z:</th>
             <td>{{view Visucam.NumberView value=safetyZ}}</td>
@@ -13,7 +13,9 @@
     </table>
     <ul>
         {{#each operations itemController="operationListItem"}}
-            <li {{bind-attr class="isCurrent:current"}}>{{#link-to "operation" this}}{{name}}{{/link-to}}</li>
+            <li {{bind-attr class="isCurrent:current"}}>{{#link-to "operation" this}}{{name}}{{/link-to}}
+                <button {{action "delete"}} title="Delete Operation">X</button>
+            </li>
         {{else}}
             No operation yet.
         {{/each}}

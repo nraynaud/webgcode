@@ -722,7 +722,11 @@ Ember.TEMPLATES["visucamApp"] = Ember.Handlebars.template(function anonymous(Han
         if (stack2 || stack2 === 0) {
             data.buffer.push(stack2);
         }
-        data.buffer.push("</li>\n        ");
+        data.buffer.push("\n                <button ");
+        hashTypes = {};
+        hashContexts = {};
+        data.buffer.push(escapeExpression(helpers.action.call(depth0, "delete", {hash: {}, contexts: [depth0], types: ["STRING"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
+        data.buffer.push(" title=\"Delete Operation\">X</button>\n            </li>\n        ");
         return buffer;
     }
 
@@ -740,7 +744,7 @@ Ember.TEMPLATES["visucamApp"] = Ember.Handlebars.template(function anonymous(Han
         data.buffer.push("\n            No operation yet.\n        ");
     }
 
-    data.buffer.push("<div class=\"operations\">\n    <table class=\"form\">\n    <tbody>\n        <tr>\n            <th>Safety Z:</th>\n            <td>");
+    data.buffer.push("<div class=\"operations\">\n    <table class=\"form\">\n        <tbody>\n        <tr>\n            <th>Safety Z:</th>\n            <td>");
     hashContexts = {'value': depth0};
     hashTypes = {'value': "ID"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
