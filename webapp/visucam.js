@@ -19,11 +19,29 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
          * When this works we can try to be smarter and not stop uselessly.
          */
         Visucam.Operation = Ember.Object.extend({
+            init: function () {
+                this.computeToolpath();
+                this.installObservers();
+            },
             name: null,
             job: null,
             outline: null,
             inside: null,
             toolpath: null,
+            installObservers: function () {
+                var properties = OPERATIONS_DESCRIPTORS[this.get('type')].properties;
+                var _this = this;
+                Object.keys(properties).forEach(function (key) {
+                    _this.addObserver(key, _this, _this.computeToolpath)
+                });
+            }.observes('type'),
+            uninstallObservers: function () {
+                var properties = OPERATIONS_DESCRIPTORS[this.get('type')].properties;
+                var _this = this;
+                Object.keys(properties).forEach(function (key) {
+                    _this.removeObserver(key, _this, _this.computeToolpath)
+                });
+            }.observesBefore('type'),
             startPoint: function () {
                 var pt = this.get('toolpath')[0].getStartPoint();
                 return new util.Point(pt.x, pt.y);
@@ -31,58 +49,64 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
             endPoint: function () {
                 var toolpath = this.get('toolpath');
                 return toolpath[toolpath.length - 1].getStopPoint();
-            }.property('toolpath')
-        });
-        Visucam.SimpleContourOperation = Visucam.Operation.extend({
-            init: function () {
-                this.computeToolpath();
-            },
-            contourZ: 0,
-            specialTemplate: 'simpleContour',
+            }.property('toolpath'),
             computeToolpath: function () {
-                var machine = new cam.Machine(null);
-                machine.setParams(this.get('contourZ'), 10, 100);
-                var polygon = cam.pathDefToClipper(this.get('outline.definition'));
-                var polygon1 = machine.contourClipper(polygon, parseFloat(this.get('job.toolDiameter')) / 2, this.get('inside'));
-                var contourZ = this.get('contourZ');
-                var safetyZ = this.get('job.safetyZ');
-                var toolpath = machine.fromClipper(polygon1).map(function (path) {
-                    var startPoint = path.getStartPoint();
-                    var generalPath = path.asGeneralToolpath(contourZ);
-                    // plunge from safety plane
-                    generalPath.pushPointInFront(startPoint.x, startPoint.y, safetyZ);
-                    //close the loop
-                    generalPath.pushPoint(startPoint.x, startPoint.y, contourZ);
-                    return generalPath;
-                });
-                this.set('toolpath', toolpath);
-            }.observes('outline', 'contourZ', 'job.toolDiameter', 'inside', 'job.safetyZ')
+                OPERATIONS_DESCRIPTORS[this.get('type')]['computeToolpath'](this);
+            }.observes('type', 'job.toolDiameter', 'job.safetyZ'),
+            unknownProperty: function (key) {
+                return OPERATIONS_DESCRIPTORS[this.get('type')].properties[key];
+            }
         });
-        Visucam.RampingContourOperation = Visucam.Operation.extend({
-            init: function () {
-                this.computeToolpath();
-            },
-            startZ: 0,
-            stopZ: -5,
-            turns: 5,
-            specialTemplate: 'rampingContour',
-            computeToolpath: function () {
-                var machine = new cam.Machine(null);
-                machine.setParams(this.get('contourZ'), 10, 100);
-                var clipperPolygon = cam.pathDefToClipper(this.get('outline.definition'));
-                var contour = machine.contourClipper(clipperPolygon, parseFloat(this.get('job.toolDiameter')) / 2, this.get('inside'));
-                var startZ = parseFloat(this.get('startZ'));
-                var stopZ = parseFloat(this.get('stopZ'));
-                var turns = parseFloat(this.get('turns'));
-                var toolpath = machine.rampToolPathArray(machine.fromClipper(contour), startZ, stopZ, turns);
-                var safetyZ = this.get('job.safetyZ');
-                toolpath.forEach(function (path) {
-                    var startPoint = path.getStartPoint();
-                    path.pushPointInFront(startPoint.x, startPoint.y, safetyZ);
-                });
-                this.set('toolpath', toolpath);
-            }.observes('outline', 'startZ', 'stopZ', 'turns', 'job.toolDiameter', 'inside', 'job.safetyZ')
-        });
+
+        var OPERATIONS_DESCRIPTORS = {
+            'Visucam.SimpleContourOperation': {
+                label: 'Simple Contour',
+                specialTemplate: 'simpleContour',
+                properties: {contourZ: -5},
+                computeToolpath: function (op) {
+                    var machine = new cam.Machine(null);
+                    machine.setParams(op.get('contourZ'), 10, 100);
+                    var polygon = cam.pathDefToClipper(op.get('outline.definition'));
+                    var polygon1 = machine.contourClipper(polygon, parseFloat(op.get('job.toolDiameter')) / 2, op.get('inside'));
+                    var contourZ = op.get('contourZ');
+                    var safetyZ = op.get('job.safetyZ');
+                    var toolpath = machine.fromClipper(polygon1).map(function (path) {
+                        var startPoint = path.getStartPoint();
+                        var generalPath = path.asGeneralToolpath(contourZ);
+                        // plunge from safety plane
+                        generalPath.pushPointInFront(startPoint.x, startPoint.y, safetyZ);
+                        //close the loop
+                        generalPath.pushPoint(startPoint.x, startPoint.y, contourZ);
+                        return generalPath;
+                    });
+                    op.set('toolpath', toolpath);
+                }},
+            'Visucam.RampingContourOperation': {
+                label: 'Ramping Contour',
+                specialTemplate: 'rampingContour',
+                properties: {
+                    startZ: 0,
+                    stopZ: -5,
+                    turns: 5
+                },
+                computeToolpath: function (op) {
+                    var machine = new cam.Machine(null);
+                    machine.setParams(op.get('contourZ'), 10, 100);
+                    var clipperPolygon = cam.pathDefToClipper(op.get('outline.definition'));
+                    var contour = machine.contourClipper(clipperPolygon, parseFloat(op.get('job.toolDiameter')) / 2, op.get('inside'));
+                    var startZ = parseFloat(op.get('startZ'));
+                    var stopZ = parseFloat(op.get('stopZ'));
+                    var turns = parseFloat(op.get('turns'));
+                    var toolpath = machine.rampToolPathArray(machine.fromClipper(contour), startZ, stopZ, turns);
+                    var safetyZ = op.get('job.safetyZ');
+                    toolpath.forEach(function (path) {
+                        var startPoint = path.getStartPoint();
+                        path.pushPointInFront(startPoint.x, startPoint.y, safetyZ);
+                    });
+                    op.set('toolpath', toolpath);
+                }
+            }
+        };
 
         Visucam.Job = Ember.Object.extend({
             init: function () {
@@ -98,13 +122,11 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 var pathFragments = [];
                 for (var i = 0; i < operations.length; i++) {
                     var toolpath = operations[i].get('toolpath');
-                    console.log(toolpath);
                     for (var j = 0; j < toolpath.length; j++)
                         pathFragments.push(toolpath[j]);
                 }
                 for (i = 0; i < pathFragments.length - 1; i++) {
                     var endPoint = pathFragments[i].getStopPoint();
-                    console.log(pathFragments[i + 1]);
                     var destinationPoint = pathFragments[i + 1].getStartPoint();
                     var travel = new tp.GeneralPolylineToolpath();
                     travel.pushPoint(endPoint.x, endPoint.y, endPoint.z);
@@ -113,7 +135,7 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                     travelBits.push(travel);
                 }
                 return travelBits;
-            }.property('operations.@each.startPoint', 'operations.@each.endPoint'),
+            }.property('operations.@each.toolpath', 'operations.@each.toolpath'),
             syncSecurityZ: function () {
                 var safetyZ = this.get('safetyZ');
                 this.get('operations').forEach(function (operation) {
@@ -121,8 +143,9 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 });
             }.observes('safetyZ', 'operations.@each.safetyZ'),
             createSimpleContour: function (id, name, outline, inside, contourZ) {
-                var contour = Visucam.SimpleContourOperation.create({
+                var contour = Visucam.Operation.create({
                     id: id,
+                    type: 'Visucam.SimpleContourOperation',
                     job: this,
                     name: name,
                     outline: outline,
@@ -133,8 +156,9 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 return  contour;
             },
             createRampingContour: function (id, name, outline, inside, startZ, stopZ, turns) {
-                var contour = Visucam.RampingContourOperation.create({
+                var contour = Visucam.Operation.create({
                     id: id,
+                    type: 'Visucam.RampingContourOperation',
                     job: this,
                     name: name,
                     outline: outline,
@@ -172,7 +196,7 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
         var operations = {};
         operations[1] = doc.createSimpleContour(1, 'Outer Profiling', shape1, false, -10);
         operations[2] = doc.createRampingContour(2, 'Inner Profiling 1', shape2, true, 0, -10, 3);
-        operations[3] = doc.createRampingContour(3, 'Inner Profiling 2', shape3, true, 0, -15, 4);
+        operations[3] = doc.createSimpleContour(3, 'Inner Profiling 2', shape3, true, 0, -13);
         operations[4] = doc.createRampingContour(4, 'Outer Profiling 3', shape4, false, 0, -15, 5);
 
         Visucam.Router.map(function () {
@@ -199,7 +223,15 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
         Visucam.OperationController = Ember.ObjectController.extend({
             init: function () {
                 this._super();
-            }
+            },
+            specialTemplate: function () {
+                return OPERATIONS_DESCRIPTORS[this.get('type')].specialTemplate;
+            }.property('type'),
+            operationDescriptors: function () {
+                return Object.keys(OPERATIONS_DESCRIPTORS).map(function (key) {
+                    return $.extend({class: key}, OPERATIONS_DESCRIPTORS[key]);
+                });
+            }.property()
         });
         Visucam.OperationListItemController = Ember.ObjectController.extend({
             needs: ['application'],
@@ -234,7 +266,6 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 var highlight = this.get('highlight');
                 highlight.clear();
                 highlight.path(operation.get('outline.definition'));
-
             }.observes('controller.currentOperation', 'controller.currentOperation.toolpath'),
             synchronizeJob: function () {
                 var shapes = this.get('controller.shapes');

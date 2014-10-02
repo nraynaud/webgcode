@@ -1,6 +1,10 @@
 <div style="border: solid gray 1px">
     <table class="form">
-    <tbody>
+        <tbody>
+        <tr>
+            <th>Type</th>
+            <td>{{view Ember.Select value=type content=operationDescriptors optionValuePath="content.class" optionLabelPath="content.label"}}</td>
+        </tr>
         <tr>
             <th>Name:</th>
             <td>{{input value=name placeholder="name"}} </td>
