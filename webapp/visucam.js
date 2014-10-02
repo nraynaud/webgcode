@@ -26,7 +26,6 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
             name: null,
             job: null,
             outline: null,
-            inside: null,
             toolpath: null,
             installObservers: function () {
                 var properties = OPERATIONS_DESCRIPTORS[this.get('type')].properties;
@@ -42,14 +41,6 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                     _this.removeObserver(key, _this, _this.computeToolpath)
                 });
             }.observesBefore('type'),
-            startPoint: function () {
-                var pt = this.get('toolpath')[0].getStartPoint();
-                return new util.Point(pt.x, pt.y);
-            }.property('toolpath'),
-            endPoint: function () {
-                var toolpath = this.get('toolpath');
-                return toolpath[toolpath.length - 1].getStopPoint();
-            }.property('toolpath'),
             computeToolpath: function () {
                 OPERATIONS_DESCRIPTORS[this.get('type')]['computeToolpath'](this);
             }.observes('type', 'job.toolDiameter', 'job.safetyZ'),
@@ -62,7 +53,7 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
             'Visucam.SimpleContourOperation': {
                 label: 'Simple Contour',
                 specialTemplate: 'simpleContour',
-                properties: {contourZ: -5},
+                properties: {contourZ: -5, inside: true},
                 computeToolpath: function (op) {
                     var machine = new cam.Machine(null);
                     machine.setParams(op.get('contourZ'), 10, 100);
@@ -87,7 +78,8 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 properties: {
                     startZ: 0,
                     stopZ: -5,
-                    turns: 5
+                    turns: 5,
+                    inside: true
                 },
                 computeToolpath: function (op) {
                     var machine = new cam.Machine(null);
@@ -135,7 +127,7 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                     travelBits.push(travel);
                 }
                 return travelBits;
-            }.property('operations.@each.toolpath', 'operations.@each.toolpath'),
+            }.property('operations.@each.toolpath'),
             syncSecurityZ: function () {
                 var safetyZ = this.get('safetyZ');
                 this.get('operations').forEach(function (operation) {
