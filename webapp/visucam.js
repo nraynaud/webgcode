@@ -95,9 +95,17 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
             transitionTravels: function () {
                 var operations = this.get('operations');
                 var travelBits = [];
-                for (var i = 0; i < operations.length - 1; i++) {
-                    var endPoint = operations[i].get('endPoint');
-                    var destinationPoint = operations[i + 1].get('startPoint');
+                var pathFragments = [];
+                for (var i = 0; i < operations.length; i++) {
+                    var toolpath = operations[i].get('toolpath');
+                    console.log(toolpath);
+                    for (var j = 0; j < toolpath.length; j++)
+                        pathFragments.push(toolpath[j]);
+                }
+                for (i = 0; i < pathFragments.length - 1; i++) {
+                    var endPoint = pathFragments[i].getStopPoint();
+                    console.log(pathFragments[i + 1]);
+                    var destinationPoint = pathFragments[i + 1].getStartPoint();
                     var travel = new tp.GeneralPolylineToolpath();
                     travel.pushPoint(endPoint.x, endPoint.y, endPoint.z);
                     travel.pushPoint(endPoint.x, endPoint.y, this.get('safetyZ'));
@@ -161,16 +169,11 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
             operations: [],
             shapes: [shape1, shape2, shape3, shape4]
         });
-        var op1 = doc.createSimpleContour(1, 'Outer Profiling', shape1, false, -10);
-        var op2 = doc.createRampingContour(2, 'Inner Profiling 1', shape2, true, 0, -10, 3);
-        var op3 = doc.createRampingContour(3, 'Inner Profiling 2', shape3, true, 0, -15, 4);
-        var op4 = doc.createRampingContour(4, 'Outer Profiling 3', shape4, false, 0, -15, 5);
-        var operations = {
-            1: op1,
-            2: op2,
-            3: op3,
-            4: op4
-        };
+        var operations = {};
+        operations[1] = doc.createSimpleContour(1, 'Outer Profiling', shape1, false, -10);
+        operations[2] = doc.createRampingContour(2, 'Inner Profiling 1', shape2, true, 0, -10, 3);
+        operations[3] = doc.createRampingContour(3, 'Inner Profiling 2', shape3, true, 0, -15, 4);
+        operations[4] = doc.createRampingContour(4, 'Outer Profiling 3', shape4, false, 0, -15, 5);
 
         Visucam.Router.map(function () {
             this.resource('operation', {path: '/operations/:operation_id'});
