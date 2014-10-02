@@ -216,6 +216,7 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 this.set('highlight', view.get('overlay').group().attr('class', 'highlight'));
                 this.synchronizeCurrentOperation();
                 this.synchronizeJob();
+                this.synchronizeTravels();
             },
             synchronizeCurrentOperation: function () {
                 var operation = this.get('controller.currentOperation');
@@ -230,6 +231,17 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 var highlight = this.get('highlight');
                 highlight.clear();
                 highlight.path(operation.get('outline.definition'));
+
+            }.observes('controller.currentOperation', 'controller.currentOperation.toolpath'),
+            synchronizeJob: function () {
+                var shapes = this.get('controller.shapes');
+                var _this = this;
+                shapes.forEach(function (shape) {
+                    _this.get('documentDisplay').path(shape.get('definition')).attr('class', 'outline');
+                });
+                this.get('nativeComponent').zoomExtent();
+            }.observes('controller.shapes'),
+            synchronizeTravels: function () {
                 var travel = this.get('travel');
                 travel.clear();
                 var travelMoves = this.get('controller.transitionTravels');
@@ -242,15 +254,7 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                     }
                     travel.path(p);
                 }
-            }.observes('controller.currentOperation', 'controller.currentOperation.toolpath', 'controller.transitionTravels'),
-            synchronizeJob: function () {
-                var shapes = this.get('controller.shapes');
-                var _this = this;
-                shapes.forEach(function (shape) {
-                    _this.get('documentDisplay').path(shape.get('definition')).attr('class', 'outline');
-                });
-                this.get('nativeComponent').zoomExtent();
-            }.observes('controller.shapes')
+            }.observes('controller.transitionTravels')
         });
 
         function collectVertices(toolpath, defaultZ) {
