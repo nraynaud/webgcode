@@ -2,57 +2,8 @@
 require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/twoDView', 'cnc/cam/cam', 'cnc/util', 'cnc/ui/gcodeEditor',
         'cnc/ui/jsEditor', 'cnc/gcode/gcodeSimulation', 'cnc/gcode/simulation', 'cnc/cam/toolpath', 'libs/svg-import', 'templates'],
     function (Ember, RSVP, threeD, TwoDView, cam, util, gcodeEditor, jsEditor, gcodeSimulation, simulation, tp) {
-        var demoCode = 'G0 X0 Y10 Z-5\n' +
-            'G1 Z-10\n' +
-            'G1 Y20\n' +
-            'G02 X10 Y30 R10\n' +
-            'G1 X30\n' +
-            'G2 X40 Y20 R10\n' +
-            'G1 Y10\n' +
-            'G2 X30 Y0 R10\n' +
-            'G1 X10\n' +
-            'G2 X0 Y10 Z-15 R10 (yeah spiral !)\n' +
-            'G3 X-10 Y20 R-10 (yeah, long arc !)\n' +
-            'G3 X0 Y10 I10 (center)\n' +
-            'G91 G1 X10 Z10\n' +
-            'G3 Y10 R5 Z3 (circle in incremental)\n' +
-            'Y10 R5 Z3 (again, testing modal state)\n' +
-            'G20 G0 X1 (one inch to the right)\n' +
-            'G3 X-1 R1 (radius in inches)\n' +
-            'G3 X1 Z0.3 I0.5 J0.5 (I,J in inches)\n' +
-            'G21 (back to mm)\n' +
-            'G80 X10 (do nothing)\n' +
-            'G90\n' +
-            'G0 X30 Y30 Z30\n' +
-            'G18 (X-Z plane)\n' +
-            'G3 Z40 I0 K5\n' +
-            'G19 (Y-Z plane)\n' +
-            'G3 Z50 J0 K5\n' +
-            'G17 (back to X-Y plane)\n';
-        var demoJSCode = 'var outerWidth = 100;\n'
-            + 'var angle = 100;\n'
-            + 'var angleRadian = angle * Math.PI / 180;\n'
-            + 'var backsideMinWidth = 4;\n'
-            + 'var outerHeight = 25;\n'
-            + 'var virtualMeetingPointY = -1;\n'
-            + 'var ratio = Math.tan(angleRadian / 2);\n'
-            + 'var slopeDX = (outerHeight - backsideMinWidth) * ratio;\n'
-            + 'var topDx = outerWidth / 2 - (outerHeight - virtualMeetingPointY) * ratio;\n'
-            + 'var plankThickness = 18;\n'
-
-            + 'function createBracket(machine) {\n'
-            + '    var toolRadius = 3 / 2;\n'
-            + "    var shape = cam.geom.op('M', 0, 0) + cam.geom.op('l', outerWidth, 0) + cam.geom.op('l', 0, outerHeight)\n"
-            + "        + cam.geom.op('l', -topDx, 0)\n"
-            + "        + cam.geom.op('l', -slopeDX, -(outerHeight - backsideMinWidth))\n"
-            + "            + cam.geom.op('l', -(outerWidth - topDx * 2 - slopeDX * 2), 0)\n"
-            + "            + cam.geom.op('l', -slopeDX, outerHeight - backsideMinWidth)\n"
-            + "            + cam. geom.op('l', -topDx, 0) + 'Z';\n"
-            + '    var outline = machine.createOutline(shape);\n'
-            + '    machine.setParams(-17, 10, 1000);\n'
-            + '    machine.registerToolPathArray(machine.rampToolPathArray(machine.contouring(outline, toolRadius, false, true), -0, -plankThickness, 3));\n'
-            + '}\n'
-            + 'createBracket(machine);';
+        var demoCode = $('#demoCode').text();
+        var demoJSCode = $('#demoJSCode').text();
 
         Ember.Handlebars.helper('num', function (value) {
             return new Handlebars.SafeString(Handlebars.Utils.escapeExpression(util.formatCoord(value)));
