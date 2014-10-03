@@ -1,3 +1,4 @@
+"use strict";
 define(['Ember', 'ace'], function (Em, ace) {
     var JSEditorComponent = Em.Component.extend({
         tagName: 'pre',
