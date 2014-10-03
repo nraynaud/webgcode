@@ -481,10 +481,18 @@ Ember.TEMPLATES["operation"] = Ember.Handlebars.template(function anonymous(Hand
     this.compilerInfo = [4, '>= 1.0.0'];
     helpers = this.merge(helpers, Ember.Handlebars.helpers);
     data = data || {};
-    var buffer = '', stack1, hashContexts, hashTypes, options, escapeExpression = this.escapeExpression, helperMissing = helpers.helperMissing;
+    var buffer = '', stack1, hashContexts, hashTypes, options, helperMissing = helpers.helperMissing, escapeExpression = this.escapeExpression;
 
 
-    data.buffer.push("<div style=\"border: solid gray 1px\">\n    <table class=\"form\">\n        <tbody>\n        <tr>\n            <th>Type</th>\n            <td>");
+    data.buffer.push("<div>\n    <table class=\"form\">\n        <tbody>\n        <tr class=\"form-header\">\n            <th>Name:</th>\n            <td>");
+    hashContexts = {'value': depth0, 'placeholder': depth0};
+    hashTypes = {'value': "ID", 'placeholder': "STRING"};
+    options = {hash: {
+        'value': ("name"),
+        'placeholder': ("name")
+    }, contexts: [], types: [], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.input || (depth0 && depth0.input)), stack1 ? stack1.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+    data.buffer.push(" </td>\n        </tr>\n        <tr>\n            <th>Type</th>\n            <td>");
     hashContexts = {'value': depth0, 'content': depth0, 'optionValuePath': depth0, 'optionLabelPath': depth0};
     hashTypes = {'value': "ID", 'content': "ID", 'optionValuePath': "STRING", 'optionLabelPath': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Ember.Select", {hash: {
@@ -493,15 +501,7 @@ Ember.TEMPLATES["operation"] = Ember.Handlebars.template(function anonymous(Hand
         'optionValuePath': ("content.class"),
         'optionLabelPath': ("content.label")
     }, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
-    data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th>Name:</th>\n            <td>");
-    hashContexts = {'value': depth0, 'placeholder': depth0};
-    hashTypes = {'value': "ID", 'placeholder': "STRING"};
-    options = {hash: {
-        'value': ("name"),
-        'placeholder': ("name")
-    }, contexts: [], types: [], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
-    data.buffer.push(escapeExpression(((stack1 = helpers.input || (depth0 && depth0.input)), stack1 ? stack1.call(depth0, options) : helperMissing.call(depth0, "input", options))));
-    data.buffer.push(" </td>\n        </tr>\n        <tr>\n            <th>Inside Shape</th>\n            <td>");
+    data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th>Inside Shape</th>\n            <td>");
     hashContexts = {'type': depth0, 'checked': depth0};
     hashTypes = {'type': "STRING", 'checked': "ID"};
     options = {hash: {
@@ -707,7 +707,7 @@ Ember.TEMPLATES["visucamApp"] = Ember.Handlebars.template(function anonymous(Han
     function program1(depth0, data) {
 
         var buffer = '', stack1, stack2, hashContexts, hashTypes, options;
-        data.buffer.push("\n            <li ");
+        data.buffer.push("\n                <li ");
         hashContexts = {'class': depth0};
         hashTypes = {'class': "STRING"};
         options = {hash: {
@@ -722,11 +722,11 @@ Ember.TEMPLATES["visucamApp"] = Ember.Handlebars.template(function anonymous(Han
         if (stack2 || stack2 === 0) {
             data.buffer.push(stack2);
         }
-        data.buffer.push("\n                <button ");
+        data.buffer.push("\n                    <button ");
         hashTypes = {};
         hashContexts = {};
         data.buffer.push(escapeExpression(helpers.action.call(depth0, "delete", {hash: {}, contexts: [depth0], types: ["STRING"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
-        data.buffer.push(" title=\"Delete Operation\">X</button>\n            </li>\n        ");
+        data.buffer.push(" title=\"Delete Operation\">X</button>\n                </li>\n            ");
         return buffer;
     }
 
@@ -741,23 +741,23 @@ Ember.TEMPLATES["visucamApp"] = Ember.Handlebars.template(function anonymous(Han
     function program4(depth0, data) {
 
 
-        data.buffer.push("\n            No operation yet.\n        ");
+        data.buffer.push("\n                No operation yet.\n            ");
     }
 
-    data.buffer.push("<div class=\"operations\">\n    <table class=\"form\">\n        <tbody>\n        <tr>\n            <th>Safety Z:</th>\n            <td>");
+    data.buffer.push("<div class=\"application\">\n    <div class=\"job\">\n        <table class=\"form\">\n            <tbody>\n            <tr>\n                <th>Safety Z:</th>\n                <td>");
     hashContexts = {'value': depth0};
     hashTypes = {'value': "ID"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
         'value': ("safetyZ")
     }, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
-    data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th>Tool Diameter:</th>\n            <td>");
+    data.buffer.push("</td>\n            </tr>\n            <tr>\n                <th>Tool Diameter:</th>\n                <td>");
     hashContexts = {'value': depth0, 'min': depth0};
     hashTypes = {'value': "ID", 'min': "INTEGER"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
         'value': ("toolDiameter"),
         'min': (0)
     }, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
-    data.buffer.push("</td>\n        </tr>\n        </tbody>\n    </table>\n    <ul>\n        ");
+    data.buffer.push("</td>\n            </tr>\n            </tbody>\n        </table>\n        <ul class=\"operations\">\n            ");
     hashContexts = {'itemController': depth0};
     hashTypes = {'itemController': "STRING"};
     stack1 = helpers.each.call(depth0, "operations", {hash: {
@@ -766,19 +766,15 @@ Ember.TEMPLATES["visucamApp"] = Ember.Handlebars.template(function anonymous(Han
     if (stack1 || stack1 === 0) {
         data.buffer.push(stack1);
     }
-    data.buffer.push("\n    </ul>\n    ");
-    hashTypes = {};
-    hashContexts = {};
-    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "outlet", {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
-    data.buffer.push("\n</div>\n<div class=\"viewContainer\">\n    ");
+    data.buffer.push("\n        </ul>\n    </div>\n    <div class=\"viewContainer\">\n        ");
     hashTypes = {};
     hashContexts = {};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.TreeDView", {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
-    data.buffer.push("\n    ");
+    data.buffer.push("\n    </div>\n    <div class=\"operation\">\n        ");
     hashTypes = {};
     hashContexts = {};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.TwoDView", {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
-    data.buffer.push("\n</div>");
+    data.buffer.push(escapeExpression(helpers._triageMustache.call(depth0, "outlet", {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
+    data.buffer.push("\n    </div>\n</div>");
     return buffer;
 
 });

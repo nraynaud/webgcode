@@ -80,9 +80,9 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             var width = $container.width();
             var height = $container.height();
             if (webglSupported())
-                this.renderer = new THREE.WebGLRenderer({antialias: true});
+                this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
             else
-                this.renderer = new THREE.CanvasRenderer();
+                this.renderer = new THREE.CanvasRenderer({ alpha: true});
             this.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 20000);
             this.scene = new THREE.Scene();
             this.overlayScene = new THREE.Scene();

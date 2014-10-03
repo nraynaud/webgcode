@@ -1,28 +1,31 @@
-<div class="operations">
-    <table class="form">
-        <tbody>
-        <tr>
-            <th>Safety Z:</th>
-            <td>{{view Visucam.NumberView value=safetyZ}}</td>
-        </tr>
-        <tr>
-            <th>Tool Diameter:</th>
-            <td>{{view Visucam.NumberView value=toolDiameter min=0}}</td>
-        </tr>
-        </tbody>
-    </table>
-    <ul>
-        {{#each operations itemController="operationListItem"}}
-            <li {{bind-attr class="isCurrent:current"}}>{{#link-to "operation" this}}{{name}}{{/link-to}}
-                <button {{action "delete"}} title="Delete Operation">X</button>
-            </li>
-        {{else}}
-            No operation yet.
-        {{/each}}
-    </ul>
-    {{outlet}}
-</div>
-<div class="viewContainer">
-    {{view Visucam.TreeDView}}
-    {{view Visucam.TwoDView}}
+<div class="application">
+    <div class="job">
+        <table class="form">
+            <tbody>
+            <tr>
+                <th>Safety Z:</th>
+                <td>{{view Visucam.NumberView value=safetyZ}}</td>
+            </tr>
+            <tr>
+                <th>Tool Diameter:</th>
+                <td>{{view Visucam.NumberView value=toolDiameter min=0}}</td>
+            </tr>
+            </tbody>
+        </table>
+        <ul class="operations">
+            {{#each operations itemController="operationListItem"}}
+                <li {{bind-attr class="isCurrent:current"}}>{{#link-to "operation" this}}{{name}}{{/link-to}}
+                    <button {{action "delete"}} title="Delete Operation">X</button>
+                </li>
+            {{else}}
+                No operation yet.
+            {{/each}}
+        </ul>
+    </div>
+    <div class="viewContainer">
+        {{view Visucam.TreeDView}}
+    </div>
+    <div class="operation">
+        {{outlet}}
+    </div>
 </div>

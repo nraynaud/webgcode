@@ -134,7 +134,6 @@ define(['Ember', 'libs/svg', 'libs/jquery.mousewheel', 'cnc/svg.marker'], functi
                 _this.set('insertedSize', {x: element.width(), y: element.height()});
             }
 
-            _this.set('viewPort', _this.root.rect().attr({ stroke: 'gray', fill: 'none'}));
             resizeSVG();
             _this.zoomExtent();
             this.set('grid', BackgroundGrid.create({view: this}));
@@ -151,10 +150,6 @@ define(['Ember', 'libs/svg', 'libs/jquery.mousewheel', 'cnc/svg.marker'], functi
                 this.set('ctm', this.root.node.getCTM());
             return this.get('ctm');
         },
-        visibleBoxChanged: function () {
-            var visibleBox = this.get('visibleBox');
-            this.get('viewPort').attr({width: visibleBox.width, height: visibleBox.height, x: visibleBox.x, y: visibleBox.y });
-        }.observes('visibleBox').on('init'),
         visibleBox: function () {
             var m = this.getCTM().inverse();
             var bottomLeft = this.transformPoint(0, this.get('insertedSize.y'), m);

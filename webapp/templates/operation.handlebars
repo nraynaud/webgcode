@@ -1,13 +1,13 @@
-<div style="border: solid gray 1px">
+<div>
     <table class="form">
         <tbody>
+        <tr class="form-header">
+            <th>Name:</th>
+            <td>{{input value=name placeholder="name"}} </td>
+        </tr>
         <tr>
             <th>Type</th>
             <td>{{view Ember.Select value=type content=operationDescriptors optionValuePath="content.class" optionLabelPath="content.label"}}</td>
-        </tr>
-        <tr>
-            <th>Name:</th>
-            <td>{{input value=name placeholder="name"}} </td>
         </tr>
         <tr>
             <th>Inside Shape</th>

@@ -330,6 +330,11 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
             classNames: ['ThreeDView'],
             didInsertElement: function () {
                 var threeDView = new TreeDView.ThreeDView(this.$());
+                threeDView.normalToolpathNode.material = new THREE.LineBasicMaterial({linewidth: 1.2, color: 0x6688aa});
+                threeDView.rapidMaterial = new THREE.LineBasicMaterial({linewidth: 1.2, color: 0xdd4c2f, depthWrite: false});
+                threeDView.outlineMaterial = new THREE.LineBasicMaterial({linewidth: 1.2, color: 0x000000});
+                threeDView.highlightMaterial = new THREE.LineBasicMaterial({depthWrite: false, overdraw: true, linewidth: 6,
+                    color: 0xdd4c2f, opacity: 0.5, transparent: true});
                 this.set('nativeComponent', threeDView);
                 this.set('travelDisplay', threeDView.createDrawingNode(threeDView.rapidMaterial));
                 this.set('outlinesDisplay', threeDView.createDrawingNode(threeDView.outlineMaterial));

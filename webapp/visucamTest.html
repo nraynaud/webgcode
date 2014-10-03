@@ -13,38 +13,20 @@
     <style>
 
         body, html {
-            -webkit-box-sizing: border-box;
-            -moz-box-sizing: border-box;
-            box-sizing: border-box;
-            position: absolute;
             height: 100%;
             width: 100%;
             margin: 0;
-            background: #000;
-            color: white;
+            padding: 0;
+            background: #fafafa;
+            color: #444;
         }
 
         body {
-            padding-left: 8px;
-            padding-right: 8px;
+            font-family: sans-serif;
         }
 
         h1 {
             margin-top: 0;
-        }
-
-        .operations {
-            position: relative;
-            float: left;
-            width: 39%;
-            height: 400px;
-            padding: 1px;
-            margin: 0;
-        }
-
-        .viewContainer {
-            float: right;
-            width: 60%;
         }
 
         #loader {
@@ -64,21 +46,41 @@
             padding: 3px;
         }
 
+        .application {
+            display: flex;
+            align-items: stretch;
+            height: 100vh;
+        }
+
+        .viewContainer {
+            flex-basis: 320px;
+            flex-grow: 1;
+            flex-shrink: 0;
+            height: 100vh;
+        }
+
+        .job, .operation {
+            flex-basis: 320px;
+            flex-grow: 0;
+            flex-shrink: 1;
+        }
+
         .ThreeDView {
-            border: solid gray 1px;
-            background: #000;
-            height: 400px;
+            background: linear-gradient(to bottom, #eee, #ddd);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
             position: relative;
+            height: 100%;
         }
 
         .TwoDView {
-            height: 400px;
+            border: none;
+            height: calc(40% - 2px);
+            background: #eee;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        .operations ul {
-            font-family: sans-serif;
+        ul.operations {
             list-style-type: none;
-            border: 1px white solid;
             padding: 0;
         }
 
@@ -86,17 +88,15 @@
             padding: 3px;
             cursor: pointer;
             list-style: none;
-            border-bottom: 1px white solid;
             margin: 0;
             display: flex;
-        }
-
-        .operations li:last-of-type {
-            border-bottom: none;
+            border-right: 3px solid transparent;
         }
 
         .operations li.current {
-            background-color: gray;
+            color: #000;
+            border-right-color: #dd4c2f;
+            background-color: #ffe9e6;
         }
 
         .operations a {
@@ -128,9 +128,26 @@
             stroke-linecap: round;
         }
 
-        table.form th {
-            text-align: right;
+        .form {
+            border-collapse: collapse;
+            border-spacing: 0;
+            border: none;
+            width: 100%;
         }
+
+        .form th {
+            text-align: left;
+            white-space: nowrap;
+            padding: 0.4em 0.5em;
+            font-weight: normal;
+        }
+
+        .form-header {
+            color: #000;
+            background: #ffe9e6;
+            border-top: 3px solid #dd4c2f;
+        }
+
     </style>
 </head>
 <body>
