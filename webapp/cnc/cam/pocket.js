@@ -1,6 +1,6 @@
 "use strict";
 
-define(['clipper', 'cnc/cam', 'require'], function (clipper, cam, require) {
+define(['clipper', 'cnc/cam/cam', 'require'], function (clipper, cam, require) {
 
     function lastItem(array) {
         return array[array.length - 1];
@@ -241,12 +241,12 @@ define(['clipper', 'cnc/cam', 'require'], function (clipper, cam, require) {
             messageHandler: function (data) {
                 if (data['finished']) {
                     var result = data['result'];
-                    require(['Ember'], function (Ember) {
+                    require(['../../libs/ember-1.5.0-beta5.pre7'], function (Ember) {
                         Ember.run(deferred, deferred.resolve, result);
                     });
                     return true;
                 } else if (data['operation'] == 'displayUndercutPoly')
-                    require(['Ember'], function (Ember) {
+                    require(['../../libs/ember-1.5.0-beta5.pre7'], function (Ember) {
                         Ember.run(undercutDeferred, undercutDeferred.resolve, data['polygon']);
                     });
                 return false;

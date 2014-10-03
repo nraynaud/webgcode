@@ -1,5 +1,5 @@
 "use strict";
-require(['libs/svg', 'cnc/cam', 'jQuery'], function (SVG, cam, $) {
+require(['libs/svg', 'cnc/cam/cam', 'jQuery'], function (SVG, cam, $) {
 
     var paper = new SVG(document.getElementById("paper"));
     window.addEventListener('message', function (event) {

@@ -1,5 +1,5 @@
 "use strict";
-define(['libs/rsvp-latest', 'cnc/cam', 'clipper', 'libs/opentype'], function (rsvp, cam, clipper, opentype) {
+define(['libs/rsvp-latest', 'cnc/cam/cam', 'clipper', 'libs/opentype'], function (rsvp, cam, clipper, opentype) {
     RSVP.on('error', function (reason) {
         console.log(reason.stack);
     });

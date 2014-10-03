@@ -1,6 +1,6 @@
 "use strict";
-require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/twoDView', 'cnc/cam', 'cnc/util', 'cnc/ui/gcodeEditor',
-        'cnc/ui/jsEditor', 'cnc/gcode/gcodeSimulation', 'cnc/gcode/simulation', 'cnc/toolpath', 'libs/svg-import', 'templates'],
+require(['Ember', 'RSVP', 'cnc/ui/threeDView', 'cnc/ui/twoDView', 'cnc/cam/cam', 'cnc/util', 'cnc/ui/gcodeEditor',
+        'cnc/ui/jsEditor', 'cnc/gcode/gcodeSimulation', 'cnc/gcode/simulation', 'cnc/cam/toolpath', 'libs/svg-import', 'templates'],
     function (Ember, RSVP, threeD, TwoDView, cam, util, gcodeEditor, jsEditor, gcodeSimulation, simulation, tp) {
         var demoCode = 'G0 X0 Y10 Z-5\n' +
             'G1 Z-10\n' +

@@ -27,7 +27,7 @@ var $ = {
 importScripts('libs/require.js', 'config.js');
 var tasks = {
     createPocket: function (event) {
-        require(['cnc/pocket'], function (pocket) {
+        require(['cnc/cam/pocket'], function (pocket) {
             pocket.createPocketWorkerSide(event);
         });
     },

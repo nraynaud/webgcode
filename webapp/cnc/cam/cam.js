@@ -1,6 +1,6 @@
 "use strict";
 
-define(['cnc/bezier', 'clipper', 'cnc/toolpath', 'libs/simplify', 'cnc/util', 'libs/extractedRaphael'], function (bezier, clipper, tp, simplify, util, _) {
+define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util', 'libs/extractedRaphael'], function (bezier, clipper, tp, simplify, util, _) {
     var CLIPPER_SCALE = Math.pow(2, 20);
 
     function positionEquals(p1, p2) {

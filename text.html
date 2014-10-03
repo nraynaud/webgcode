@@ -12,7 +12,7 @@
         });
     </script>
 
-    <link rel="shortcut icon" href="webapp/images/icon_fraise_48.png" />
+    <link rel="shortcut icon" href="webapp/images/icon_fraise_48.png"/>
     <link rel="stylesheet" href="webapp/twoDView.css" type="text/css">
     <style>
         * {
@@ -98,7 +98,7 @@
 </head>
 <body>
 <script>
-    require(['cnc/cam', 'cnc/text', 'cnc/pocket', 'cnc/ui/views', 'cnc/ui/pocketView', 'text!templates/textApp.handlebars', 'Ember'],
+    require(['cnc/cam/cam', 'cnc/cam/text', 'cnc/cam/pocket', 'cnc/ui/views', 'cnc/ui/pocketView', 'text!templates/textApp.handlebars', 'Ember'],
             function (cam, text, pocket, views, pocketView, textSource, Ember) {
                 var textTemplate = Ember.Handlebars.compile(textSource);
                 window.TextApplication = Ember.Application.create({
@@ -231,15 +231,15 @@
                         this.get('promise').then(function (toolPathArray) {
                             _this.set('toolPathArray', toolPathArray);
                         }).catch(function (error) {
-                                    console.error(error.stack);
-                                }).finally(function () {
-                                    _this.set('isComputing', false);
-                                });
+                            console.error(error.stack);
+                        }).finally(function () {
+                            _this.set('isComputing', false);
+                        });
                         this.get('undercutPromise').then(function (undercut) {
                             _this.set('undercut', undercut);
                         }).catch(function (error) {
-                                    console.error(error.stack);
-                                });
+                            console.error(error.stack);
+                        });
                     },
                     isComputing: true,
                     dumpOn: function (collector, travelZ, workZ) {
