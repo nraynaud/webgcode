@@ -1104,7 +1104,6 @@
 		DDAA5C0EF0AB3FDF7E4604D2 /* mode-logiql.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-logiql.js"; sourceTree = "<group>"; };
 		DDAA5C122A14047E66723196 /* mode-properties.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-properties.js"; sourceTree = "<group>"; };
 		DDAA5C13154AE7ADC61D5403 /* test.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test.html; sourceTree = "<group>"; };
-		DDAA5C173C2C592D36400815 /* spinner.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; path = spinner.svg; sourceTree = "<group>"; };
 		DDAA5C1795288A876C637870 /* TrackballControls.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = TrackballControls.js; path = webapp/libs/threejs/TrackballControls.js; sourceTree = "<group>"; };
 		DDAA5C1A31116FE9BE5056B7 /* mode-asciidoc.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-asciidoc.js"; sourceTree = "<group>"; };
 		DDAA5C23C43B6D9D0D8973DA /* mode-clojure.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-clojure.js"; sourceTree = "<group>"; };
@@ -1143,6 +1142,7 @@
 		DDAA5CD2FDA82B7CF0314228 /* mode-tcl.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-tcl.js"; sourceTree = "<group>"; };
 		DDAA5CDC55A7F6BEB7766AB2 /* theme-merbivore_soft.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "theme-merbivore_soft.js"; sourceTree = "<group>"; };
 		DDAA5CDF37E9EE57B6093FF2 /* mode-coldfusion.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-coldfusion.js"; sourceTree = "<group>"; };
+		DDAA5CE2FE1C0B27B819EAC7 /* spinner.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; path = spinner.svg; sourceTree = "<group>"; };
 		DDAA5D08CDD09CDA23452943 /* mode-jade.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-jade.js"; sourceTree = "<group>"; };
 		DDAA5D097A450AA46102FD59 /* mode-objectivec.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-objectivec.js"; sourceTree = "<group>"; };
 		DDAA5D0CF378287552FFC123 /* textApp.handlebars */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = textApp.handlebars; sourceTree = "<group>"; };
@@ -1343,6 +1343,7 @@
 				DDAA533DF299518744B4F61A /* icon_fraise.svg */,
 				DDAA5F9065BDDAC8C08A000D /* icon_fraise_48.png */,
 				DDAA5786D58158F3ED2ADB5D /* icon_fraise_128.png */,
+				DDAA5CE2FE1C0B27B819EAC7 /* spinner.svg */,
 			);
 			path = images;
 			sourceTree = "<group>";
@@ -2060,7 +2061,6 @@
 				DDAA5BD4D3436F114AB6921D /* manifest.json */,
 				DDAA578CF1A78A375FB0D041 /* twoDView.css */,
 				DDAA59E3CD1BC8E48FD71658 /* textApp.handlebars */,
-				DDAA5C173C2C592D36400815 /* spinner.svg */,
 				DDAA54E2136E795D172E250D /* templates */,
 				DDAA5E107A0690EF14F64382 /* samples */,
 				DDAA53B8DAE05E27A375FE9B /* config.js */,

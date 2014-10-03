@@ -53,7 +53,7 @@
         #loader {
             display: inline-block;
             background-size: 100% 100%;
-            background-image: url(spinner.svg);
+            background-image: url(images/spinner.svg);
             width: 20px;
             height: 20px;
         }
@@ -118,6 +118,7 @@ G19 (Y-Z plane)
 G3 Z50 J0 K5
 G17 (back to X-Y plane)
 
+
 </script>
 <script id="demoJSCode" type="application/cam-javascript">var outerWidth = 100;
 var angle = 100;
@@ -142,6 +143,7 @@ function createBracket(machine) {
     machine.registerToolPathArray(machine.rampToolPathArray(machine.contouring(outline, toolRadius, false, true), -0, -plankThickness, 3));
 }
 createBracket(machine);
+
 
 </script>
 <iframe id="js_sandbox" src="js_sandbox.html" sandbox="allow-scripts"></iframe>
