@@ -1,4 +1,0 @@
-# Updated by fix_deps.py
-pnacl/Debug/clipper.o: clipper.cpp clipper.hpp
-clipper.cpp:
-clipper.hpp:

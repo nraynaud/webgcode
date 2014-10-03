@@ -1,8 +1,0 @@
-# Updated by fix_deps.py
-pnacl/Debug/src/vertex.o: src/vertex.cpp src/vertex.hpp \
-  src/common/point.hpp src/site.hpp src/common/numeric.hpp
-src/vertex.cpp:
-src/vertex.hpp:
-src/common/point.hpp:
-src/site.hpp:
-src/common/numeric.hpp:

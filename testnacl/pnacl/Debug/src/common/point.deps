@@ -1,4 +1,0 @@
-# Updated by fix_deps.py
-pnacl/Debug/src/common/point.o: src/common/point.cpp src/common/point.hpp
-src/common/point.cpp:
-src/common/point.hpp:
