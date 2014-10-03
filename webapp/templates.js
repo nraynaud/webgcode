@@ -2,9 +2,23 @@ Ember.TEMPLATES["camApp"] = Ember.Handlebars.template(function anonymous(Handleb
     this.compilerInfo = [4, '>= 1.0.0'];
     helpers = this.merge(helpers, Ember.Handlebars.helpers);
     data = data || {};
-    var buffer = '', stack1, stack2, hashTypes, hashContexts, options, helperMissing = helpers.helperMissing, escapeExpression = this.escapeExpression, self = this;
+    var buffer = '', stack1, stack2, hashTypes, hashContexts, options, escapeExpression = this.escapeExpression, helperMissing = helpers.helperMissing, self = this;
 
     function program1(depth0, data) {
+
+        var buffer = '', hashContexts, hashTypes;
+        data.buffer.push("\n        ");
+        hashContexts = {'content': depth0, 'value': depth0};
+        hashTypes = {'content': "ID", 'value': "ID"};
+        data.buffer.push(escapeExpression(helpers.view.call(depth0, "Ember.Select", {hash: {
+            'content': ("languages"),
+            'value': ("selectedLanguage")
+        }, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
+        data.buffer.push("\n    ");
+        return buffer;
+    }
+
+    function program3(depth0, data) {
 
         var buffer = '', stack1, hashContexts, hashTypes, options;
         data.buffer.push("\n        ");
@@ -20,7 +34,7 @@ Ember.TEMPLATES["camApp"] = Ember.Handlebars.template(function anonymous(Handleb
         return buffer;
     }
 
-    function program3(depth0, data) {
+    function program5(depth0, data) {
 
         var buffer = '', stack1, hashContexts, hashTypes, options;
         data.buffer.push("\n        ");
@@ -36,13 +50,13 @@ Ember.TEMPLATES["camApp"] = Ember.Handlebars.template(function anonymous(Handleb
         return buffer;
     }
 
-    function program5(depth0, data) {
+    function program7(depth0, data) {
 
 
         data.buffer.push("\n        <div id=\"loader\">&nbsp;</div>\n    ");
     }
 
-    function program7(depth0, data) {
+    function program9(depth0, data) {
 
         var buffer = '', stack1, hashTypes, hashContexts, options;
         data.buffer.push("\n        ");
@@ -54,25 +68,20 @@ Ember.TEMPLATES["camApp"] = Ember.Handlebars.template(function anonymous(Handleb
         return buffer;
     }
 
-    data.buffer.push("<div class=\"viewContainer\">\n    ");
     hashTypes = {};
     hashContexts = {};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Simulator.ThreeDView", {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Simulator.GraphicView", {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
+    data.buffer.push("\n<div class=\"editBlock\">\n    ");
+    hashTypes = {};
+    hashContexts = {};
+    stack1 = helpers['if'].call(depth0, "canSelectLanguage", {hash: {}, inverse: self.noop, fn: self.program(1, program1, data), contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data});
+    if (stack1 || stack1 === 0) {
+        data.buffer.push(stack1);
+    }
     data.buffer.push("\n    ");
     hashTypes = {};
     hashContexts = {};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Simulator.TwoDView", {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
-    data.buffer.push("\n</div>\n<div class=\"editBlock\">\n    ");
-    hashContexts = {'content': depth0, 'value': depth0};
-    hashTypes = {'content': "ID", 'value': "ID"};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Ember.Select", {hash: {
-        'content': ("languages"),
-        'value': ("selectedLanguage")
-    }, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
-    data.buffer.push("\n    ");
-    hashTypes = {};
-    hashContexts = {};
-    stack1 = helpers['if'].call(depth0, "usingGcode", {hash: {}, inverse: self.program(3, program3, data), fn: self.program(1, program1, data), contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data});
+    stack1 = helpers['if'].call(depth0, "usingGcode", {hash: {}, inverse: self.program(5, program5, data), fn: self.program(3, program3, data), contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data});
     if (stack1 || stack1 === 0) {
         data.buffer.push(stack1);
     }
@@ -87,10 +96,21 @@ Ember.TEMPLATES["camApp"] = Ember.Handlebars.template(function anonymous(Handleb
         'disabled': ("computing")
     }, contexts: [], types: [], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
     data.buffer.push(escapeExpression(((stack1 = helpers['bind-attr'] || (depth0 && depth0['bind-attr'])), stack1 ? stack1.call(depth0, options) : helperMissing.call(depth0, "bind-attr", options))));
-    data.buffer.push(">Simulate</button>\n\n    ");
+    data.buffer.push(">Simulate</button>\n    <button ");
     hashTypes = {};
     hashContexts = {};
-    stack2 = helpers['if'].call(depth0, "computing", {hash: {}, inverse: self.program(7, program7, data), fn: self.program(5, program5, data), contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data});
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "loadBigSample", {hash: {}, contexts: [depth0], types: ["STRING"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
+    data.buffer.push(" ");
+    hashContexts = {'disabled': depth0};
+    hashTypes = {'disabled': "STRING"};
+    options = {hash: {
+        'disabled': ("computing")
+    }, contexts: [], types: [], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
+    data.buffer.push(escapeExpression(((stack1 = helpers['bind-attr'] || (depth0 && depth0['bind-attr'])), stack1 ? stack1.call(depth0, options) : helperMissing.call(depth0, "bind-attr", options))));
+    data.buffer.push(">Load a bigger sample</button>\n\n    ");
+    hashTypes = {};
+    hashContexts = {};
+    stack2 = helpers['if'].call(depth0, "computing", {hash: {}, inverse: self.program(9, program9, data), fn: self.program(7, program7, data), contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data});
     if (stack2 || stack2 === 0) {
         data.buffer.push(stack2);
     }
@@ -355,15 +375,61 @@ Ember.TEMPLATES["gcodeSimulator"] = Ember.Handlebars.template(function anonymous
     this.compilerInfo = [4, '>= 1.0.0'];
     helpers = this.merge(helpers, Ember.Handlebars.helpers);
     data = data || {};
-    var buffer = '', stack1, stack2, hashTypes, hashContexts, options, helperMissing = helpers.helperMissing, escapeExpression = this.escapeExpression, self = this;
+    var buffer = '', stack1, stack2, hashTypes, hashContexts, options, escapeExpression = this.escapeExpression, helperMissing = helpers.helperMissing, self = this;
 
     function program1(depth0, data) {
+
+        var buffer = '', hashContexts, hashTypes;
+        data.buffer.push("\n        ");
+        hashContexts = {'content': depth0, 'value': depth0};
+        hashTypes = {'content': "ID", 'value': "ID"};
+        data.buffer.push(escapeExpression(helpers.view.call(depth0, "Ember.Select", {hash: {
+            'content': ("languages"),
+            'value': ("selectedLanguage")
+        }, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
+        data.buffer.push("\n    ");
+        return buffer;
+    }
+
+    function program3(depth0, data) {
+
+        var buffer = '', stack1, hashContexts, hashTypes, options;
+        data.buffer.push("\n        ");
+        hashContexts = {'content': depth0, 'annotations': depth0, 'currentRow': depth0};
+        hashTypes = {'content': "ID", 'annotations': "ID", 'currentRow': "ID"};
+        options = {hash: {
+            'content': ("code"),
+            'annotations': ("errors"),
+            'currentRow': ("currentRow")
+        }, contexts: [], types: [], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
+        data.buffer.push(escapeExpression(((stack1 = helpers['gcode-editor'] || (depth0 && depth0['gcode-editor'])), stack1 ? stack1.call(depth0, options) : helperMissing.call(depth0, "gcode-editor", options))));
+        data.buffer.push("\n    ");
+        return buffer;
+    }
+
+    function program5(depth0, data) {
+
+        var buffer = '', stack1, hashContexts, hashTypes, options;
+        data.buffer.push("\n        ");
+        hashContexts = {'content': depth0, 'annotations': depth0, 'currentRow': depth0};
+        hashTypes = {'content': "ID", 'annotations': "ID", 'currentRow': "ID"};
+        options = {hash: {
+            'content': ("jscode"),
+            'annotations': ("errors"),
+            'currentRow': ("currentRow")
+        }, contexts: [], types: [], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
+        data.buffer.push(escapeExpression(((stack1 = helpers['js-editor'] || (depth0 && depth0['js-editor'])), stack1 ? stack1.call(depth0, options) : helperMissing.call(depth0, "js-editor", options))));
+        data.buffer.push("\n    ");
+        return buffer;
+    }
+
+    function program7(depth0, data) {
 
 
         data.buffer.push("\n        <div id=\"loader\">&nbsp;</div>\n    ");
     }
 
-    function program3(depth0, data) {
+    function program9(depth0, data) {
 
         var buffer = '', stack1, hashTypes, hashContexts, options;
         data.buffer.push("\n        ");
@@ -375,23 +441,23 @@ Ember.TEMPLATES["gcodeSimulator"] = Ember.Handlebars.template(function anonymous
         return buffer;
     }
 
-    data.buffer.push("<div class=\"viewContainer\">\n    ");
     hashTypes = {};
     hashContexts = {};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Simulator.ThreeDView", {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Simulator.GraphicView", {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
+    data.buffer.push("\n<div class=\"editBlock\">\n    ");
+    hashTypes = {};
+    hashContexts = {};
+    stack1 = helpers['if'].call(depth0, "canSelectLanguage", {hash: {}, inverse: self.noop, fn: self.program(1, program1, data), contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data});
+    if (stack1 || stack1 === 0) {
+        data.buffer.push(stack1);
+    }
     data.buffer.push("\n    ");
     hashTypes = {};
     hashContexts = {};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Simulator.TwoDView", {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
-    data.buffer.push("\n</div>\n<div class=\"editBlock\">\n    ");
-    hashContexts = {'content': depth0, 'annotations': depth0, 'currentRow': depth0};
-    hashTypes = {'content': "ID", 'annotations': "ID", 'currentRow': "ID"};
-    options = {hash: {
-        'content': ("code"),
-        'annotations': ("errors"),
-        'currentRow': ("currentRow")
-    }, contexts: [], types: [], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
-    data.buffer.push(escapeExpression(((stack1 = helpers['gcode-editor'] || (depth0 && depth0['gcode-editor'])), stack1 ? stack1.call(depth0, options) : helperMissing.call(depth0, "gcode-editor", options))));
+    stack1 = helpers['if'].call(depth0, "usingGcode", {hash: {}, inverse: self.program(5, program5, data), fn: self.program(3, program3, data), contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data});
+    if (stack1 || stack1 === 0) {
+        data.buffer.push(stack1);
+    }
     data.buffer.push("\n    <button ");
     hashTypes = {};
     hashContexts = {};
@@ -417,11 +483,11 @@ Ember.TEMPLATES["gcodeSimulator"] = Ember.Handlebars.template(function anonymous
     data.buffer.push(">Load a bigger sample</button>\n\n    ");
     hashTypes = {};
     hashContexts = {};
-    stack2 = helpers['if'].call(depth0, "computing", {hash: {}, inverse: self.program(3, program3, data), fn: self.program(1, program1, data), contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data});
+    stack2 = helpers['if'].call(depth0, "computing", {hash: {}, inverse: self.program(9, program9, data), fn: self.program(7, program7, data), contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data});
     if (stack2 || stack2 === 0) {
         data.buffer.push(stack2);
     }
-    data.buffer.push("\n</div>");
+    data.buffer.push("\n</div>\n");
     return buffer;
 
 });
