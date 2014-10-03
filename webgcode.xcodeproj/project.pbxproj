@@ -266,6 +266,7 @@
 		DDAA572B98958C0644F7608D /* mode-vbscript.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5326176E1BD6A939649C /* mode-vbscript.js */; };
 		DDAA572BA7617C54EEA6AA7D /* usbdesc.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53AA7C3A8E851F307E47 /* usbdesc.c */; };
 		DDAA572C3D2AD22D0D584782 /* mode-java.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C7AEDA2EFC67465A0B6 /* mode-java.js */; };
+		DDAA572DAF73F1DDEE6E8B16 /* operations.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C7C2C93424ED58CED62 /* operations.js */; };
 		DDAA57328E010C25F7BCB81F /* mode-ada.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA56F94B7967253579216E /* mode-ada.js */; };
 		DDAA5734FBE4B51AC5D8F46A /* opentype.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA59CEB6DEF826C808ACEC /* opentype.js */; };
 		DDAA573738209A33725258EA /* mode-lisp.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA51D0B85BE135DD123ACA /* mode-lisp.js */; };
@@ -1116,6 +1117,7 @@
 		DDAA5C6D9F9890A8B0C1C87E /* mode-textile.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-textile.js"; sourceTree = "<group>"; };
 		DDAA5C7148C8F7186C967608 /* mode-c9search.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-c9search.js"; sourceTree = "<group>"; };
 		DDAA5C7AEDA2EFC67465A0B6 /* mode-java.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-java.js"; sourceTree = "<group>"; };
+		DDAA5C7C2C93424ED58CED62 /* operations.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = operations.js; sourceTree = "<group>"; };
 		DDAA5C7DCC7731222576D7BA /* delaunay.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = delaunay.js; path = webapp/cnc/delaunay.js; sourceTree = "<group>"; };
 		DDAA5C7E543AB3B4CDE106C7 /* ext-textarea.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "ext-textarea.js"; sourceTree = "<group>"; };
 		DDAA5C7E74F73301E2625A6D /* mode-glsl.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "mode-glsl.js"; sourceTree = "<group>"; };
@@ -1345,6 +1347,7 @@
 				DDAA53F77ADBB124F31E26D6 /* text.js */,
 				DDAA57A1B65CDC501D4100D6 /* pocket.js */,
 				DDAA5F329B72AC25F4AAA0F4 /* toolpath.js */,
+				DDAA5C7C2C93424ED58CED62 /* operations.js */,
 			);
 			path = cam;
 			sourceTree = "<group>";
@@ -2773,6 +2776,7 @@
 				DDAA5EBCB176CFEDF9E2B1F8 /* pocket.js in Sources */,
 				DDAA5AC03D5FEAC07C257F39 /* toolpath.js in Sources */,
 				DDAA53561E04E2D74CF29A0D /* graphicView.js in Sources */,
+				DDAA572DAF73F1DDEE6E8B16 /* operations.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

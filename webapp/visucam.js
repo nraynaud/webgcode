@@ -1,7 +1,7 @@
 "use strict";
-require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeDView', 'cnc/cam/cam.js', 'cnc/util.js',
-        'cnc/cam/toolpath', 'templates'],
-    function (Ember, DS, views, TwoDView, TreeDView, cam, util, tp, templates) {
+require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeDView', 'cnc/cam/cam', 'cnc/util',
+        'cnc/cam/toolpath', 'cnc/cam/operations', 'templates'],
+    function (Ember, DS, views, TwoDView, TreeDView, cam, util, tp, Operations, templates) {
         Ember.TEMPLATES['application'] = Ember.TEMPLATES['visucamApp'];
 
         window.Visucam = Ember.Application.create({});
@@ -28,77 +28,27 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
             outline: null,
             toolpath: null,
             installObservers: function () {
-                var properties = OPERATIONS_DESCRIPTORS[this.get('type')].properties;
+                var properties = Operations[this.get('type')].properties;
                 var _this = this;
                 Object.keys(properties).forEach(function (key) {
                     _this.addObserver(key, _this, _this.computeToolpath)
                 });
             }.observes('type'),
             uninstallObservers: function () {
-                var properties = OPERATIONS_DESCRIPTORS[this.get('type')].properties;
+                var properties = Operations[this.get('type')].properties;
                 var _this = this;
                 Object.keys(properties).forEach(function (key) {
                     _this.removeObserver(key, _this, _this.computeToolpath)
                 });
             }.observesBefore('type'),
             computeToolpath: function () {
-                OPERATIONS_DESCRIPTORS[this.get('type')]['computeToolpath'](this);
+                Operations[this.get('type')]['computeToolpath'](this);
             }.observes('type', 'job.toolDiameter', 'job.safetyZ'),
             unknownProperty: function (key) {
-                return OPERATIONS_DESCRIPTORS[this.get('type')].properties[key];
+                return Operations[this.get('type')].properties[key];
             }
         });
 
-        var OPERATIONS_DESCRIPTORS = {
-            'Visucam.SimpleContourOperation': {
-                label: 'Simple Contour',
-                specialTemplate: 'simpleContour',
-                properties: {contourZ: -5, inside: true},
-                computeToolpath: function (op) {
-                    var machine = new cam.Machine(null);
-                    machine.setParams(op.get('contourZ'), 10, 100);
-                    var polygon = cam.pathDefToClipper(op.get('outline.definition'));
-                    var polygon1 = machine.contourClipper(polygon, parseFloat(op.get('job.toolDiameter')) / 2, op.get('inside'));
-                    var contourZ = op.get('contourZ');
-                    var safetyZ = op.get('job.safetyZ');
-                    var toolpath = machine.fromClipper(polygon1).map(function (path) {
-                        var startPoint = path.getStartPoint();
-                        var generalPath = path.asGeneralToolpath(contourZ);
-                        // plunge from safety plane
-                        generalPath.pushPointInFront(startPoint.x, startPoint.y, safetyZ);
-                        //close the loop
-                        generalPath.pushPoint(startPoint.x, startPoint.y, contourZ);
-                        return generalPath;
-                    });
-                    op.set('toolpath', toolpath);
-                }},
-            'Visucam.RampingContourOperation': {
-                label: 'Ramping Contour',
-                specialTemplate: 'rampingContour',
-                properties: {
-                    startZ: 0,
-                    stopZ: -5,
-                    turns: 5,
-                    inside: true
-                },
-                computeToolpath: function (op) {
-                    var machine = new cam.Machine(null);
-                    machine.setParams(op.get('contourZ'), 10, 100);
-                    var clipperPolygon = cam.pathDefToClipper(op.get('outline.definition'));
-                    var contour = machine.contourClipper(clipperPolygon, parseFloat(op.get('job.toolDiameter')) / 2, op.get('inside'));
-                    var startZ = parseFloat(op.get('startZ'));
-                    var stopZ = parseFloat(op.get('stopZ'));
-                    var turns = parseFloat(op.get('turns'));
-                    var toolpath = machine.rampToolPathArray(machine.fromClipper(contour), startZ, stopZ, turns);
-                    var safetyZ = op.get('job.safetyZ');
-                    toolpath.forEach(function (path) {
-                        var startPoint = path.getStartPoint();
-                        path.pushPointInFront(startPoint.x, startPoint.y, safetyZ);
-                    });
-                    op.set('toolpath', toolpath);
-                }
-            }
-        };
 
         Visucam.Job = Ember.Object.extend({
             init: function () {
@@ -150,7 +100,7 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
             createSimpleContour: function (id, name, outline, inside, contourZ) {
                 var contour = Visucam.Operation.create({
                     id: id,
-                    type: 'Visucam.SimpleContourOperation',
+                    type: 'SimpleContourOperation',
                     job: this,
                     name: name,
                     outline: outline,
@@ -163,7 +113,7 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
             createRampingContour: function (id, name, outline, inside, startZ, stopZ, turns) {
                 var contour = Visucam.Operation.create({
                     id: id,
-                    type: 'Visucam.RampingContourOperation',
+                    type: 'RampingContourOperation',
                     job: this,
                     name: name,
                     outline: outline,
@@ -247,11 +197,11 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 this._super();
             },
             specialTemplate: function () {
-                return OPERATIONS_DESCRIPTORS[this.get('type')].specialTemplate;
+                return Operations[this.get('type')].specialTemplate;
             }.property('type'),
             operationDescriptors: function () {
-                return Object.keys(OPERATIONS_DESCRIPTORS).map(function (key) {
-                    return $.extend({class: key}, OPERATIONS_DESCRIPTORS[key]);
+                return Object.keys(Operations).map(function (key) {
+                    return $.extend({class: key}, Operations[key]);
                 });
             }.property()
         });
