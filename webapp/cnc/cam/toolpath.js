@@ -115,7 +115,9 @@ define(['cnc/util'], function (util) {
             'constant-z-toolpath': ConstantZPolygonToolpath
         };
         var operation = new toolPathTypes[operationData.className]();
-        operation.path = operationData.path;
+        var path = operationData.path;
+        for (var i = 0; i < path.length; i++)
+            operation.pushPoint(path[i].x, path[i].y, path[i].z);
         return operation;
     }
 
