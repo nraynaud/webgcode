@@ -114,14 +114,20 @@ define(['canvg', 'cnc/util'], function (canvg, util) {
         moveTo: function (x, y) {
             var pt = this.head().transformPoint(x, y);
             this.currentPosition = new util.Point(pt.x, pt.y);
-            this.currentPath.push('M ' + pt.svg());
+            this.currentPath.push('M' + pt.svg());
         },
         bezierCurveTo: function (cp1x, cp1y, cp2x, cp2y, x, y) {
             var cp1 = this.head().transformPoint(cp1x, cp1y);
             var cp2 = this.head().transformPoint(cp2x, cp2y);
             var pt = this.head().transformPoint(x, y);
             this.currentPosition = new util.Point(pt.x, pt.y);
-            this.currentPath.push('C ' + cp1.svg() + ' ' + cp2.svg() + ' ' + pt.svg());
+            this.currentPath.push('C' + cp1.svg() + cp2.svg() + pt.svg());
+        },
+        quadraticCurveTo: function (cpx, cpy, x, y) {
+            var cp = this.head().transformPoint(cpx, cpy);
+            var pt = this.head().transformPoint(x, y);
+            this.currentPosition = new util.Point(pt.x, pt.y);
+            this.currentPath.push('Q' + cp.svg() + pt.svg());
         },
         lineTo: function (x, y) {
             var pt = this.head().transformPoint(x, y);
@@ -136,6 +142,13 @@ define(['canvg', 'cnc/util'], function (canvg, util) {
 
         },
         stroke: function () {
+        },
+        createLinearGradient: function () {
+            return null;
+        },
+        drawImage: function () {
+            console.log('drawImage');
+            console.log(new Error().stack);
         }
     };
 
@@ -146,7 +159,19 @@ define(['canvg', 'cnc/util'], function (canvg, util) {
             this.original[functName].apply(this.original, arguments);
         }
     });
-
+    ['font', 'canvas', 'fillStyle', 'globalAlpha', 'globalCompositeOperation', 'lineCap', 'lineDashOffset', 'lineJoin',
+        'lineWidth', 'miterLimit', 'shadowBlur', 'shadowColor', 'shadowOffsetX', 'shadowOffsetY', 'strokeStyle',
+        'textAlign', 'textBaseline'
+    ].forEach(function (mapping) {
+            Object.defineProperty(CustomContext.prototype, mapping, {
+                get: function () {
+                    return this.original[mapping];
+                },
+                set: function (newValue) {
+                    this.original[mapping] = newValue;
+                }
+            });
+        });
     function importSVG(canvas, svgText) {
         //  var imported = mySVG.svg(e.target.result);
         // console.log(imported);
