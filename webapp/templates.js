@@ -715,7 +715,7 @@ Ember.TEMPLATES["visucamApp"] = Ember.Handlebars.template(function anonymous(Han
     data.buffer.push("\n        </ul>\n    </div>\n    <div class=\"viewContainer\">\n        ");
     hashTypes = {};
     hashContexts = {};
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.TreeDView", {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.ThreeDView", {hash: {}, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
     data.buffer.push("\n    </div>\n    <div class=\"operation\">\n        ");
     hashTypes = {};
     hashContexts = {};

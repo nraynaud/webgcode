@@ -7,8 +7,8 @@ define(function () {
     }
 
     Point.prototype = {
-        getSvgp: function () {
-            return this.x + ', ' + this.y;
+        svg: function () {
+            return ' ' + this.x + ', ' + this.y;
         },
         sub: function (p) {
             return new Point(this.x - p.x, this.y - p.y, this.z - p.z);

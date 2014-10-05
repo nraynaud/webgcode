@@ -9,7 +9,8 @@ requirejs.config({
         TWEEN: 'libs/tween.min',
         ace: 'libs/ace/src-noconflict/ace',
         RSVP: 'libs/rsvp-latest',
-        clipper: 'libs/clipper_unminified'
+        clipper: 'libs/clipper_unminified',
+        canvg: 'libs/canvg/canvg'
     },
     shim: {
         'jQuery': {exports: '$'},
@@ -18,6 +19,7 @@ requirejs.config({
             deps: ["jQuery", "Handlebars"],
             exports: "Ember"
         },
+        canvg: {deps: ["libs/canvg/rgbcolor.js"], exports: "canvg"},
         EmberData: {deps: ["Ember"], exports: "DS"},
         THREE: {exports: 'THREE'},
         TWEEN: {exports: 'TWEEN'},

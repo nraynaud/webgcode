@@ -1,7 +1,7 @@
 "use strict";
-require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeDView', 'cnc/cam/cam', 'cnc/util',
-        'cnc/cam/toolpath', 'cnc/cam/operations', 'templates'],
-    function (Ember, DS, views, TwoDView, TreeDView, cam, util, tp, Operations, templates) {
+require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
+        'cnc/cam/toolpath', 'cnc/cam/operations', 'libs/svg', 'cnc/svgImporter', 'templates', 'libs/svg-import'],
+    function (Ember, DS, views, TreeDView, cam, tp, Operations, SVG, svgImporter, templates) {
         Ember.TEMPLATES['application'] = Ember.TEMPLATES['visucamApp'];
 
         window.Visucam = Ember.Application.create({});
@@ -107,8 +107,8 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                     inside: inside,
                     contourZ: contourZ
                 });
-                this.operations.push(contour);
-                return  contour;
+                this.operations.pushObject(contour);
+                return contour;
             },
             createRampingContour: function (id, name, outline, inside, startZ, stopZ, turns) {
                 var contour = Visucam.Operation.create({
@@ -122,8 +122,8 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                     stopZ: stopZ,
                     turns: turns
                 });
-                this.operations.push(contour);
-                return  contour;
+                this.operations.pushObject(contour);
+                return contour;
             }
         });
 
@@ -175,7 +175,10 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
         });
         Visucam.OperationRoute = Ember.Route.extend({
             model: function (params) {
-                return doc.findOperation(params.operation_id);
+                var operation = doc.findOperation(params.operation_id);
+                if (!operation)
+                    this.transitionTo('/');
+                return operation;
             },
             setupController: function (controller, model) {
                 this.controllerFor("application").set('currentOperation', model);
@@ -189,7 +192,15 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
             checkCurrentOperationIsDeleted: function () {
                 if (this.get('operations') && this.get('currentOperation') && this.get('operations').indexOf(this.get('currentOperation')) == -1)
                     this.transitionToRoute('/');
-            }.observes('operations.@each')
+            }.observes('operations.@each'),
+            addShapes: function (shapeDefinitions) {
+                var shapes = this.get('model.shapes');
+                var id = shapes.length;
+                var shape = Visucam.Shape.create({id: id, definition: shapeDefinitions.join(' ')});
+                shapes.pushObject(shape);
+                var contour = this.get('model').createSimpleContour(this.get('model.operations').length + 1, 'New Operation', shape, false, -10);
+                this.transitionToRoute('operation', contour);
+            }
         });
 
         Visucam.OperationController = Ember.ObjectController.extend({
@@ -217,57 +228,6 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
             }.property('controllers.application.currentOperation')
         });
 
-        Visucam.TwoDView = Ember.View.extend({
-            classNames: ['TwoDView'],
-            didInsertElement: function () {
-                var view = TwoDView.TwoDView.create({element: this.$()});
-                this.set('nativeComponent', view);
-                this.set('documentDisplay', view.get('paper').group());
-                this.set('currentOperationDisplay', view.get('paper').group());
-                this.set('travel', view.get('paper').group().attr('class', 'travel'));
-                this.set('highlight', view.get('overlay').group().attr('class', 'highlight'));
-                this.synchronizeCurrentOperation();
-                this.synchronizeJob();
-                this.synchronizeTravels();
-            },
-            synchronizeCurrentOperation: function () {
-                var operation = this.get('controller.currentOperation');
-                var currentOperationDisplay = this.get('currentOperationDisplay');
-                currentOperationDisplay.clear();
-                var highlight = this.get('highlight');
-                highlight.clear();
-                if (!operation)
-                    return;
-                operation.get('toolpath').forEach(function (path) {
-                    currentOperationDisplay.path(path.asPathDef())
-                        .attr('class', 'toolpath normalMove');
-                });
-                highlight.path(operation.get('outline.definition'));
-            }.observes('controller.currentOperation', 'controller.currentOperation.toolpath'),
-            synchronizeJob: function () {
-                var shapes = this.get('controller.shapes');
-                var _this = this;
-                shapes.forEach(function (shape) {
-                    _this.get('documentDisplay').path(shape.get('definition')).attr('class', 'outline');
-                });
-                this.get('nativeComponent').zoomExtent();
-            }.observes('controller.shapes'),
-            synchronizeTravels: function () {
-                var travel = this.get('travel');
-                travel.clear();
-                var travelMoves = this.get('controller.transitionTravels');
-                for (var i = 0; i < travelMoves.length; i++) {
-                    var p = '';
-                    var poly = travelMoves[i].path;
-                    for (var j = 0; j < poly.length; j++) {
-                        p += j == 0 ? 'M' : 'L';
-                        p += poly[j][0] + ', ' + poly[j][1];
-                    }
-                    travel.path(p);
-                }
-            }.observes('controller.transitionTravels')
-        });
-
         function collectVertices(toolpath, defaultZ) {
             var res = [];
             toolpath.forEachPoint(function (x, y, z, _) {
@@ -276,7 +236,36 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
             return new Float32Array(res);
         }
 
-        Visucam.TreeDView = Ember.View.extend({
+        Visucam.ApplicationView = Ember.View.extend({
+            didInsertElement: function () {
+                var canvas = $('<canvas id="myCanvas" style="visibility: hidden; display:none">');
+                this.$().append(canvas);
+                this.set('importCanvas', canvas);
+            },
+            dragEnter: function (event) {
+                event.preventDefault();
+                event.dataTransfer.dropEffect = 'move';
+            },
+            dragOver: function (event) {
+                event.preventDefault();
+                event.dataTransfer.dropEffect = 'move';
+            },
+            drop: function (event) {
+                var _this = this;
+                event.preventDefault();
+                event.stopPropagation();
+                var files = event.dataTransfer.files;
+                var file = files[0];
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var res = svgImporter(_this.get('importCanvas'), e.target.result);
+                    _this.get('controller').addShapes(res);
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        Visucam.ThreeDView = Ember.View.extend({
             classNames: ['ThreeDView'],
             didInsertElement: function () {
                 var threeDView = new TreeDView.ThreeDView(this.$());
@@ -318,13 +307,14 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/twoDView', 'cnc/ui/threeD
                 }));
                 threeDView.zoomExtent();
                 threeDView.reRender();
-            }.observes('controller.shapes', 'controller.transitionTravels'),
+            }.observes('controller.transitionTravels'),
             synchronizeOutlines: function () {
+                console.log('synchronizeOutlines');
                 var outlinesDisplay = this.get('outlinesDisplay');
                 outlinesDisplay.clear();
                 this.get('controller.shapes').forEach(function (shape) {
                     outlinesDisplay.addPolyLines(cam.pathDefToPolygons(shape.get('definition')));
                 });
-            }.observes('controller.shapes')
+            }.observes('controller.shapes.@each')
         });
     });
