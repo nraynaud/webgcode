@@ -31,10 +31,13 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             addPolyLines: function (polylines) {
                 for (var i = 0; i < polylines.length; i++) {
                     var poly = polylines[i];
-                    var lineGeometry = new THREE.Geometry();
-                    for (var j = 0; j < poly.length; j++)
-                        lineGeometry.vertices.push(new THREE.Vector3(poly[j].x, poly[j].y, poly[j].z));
-                    this.node.add(new THREE.Line(lineGeometry, this.material));
+                    var rawVertices = new Float32Array(poly.length * 3);
+                    for (var j = 0; j < poly.length; j++) {
+                        rawVertices[j * 3 + 0] = poly[j].x;
+                        rawVertices[j * 3 + 1] = poly[j].y;
+                        rawVertices[j * 3 + 2] = poly[j].z;
+                    }
+                    this.addCollated(rawVertices);
                 }
             },
             addCollated: function (rawVertices) {
