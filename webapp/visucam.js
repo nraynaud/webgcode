@@ -23,7 +23,8 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam
                 this.computeToolpath();
                 this.installObservers();
             },
-            name: null,
+            name: 'New Operation',
+            type: 'SimpleEngravingOperation',
             job: null,
             outline: null,
             toolpath: null,
@@ -97,62 +98,35 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam
                     operation.set('safetyZ', safetyZ);
                 });
             }.observes('safetyZ', 'operations.@each.safetyZ'),
-            createSimpleContour: function (id, name, outline, inside, contourZ) {
-                var contour = Visucam.Operation.create({
-                    id: id,
-                    type: 'SimpleContourOperation',
-                    job: this,
-                    name: name,
-                    outline: outline,
-                    inside: inside,
-                    contourZ: contourZ
-                });
-                this.operations.pushObject(contour);
-                return contour;
+            createOperation: function (params) {
+                var id = this.get('operations').length + 1;
+                params = $.extend({}, params, {id: id, job: this});
+                var operation = Visucam.Operation.create(params);
+                this.get('operations').pushObject(operation);
+                return operation;
             },
-            createRampingContour: function (id, name, outline, inside, startZ, stopZ, turns) {
-                var contour = Visucam.Operation.create({
-                    id: id,
-                    type: 'RampingContourOperation',
-                    job: this,
-                    name: name,
-                    outline: outline,
-                    inside: inside,
-                    startZ: startZ,
-                    stopZ: stopZ,
-                    turns: turns
-                });
-                this.operations.pushObject(contour);
-                return contour;
+            createShape: function (def) {
+                var id = this.get('shapes').length + 1;
+                var shape = Visucam.Shape.create({id: id, definition: def});
+                this.get('shapes').pushObject(shape);
+                return shape;
             }
         });
 
-        var shape1 = Visucam.Shape.create({
-            id: 1,
-            definition: 'M0,0L100,0L100,100L0,100 Z'
-        });
-        var shape2 = Visucam.Shape.create({
-            id: 2,
-            definition: 'M25, 35 A10, 10 0 0 0 35, 25 A10, 10 0 0 0 25, 15 A10, 10 0 0 0 15, 25 A10, 10 0 0 0 25, 35Z'
-        });
-        var shape3 = Visucam.Shape.create({
-            id: 3,
-            definition: 'M50,50L80,50L80,80L50,80 Z'
-        });
-        var shape4 = Visucam.Shape.create({
-            id: 3,
-            definition: 'M-10,-10 L-100,-10 L-100,-100 L-10,-100Z M-20,-20 L-20,-80L-80,-80L-80,-20Z '
-        });
         var doc = Visucam.Job.create({
             safetyZ: 10,
             operations: [],
-            shapes: [shape1, shape2, shape3, shape4]
+            shapes: []
         });
-        var operations = {};
-        operations[1] = doc.createSimpleContour(1, 'Outer Profiling', shape1, false, -10);
-        operations[2] = doc.createRampingContour(2, 'Inner Profiling 1', shape2, true, 0, -10, 3);
-        operations[3] = doc.createSimpleContour(3, 'Inner Profiling 2', shape3, true, 0, -13);
-        operations[4] = doc.createRampingContour(4, 'Outer Profiling 3', shape4, false, 0, -15, 5);
+
+        var shape1 = doc.createShape('M0,0L100,0L100,100');
+        var shape2 = doc.createShape('M25, 35 A10, 10 0 0 0 35, 25 A10, 10 0 0 0 25, 15 A10, 10 0 0 0 15, 25 A10, 10 0 0 0 25, 35Z');
+        var shape3 = doc.createShape('M50,50L80,50L80,80L50,80 Z');
+        var shape4 = doc.createShape('M-10,-10 L-100,-10 L-100,-100 L-10,-100Z M-20,-20 L-20,-80L-80,-80L-80,-20Z ');
+        doc.createOperation({name: 'Engraving', type: 'SimpleEngravingOperation', outline: shape1});
+        doc.createOperation({name: 'Inner Profiling 1', type: 'RampingContourOperation', outline: shape2});
+        doc.createOperation({name: 'Inner Profiling 2', type: 'SimpleContourOperation', outline: shape3, inside: true, contourZ: -13});
+        doc.createOperation({name: 'Outer Profiling 3', outline: shape4, inside: false, stopZ: -15, turns: 5});
 
         Visucam.Router.map(function () {
             this.resource('operation', {path: '/operations/:operation_id'});
@@ -194,11 +168,8 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam
                     this.transitionToRoute('/');
             }.observes('operations.@each'),
             addShapes: function (shapeDefinitions) {
-                var shapes = this.get('model.shapes');
-                var id = shapes.length;
-                var shape = Visucam.Shape.create({id: id, definition: shapeDefinitions.join(' ')});
-                shapes.pushObject(shape);
-                var contour = this.get('model').createSimpleContour(this.get('model.operations').length + 1, 'New Operation', shape, false, -10);
+                var shape = this.get('model').createShape(shapeDefinitions.join(' '));
+                var contour = this.get('model').createOperation({outline: shape});
                 this.transitionToRoute('operation', contour);
             }
         });

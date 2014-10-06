@@ -1,7 +1,27 @@
 "use strict";
-define(['cnc/cam/cam'], function (cam) {
+define(['cnc/cam/cam', 'cnc/cam/toolpath'], function (cam, tp) {
 
     return {
+        'SimpleEngravingOperation': {
+            label: 'Simple Engraving',
+            specialTemplate: 'simpleEngraving',
+            properties: {engravingZ: -5},
+            computeToolpath: function (op) {
+                var z = op.get('engravingZ');
+                var safetyZ = op.get('job.safetyZ');
+                var polygons = cam.pathDefToPolygons(op.get('outline.definition'));
+                var toolpath = [];
+                for (var i = 0; i < polygons.length; i++)
+                    if (polygons[i].length) {
+                        var path = new tp.GeneralPolylineToolpath();
+                        toolpath.push(path);
+                        path.pushPoint(polygons[i][0].x, polygons[i][0].y, safetyZ);
+                        for (var j = 0; j < polygons[i].length; j++)
+                            path.pushPoint(polygons[i][j].x, polygons[i][j].y, z);
+                    }
+                op.set('toolpath', toolpath);
+            }
+        },
         'SimpleContourOperation': {
             label: 'Simple Contour',
             specialTemplate: 'simpleContour',

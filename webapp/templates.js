@@ -512,6 +512,23 @@ Ember.TEMPLATES["simpleContour"] = Ember.Handlebars.template(function anonymous(
     return buffer;
 
 });
+Ember.TEMPLATES["simpleEngraving"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data) {
+    this.compilerInfo = [4, '>= 1.0.0'];
+    helpers = this.merge(helpers, Ember.Handlebars.helpers);
+    data = data || {};
+    var buffer = '', hashContexts, hashTypes, escapeExpression = this.escapeExpression;
+
+
+    data.buffer.push("<tr>\n    <th>engraving Z:</th>\n    <td>");
+    hashContexts = {'value': depth0};
+    hashTypes = {'value': "ID"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
+        'value': ("engravingZ")
+    }, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
+    data.buffer.push("</td>\n</tr>\n");
+    return buffer;
+
+});
 Ember.TEMPLATES["textApp"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data) {
     this.compilerInfo = [4, '>= 1.0.0'];
     helpers = this.merge(helpers, Ember.Handlebars.helpers);
