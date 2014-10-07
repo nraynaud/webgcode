@@ -241,12 +241,12 @@ define(['clipper', 'cnc/cam/cam', 'require'], function (clipper, cam, require) {
             messageHandler: function (data) {
                 if (data['finished']) {
                     var result = data['result'];
-                    require(['../../libs/ember-1.5.0-beta5.pre7'], function (Ember) {
+                    require(['Ember'], function (Ember) {
                         Ember.run(deferred, deferred.resolve, result);
                     });
                     return true;
                 } else if (data['operation'] == 'displayUndercutPoly')
-                    require(['../../libs/ember-1.5.0-beta5.pre7'], function (Ember) {
+                    require(['Ember'], function (Ember) {
                         Ember.run(undercutDeferred, undercutDeferred.resolve, data['polygon']);
                     });
                 return false;
