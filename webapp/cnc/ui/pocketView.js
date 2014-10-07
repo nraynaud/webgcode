@@ -1,6 +1,6 @@
 "use strict";
 
-define(['Ember', 'cnc/cam', 'libs/rbrush', 'cnc/ui/twoDView', 'cnc/util'],
+define(['Ember', 'cnc/cam/cam', 'libs/rbrush', 'cnc/ui/twoDView', 'cnc/util'],
     function (Ember, cam, rbrush, TwoDView, util) {
 
         function unionBox(box1, box2) {

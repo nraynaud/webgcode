@@ -98,7 +98,7 @@
 </head>
 <body>
 <script>
-    require(['cnc/cam/cam', 'cnc/cam/text', 'cnc/cam/pocket', 'cnc/ui/views', 'cnc/ui/pocketView', 'text!templates/textApp.handlebars', 'Ember'],
+    require(['cnc/cam/cam', 'cnc/cam/text', 'cnc/cam/pocket', 'cnc/ui/views', 'cnc/ui/pocketView', 'text!templates/textApp.hbs', 'Ember'],
             function (cam, text, pocket, views, pocketView, textSource, Ember) {
                 var textTemplate = Ember.Handlebars.compile(textSource);
                 window.TextApplication = Ember.Application.create({
