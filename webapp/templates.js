@@ -720,6 +720,14 @@ Ember.TEMPLATES["visucamApp"] = Ember.Handlebars.template(function anonymous(Han
         'value': ("toolDiameter"),
         'min': (0)
     }, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
+    data.buffer.push("</td>\n            </tr>\n            <tr>\n                <th>Feedrate:</th>\n                <td>");
+    hashContexts = {'value': depth0, 'min': depth0, 'max': depth0};
+    hashTypes = {'value': "ID", 'min': "INTEGER", 'max': "INTEGER"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
+        'value': ("feedrate"),
+        'min': (0),
+        'max': (3000)
+    }, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
     data.buffer.push("</td>\n            </tr>\n            </tbody>\n        </table>\n        <ul class=\"operations\">\n            ");
     hashContexts = {'itemController': depth0};
     hashTypes = {'itemController': "STRING"};

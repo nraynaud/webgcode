@@ -1,7 +1,7 @@
 "use strict";
 require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
-        'cnc/cam/toolpath', 'cnc/cam/operations', 'libs/svg', 'cnc/svgImporter', 'templates', 'libs/svg-import'],
-    function (Ember, DS, views, TreeDView, cam, tp, Operations, SVG, svgImporter, templates) {
+        'cnc/cam/toolpath', 'cnc/cam/operations', 'libs/svg', 'cnc/svgImporter', 'cnc/util', 'templates', 'libs/svg-import'],
+    function (Ember, DS, views, TreeDView, cam, tp, Operations, SVG, svgImporter, util, templates) {
         Ember.TEMPLATES['application'] = Ember.TEMPLATES['visucamApp'];
 
         window.Visucam = Ember.Application.create({});
@@ -50,13 +50,13 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam
             }
         });
 
-
         Visucam.Job = Ember.Object.extend({
             init: function () {
                 this.syncSecurityZ();
             },
             safetyZ: 5,
             toolDiameter: 3,
+            feedrate: 100,
             operations: [],
             shapes: [],
             deleteOperation: function (operation) {
@@ -113,14 +113,52 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam
             }
         });
 
-        var doc = Visucam.Job.create({
-            safetyZ: 10,
-            operations: [],
-            shapes: []
-        });
+        var doc = Visucam.Job.create();
 
-        var shape1 = doc.createShape('M0,0L100,0L100,100');
-        var shape2 = doc.createShape('M25, 35 A10, 10 0 0 0 35, 25 A10, 10 0 0 0 25, 15 A10, 10 0 0 0 15, 25 A10, 10 0 0 0 25, 35Z');
+        function createHypotrochoid() {
+            var n = 14;
+            var r = 1;
+            var rOff = 2;
+
+            var R = n * r;
+            var d = r;
+
+            var nPoints = 2000;
+            var points = [];
+            var dr = R - r;
+            var relDer = dr / r;
+            for (var i = 0; i < nPoints; i++) {
+                var angle = 2 * Math.PI / 200 * i;
+                var x = dr * Math.cos(angle) + d * Math.cos(relDer * angle);
+                var y = dr * Math.sin(angle) - d * Math.sin(relDer * angle);
+                points.push((i == 0 ? 'M' : 'L' ) + new util.Point(x, y).svg());
+            }
+            points.push('Z');
+            var poly = cam.pathDefToClipper(points.join(' '));
+            var machine = new cam.Machine(null);
+            var res = machine.offsetPolygon(poly, rOff);
+            return machine.fromClipper(res)[0].asPathDef();
+        }
+
+        function createHoles() {
+            var nHoles = 4;
+            var rCenters = 8;
+            var radius = 3;
+
+            var holes = [];
+            for (var i = 0; i < nHoles; i++) {
+                var angle = i * 2 * Math.PI / nHoles;
+                var x = Math.cos(angle) * rCenters;
+                var y = Math.sin(angle) * rCenters;
+                holes.push(cam.geom.createCircle(x, y, radius));
+            }
+
+            holes.push(cam.geom.createCircle(0, 0, radius));
+            return holes.join(' ');
+        }
+
+        var shape1 = doc.createShape(createHypotrochoid());
+        var shape2 = doc.createShape(createHoles());
         var shape3 = doc.createShape('M50,50L80,50L80,80L50,80 Z');
         var shape4 = doc.createShape('M-10,-10 L-100,-10 L-100,-100 L-10,-100Z M-20,-20 L-20,-80L-80,-80L-80,-20Z ');
         doc.createOperation({name: 'Engraving', type: 'SimpleEngravingOperation', outline: shape1});
