@@ -43,7 +43,7 @@ define(['cnc/util', 'cnc/cam/cam'], function (util, cam) {
                 var psy = Math.atan(Math.sin(z1 * phi) / (Math.cos(z1 * phi) - R / (e * z2)));
                 var x = R * Math.cos(phi) - Rr * Math.cos(phi + psy) - e * Math.cos(z2 * phi);
                 var y = -R * Math.sin(phi) + Rr * Math.sin(phi + psy) + e * Math.sin(z2 * phi);
-                points.push((i == 0 ? 'M' : 'T' ) + new util.Point(x, y).svg());
+                points.push((i == 0 ? 'M' : 'L' ) + new util.Point(x, y).svg());
             }
             points.push('Z');
             return points.join(' ');
