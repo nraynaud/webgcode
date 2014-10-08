@@ -115,11 +115,11 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
 
         var doc = Visucam.Job.create();
 
-        var wabble = new Wabble(13, 15, 1, 1);
-        var shape1 = doc.createShape(wabble.getRotorShape());
-        var shape2 = doc.createShape(wabble.getPinsShape());
-        doc.createOperation({name: 'Crown', type: 'RampingContourOperation', outline: shape1, ramping_inside: false});
-        doc.createOperation({name: 'Pins', type: 'RampingContourOperation', outline: shape2, ramping_inside: false});
+        var wabble = new Wabble(13, 15, 1, 1, 5, 8, 3);
+        doc.createOperation({name: 'Crown', type: 'RampingContourOperation', outline: doc.createShape(wabble.getRotorShape()), ramping_inside: false});
+        doc.createOperation({name: 'Output Holes', type: 'RampingContourOperation', outline: doc.createShape(wabble.getOutputHolesShape()), ramping_inside: true});
+        doc.createOperation({name: 'Pins', type: 'RampingContourOperation', outline: doc.createShape(wabble.getPinsShape()), ramping_inside: false});
+        doc.createOperation({name: 'Output Pins', type: 'RampingContourOperation', outline: doc.createShape(wabble.getOutputPinsShape()), ramping_inside: false});
 
         Visucam.Router.map(function () {
             this.resource('operation', {path: '/operations/:operation_id'});

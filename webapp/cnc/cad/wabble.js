@@ -1,12 +1,27 @@
 "use strict";
 define(['cnc/util', 'cnc/cam/cam'], function (util, cam) {
     //http://www.ric.org/app/files/public/1738/pdf-sensinger-2010.pdf
+    function getCirclePattern(count, patternRadius, circleRadius, center) {
+        if (center == null)
+            center = new util.Point(0, 0);
+        var shape = [];
+        for (var i = 0; i < count; i++) {
+            var angle = i * 2 * Math.PI / count;
+            var x = patternRadius * Math.cos(angle);
+            var y = patternRadius * Math.sin(angle);
+            shape.push(cam.geom.createCircle(x + center.x, y + center.y, circleRadius));
+        }
+        return shape.join(' ');
+    }
 
-    function Wabble(lobesCount, rollerCenterRadius, rollerRadius, eccentricity) {
+    function Wabble(lobesCount, rollerCenterRadius, rollerRadius, eccentricity, outputHolesCount, outputHoleCentersRadius, outputHolesRadius) {
         this.lobesCount = lobesCount;
         this.rollerCenterRadius = rollerCenterRadius;
         this.rollerRadius = rollerRadius;
         this.eccentricity = eccentricity;
+        this.outputHolesCount = outputHolesCount;
+        this.outputHoleCentersRadius = outputHoleCentersRadius;
+        this.outputHolesRadius = outputHolesRadius;
     }
 
     Wabble.prototype = {
@@ -43,21 +58,19 @@ define(['cnc/util', 'cnc/cam/cam'], function (util, cam) {
                 var psy = Math.atan(Math.sin(z1 * phi) / (Math.cos(z1 * phi) - R / (e * z2)));
                 var x = R * Math.cos(phi) - Rr * Math.cos(phi + psy) - e * Math.cos(z2 * phi);
                 var y = -R * Math.sin(phi) + Rr * Math.sin(phi + psy) + e * Math.sin(z2 * phi);
-                points.push((i == 0 ? 'M' : 'L' ) + new util.Point(x, y).svg());
+                points.push((i == 0 ? 'M' : 'L' ) + new util.Point(x + e, y).svg());
             }
             points.push('Z');
             return points.join(' ');
         },
         getPinsShape: function () {
-            var pinCount = this.lobesCount + 1;
-            var pins = [];
-            for (var i = 0; i < pinCount; i++) {
-                var angle = i * 2 * Math.PI / pinCount;
-                var x = this.rollerCenterRadius * Math.cos(angle);
-                var y = this.rollerCenterRadius * Math.sin(angle);
-                pins.push(cam.geom.createCircle(x, y, this.rollerRadius));
-            }
-            return pins.join(' ');
+            return getCirclePattern(this.lobesCount + 1, this.rollerCenterRadius, this.rollerRadius);
+        },
+        getOutputHolesShape: function () {
+            return getCirclePattern(this.outputHolesCount, this.outputHoleCentersRadius, this.outputHolesRadius, new util.Point(this.eccentricity, 0));
+        },
+        getOutputPinsShape: function () {
+            return getCirclePattern(this.outputHolesCount, this.outputHoleCentersRadius, this.outputHolesRadius - this.eccentricity);
         }
     };
     return Wabble;
