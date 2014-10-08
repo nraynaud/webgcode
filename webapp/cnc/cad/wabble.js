@@ -36,7 +36,7 @@ define(['cnc/util', 'cnc/cam/cam'], function (util, cam) {
             var emax = Math.sqrt((time27 * R2 - Rr2 * cube) / (time27 * z22));
             console.log('emax', emax, e);
 
-            var nPoints = 10000;
+            var nPoints = 5000;
             var points = [];
             for (var i = 0; i < nPoints; i++) {
                 var phi = i * 2 * Math.PI / nPoints;
