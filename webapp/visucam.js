@@ -19,10 +19,6 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
          * When this works we can try to be smarter and not stop uselessly.
          */
         Visucam.Operation = Ember.Object.extend({
-            init: function () {
-                this.computeToolpath();
-                this.installObservers();
-            },
             name: 'New Operation',
             type: 'SimpleEngravingOperation',
             job: null,
@@ -34,7 +30,7 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
                 Object.keys(properties).forEach(function (key) {
                     _this.addObserver(key, _this, _this.computeToolpath)
                 });
-            }.observes('type'),
+            }.observes('type').on('init'),
             uninstallObservers: function () {
                 var properties = Operations[this.get('type')].properties;
                 var _this = this;
@@ -44,44 +40,32 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
             }.observesBefore('type'),
             computeToolpath: function () {
                 Operations[this.get('type')]['computeToolpath'](this);
-            }.observes('type', 'job.toolDiameter', 'job.safetyZ'),
+            }.observes('type', 'job.toolDiameter', 'job.safetyZ').on('init'),
             unknownProperty: function (key) {
                 return Operations[this.get('type')].properties[key];
             }
         });
 
         Visucam.Job = Ember.Object.extend({
-            init: function () {
-                this.syncSecurityZ();
-            },
             safetyZ: 5,
             toolDiameter: 3,
             feedrate: 100,
             operations: [],
             shapes: [],
             deleteOperation: function (operation) {
-                var operations = this.get('operations');
-                var index = operations.indexOf(operation);
-                operations.removeAt(index);
+                this.get('operations').removeObject(operation);
             },
             findOperation: function (id) {
-                var operations = this.get('operations');
-                for (var i = 0; i < operations.length; i++) {
-                    var op = operations[i];
-                    if (op.id == id)
-                        return op;
-                }
+                this.get('operations').findBy('id', Number(id));
             },
             transitionTravels: function () {
                 var operations = this.get('operations');
                 var travelBits = [];
                 var pathFragments = [];
-                for (var i = 0; i < operations.length; i++) {
-                    var toolpath = operations[i].get('toolpath');
-                    for (var j = 0; j < toolpath.length; j++)
-                        pathFragments.push(toolpath[j]);
-                }
-                for (i = 0; i < pathFragments.length - 1; i++) {
+                operations.forEach( function(operation) {
+                    pathFragments.pushObjects( operation.get('toolpath') );
+                });
+                for (var i = 0; i < pathFragments.length - 1; i++) {
                     var endPoint = pathFragments[i].getStopPoint();
                     var destinationPoint = pathFragments[i + 1].getStartPoint();
                     var travel = new tp.GeneralPolylineToolpath();
@@ -97,7 +81,7 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
                 this.get('operations').forEach(function (operation) {
                     operation.set('safetyZ', safetyZ);
                 });
-            }.observes('safetyZ', 'operations.@each.safetyZ'),
+            }.observes('safetyZ', 'operations.@each.safetyZ').on('init'),
             createOperation: function (params) {
                 var id = this.get('operations').length + 1;
                 params = $.extend({}, params, {id: id, job: this});
@@ -129,37 +113,30 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
                 return doc;
             }
         });
+
         Visucam.IndexRoute = Ember.Route.extend({
-            needs: ['operation'],
-            model: function () {
-                return doc;
-            },
-            actions: {
-                didTransition: function () {
-                    this.controllerFor("application").set('currentOperation', null);
-                }
+            setupController: function(controller, model) {
+              this._super.apply(this, arguments);
+              this.controller.set('currentOperation', null);
             }
         });
+
         Visucam.OperationRoute = Ember.Route.extend({
             model: function (params) {
-                var operation = doc.findOperation(params.operation_id);
-                if (!operation)
-                    this.transitionTo('/');
-                return operation;
+                return doc.findOperation(params.operation_id);
             },
-            setupController: function (controller, model) {
-                this.controllerFor("application").set('currentOperation', model);
-                controller.set('model', model);
+            afterModel: function(model) {
+                if (!model)
+                    this.transitionTo('/');
+            },
+            setupController: function(controller, model) {
+              this._super.apply(this, arguments);
+              this.controllerFor('application').set('currentOperation', model);
             }
         });
 
         Visucam.ApplicationController = Ember.ObjectController.extend({
-            needs: ['operation'],
             currentOperation: null,
-            checkCurrentOperationIsDeleted: function () {
-                if (this.get('operations') && this.get('currentOperation') && this.get('operations').indexOf(this.get('currentOperation')) == -1)
-                    this.transitionToRoute('/');
-            }.observes('operations.@each'),
             addShapes: function (shapeDefinitions) {
                 var shape = this.get('model').createShape(shapeDefinitions.join(' '));
                 var contour = this.get('model').createOperation({outline: shape});
@@ -168,9 +145,6 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
         });
 
         Visucam.OperationController = Ember.ObjectController.extend({
-            init: function () {
-                this._super();
-            },
             specialTemplate: function () {
                 return Operations[this.get('type')].specialTemplate;
             }.property('type'),
@@ -181,15 +155,23 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
             }.property()
         });
         Visucam.OperationListItemController = Ember.ObjectController.extend({
-            needs: ['application'],
+            needs: ['operation'],
             actions: {
-                'delete': function () {
-                    this.get('job').deleteOperation(this.get('model'));
+                delete: function () {
+                    var operation = this.get('model');
+
+                    if( this.get('isCurrent') ) {
+                        this.transitionToRoute('index').then( function() {
+                            operation.get('job').deleteOperation(operation);
+                      });
+                    } else {
+                        operation.get('job').deleteOperation(operation);
+                    }
                 }
             },
             isCurrent: function () {
-                return this.get('controllers.application.currentOperation') === this.get('model');
-            }.property('controllers.application.currentOperation')
+                return this.get('controllers.operation.model') === this.get('model');
+            }.property('controllers.operation.model')
         });
 
         function collectVertices(toolpath, defaultZ) {
