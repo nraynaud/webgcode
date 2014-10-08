@@ -374,11 +374,22 @@ define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util'
         var polygons = pathDefToPolygons(pathDef);
         $.each(polygons, function (_, poly) {
             $.each(poly, function (_, point) {
-                point.X = Math.round(CLIPPER_SCALE * point.X);
-                point.Y = Math.round(CLIPPER_SCALE * point.Y);
+                point.X = Math.round(CLIPPER_SCALE * point.x);
+                point.Y = Math.round(CLIPPER_SCALE * point.y);
             });
         });
         return polygons;
+    }
+
+    function clipperToPathDef(clipperPoly) {
+        var res = [];
+        for (var i = 0; i < clipperPoly.length; i++)
+            if (clipperPoly[i].length) {
+                for (var j = 0; j < clipperPoly[i].length; j++)
+                    res.push((j == 0 ? 'M' : 'L') + new util.Point(clipperPoly[i][j].X, clipperPoly[i][j].Y).scale(1 / CLIPPER_SCALE).svg());
+                res.push('Z');
+            }
+        return res.join(' ');
     }
 
     function decomposePolytreeInTopLevelPolygons(polytree) {
@@ -465,6 +476,7 @@ define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util'
         simplifyPolygons: simplifyPolygons,
         pathDefToPolygons: pathDefToPolygons,
         pathDefToClipper: pathDefToClipper,
+        clipperToPathDef: clipperToPathDef,
         dumpGCode: dumpGCode,
         simplifyScaleAndCreatePathDef: simplifyScaleAndCreatePathDef
     };

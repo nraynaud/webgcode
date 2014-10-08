@@ -50,14 +50,14 @@ define(['cnc/util', 'cnc/cam/cam'], function (util, cam) {
         },
         getPinsShape: function () {
             var pinCount = this.lobesCount + 1;
-            var shape = [];
+            var pins = [];
             for (var i = 0; i < pinCount; i++) {
                 var angle = i * 2 * Math.PI / pinCount;
                 var x = this.rollerCenterRadius * Math.cos(angle);
                 var y = this.rollerCenterRadius * Math.sin(angle);
-                shape.push(cam.geom.createCircle(x, y, this.rollerRadius));
+                pins.push(cam.geom.createCircle(x, y, this.rollerRadius));
             }
-            return shape.join(' ');
+            return pins.join(' ');
         }
     };
     return Wabble;

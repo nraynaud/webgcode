@@ -545,7 +545,7 @@ Ember.TEMPLATES["simpleEngraving"] = Ember.Handlebars.template(function anonymou
     hashContexts = {'value': depth0};
     hashTypes = {'value': "ID"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("engravingZ")
+        'value': ("engraing_engravingZ")
     }, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
     data.buffer.push("</td>\n</tr>\n");
     return buffer;
