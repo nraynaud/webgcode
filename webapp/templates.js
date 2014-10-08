@@ -447,14 +447,6 @@ Ember.TEMPLATES["operation"] = Ember.Handlebars.template(function anonymous(Hand
         'optionValuePath': ("content.class"),
         'optionLabelPath': ("content.label")
     }, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
-    data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th>Inside Shape</th>\n            <td>");
-    hashContexts = {'type': depth0, 'checked': depth0};
-    hashTypes = {'type': "STRING", 'checked': "ID"};
-    options = {hash: {
-        'type': ("checkbox"),
-        'checked': ("inside")
-    }, contexts: [], types: [], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
-    data.buffer.push(escapeExpression(((stack1 = helpers.input || (depth0 && depth0.input)), stack1 ? stack1.call(depth0, options) : helperMissing.call(depth0, "input", options))));
     data.buffer.push("</td>\n        </tr>\n        ");
     hashTypes = {};
     hashContexts = {};
@@ -468,26 +460,41 @@ Ember.TEMPLATES["rampingContour"] = Ember.Handlebars.template(function anonymous
     this.compilerInfo = [4, '>= 1.0.0'];
     helpers = this.merge(helpers, Ember.Handlebars.helpers);
     data = data || {};
-    var buffer = '', hashContexts, hashTypes, escapeExpression = this.escapeExpression;
+    var buffer = '', stack1, hashContexts, hashTypes, options, helperMissing = helpers.helperMissing, escapeExpression = this.escapeExpression;
 
 
-    data.buffer.push("<tr>\n    <th>Start Z:</th>\n    <td>");
+    data.buffer.push("<tr>\n    <th>Inside Shape</th>\n    <td>");
+    hashContexts = {'type': depth0, 'checked': depth0};
+    hashTypes = {'type': "STRING", 'checked': "ID"};
+    options = {hash: {
+        'type': ("checkbox"),
+        'checked': ("ramping_inside")
+    }, contexts: [], types: [], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.input || (depth0 && depth0.input)), stack1 ? stack1.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+    data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"How far the tool should stay away from the line in X-Y plane\">Leave Stock:</th>\n    <td>");
+    hashContexts = {'value': depth0, 'min': depth0};
+    hashTypes = {'value': "ID", 'min': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
+        'value': ("ramping_leaveStock"),
+        'min': ("0")
+    }, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
+    data.buffer.push("</td>\n</tr>\n<tr>\n    <th>Start Z:</th>\n    <td>");
     hashContexts = {'value': depth0};
     hashTypes = {'value': "ID"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("startZ")
+        'value': ("ramping_startZ")
     }, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
     data.buffer.push("</td>\n</tr>\n<tr>\n    <th>Stop Z:</th>\n    <td>");
     hashContexts = {'value': depth0};
     hashTypes = {'value': "ID"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("stopZ")
+        'value': ("ramping_stopZ")
     }, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
     data.buffer.push("</td>\n</tr>\n<tr>\n    <th># of turns:</th>\n    <td>");
     hashContexts = {'value': depth0, 'min': depth0, 'step': depth0};
     hashTypes = {'value': "ID", 'min': "STRING", 'step': "STRING"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("turns"),
+        'value': ("ramping_turns"),
         'min': ("1"),
         'step': ("1")
     }, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
@@ -499,14 +506,29 @@ Ember.TEMPLATES["simpleContour"] = Ember.Handlebars.template(function anonymous(
     this.compilerInfo = [4, '>= 1.0.0'];
     helpers = this.merge(helpers, Ember.Handlebars.helpers);
     data = data || {};
-    var buffer = '', hashContexts, hashTypes, escapeExpression = this.escapeExpression;
+    var buffer = '', stack1, hashContexts, hashTypes, options, helperMissing = helpers.helperMissing, escapeExpression = this.escapeExpression;
 
 
-    data.buffer.push("<tr>\n    <th>Contour Z:</th>\n    <td>");
+    data.buffer.push("<tr>\n    <th>Inside Shape</th>\n    <td>");
+    hashContexts = {'type': depth0, 'checked': depth0};
+    hashTypes = {'type': "STRING", 'checked': "ID"};
+    options = {hash: {
+        'type': ("checkbox"),
+        'checked': ("simple_inside")
+    }, contexts: [], types: [], hashContexts: hashContexts, hashTypes: hashTypes, data: data};
+    data.buffer.push(escapeExpression(((stack1 = helpers.input || (depth0 && depth0.input)), stack1 ? stack1.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+    data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"How far the tool should stay away from the line in X-Y plane\">Leave Stock:</th>\n    <td>");
+    hashContexts = {'value': depth0, 'min': depth0};
+    hashTypes = {'value': "ID", 'min': "STRING"};
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
+        'value': ("simple_leaveStock"),
+        'min': ("0")
+    }, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
+    data.buffer.push("</td>\n</tr>\n<tr>\n    <th>Contour Z:</th>\n    <td>");
     hashContexts = {'value': depth0};
     hashTypes = {'value': "ID"};
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("contourZ")
+        'value': ("simple_contourZ")
     }, contexts: [depth0], types: ["ID"], hashContexts: hashContexts, hashTypes: hashTypes, data: data})));
     data.buffer.push("</td>\n</tr>\n");
     return buffer;

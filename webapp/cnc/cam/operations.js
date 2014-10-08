@@ -25,13 +25,14 @@ define(['cnc/cam/cam', 'cnc/cam/toolpath'], function (cam, tp) {
         'SimpleContourOperation': {
             label: 'Simple Contour',
             specialTemplate: 'simpleContour',
-            properties: {contourZ: -5, inside: true},
+            properties: {simple_contourZ: -5, simple_inside: true, simple_leaveStock: 0},
             computeToolpath: function (op) {
                 var machine = new cam.Machine(null);
-                machine.setParams(op.get('contourZ'), 10, 100);
+                machine.setParams(op.get('simple_contourZ'), 10, 100);
                 var polygon = cam.pathDefToClipper(op.get('outline.definition'));
-                var polygon1 = machine.contourClipper(polygon, parseFloat(op.get('job.toolDiameter')) / 2, op.get('inside'));
-                var contourZ = op.get('contourZ');
+                var offset = parseFloat(op.get('job.toolDiameter')) / 2 + parseFloat(op.get('simple_leaveStock'));
+                var polygon1 = machine.contourClipper(polygon, offset, op.get('simple_inside'));
+                var contourZ = op.get('simple_contourZ');
                 var safetyZ = op.get('job.safetyZ');
                 var toolpath = machine.fromClipper(polygon1).map(function (path) {
                     var startPoint = path.getStartPoint();
@@ -48,19 +49,21 @@ define(['cnc/cam/cam', 'cnc/cam/toolpath'], function (cam, tp) {
             label: 'Ramping Contour',
             specialTemplate: 'rampingContour',
             properties: {
-                startZ: 0,
-                stopZ: -5,
-                turns: 5,
-                inside: true
+                ramping_startZ: 0,
+                ramping_stopZ: -5,
+                ramping_turns: 5,
+                ramping_inside: true,
+                ramping_leaveStock: 0
             },
             computeToolpath: function (op) {
                 var machine = new cam.Machine(null);
-                machine.setParams(op.get('contourZ'), 10, 100);
+                machine.setParams(op.get('ramping_startZ'), 10, 100);
                 var clipperPolygon = cam.pathDefToClipper(op.get('outline.definition'));
-                var contour = machine.contourClipper(clipperPolygon, parseFloat(op.get('job.toolDiameter')) / 2, op.get('inside'));
-                var startZ = parseFloat(op.get('startZ'));
-                var stopZ = parseFloat(op.get('stopZ'));
-                var turns = parseFloat(op.get('turns'));
+                var offset = parseFloat(op.get('job.toolDiameter')) / 2 + parseFloat(op.get('ramping_leaveStock'));
+                var contour = machine.contourClipper(clipperPolygon, offset, op.get('ramping_inside'));
+                var startZ = parseFloat(op.get('ramping_startZ'));
+                var stopZ = parseFloat(op.get('ramping_stopZ'));
+                var turns = parseFloat(op.get('ramping_turns'));
                 var toolpath = machine.rampToolPathArray(machine.fromClipper(contour), startZ, stopZ, turns);
                 var safetyZ = op.get('job.safetyZ');
                 toolpath.forEach(function (path) {

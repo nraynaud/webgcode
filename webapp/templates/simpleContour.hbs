@@ -1,4 +1,12 @@
 <tr>
+    <th>Inside Shape</th>
+    <td>{{input type="checkbox" checked=simple_inside}}</td>
+</tr>
+<tr>
+    <th title="How far the tool should stay away from the line in X-Y plane">Leave Stock:</th>
+    <td>{{view Visucam.NumberView value=simple_leaveStock min="0"}}</td>
+</tr>
+<tr>
     <th>Contour Z:</th>
-    <td>{{view Visucam.NumberView value=contourZ}}</td>
+    <td>{{view Visucam.NumberView value=simple_contourZ}}</td>
 </tr>

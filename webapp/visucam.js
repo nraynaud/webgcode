@@ -118,8 +118,8 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
         var wabble = new Wabble(13, 15, 1, 1);
         var shape1 = doc.createShape(wabble.getRotorShape());
         var shape2 = doc.createShape(wabble.getPinsShape());
-        doc.createOperation({name: 'Crown', type: 'RampingContourOperation', outline: shape1, inside: false});
-        doc.createOperation({name: 'Pins', type: 'RampingContourOperation', outline: shape2, inside: false});
+        doc.createOperation({name: 'Crown', type: 'RampingContourOperation', outline: shape1, ramping_inside: false});
+        doc.createOperation({name: 'Pins', type: 'RampingContourOperation', outline: shape2, ramping_inside: false});
 
         Visucam.Router.map(function () {
             this.resource('operation', {path: '/operations/:operation_id'});
@@ -273,7 +273,6 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
                 threeDView.reRender();
             }.observes('controller.transitionTravels'),
             synchronizeOutlines: function () {
-                console.log('synchronizeOutlines');
                 var outlinesDisplay = this.get('outlinesDisplay');
                 outlinesDisplay.clear();
                 this.get('controller.shapes').forEach(function (shape) {

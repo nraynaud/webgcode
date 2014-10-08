@@ -9,10 +9,6 @@
             <th>Type</th>
             <td>{{view Ember.Select value=type content=operationDescriptors optionValuePath="content.class" optionLabelPath="content.label"}}</td>
         </tr>
-        <tr>
-            <th>Inside Shape</th>
-            <td>{{input type="checkbox" checked=inside}}</td>
-        </tr>
         {{partial specialTemplate}}
         </tbody>
     </table>
