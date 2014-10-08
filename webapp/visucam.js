@@ -1,7 +1,7 @@
 "use strict";
-require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
-        'cnc/cam/toolpath', 'cnc/cam/operations', 'libs/svg', 'cnc/svgImporter', 'cnc/util', 'templates', 'libs/svg-import'],
-    function (Ember, DS, views, TreeDView, cam, tp, Operations, SVG, svgImporter, util, templates) {
+require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
+        'cnc/cam/toolpath', 'cnc/cam/operations', 'libs/svg', 'cnc/svgImporter', 'cnc/cad/wabble', 'templates', 'libs/svg-import'],
+    function (Ember, views, TreeDView, cam, tp, Operations, SVG, svgImporter, Wabble, templates) {
         Ember.TEMPLATES['application'] = Ember.TEMPLATES['visucamApp'];
 
         window.Visucam = Ember.Application.create({});
@@ -115,56 +115,11 @@ require(['Ember', 'EmberData', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam
 
         var doc = Visucam.Job.create();
 
-        function createHypotrochoid() {
-            var n = 14;
-            var r = 1;
-            var rOff = 2;
-
-            var R = n * r;
-            var d = r;
-
-            var nPoints = 2000;
-            var points = [];
-            var dr = R - r;
-            var relDer = dr / r;
-            for (var i = 0; i < nPoints; i++) {
-                var angle = 2 * Math.PI / 200 * i;
-                var x = dr * Math.cos(angle) + d * Math.cos(relDer * angle);
-                var y = dr * Math.sin(angle) - d * Math.sin(relDer * angle);
-                points.push((i == 0 ? 'M' : 'L' ) + new util.Point(x, y).svg());
-            }
-            points.push('Z');
-            var poly = cam.pathDefToClipper(points.join(' '));
-            var machine = new cam.Machine(null);
-            var res = machine.offsetPolygon(poly, rOff);
-            return machine.fromClipper(res)[0].asPathDef();
-        }
-
-        function createHoles() {
-            var nHoles = 4;
-            var rCenters = 8;
-            var radius = 3;
-
-            var holes = [];
-            for (var i = 0; i < nHoles; i++) {
-                var angle = i * 2 * Math.PI / nHoles;
-                var x = Math.cos(angle) * rCenters;
-                var y = Math.sin(angle) * rCenters;
-                holes.push(cam.geom.createCircle(x, y, radius));
-            }
-
-            holes.push(cam.geom.createCircle(0, 0, radius));
-            return holes.join(' ');
-        }
-
-        var shape1 = doc.createShape(createHypotrochoid());
-        var shape2 = doc.createShape(createHoles());
-        var shape3 = doc.createShape('M50,50L80,50L80,80L50,80 Z');
-        var shape4 = doc.createShape('M-10,-10 L-100,-10 L-100,-100 L-10,-100Z M-20,-20 L-20,-80L-80,-80L-80,-20Z ');
-        doc.createOperation({name: 'Engraving', type: 'SimpleEngravingOperation', outline: shape1});
-        doc.createOperation({name: 'Inner Profiling 1', type: 'RampingContourOperation', outline: shape2});
-        doc.createOperation({name: 'Inner Profiling 2', type: 'SimpleContourOperation', outline: shape3, inside: true, contourZ: -13});
-        doc.createOperation({name: 'Outer Profiling 3', outline: shape4, inside: false, stopZ: -15, turns: 5});
+        var wabble = new Wabble(13, 15, 1, 1);
+        var shape1 = doc.createShape(wabble.getRotorShape());
+        var shape2 = doc.createShape(wabble.getPinsShape());
+        doc.createOperation({name: 'Crown', type: 'RampingContourOperation', outline: shape1, inside: false});
+        doc.createOperation({name: 'Pins', type: 'RampingContourOperation', outline: shape2, inside: false});
 
         Visucam.Router.map(function () {
             this.resource('operation', {path: '/operations/:operation_id'});
