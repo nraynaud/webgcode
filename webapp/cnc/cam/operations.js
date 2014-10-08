@@ -5,9 +5,9 @@ define(['cnc/cam/cam', 'cnc/cam/toolpath'], function (cam, tp) {
         'SimpleEngravingOperation': {
             label: 'Simple Engraving',
             specialTemplate: 'simpleEngraving',
-            properties: {engravingZ: -5},
+            properties: {engraing_engravingZ: -5},
             computeToolpath: function (op) {
-                var z = op.get('engravingZ');
+                var z = op.get('engraing_engravingZ');
                 var safetyZ = op.get('job.safetyZ');
                 var polygons = cam.pathDefToPolygons(op.get('outline.definition'));
                 var toolpath = [];
