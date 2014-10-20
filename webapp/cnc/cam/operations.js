@@ -99,10 +99,9 @@ define(['cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (cam, tp,
                                 toolpath.pushObject(generalPath);
                             });
                         });
-                        op.set('toolpath', toolpath);
                     });
                 });
-                op.set('toolpath', []);
+                op.set('toolpath', toolpath);
             }
         }
     };

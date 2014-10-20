@@ -240,7 +240,7 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
                     highlightDisplay.addPolyLines(cam.pathDefToPolygons(operation.get('outline.definition')));
                 }
                 threeDView.reRender();
-            }.observes('controller.currentOperation', 'controller.currentOperation.toolpath', 'controller.safetyZ'),
+            }.observes('controller.currentOperation', 'controller.currentOperation.toolpath.@each', 'controller.currentOperation.toolpath', 'controller.safetyZ'),
             synchronizeJob: function () {
                 var threeDView = this.get('nativeComponent');
                 var travelDisplay = this.get('travelDisplay');
