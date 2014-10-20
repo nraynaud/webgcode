@@ -1,13 +1,13 @@
 "use strict";
-define(['cnc/cam/cam', 'cnc/cam/toolpath'], function (cam, tp) {
+define(['cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (cam, tp, pocket) {
 
     return {
         'SimpleEngravingOperation': {
             label: 'Simple Engraving',
             specialTemplate: 'simpleEngraving',
-            properties: {engraing_engravingZ: -5},
+            properties: {engraving_Z: -5},
             computeToolpath: function (op) {
-                var z = op.get('engraing_engravingZ');
+                var z = op.get('engraving_Z');
                 var safetyZ = op.get('job.safetyZ');
                 var polygons = cam.pathDefToPolygons(op.get('outline.definition'));
                 var toolpath = [];
@@ -71,6 +71,38 @@ define(['cnc/cam/cam', 'cnc/cam/toolpath'], function (cam, tp) {
                     path.pushPointInFront(startPoint.x, startPoint.y, safetyZ);
                 });
                 op.set('toolpath', toolpath);
+            }
+        },
+        'PocketOperation': {
+            label: 'Pocket',
+            specialTemplate: 'operationPocket',
+            properties: {
+                pocket_depth: -5, pocket_engagement: 50
+            },
+            computeToolpath: function (op) {
+                var clipperPolygon = cam.pathDefToClipper(op.get('outline.definition'));
+                var scaledToolRadius = parseFloat(op.get('job.toolDiameter')) / 2 * cam.CLIPPER_SCALE;
+                var result = pocket.createPocket(clipperPolygon, scaledToolRadius, op.get('pocket_engagement') / 100, true);
+                var machine = new cam.Machine(null);
+                var z = op.get('pocket_depth');
+                var toolpath = [];
+                result.workArray.forEach(function (workUnit) {
+                    workUnit.promise.then(function (result) {
+                        result.forEach(function (pocketResult, index) {
+                            var path = machine.fromClipper([pocketResult.spiraledToolPath.path]);
+                            path.forEach(function (path) {
+                                var startPoint = path.getStartPoint();
+                                var generalPath = path.asGeneralToolpath(z);
+                                if (index == 0)
+                                // plunge from safety plane
+                                    generalPath.pushPointInFront(startPoint.x, startPoint.y, z);
+                                toolpath.pushObject(generalPath);
+                            });
+                        });
+                        op.set('toolpath', toolpath);
+                    });
+                });
+                op.set('toolpath', []);
             }
         }
     };

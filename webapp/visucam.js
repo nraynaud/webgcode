@@ -62,8 +62,8 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
                 var operations = this.get('operations');
                 var travelBits = [];
                 var pathFragments = [];
-                operations.forEach( function(operation) {
-                    pathFragments.pushObjects( operation.get('toolpath') );
+                operations.forEach(function (operation) {
+                    pathFragments.pushObjects(operation.get('toolpath'));
                 });
                 for (var i = 0; i < pathFragments.length - 1; i++) {
                     var endPoint = pathFragments[i].getStopPoint();
@@ -113,25 +113,23 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
                 return doc;
             }
         });
-
         Visucam.IndexRoute = Ember.Route.extend({
-            setupController: function(controller, model) {
-              this._super.apply(this, arguments);
-              this.controller.set('currentOperation', null);
+            setupController: function (controller, model) {
+                this._super.apply(this, arguments);
+                this.controller.set('currentOperation', null);
             }
         });
-
         Visucam.OperationRoute = Ember.Route.extend({
             model: function (params) {
                 return doc.findOperation(params.operation_id);
             },
-            afterModel: function(model) {
+            afterModel: function (model) {
                 if (!model)
                     this.transitionTo('/');
             },
-            setupController: function(controller, model) {
-              this._super.apply(this, arguments);
-              this.controllerFor('application').set('currentOperation', model);
+            setupController: function (controller, model) {
+                this._super.apply(this, arguments);
+                this.controllerFor('application').set('currentOperation', model);
             }
         });
 
@@ -160,10 +158,10 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
                 delete: function () {
                     var operation = this.get('model');
 
-                    if( this.get('isCurrent') ) {
-                        this.transitionToRoute('index').then( function() {
+                    if (this.get('isCurrent')) {
+                        this.transitionToRoute('index').then(function () {
                             operation.get('job').deleteOperation(operation);
-                      });
+                        });
                     } else {
                         operation.get('job').deleteOperation(operation);
                     }

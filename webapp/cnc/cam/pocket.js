@@ -1,6 +1,6 @@
 "use strict";
 
-define(['clipper', 'cnc/cam/cam', 'require'], function (clipper, cam, require) {
+define(['RSVP', 'clipper', 'cnc/cam/cam', 'require'], function (RSVP, clipper, cam, require) {
 
     function lastItem(array) {
         return array[array.length - 1];

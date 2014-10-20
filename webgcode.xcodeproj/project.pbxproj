@@ -190,6 +190,7 @@
 		DDAA584BFDA15E844B048D27 /* usb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = usb.c; sourceTree = "<group>"; };
 		DDAA587EC27F95C78E5D93C2 /* bezier.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = bezier.js; sourceTree = "<group>"; };
 		DDAA58A20FC66E2EF26DDE50 /* svgImporter.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svgImporter.js; sourceTree = "<group>"; };
+		DDAA58A5DFBAB23556EC309E /* operationPocket.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = operationPocket.hbs; sourceTree = "<group>"; };
 		DDAA58C1C0B782FE90795713 /* js_sandbox.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = js_sandbox.html; sourceTree = "<group>"; };
 		DDAA58E6C11B529BB5B59083 /* runner.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = runner.js; sourceTree = "<group>"; };
 		DDAA58FBD65B40549EC27922 /* elliptic.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = elliptic.js; path = webapp/cnc/elliptic.js; sourceTree = "<group>"; };
@@ -322,6 +323,7 @@
 				DDAA59854CED3DBBCA224A7B /* simpleContour.hbs */,
 				DDAA516825B68A6E2F8C8BF2 /* rampingContour.hbs */,
 				DDAA512A6F80D13802A577A8 /* simpleEngraving.hbs */,
+				DDAA58A5DFBAB23556EC309E /* operationPocket.hbs */,
 			);
 			path = templates;
 			sourceTree = "<group>";

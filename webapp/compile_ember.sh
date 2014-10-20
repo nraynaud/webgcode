@@ -1,3 +1,3 @@
 #!/bin/sh
 
-ember-precompile templates/*.hbs -f templates.js
+/Users/nraynaud/node_modules/ember-precompile/bin/ember-precompile templates/*.hbs -f templates.js
