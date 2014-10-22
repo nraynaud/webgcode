@@ -77,13 +77,16 @@ define(['cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (cam, tp,
             label: 'Pocket',
             specialTemplate: 'operationPocket',
             properties: {
-                pocket_depth: -5, pocket_engagement: 50
+                pocket_depth: -5, pocket_engagement: 50, pocket_leaveStock: 0.1
             },
             computeToolpath: function (op) {
                 var clipperPolygon = cam.pathDefToClipper(op.get('outline.definition'));
+                var machine = new cam.Machine(null);
+                var leaveStock = op.get('pocket_leaveStock');
+                if (leaveStock)
+                    clipperPolygon = machine.offsetPolygon(clipperPolygon, -leaveStock);
                 var scaledToolRadius = parseFloat(op.get('job.toolDiameter')) / 2 * cam.CLIPPER_SCALE;
                 var result = pocket.createPocket(clipperPolygon, scaledToolRadius, op.get('pocket_engagement') / 100, true);
-                var machine = new cam.Machine(null);
                 var z = op.get('pocket_depth');
                 var toolpath = [];
                 result.workArray.forEach(function (workUnit) {
