@@ -88,9 +88,14 @@ define(['cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (cam, tp,
                 var scaledToolRadius = parseFloat(op.get('job.toolDiameter')) / 2 * cam.CLIPPER_SCALE;
                 var result = pocket.createPocket(clipperPolygon, scaledToolRadius, op.get('pocket_engagement') / 100, true);
                 var z = op.get('pocket_depth');
+                var safetyZ = op.get('job.safetyZ');
                 var toolpath = [];
-                result.workArray.forEach(function (workUnit) {
-                    workUnit.promise.then(function (result) {
+                toolpath.clear();
+                var promises = result.workArray.map(function (unit) {
+                    return unit.promise
+                });
+                RSVP.all(promises).then(function (workResult) {
+                    workResult.forEach(function (result) {
                         result.forEach(function (pocketResult, index) {
                             var path = machine.fromClipper([pocketResult.spiraledToolPath.path]);
                             path.forEach(function (path) {
@@ -98,13 +103,13 @@ define(['cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (cam, tp,
                                 var generalPath = path.asGeneralToolpath(z);
                                 if (index == 0)
                                 // plunge from safety plane
-                                    generalPath.pushPointInFront(startPoint.x, startPoint.y, z);
+                                    generalPath.pushPointInFront(startPoint.x, startPoint.y, safetyZ);
                                 toolpath.pushObject(generalPath);
                             });
                         });
                     });
+                    op.set('toolpath', toolpath);
                 });
-                op.set('toolpath', toolpath);
             }
         }
     };

@@ -71,6 +71,9 @@ define(['cnc/util', 'cnc/cam/cam'], function (util, cam) {
         },
         getOutputPinsShape: function () {
             return getCirclePattern(this.outputHolesCount, this.outputHoleCentersRadius, this.outputHolesRadius - this.eccentricity);
+        },
+        getEccentricShape: function () {
+            return cam.geom.createCircle(this.eccentricity, 0, 4);
         }
     };
     return Wabble;

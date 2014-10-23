@@ -23,7 +23,7 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
             type: 'SimpleEngravingOperation',
             job: null,
             outline: null,
-            toolpath: null,
+            toolpath: [],
             installObservers: function () {
                 var properties = Operations[this.get('type')].properties;
                 var _this = this;
@@ -75,7 +75,7 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
                     travelBits.push(travel);
                 }
                 return travelBits;
-            }.property('operations.@each.toolpath'),
+            }.property('operations.@each.toolpath.@each'),
             syncSecurityZ: function () {
                 var safetyZ = this.get('safetyZ');
                 this.get('operations').forEach(function (operation) {
@@ -104,6 +104,7 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
         doc.createOperation({name: 'Output Holes', type: 'RampingContourOperation', outline: doc.createShape(wabble.getOutputHolesShape()), ramping_inside: true});
         doc.createOperation({name: 'Pins', type: 'RampingContourOperation', outline: doc.createShape(wabble.getPinsShape()), ramping_inside: false});
         doc.createOperation({name: 'Output Pins', type: 'RampingContourOperation', outline: doc.createShape(wabble.getOutputPinsShape()), ramping_inside: false});
+        doc.createOperation({name: 'Eccentric Hole', type: 'PocketOperation', outline: doc.createShape(wabble.getEccentricShape())});
 
         Visucam.Router.map(function () {
             this.resource('operation', {path: '/operations/:operation_id'});
@@ -249,7 +250,6 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
                 travelDisplay.addPolyLines(travelMoves.map(function (move) {
                     return move.path;
                 }));
-                threeDView.zoomExtent();
                 threeDView.reRender();
             }.observes('controller.transitionTravels'),
             synchronizeOutlines: function () {
@@ -258,6 +258,7 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
                 this.get('controller.shapes').forEach(function (shape) {
                     outlinesDisplay.addPolyLines(cam.pathDefToPolygons(shape.get('definition')));
                 });
+                this.get('nativeComponent').zoomExtent();
             }.observes('controller.shapes.@each')
         });
     });
