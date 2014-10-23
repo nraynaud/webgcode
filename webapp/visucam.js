@@ -56,7 +56,7 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
                 this.get('operations').removeObject(operation);
             },
             findOperation: function (id) {
-                this.get('operations').findBy('id', Number(id));
+                return this.get('operations').findBy('id', Number(id));
             },
             transitionTravels: function () {
                 var operations = this.get('operations');
