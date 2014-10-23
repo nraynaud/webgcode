@@ -62,16 +62,19 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
                 var operations = this.get('operations');
                 var travelBits = [];
                 var pathFragments = [];
+                var endPoint = null;
                 operations.forEach(function (operation) {
                     pathFragments.pushObjects(operation.get('toolpath'));
                 });
-                for (var i = 0; i < pathFragments.length - 1; i++) {
-                    var endPoint = pathFragments[i].getStopPoint();
-                    var destinationPoint = pathFragments[i + 1].getStartPoint();
+                for (var i = 0; i < pathFragments.length; i++) {
+                    endPoint = pathFragments[i].getStopPoint();
                     var travel = new tp.GeneralPolylineToolpath();
                     travel.pushPoint(endPoint.x, endPoint.y, endPoint.z);
                     travel.pushPoint(endPoint.x, endPoint.y, this.get('safetyZ'));
-                    travel.pushPoint(destinationPoint.x, destinationPoint.y, this.get('safetyZ'));
+                    if (i + 1 < pathFragments.length) {
+                        var destinationPoint = pathFragments[i + 1].getStartPoint();
+                        travel.pushPoint(destinationPoint.x, destinationPoint.y, this.get('safetyZ'));
+                    }
                     travelBits.push(travel);
                 }
                 return travelBits;
@@ -100,11 +103,11 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
         var doc = Visucam.Job.create();
 
         var wabble = new Wabble(13, 15, 1, 1, 5, 8, 3);
+        doc.createOperation({name: 'Eccentric Hole', type: 'PocketOperation', outline: doc.createShape(wabble.getEccentricShape())});
+        doc.createOperation({name: 'Output Holes', type: 'PocketOperation', outline: doc.createShape(wabble.getOutputHolesShape()), ramping_inside: true});
         doc.createOperation({name: 'Crown', type: 'RampingContourOperation', outline: doc.createShape(wabble.getRotorShape()), ramping_inside: false});
-        doc.createOperation({name: 'Output Holes', type: 'RampingContourOperation', outline: doc.createShape(wabble.getOutputHolesShape()), ramping_inside: true});
         doc.createOperation({name: 'Pins', type: 'RampingContourOperation', outline: doc.createShape(wabble.getPinsShape()), ramping_inside: false});
         doc.createOperation({name: 'Output Pins', type: 'RampingContourOperation', outline: doc.createShape(wabble.getOutputPinsShape()), ramping_inside: false});
-        doc.createOperation({name: 'Eccentric Hole', type: 'PocketOperation', outline: doc.createShape(wabble.getEccentricShape())});
 
         Visucam.Router.map(function () {
             this.resource('operation', {path: '/operations/:operation_id'});
