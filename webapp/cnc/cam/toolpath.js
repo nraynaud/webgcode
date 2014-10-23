@@ -66,7 +66,7 @@ define(['cnc/util'], function (util) {
             this.path.push(new util.Point(x, y, z));
         },
         pushPointInFront: function (x, y, z) {
-            this.path.unshift([x, y, z]);
+            this.path.unshift(new util.Point(x, y, z));
         },
         getStartPoint: function () {
             var p = this.path[0];
