@@ -388,11 +388,16 @@ Ember.TEMPLATES["rampingContour"] = Ember.Handlebars.template(function anonymous
     data.buffer.push("<tr>\n    <th>Inside Shape</th>\n    <td>");
     data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input), options = {hash: {
         'type': ("checkbox"),
-        'checked': ("ramping_inside")
+        'checked': ("contour_inside")
+    }, hashTypes: {'type': "STRING", 'checked': "ID"}, hashContexts: {'type': depth0, 'checked': depth0}, contexts: [], types: [], data: data}, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+    data.buffer.push("</td>\n</tr>\n<tr>\n    <th>Climb Milling</th>\n    <td>");
+    data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input), options = {hash: {
+        'type': ("checkbox"),
+        'checked': ("contour_climbMilling")
     }, hashTypes: {'type': "STRING", 'checked': "ID"}, hashContexts: {'type': depth0, 'checked': depth0}, contexts: [], types: [], data: data}, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
     data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"How far the tool should stay away from the line in X-Y plane\">Leave Stock:</th>\n    <td>");
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("ramping_leaveStock"),
+        'value': ("contour_leaveStock"),
         'min': ("0")
     }, hashTypes: {'value': "ID", 'min': "STRING"}, hashContexts: {'value': depth0, 'min': depth0}, contexts: [depth0], types: ["ID"], data: data})));
     data.buffer.push("</td>\n</tr>\n<tr>\n    <th>Start Z:</th>\n    <td>");
@@ -423,11 +428,16 @@ Ember.TEMPLATES["simpleContour"] = Ember.Handlebars.template(function anonymous(
     data.buffer.push("<tr>\n    <th>Inside Shape</th>\n    <td>");
     data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input), options = {hash: {
         'type': ("checkbox"),
-        'checked': ("simple_inside")
+        'checked': ("contour_inside")
+    }, hashTypes: {'type': "STRING", 'checked': "ID"}, hashContexts: {'type': depth0, 'checked': depth0}, contexts: [], types: [], data: data}, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+    data.buffer.push("</td>\n</tr>\n<tr>\n    <th>Climb Milling</th>\n    <td>");
+    data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input), options = {hash: {
+        'type': ("checkbox"),
+        'checked': ("contour_climbMilling")
     }, hashTypes: {'type': "STRING", 'checked': "ID"}, hashContexts: {'type': depth0, 'checked': depth0}, contexts: [], types: [], data: data}, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
     data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"How far the tool should stay away from the line in X-Y plane\">Leave Stock:</th>\n    <td>");
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("simple_leaveStock"),
+        'value': ("contour_leaveStock"),
         'min': ("0")
     }, hashTypes: {'value': "ID", 'min': "STRING"}, hashContexts: {'value': depth0, 'min': depth0}, contexts: [depth0], types: ["ID"], data: data})));
     data.buffer.push("</td>\n</tr>\n<tr>\n    <th>Contour Z:</th>\n    <td>");
