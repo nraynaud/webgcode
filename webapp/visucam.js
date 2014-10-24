@@ -49,7 +49,11 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
         Visucam.Job = Ember.Object.extend({
             safetyZ: 5,
             toolDiameter: 3,
+            toolFlutes: 2,
+            surfaceSpeed: 200,
+            chipLoad: 0.04,
             feedrate: 100,
+            speed: 24000,
             operations: [],
             shapes: [],
             deleteOperation: function (operation) {
@@ -97,7 +101,18 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
                 var shape = Visucam.Shape.create({id: id, definition: def});
                 this.get('shapes').pushObject(shape);
                 return shape;
-            }
+            },
+            updateSpeed: function () {
+                var toolDiameter = this.get('toolDiameter');
+                var surfaceSpeed = this.get('surfaceSpeed');
+                this.set('speed', Math.round(surfaceSpeed * 1000 / Math.PI / toolDiameter));
+            }.observes('surfaceSpeed', 'toolDiameter').on('init'),
+            updateFeedrate: function () {
+                var speed = this.get('speed');
+                var chipLoad = this.get('chipLoad');
+                var toolFlutes = this.get('toolFlutes');
+                this.set('feedrate', Math.round(speed * chipLoad * toolFlutes));
+            }.observes('toolFlutes', 'chipLoad', 'speed')
         });
 
         var doc = Visucam.Job.create();

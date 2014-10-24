@@ -606,17 +606,43 @@ Ember.TEMPLATES["visucamApp"] = Ember.Handlebars.template(function anonymous(Han
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
         'value': ("safetyZ")
     }, hashTypes: {'value': "ID"}, hashContexts: {'value': depth0}, contexts: [depth0], types: ["ID"], data: data})));
-    data.buffer.push("</td>\n            </tr>\n            <tr>\n                <th>Tool Diameter:</th>\n                <td>");
+    data.buffer.push("</td>\n            </tr>\n            <tr>\n                <th title=\"in mm\">Tool Diameter:</th>\n                <td>");
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
         'value': ("toolDiameter"),
-        'min': (0)
-    }, hashTypes: {'value': "ID", 'min': "INTEGER"}, hashContexts: {'value': depth0, 'min': depth0}, contexts: [depth0], types: ["ID"], data: data})));
-    data.buffer.push("</td>\n            </tr>\n            <tr>\n                <th>Feedrate:</th>\n                <td>");
+        'min': ("0.001"),
+        'step': ("0.001")
+    }, hashTypes: {'value': "ID", 'min': "STRING", 'step': "STRING"}, hashContexts: {'value': depth0, 'min': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push("</td>\n            </tr>\n            <tr>\n                <th>Tool Flutes:</th>\n                <td>");
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
+        'value': ("toolFlutes"),
+        'min': (1),
+        'step': (1)
+    }, hashTypes: {'value': "ID", 'min': "INTEGER", 'step': "INTEGER"}, hashContexts: {'value': depth0, 'min': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push("</td>\n            </tr>\n            <tr>\n                <th title=\"in m/min\">Surface Speed:</th>\n                <td>");
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
+        'value': ("surfaceSpeed"),
+        'min': (1),
+        'max': (1000)
+    }, hashTypes: {'value': "ID", 'min': "INTEGER", 'max': "INTEGER"}, hashContexts: {'value': depth0, 'min': depth0, 'max': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push("</td>\n            </tr>\n            <tr>\n                <th title=\"in mm\">Chip Load:</th>\n                <td>");
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
+        'value': ("chipLoad"),
+        'min': ("0.001"),
+        'step': ("0.001")
+    }, hashTypes: {'value': "ID", 'min': "STRING", 'step': "STRING"}, hashContexts: {'value': depth0, 'min': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push("</td>\n            </tr>\n            <tr>\n                <th title=\"in RPM\">Speed:</th>\n                <td>");
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
+        'value': ("speed"),
+        'min': (1),
+        'step': (10)
+    }, hashTypes: {'value': "ID", 'min': "INTEGER", 'step': "INTEGER"}, hashContexts: {'value': depth0, 'min': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push("</td>\n            </tr>\n            <tr>\n                <th title=\"in mm/min\">Feedrate:</th>\n                <td>");
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
         'value': ("feedrate"),
-        'min': (0),
-        'max': (3000)
-    }, hashTypes: {'value': "ID", 'min': "INTEGER", 'max': "INTEGER"}, hashContexts: {'value': depth0, 'min': depth0, 'max': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+        'min': (1),
+        'max': (3000),
+        'step': (10)
+    }, hashTypes: {'value': "ID", 'min': "INTEGER", 'max': "INTEGER", 'step': "INTEGER"}, hashContexts: {'value': depth0, 'min': depth0, 'max': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
     data.buffer.push("</td>\n            </tr>\n            </tbody>\n        </table>\n        <ul class=\"operations\">\n            ");
     stack1 = helpers.each.call(depth0, "operations", {hash: {
         'itemController': ("operationListItem")
