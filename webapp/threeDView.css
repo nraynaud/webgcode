@@ -15,3 +15,7 @@
 .ThreeDView .viewCube .cubeFace:hover {
     background: white;
 }
+
+.ThreeDView canvas {
+    display: block;
+}
