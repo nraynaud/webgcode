@@ -6,7 +6,7 @@ requirejs.config({
         Handlebars: "libs/handlebars-v1.3.0",
         jQuery: "libs/jquery-1.11.1.min",
         THREE: 'libs/threejs/Three.min',
-        TWEEN: 'libs/tween.min',
+        TWEEN: 'libs/threejs/tween.min',
         ace: 'libs/ace/src-noconflict/ace',
         RSVP: 'libs/rsvp-latest',
         clipper: 'libs/clipper_unminified',

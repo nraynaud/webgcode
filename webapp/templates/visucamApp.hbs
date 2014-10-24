@@ -7,12 +7,28 @@
                 <td>{{view Visucam.NumberView value=safetyZ}}</td>
             </tr>
             <tr>
-                <th>Tool Diameter:</th>
-                <td>{{view Visucam.NumberView value=toolDiameter min=0}}</td>
+                <th title="in mm">Tool Diameter:</th>
+                <td>{{view Visucam.NumberView value=toolDiameter min="0.001" step="0.001"}}</td>
             </tr>
             <tr>
-                <th>Feedrate:</th>
-                <td>{{view Visucam.NumberView value=feedrate min=0 max=3000}}</td>
+                <th>Tool Flutes:</th>
+                <td>{{view Visucam.NumberView value=toolFlutes min=1 step=1}}</td>
+            </tr>
+            <tr>
+                <th title="in m/min">Surface Speed:</th>
+                <td>{{view Visucam.NumberView value=surfaceSpeed min=1 max=1000}}</td>
+            </tr>
+            <tr>
+                <th title="in mm">Chip Load:</th>
+                <td>{{view Visucam.NumberView value=chipLoad min="0.001" step="0.001"}}</td>
+            </tr>
+            <tr>
+                <th title="in RPM">Speed:</th>
+                <td>{{view Visucam.NumberView value=speed min=1 step=10}}</td>
+            </tr>
+            <tr>
+                <th title="in mm/min">Feedrate:</th>
+                <td>{{view Visucam.NumberView value=feedrate min=1 max=3000 step=10}}</td>
             </tr>
             </tbody>
         </table>
