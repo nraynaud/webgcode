@@ -10,7 +10,10 @@ define(['cnc/util'], function (util) {
         getTypeName: function () {
             return 'constant-z-toolpath';
         },
-        pushPoint: function (x, y) {
+        pushPoint: function (point) {
+            this.path.push(point);
+        },
+        pushPointXYZ: function (x, y) {
             this.path.push(new util.Point(x, y));
         },
         getStartPoint: function (defaultZ) {
@@ -49,7 +52,7 @@ define(['cnc/util'], function (util) {
         },
         asGeneralToolpath: function (defaultZ) {
             var gt = new GeneralPolylineToolpath();
-            this.forEachPoint(gt.pushPoint.bind(gt), defaultZ);
+            this.forEachPoint(gt.pushPointXYZ.bind(gt), defaultZ);
             return gt;
         }
     };
@@ -62,7 +65,10 @@ define(['cnc/util'], function (util) {
         getTypeName: function () {
             return 'general-toolpath';
         },
-        pushPoint: function (x, y, z) {
+        pushPoint: function (point) {
+            this.path.push(point);
+        },
+        pushPointXYZ: function (x, y, z) {
             this.path.push(new util.Point(x, y, z));
         },
         pushPointInFront: function (x, y, z) {
@@ -100,7 +106,7 @@ define(['cnc/util'], function (util) {
         translated: function (dx, dy, dz) {
             var newPath = new GeneralPolylineToolpath();
             $.each(this.path, function (index, point) {
-                newPath.pushPoint(point[0] + dx, point[1] + dy, point[2] + dz);
+                newPath.pushPointXYZ(point[0] + dx, point[1] + dy, point[2] + dz);
             });
             return newPath;
         },
@@ -117,7 +123,7 @@ define(['cnc/util'], function (util) {
         var operation = new toolPathTypes[operationData.className]();
         var path = operationData.path;
         for (var i = 0; i < path.length; i++)
-            operation.pushPoint(path[i].x, path[i].y, path[i].z);
+            operation.pushPointXYZ(path[i].x, path[i].y, path[i].z);
         return operation;
     }
 

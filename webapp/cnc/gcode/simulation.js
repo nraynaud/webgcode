@@ -219,7 +219,7 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
         return groups;
     }
 
-    function simulate2(toolPath, pushPoint) {
+    function simulate2(toolPath, pushPointXYZ) {
         var acceleration = 200; //mm.s^-2
         var groups = groupConnectedComponents(toolPath, acceleration);
         var currentTime = 0;
@@ -239,7 +239,7 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
 
         function internalPushPoint(point, segment) {
             lastPosition = point;
-            pushPoint(point[0], point[1], point[2], currentTime, segment);
+            pushPointXYZ(point[0], point[1], point[2], currentTime, segment);
         }
 
         internalPushPoint([0, 0, 0], groups[0][0]);
@@ -279,7 +279,7 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
         var xmin = +Infinity, ymin = +Infinity, zmin = +Infinity;
         var xmax = -Infinity, ymax = -Infinity, zmax = -Infinity;
 
-        function pushPoint(x, y, z, t) {
+        function pushPointXYZ(x, y, z, t) {
             totalTime = Math.max(t, totalTime);
             xmin = Math.min(x, xmin);
             ymin = Math.min(y, ymin);
@@ -290,7 +290,7 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
         }
 
         if (toolpath.length)
-            simulate2(toolpath, pushPoint);
+            simulate2(toolpath, pushPointXYZ);
         return {totalTime: totalTime, min: new util.Point(xmin, ymin, zmin), max: new util.Point(xmax, ymax, zmax)};
     }
 

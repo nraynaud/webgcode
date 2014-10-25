@@ -76,8 +76,8 @@ define(function () {
         function peckDrill(x, y, z, topZ, steps) {
             var polyline = new GeneralPolylineToolpath();
             for (var i = 1; i <= steps; i++) {
-                polyline.pushPoint(x, y, topZ);
-                polyline.pushPoint(x, y, topZ - (topZ - z) * i / steps);
+                polyline.pushPointXYZ(x, y, topZ);
+                polyline.pushPointXYZ(x, y, topZ - (topZ - z) * i / steps);
             }
             return polyline;
         }
@@ -116,8 +116,8 @@ define(function () {
             for (var x = toolRadius - absoluteStepOver; x <= width - toolRadius + absoluteStepOver; x += toolDiameter * (1 - stepOver)) {
                 var from = direction > 0 ? startY : stopY;
                 var to = direction > 0 ? stopY : startY;
-                line.pushPoint(x, from, z);
-                line.pushPoint(x, to, z);
+                line.pushPointXYZ(x, from, z);
+                line.pushPointXYZ(x, to, z);
                 direction *= -1;
             }
             toolPath.push(line);
@@ -330,10 +330,10 @@ define(function () {
         machine.setParams(1, travelZ, 400);
 
         var toolPath = new GeneralPolylineToolpath();
-        toolPath.pushPoint(0, 0, 0);
-        toolPath.pushPoint(135, 0, 0);
-        toolPath.pushPoint(135, -180, 0);
-        toolPath.pushPoint(135 + 110, -180, 0);
+        toolPath.pushPointXYZ(0, 0, 0);
+        toolPath.pushPointXYZ(135, 0, 0);
+        toolPath.pushPointXYZ(135, -180, 0);
+        toolPath.pushPointXYZ(135 + 110, -180, 0);
 
         for (var z = fromZ; z >= toZ; z += step)
             machine.registerToolPath(toolPath.translated(0, 0, z));

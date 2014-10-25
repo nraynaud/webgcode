@@ -61,7 +61,7 @@ define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util'
             }
             var newPoly = new tp.ConstantZPolygonToolpath();
             $.each(polygon, function (_, point) {
-                newPoly.pushPoint(point.X / scale, point.Y / scale);
+                newPoly.pushPointXYZ(point.X / scale, point.Y / scale);
             });
             result.push(newPoly);
         });
@@ -115,7 +115,7 @@ define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util'
 
     function createDrillHole(x, y) {
         var toolPath = new tp.ConstantZPolygonToolpath();
-        toolPath.pushPoint(x, y);
+        toolPath.pushPointXYZ(x, y);
         return toolPath;
     }
 
@@ -170,15 +170,15 @@ define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util'
                 toolpath.forEachPoint(function (x, y, z, index) {
                     var xyLength = distances[index];
                     z = startZ + (stopZ - startZ) * ((i + xyLength / toolpathLength) / turns);
-                    resultPolyline.pushPoint(x, y, z);
+                    resultPolyline.pushPointXYZ(x, y, z);
                 }, null);
             }
             //push constant Z bottom loop
             toolpath.forEachPoint(function (x, y) {
-                resultPolyline.pushPoint(x, y, stopZ);
+                resultPolyline.pushPointXYZ(x, y, stopZ);
             }, null);
             var startPoint = toolpath.getStartPoint(stopZ);
-            resultPolyline.pushPoint(startPoint.x, startPoint.y, startPoint.z);
+            resultPolyline.pushPointXYZ(startPoint.x, startPoint.y, startPoint.z);
             return resultPolyline;
         },
         rampToolPathArray: function (toolpath, startZ, stopZ, turns) {
@@ -354,8 +354,8 @@ define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util'
         peckDrill: function (x, y, z, topZ, steps) {
             var polyline = new tp.GeneralPolylineToolpath();
             for (var i = 1; i <= steps; i++) {
-                polyline.pushPoint(x, y, topZ);
-                polyline.pushPoint(x, y, topZ - (topZ - z) * i / steps);
+                polyline.pushPointXYZ(x, y, topZ);
+                polyline.pushPointXYZ(x, y, topZ - (topZ - z) * i / steps);
             }
             return polyline;
         }

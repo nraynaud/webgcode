@@ -15,9 +15,9 @@ define(['cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (cam, tp,
                     if (polygons[i].length) {
                         var path = new tp.GeneralPolylineToolpath();
                         toolpath.push(path);
-                        path.pushPoint(polygons[i][0].x, polygons[i][0].y, safetyZ);
+                        path.pushPointXYZ(polygons[i][0].x, polygons[i][0].y, safetyZ);
                         for (var j = 0; j < polygons[i].length; j++)
-                            path.pushPoint(polygons[i][j].x, polygons[i][j].y, z);
+                            path.pushPointXYZ(polygons[i][j].x, polygons[i][j].y, z);
                     }
                 op.set('toolpath', toolpath);
             }
@@ -42,7 +42,7 @@ define(['cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (cam, tp,
                     // plunge from safety plane
                     generalPath.pushPointInFront(startPoint.x, startPoint.y, safetyZ);
                     //close the loop
-                    generalPath.pushPoint(startPoint.x, startPoint.y, contourZ);
+                    generalPath.pushPointXYZ(startPoint.x, startPoint.y, contourZ);
                     return generalPath;
                 });
                 op.set('toolpath', toolpath);

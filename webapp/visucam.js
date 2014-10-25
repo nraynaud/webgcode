@@ -1,7 +1,7 @@
 "use strict";
-require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
-        'cnc/cam/toolpath', 'cnc/cam/operations', 'libs/svg', 'cnc/svgImporter', 'cnc/cad/wabble', 'templates', 'libs/svg-import'],
-    function (Ember, views, TreeDView, cam, tp, Operations, SVG, svgImporter, Wabble, templates) {
+require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/operations',
+        'libs/svg', 'cnc/svgImporter', 'cnc/cad/wabble', 'cnc/util', 'templates', 'libs/svg-import'],
+    function (Ember, views, TreeDView, cam, tp, Operations, SVG, svgImporter, Wabble, util, templates, _) {
         Ember.TEMPLATES['application'] = Ember.TEMPLATES['visucamApp'];
 
         window.Visucam = Ember.Application.create({});
@@ -54,6 +54,7 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
             chipLoad: 0.04,
             feedrate: 100,
             speed: 24000,
+            startPoint: new util.Point(0, 0, 10),
             operations: [],
             shapes: [],
             deleteOperation: function (operation) {
@@ -70,16 +71,26 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam',
                 operations.forEach(function (operation) {
                     pathFragments.pushObjects(operation.get('toolpath'));
                 });
-                for (var i = 0; i < pathFragments.length; i++) {
-                    endPoint = pathFragments[i].getStopPoint();
-                    var travel = new tp.GeneralPolylineToolpath();
-                    travel.pushPoint(endPoint.x, endPoint.y, endPoint.z);
-                    travel.pushPoint(endPoint.x, endPoint.y, this.get('safetyZ'));
-                    if (i + 1 < pathFragments.length) {
-                        var destinationPoint = pathFragments[i + 1].getStartPoint();
-                        travel.pushPoint(destinationPoint.x, destinationPoint.y, this.get('safetyZ'));
+                if (pathFragments.length) {
+                    var prefix = new tp.GeneralPolylineToolpath();
+                    prefix.pushPoint(this.get('startPoint'));
+                    prefix.pushPoint(pathFragments[0].getStartPoint());
+                    travelBits.push(prefix);
+                    for (var i = 0; i < pathFragments.length; i++) {
+                        endPoint = pathFragments[i].getStopPoint();
+                        var travel = new tp.GeneralPolylineToolpath();
+                        travel.pushPointXYZ(endPoint.x, endPoint.y, endPoint.z);
+                        travel.pushPointXYZ(endPoint.x, endPoint.y, this.get('safetyZ'));
+                        if (i + 1 < pathFragments.length) {
+                            var destinationPoint = pathFragments[i + 1].getStartPoint();
+                            travel.pushPointXYZ(destinationPoint.x, destinationPoint.y, this.get('safetyZ'));
+                        }
+                        travelBits.push(travel);
                     }
-                    travelBits.push(travel);
+                    var suffix = new tp.GeneralPolylineToolpath();
+                    suffix.pushPoint(travelBits[travelBits.length - 1].getStopPoint());
+                    suffix.pushPoint(this.get('startPoint'));
+                    travelBits.push(suffix);
                 }
                 return travelBits;
             }.property('operations.@each.toolpath.@each'),
