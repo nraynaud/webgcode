@@ -51,7 +51,7 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam', 'cnc/cam/t
             toolDiameter: 3,
             toolFlutes: 2,
             surfaceSpeed: 200,
-            chipLoad: 0.04,
+            chipLoad: 0.01,
             feedrate: 100,
             speed: 24000,
             startPoint: new util.Point(0, 0, 10),
@@ -123,7 +123,59 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam', 'cnc/cam/t
                 var chipLoad = this.get('chipLoad');
                 var toolFlutes = this.get('toolFlutes');
                 this.set('feedrate', Math.round(speed * chipLoad * toolFlutes));
-            }.observes('toolFlutes', 'chipLoad', 'speed')
+            }.observes('toolFlutes', 'chipLoad', 'speed'),
+            computeSimulableToolpath: function (travelFeedrate) {
+                var operations = this.get('operations');
+                var feedrate = this.get('feedrate');
+                var travelBits = [];
+                var pathFragments = [];
+                var endPoint = null;
+                operations.forEach(function (operation) {
+                    pathFragments.pushObjects(operation.get('toolpath'));
+                });
+                var startPoint = this.get('startPoint');
+                var position = startPoint;
+
+                function travelTo(point, speedTag) {
+                    travelBits.push({
+                        type: 'line',
+                        from: position,
+                        to: point,
+                        speedTag: speedTag == null ? 'rapid' : speedTag,
+                        feedRate: speedTag == null ? travelFeedrate : feedrate});
+                    position = point;
+                }
+
+                var safetyZ = this.get('safetyZ');
+                // it could happen that the cycle be started from a position that is lower than the start point
+                // for example after doing the Z zeroing, the user might leave the tool just a few mm over the stock
+                // or in a hole, it would be unsafe to travel from there.
+                var safeStartPoint = new util.Point(startPoint.x, startPoint.y, Math.max(startPoint.z, safetyZ));
+                if (pathFragments.length) {
+                    travelTo(safeStartPoint);
+                    travelTo(pathFragments[0].getStartPoint());
+                    for (var i = 0; i < pathFragments.length; i++) {
+                        var fragment = pathFragments[i];
+                        fragment.forEachPoint(function (x, y, z) {
+                            travelTo(new util.Point(x, y, z), 'normal');
+                        });
+                        endPoint = fragment.getStopPoint();
+                        travelTo(new util.Point(endPoint.x, endPoint.y, safetyZ));
+                        if (i + 1 < pathFragments.length) {
+                            var destinationPoint = pathFragments[i + 1].getStartPoint();
+                            travelTo(new util.Point(destinationPoint.x, destinationPoint.y, safetyZ));
+                        }
+                    }
+                    travelTo(safeStartPoint);
+                }
+                for (i = 0; i < travelBits.length - 1; i++) {
+                    var previous = travelBits[i].to;
+                    var next = travelBits[i + 1].from;
+                    if (previous.sqDistance(next))
+                        console.error('continuity error', i, travelBits[i], travelBits[i + 1]);
+                }
+                return travelBits;
+            }
         });
 
         var doc = Visucam.Job.create();
@@ -164,7 +216,22 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam', 'cnc/cam/t
         });
 
         Visucam.ApplicationController = Ember.ObjectController.extend({
+            init: function () {
+                var _this = this;
+                window.addEventListener("message", function (event) {
+                    if (event.data['type'] == 'gimme program') {
+                        event.ports[0].postMessage({type: 'toolPath', toolPath: _this.get('model').computeSimulableToolpath(3000),
+                            parameters: event.data.parameters});
+                    }
+                    if (event.data['type'] == 'toolPosition') {
+                        var pos = event.data['position'];
+                        _this.set('toolPosition', new util.Point(pos.x, pos.y, pos.z));
+                        _this.set('model.startPoint', new util.Point(pos.x, pos.y, pos.z));
+                    }
+                }, false);
+            },
             currentOperation: null,
+            toolPosition: null,
             addShapes: function (shapeDefinitions) {
                 var shape = this.get('model').createShape(shapeDefinitions.join(' '));
                 var contour = this.get('model').createOperation({outline: shape});
@@ -288,6 +355,12 @@ require(['Ember', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam', 'cnc/cam/t
                     outlinesDisplay.addPolyLines(cam.pathDefToPolygons(shape.get('definition')));
                 });
                 this.get('nativeComponent').zoomExtent();
-            }.observes('controller.shapes.@each')
+            }.observes('controller.shapes.@each'),
+            synchronizeToolPosition: function () {
+                var threeDView = this.get('nativeComponent');
+                var position = this.get('controller.toolPosition');
+                threeDView.setToolVisibility(true);
+                threeDView.setToolPosition(position.x, position.y, position.z);
+            }.observes('controller.toolPosition')
         });
     });
