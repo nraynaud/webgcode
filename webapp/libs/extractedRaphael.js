@@ -32,7 +32,7 @@ R = (function () {
     };
 
     function clone(obj) {
-        if (Object(obj) !== obj) {
+        if (Object(obj) !== obj || typeof obj == 'function') {
             return obj
         }
         var res = new obj.constructor;
