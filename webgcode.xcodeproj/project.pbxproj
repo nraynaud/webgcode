@@ -35,6 +35,7 @@
 		DDAA55509B103F05A9CE94E3 /* CNCMachine.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5E3A977BABE01A9F3E78 /* CNCMachine.js */; };
 		DDAA55540BD64EEFE07C6C79 /* build-cam.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5F7F528A51ECF8A211B8 /* build-cam.js */; };
 		DDAA56105E019F8318F45B2F /* geometry.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5AAFC3B9C67160FA662D /* geometry.js */; };
+		DDAA5627DFA975E3CFD1372C /* models.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54B87A480F458CED26C3 /* models.js */; };
 		DDAA5647D1988D2672299EA5 /* js_sandbox.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5FD621B8DA11F0ECD11B /* js_sandbox.js */; };
 		DDAA5654909C5FCF3844108D /* parser.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA524C2453225E6A0DEB24 /* parser.js */; };
 		DDAA5658A1A457313870378C /* dremel_bracket.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5F9F727CB3FC94D086B9 /* dremel_bracket.js */; };
@@ -150,6 +151,7 @@
 		DDAA543BCEF47183F5DDA70F /* runner.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = runner.js; path = cnc/controller/runner.js; sourceTree = "<group>"; };
 		DDAA54613393642E5474B2DC /* simulation.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = simulation.js; path = gcode/simulation.js; sourceTree = "<group>"; };
 		DDAA54B37F49D0A2AC135D5A /* util.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = util.js; path = webapp/cnc/util.js; sourceTree = "<group>"; };
+		DDAA54B87A480F458CED26C3 /* models.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = models.js; sourceTree = "<group>"; };
 		DDAA54C02B65138BA2BC4D67 /* bezier.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = bezier.js; path = webapp/cnc/bezier.js; sourceTree = "<group>"; };
 		DDAA54D6E2B749291B054589 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		DDAA54F3B578CC3FCC5E03A2 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = main.c; path = interpolator/main.c; sourceTree = "<group>"; };
@@ -367,6 +369,7 @@
 				DDAA58A20FC66E2EF26DDE50 /* svgImporter.js */,
 				DDAA55F97E8D9015119CC503 /* wabble.js */,
 				DDAA516E79E125B69CDA92DF /* cad */,
+				DDAA5B3E3A796AE05E292A03 /* app */,
 			);
 			path = cnc;
 			sourceTree = "<group>";
@@ -397,6 +400,14 @@
 				DDAA5C8A7830C1829BD88573 /* graphicView.js */,
 			);
 			path = ui;
+			sourceTree = "<group>";
+		};
+		DDAA5B3E3A796AE05E292A03 /* app */ = {
+			isa = PBXGroup;
+			children = (
+				DDAA54B87A480F458CED26C3 /* models.js */,
+			);
+			path = app;
 			sourceTree = "<group>";
 		};
 		DDAA5C3962D61ED70B454815 /* cnc */ = {
@@ -683,6 +694,7 @@
 				DDAA5D5E700F9A145BC68B4F /* svgImporter.js in Sources */,
 				DDAA59DDAACDD4A61B30F37E /* wabble.js in Sources */,
 				DDAA542953A819135BF87E2B /* wabble.js in Sources */,
+				DDAA5627DFA975E3CFD1372C /* models.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
