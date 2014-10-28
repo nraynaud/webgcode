@@ -280,7 +280,7 @@ Ember.TEMPLATES["controllerPanel"] = Ember.Handlebars.template(function anonymou
     if (stack1 || stack1 === 0) {
         data.buffer.push(stack1);
     }
-    data.buffer.push("<span\n                    title=\"ISO units, there is no way to change it.\">mm</span>\n            </div>\n        </div>\n    </div>\n</div>\n<div class=\"camPanel\">\n    <iframe id=\"webView\" src=\"CAM.html\"></iframe>\n</div>");
+    data.buffer.push("<span\n                    title=\"ISO units, there is no way to change it.\">mm</span>\n            </div>\n        </div>\n    </div>\n</div>\n<div class=\"camPanel\">\n    <iframe id=\"webView\" src=\"visucamTest.html\"></iframe>\n</div>");
     return buffer;
 
 });
@@ -457,7 +457,7 @@ Ember.TEMPLATES["simpleEngraving"] = Ember.Handlebars.template(function anonymou
 
     data.buffer.push("<tr>\n    <th>engraving Z:</th>\n    <td>");
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("engraing_engravingZ")
+        'value': ("engraving_Z")
     }, hashTypes: {'value': "ID"}, hashContexts: {'value': depth0}, contexts: [depth0], types: ["ID"], data: data})));
     data.buffer.push("</td>\n</tr>\n");
     return buffer;
