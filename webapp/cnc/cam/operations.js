@@ -1,11 +1,13 @@
 "use strict";
-define(['cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (cam, tp, pocket) {
-
+define(['EmberData', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (DS, cam, tp, pocket) {
+    var attr = DS.attr;
     return {
         'SimpleEngravingOperation': {
             label: 'Simple Engraving',
             specialTemplate: 'simpleEngraving',
-            properties: {engraving_Z: -5},
+            properties: {
+                engraving_Z: attr('number', {defaultValue: -5})
+            },
             computeToolpath: function (op) {
                 var z = op.get('engraving_Z');
                 var safetyZ = op.get('job.safetyZ');
@@ -25,7 +27,11 @@ define(['cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (cam, tp,
         'SimpleContourOperation': {
             label: 'Simple Contour',
             specialTemplate: 'simpleContour',
-            properties: {simple_contourZ: -5, contour_inside: true, contour_leaveStock: 0, contour_climbMilling: true},
+            properties: {
+                simple_contourZ: attr('number', {defaultValue: -5}),
+                contour_inside: attr('boolean', {defaultValue: true}),
+                contour_leaveStock: attr('number', {defaultValue: 0}),
+                contour_climbMilling: attr('boolean', {defaultValue: true})},
             computeToolpath: function (op) {
                 var machine = new cam.Machine(null);
                 machine.setParams(op.get('simple_contourZ'), 10, 100);
@@ -51,12 +57,12 @@ define(['cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (cam, tp,
             label: 'Ramping Contour',
             specialTemplate: 'rampingContour',
             properties: {
-                ramping_startZ: 0,
-                ramping_stopZ: -5,
-                ramping_turns: 5,
-                contour_inside: true,
-                contour_leaveStock: 0,
-                contour_climbMilling: true
+                ramping_startZ: attr('number', {defaultValue: 0}),
+                ramping_stopZ: attr('number', {defaultValue: -5}),
+                ramping_turns: attr('number', {defaultValue: 5}),
+                contour_inside: attr('boolean', {defaultValue: true}),
+                contour_leaveStock: attr('number', {defaultValue: 0}),
+                contour_climbMilling: attr('boolean', {defaultValue: true})
             },
             computeToolpath: function (op) {
                 var machine = new cam.Machine(null);
@@ -82,7 +88,9 @@ define(['cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (cam, tp,
             label: 'Pocket',
             specialTemplate: 'operationPocket',
             properties: {
-                pocket_depth: -5, pocket_engagement: 50, pocket_leaveStock: 0.1
+                pocket_depth: attr('number', {defaultValue: -5}),
+                pocket_engagement: attr('number', {defaultValue: 50}),
+                pocket_leaveStock: attr('number', {defaultValue: 0.1})
             },
             computeToolpath: function (op) {
                 var clipperPolygon = cam.pathDefToClipper(op.get('outline.definition'));

@@ -1,20 +1,17 @@
 "use strict";
 
-define(['Ember', 'cnc/util', 'cnc/cam/operations', 'cnc/cam/toolpath'], function (Ember, util, Operations, tp) {
-    /**
-     * Here is the deal: the Operation grabs the tool at startPoint for X and Y and on the safety plane,
-     * at zero speed, zero inertia.
-     * Operation releases the tool at stopPoint, at the Z it wants at zero speed and zero inertia, but the document will
-     * pull the tool along Z+ to the safety plane, so dovetail tools or slotting tools better be out at the end of the operation.
-     * The Job does the travel before, in between and after the operations.
-     * When this works we can try to be smarter and not stop uselessly.
-     */
-    var Operation = Ember.Object.extend({
-        name: 'New Operation',
-        type: 'SimpleEngravingOperation',
-        job: null,
-        outline: null,
-        toolpath: [],
+define(['Ember', 'EmberData', 'cnc/util', 'cnc/cam/operations', 'cnc/cam/toolpath'], function (Ember, DS, util, Operations, tp) {
+    var attr = DS.attr;
+
+    var Shape = DS.Model.extend({
+        definition: attr('string')
+    });
+
+    var operationDefinition = {
+        name: attr('string', {defaultValue: 'New Operation'}),
+        type: attr('string', {defaultValue: 'SimpleEngravingOperation'}),
+        outline: DS.belongsTo('shape'),
+        job: DS.belongsTo('job'),
         installObservers: function () {
             var properties = Operations[this.get('type')].properties;
             var _this = this;
@@ -31,28 +28,46 @@ define(['Ember', 'cnc/util', 'cnc/cam/operations', 'cnc/cam/toolpath'], function
         }.observesBefore('type'),
         computeToolpath: function () {
             Operations[this.get('type')]['computeToolpath'](this);
-        }.observes('type', 'job.toolDiameter', 'job.safetyZ').on('init'),
-        unknownProperty: function (key) {
-            return Operations[this.get('type')].properties[key];
-        }
-    });
+        }.observes('type', 'job.toolDiameter', 'job.safetyZ').on('init')
+    };
 
-    var Job = Ember.Object.extend({
-        safetyZ: 5,
-        toolDiameter: 3,
-        toolFlutes: 2,
-        surfaceSpeed: 200,
-        chipLoad: 0.01,
-        feedrate: 100,
-        speed: 24000,
-        startPoint: new util.Point(0, 0, 10),
-        operations: [],
-        shapes: [],
+    //add all the attributes from all the operations types
+    for (var opName in Operations) {
+        var op = Operations[opName];
+        for (var attrName in op.properties) {
+            var definition = op.properties[attrName];
+            console.log(opName, attrName, definition);
+            operationDefinition[attrName] = definition;
+        }
+    }
+
+    /**
+     * Here is the deal: the Operation grabs the tool at startPoint for X and Y and on the safety plane,
+     * at zero speed, zero inertia.
+     * Operation releases the tool at stopPoint, at the Z it wants at zero speed and zero inertia, but the document will
+     * pull the tool along Z+ to the safety plane, so dovetail tools or slotting tools better be out at the end of the operation.
+     * The Job does the travel before, in between and after the operations.
+     * When this works we can try to be smarter and not stop uselessly.
+     */
+
+    var Operation2 = DS.Model.extend(operationDefinition);
+
+    var Job2 = DS.Model.extend({
+        safetyZ: attr('number', {defaultValue: 5}),
+        toolDiameter: attr('number', {defaultValue: 3}),
+        toolFlutes: attr('number', {defaultValue: 2}),
+        surfaceSpeed: attr('number', {defaultValue: 200}),
+        chipLoad: attr('number', {defaultValue: 0.01}),
+        feedrate: attr('number', {defaultValue: 100}),
+        speed: attr('number', {defaultValue: 24000}),
+        startPoint: attr(null, {defaultValue: new util.Point(0, 0, 10)}),
+        operations: DS.hasMany('operation', {
+            inverse: 'job'
+        }),
+        shapes: DS.hasMany('shape'),
         deleteOperation: function (operation) {
             this.get('operations').removeObject(operation);
-        },
-        findOperation: function (id) {
-            return this.get('operations').findBy('id', Number(id));
+            operation.destroyRecord();
         },
         transitionTravels: function () {
             var operations = this.get('operations');
@@ -85,22 +100,14 @@ define(['Ember', 'cnc/util', 'cnc/cam/operations', 'cnc/cam/toolpath'], function
             }
             return travelBits;
         }.property('operations.@each.toolpath.@each'),
-        syncSecurityZ: function () {
-            var safetyZ = this.get('safetyZ');
-            this.get('operations').forEach(function (operation) {
-                operation.set('safetyZ', safetyZ);
-            });
-        }.observes('safetyZ', 'operations.@each.safetyZ').on('init'),
         createOperation: function (params) {
-            var id = this.get('operations').length + 1;
-            params = $.extend({}, params, {id: id, job: this});
-            var operation = Visucam.Operation.create(params);
+            var operation = this.store.createRecord('operation', params);
+            operation.set('job', this);
             this.get('operations').pushObject(operation);
-            return operation;
+            return  operation;
         },
         createShape: function (def) {
-            var id = this.get('shapes').length + 1;
-            var shape = Visucam.Shape.create({id: id, definition: def});
+            var shape = this.store.createRecord('shape', {definition: def});
             this.get('shapes').pushObject(shape);
             return shape;
         },
@@ -108,7 +115,7 @@ define(['Ember', 'cnc/util', 'cnc/cam/operations', 'cnc/cam/toolpath'], function
             var toolDiameter = this.get('toolDiameter');
             var surfaceSpeed = this.get('surfaceSpeed');
             this.set('speed', Math.round(surfaceSpeed * 1000 / Math.PI / toolDiameter));
-        }.observes('surfaceSpeed', 'toolDiameter').on('init'),
+        }.observes('surfaceSpeed', 'toolDiameter').on('didCreate'),
         updateFeedrate: function () {
             var speed = this.get('speed');
             var chipLoad = this.get('chipLoad');
@@ -168,8 +175,10 @@ define(['Ember', 'cnc/util', 'cnc/cam/operations', 'cnc/cam/toolpath'], function
             return travelBits;
         }
     });
+
     return {
-        Job: Job,
-        Operation: Operation
+        Job: Job2,
+        Operation: Operation2,
+        Shape: Shape
     }
 });

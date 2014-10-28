@@ -1,31 +1,40 @@
 "use strict";
-require(['Ember', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam', 'cnc/cam/operations',
+require(['Ember', 'EmberData', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam', 'cnc/cam/operations',
         'libs/svg', 'cnc/svgImporter', 'cnc/cad/wabble', 'cnc/util', 'templates', 'libs/svg-import'],
-    function (Ember, models, views, TreeDView, cam, Operations, SVG, svgImporter, Wabble, util, templates, _) {
+    function (Ember, DS, models, views, TreeDView, cam, Operations, SVG, svgImporter, Wabble, util, templates, _) {
         Ember.TEMPLATES['application'] = Ember.TEMPLATES['visucamApp'];
 
         window.Visucam = Ember.Application.create({});
+        Visucam.ApplicationAdapter = DS.FixtureAdapter;
         Visucam.NumberView = views.NumberField;
-        Visucam.Shape = Ember.Object.extend({
-            definition: null
-        });
+
         Visucam.Job = models.Job;
         Visucam.Operation = models.Operation;
-
-        var doc = Visucam.Job.create();
+        Visucam.Shape = models.Shape;
 
         var wabble = new Wabble(13, 15, 1, 1, 5, 8, 3);
-        doc.createOperation({name: 'Eccentric Hole', type: 'PocketOperation', outline: doc.createShape(wabble.getEccentricShape())});
-        doc.createOperation({name: 'Output Holes', type: 'PocketOperation', outline: doc.createShape(wabble.getOutputHolesShape()), contour_inside: true});
-        doc.createOperation({name: 'Crown', type: 'RampingContourOperation', outline: doc.createShape(wabble.getRotorShape()), contour_inside: false});
-        doc.createOperation({name: 'Pins', type: 'RampingContourOperation', outline: doc.createShape(wabble.getPinsShape()), contour_inside: false});
-        doc.createOperation({name: 'Output Pins', type: 'RampingContourOperation', outline: doc.createShape(wabble.getOutputPinsShape()), contour_inside: false});
 
+        Visucam.Job.reopenClass({
+            FIXTURES: [
+                {id: 1, toolDiameter: 2, operations: [], shapes: []}
+            ]
+        });
         Visucam.Router.map(function () {
             this.resource('operation', {path: '/operations/:operation_id'});
         });
         Visucam.ApplicationRoute = Ember.Route.extend({
             model: function () {
+                var doc = this.store.find('job', 1);
+                doc.then(function (doc) {
+                    var shape = wabble.getEccentricShape();
+                    var outline = doc.createShape(shape);
+
+                    doc.createOperation({name: 'Eccentric Hole', type: 'PocketOperation', outline: outline});
+                    doc.createOperation({name: 'Output Holes', type: 'PocketOperation', outline: doc.createShape(wabble.getOutputHolesShape()), contour_inside: true});
+                    doc.createOperation({name: 'Crown', type: 'RampingContourOperation', outline: doc.createShape(wabble.getRotorShape()), contour_inside: false});
+                    doc.createOperation({name: 'Pins', type: 'RampingContourOperation', outline: doc.createShape(wabble.getPinsShape()), contour_inside: false});
+                    doc.createOperation({name: 'Output Pins', type: 'RampingContourOperation', outline: doc.createShape(wabble.getOutputPinsShape()), contour_inside: false});
+                });
                 return doc;
             }
         });
@@ -37,7 +46,7 @@ require(['Ember', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/ca
         });
         Visucam.OperationRoute = Ember.Route.extend({
             model: function (params) {
-                return doc.findOperation(params.operation_id);
+                return this.store.find('operation', params.operation_id);
             },
             afterModel: function (model) {
                 if (!model)
