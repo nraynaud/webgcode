@@ -5,8 +5,29 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
         Ember.TEMPLATES['application'] = Ember.TEMPLATES['visucamApp'];
 
         window.Visucam = Ember.Application.create({});
+
+        Visucam.Backend = Ember.Object.extend({
+            init: function () {
+                this.get('firebase').onAuth(this.updateAuth, this);
+                this.updateAuth();
+            },
+            updateAuth: function () {
+                var auth = this.get('firebase').getAuth();
+                this.set('auth', auth);
+            },
+            firebase: new Firebase('https://popping-fire-1042.firebaseio.com/'),
+            isConnected: function () {
+                return this.get('auth') != null;
+            }.property('auth'),
+            username: function () {
+                if (this.get('isConnected'))
+                    return this.get('auth.twitter.username')
+            }.property('isConnected', 'auth')
+        });
+        var BACKEND = Visucam.Backend.create();
+
         Visucam.ApplicationAdapter = DS.FirebaseAdapter.extend({
-            firebase: new Firebase('https://popping-fire-1042.firebaseio.com/')
+            firebase: BACKEND.get('firebase')
         });
         Visucam.NumberView = views.NumberField;
 
@@ -82,6 +103,17 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
                     }
                 }, false);
             },
+            actions: {
+                login: function () {
+                    this.get('backend.firebase').authWithOAuthPopup("twitter", function (error, authData) {
+                        console.log(arguments);
+                    });
+                },
+                logout: function () {
+                    this.get('backend.firebase').unauth();
+                }
+            },
+            backend: BACKEND,
             currentOperation: null,
             toolPosition: null,
             addShapes: function (shapeDefinitions) {
@@ -134,6 +166,7 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
         }
 
         Visucam.ApplicationView = Ember.View.extend({
+            classNames: ['rootview'],
             didInsertElement: function () {
                 var canvas = $('<canvas id="myCanvas" style="visibility: hidden; display:none">');
                 this.$().append(canvas);

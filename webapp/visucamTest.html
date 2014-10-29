@@ -46,10 +46,22 @@
             padding: 3px;
         }
 
+        .rootview {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: #ffe9e6;
+            border-bottom-color: #dd4c2f;
+        }
+
         .application {
+            flex: 1;
             display: flex;
             align-items: stretch;
-            height: 100vh;
+            overflow: hidden;
         }
 
         .viewContainer {

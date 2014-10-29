@@ -1,3 +1,11 @@
+<div class="header">
+    {{#if backend.isConnected}}
+        {{backend.username}}
+        <button {{action "logout"}}>logout</button>
+    {{else}}
+        <button {{action "login"}}>login with twitter</button>
+    {{/if}}
+</div>
 <div class="application">
     <div class="job">
         <table class="form">
