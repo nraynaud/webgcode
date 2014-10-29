@@ -26,8 +26,8 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
         var operationDefinition = {
             name: attr('string', {defaultValue: 'New Operation'}),
             type: attr('string', {defaultValue: 'SimpleEngravingOperation'}),
-            outline: DS.belongsTo('shape', { async: true }),
-            job: DS.belongsTo('job', { async: true }),
+            outline: DS.belongsTo('shape', {async: true}),
+            job: DS.belongsTo('job', {async: true}),
             installObservers: function () {
                 var properties = Operations[this.get('type')].properties;
                 var _this = this;

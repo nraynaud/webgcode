@@ -35,7 +35,14 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
 
                  doc.save();*/
                 var doc = this.store.find('job').then(function (jobs) {
-                    return jobs.objectAt(0);
+                    var job = jobs.objectAt(0);
+                    //preload all the entities
+                    //[job.get('shapes'), job.get('operations')]
+                    return Ember.RSVP.all(['shapes', 'operations'].map(function (relationship) {
+                        return job.get(relationship);
+                    })).then(function () {
+                        return job;
+                    });
                 });
                 return doc;
             }
