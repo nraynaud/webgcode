@@ -11,7 +11,7 @@ define(['EmberData', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], funct
             computeToolpath: function (op) {
                 var z = op.get('engraving_Z');
                 var safetyZ = op.get('job.safetyZ');
-                var polygons = cam.pathDefToPolygons(op.get('outline.definition'));
+                var polygons = op.get('outline.polyline');
                 var toolpath = [];
                 for (var i = 0; i < polygons.length; i++)
                     if (polygons[i].length) {
@@ -35,7 +35,7 @@ define(['EmberData', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], funct
             computeToolpath: function (op) {
                 var machine = new cam.Machine(null);
                 machine.setParams(op.get('simple_contourZ'), 10, 100);
-                var polygon = cam.pathDefToClipper(op.get('outline.definition'));
+                var polygon = op.get('outline.clipperPolyline');
                 var offset = parseFloat(op.get('job.toolDiameter')) / 2 + parseFloat(op.get('contour_leaveStock'));
                 var inside = op.get('contour_inside');
                 var polygon1 = machine.contourClipper(polygon, offset, inside);
@@ -67,7 +67,7 @@ define(['EmberData', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], funct
             computeToolpath: function (op) {
                 var machine = new cam.Machine(null);
                 machine.setParams(op.get('ramping_startZ'), 10, 100);
-                var clipperPolygon = cam.pathDefToClipper(op.get('outline.definition'));
+                var clipperPolygon = op.get('outline.clipperPolyline');
                 var offset = parseFloat(op.get('job.toolDiameter')) / 2 + parseFloat(op.get('contour_leaveStock'));
                 var inside = op.get('contour_inside');
                 var contour = machine.contourClipper(clipperPolygon, offset, inside);
@@ -93,7 +93,7 @@ define(['EmberData', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], funct
                 pocket_leaveStock: attr('number', {defaultValue: 0.1})
             },
             computeToolpath: function (op) {
-                var clipperPolygon = cam.pathDefToClipper(op.get('outline.definition'));
+                var clipperPolygon = op.get('outline.clipperPolyline');
                 var machine = new cam.Machine(null);
                 var leaveStock = op.get('pocket_leaveStock');
                 if (leaveStock)

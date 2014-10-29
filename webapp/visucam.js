@@ -1,39 +1,41 @@
 "use strict";
-require(['Ember', 'EmberData', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/cam', 'cnc/cam/operations',
+require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/operations',
         'libs/svg', 'cnc/svgImporter', 'cnc/cad/wabble', 'cnc/util', 'templates', 'libs/svg-import'],
-    function (Ember, DS, models, views, TreeDView, cam, Operations, SVG, svgImporter, Wabble, util, templates, _) {
+    function (Ember, DS, models, views, TreeDView, Operations, SVG, svgImporter, Wabble, util, templates, _) {
         Ember.TEMPLATES['application'] = Ember.TEMPLATES['visucamApp'];
 
         window.Visucam = Ember.Application.create({});
-        Visucam.ApplicationAdapter = DS.FixtureAdapter;
+        Visucam.ApplicationAdapter = DS.FirebaseAdapter.extend({
+            firebase: new Firebase('https://popping-fire-1042.firebaseio.com/')
+        });
         Visucam.NumberView = views.NumberField;
 
+        Visucam.PointTransform = models.PointTransform;
         Visucam.Job = models.Job;
         Visucam.Operation = models.Operation;
         Visucam.Shape = models.Shape;
 
         var wabble = new Wabble(13, 15, 1, 1, 5, 8, 3);
 
-        Visucam.Job.reopenClass({
-            FIXTURES: [
-                {id: 1, toolDiameter: 2, operations: [], shapes: []}
-            ]
-        });
         Visucam.Router.map(function () {
             this.resource('operation', {path: '/operations/:operation_id'});
         });
         Visucam.ApplicationRoute = Ember.Route.extend({
             model: function () {
-                var doc = this.store.find('job', 1);
-                doc.then(function (doc) {
-                    var shape = wabble.getEccentricShape();
-                    var outline = doc.createShape(shape);
+                /*
+                 var doc = this.store.createRecord('job', {toolDiameter: 2});
+                 var shape = wabble.getEccentricShape();
+                 var outline = doc.createShape(shape);
 
-                    doc.createOperation({name: 'Eccentric Hole', type: 'PocketOperation', outline: outline});
-                    doc.createOperation({name: 'Output Holes', type: 'PocketOperation', outline: doc.createShape(wabble.getOutputHolesShape()), contour_inside: true});
-                    doc.createOperation({name: 'Crown', type: 'RampingContourOperation', outline: doc.createShape(wabble.getRotorShape()), contour_inside: false});
-                    doc.createOperation({name: 'Pins', type: 'RampingContourOperation', outline: doc.createShape(wabble.getPinsShape()), contour_inside: false});
-                    doc.createOperation({name: 'Output Pins', type: 'RampingContourOperation', outline: doc.createShape(wabble.getOutputPinsShape()), contour_inside: false});
+                 doc.createOperation({name: 'Eccentric Hole', type: 'PocketOperation', outline: outline});
+                 doc.createOperation({name: 'Output Holes', type: 'PocketOperation', outline: doc.createShape(wabble.getOutputHolesShape()), contour_inside: true});
+                 doc.createOperation({name: 'Crown', type: 'RampingContourOperation', outline: doc.createShape(wabble.getRotorShape()), contour_inside: false});
+                 doc.createOperation({name: 'Pins', type: 'RampingContourOperation', outline: doc.createShape(wabble.getPinsShape()), contour_inside: false});
+                 doc.createOperation({name: 'Output Pins', type: 'RampingContourOperation', outline: doc.createShape(wabble.getOutputPinsShape()), contour_inside: false});
+
+                 doc.save();*/
+                var doc = this.store.find('job').then(function (jobs) {
+                    return jobs.objectAt(0);
                 });
                 return doc;
             }
@@ -100,10 +102,14 @@ require(['Ember', 'EmberData', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
 
                     if (this.get('isCurrent')) {
                         this.transitionToRoute('index').then(function () {
-                            operation.get('job').deleteOperation(operation);
+                            operation.get('job').then(function (job) {
+                                job.deleteOperation(operation);
+                            });
                         });
                     } else {
-                        operation.get('job').deleteOperation(operation);
+                        operation.get('job').then(function (job) {
+                            job.deleteOperation(operation);
+                        });
                     }
                 }
             },
@@ -162,25 +168,31 @@ require(['Ember', 'EmberData', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
                 this.set('travelDisplay', threeDView.createDrawingNode(threeDView.rapidMaterial));
                 this.set('outlinesDisplay', threeDView.createDrawingNode(threeDView.outlineMaterial));
                 this.set('highlightDisplay', threeDView.createOverlayNode(threeDView.highlightMaterial));
+
                 this.synchronizeCurrentOperation();
                 this.synchronizeJob();
                 this.synchronizeOutlines();
             },
-            synchronizeCurrentOperation: function () {
-                var threeDView = this.get('nativeComponent');
-                threeDView.clearToolpath();
+            synchronizeCurrentOperationOutline: function () {
                 var highlightDisplay = this.get('highlightDisplay');
                 highlightDisplay.clear();
                 var operation = this.get('controller.currentOperation');
+                if (operation)
+                    highlightDisplay.addPolyLines(operation.get('outline.polyline'));
+            }.observes('controller.currentOperation.outline.polyline'),
+            synchronizeCurrentOperation: function () {
+                var threeDView = this.get('nativeComponent');
+                threeDView.clearToolpath();
+                var operation = this.get('controller.currentOperation');
                 if (operation) {
                     var toolpath2 = operation.get('toolpath');
-                    toolpath2.forEach(function (toolpath) {
-                        threeDView.normalToolpathNode.addCollated(collectVertices(toolpath, operation.get('contourZ')));
-                    });
-                    highlightDisplay.addPolyLines(cam.pathDefToPolygons(operation.get('outline.definition')));
+                    if (toolpath2)
+                        toolpath2.forEach(function (toolpath) {
+                            threeDView.normalToolpathNode.addCollated(collectVertices(toolpath, operation.get('contourZ')));
+                        });
                 }
                 threeDView.reRender();
-            }.observes('controller.currentOperation', 'controller.currentOperation.toolpath.@each', 'controller.currentOperation.toolpath', 'controller.safetyZ'),
+            }.observes('controller.currentOperation', 'controller.currentOperation.toolpath.@each', 'controller.currentOperation.toolpath'),
             synchronizeJob: function () {
                 var threeDView = this.get('nativeComponent');
                 var travelDisplay = this.get('travelDisplay');
@@ -195,10 +207,10 @@ require(['Ember', 'EmberData', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
                 var outlinesDisplay = this.get('outlinesDisplay');
                 outlinesDisplay.clear();
                 this.get('controller.shapes').forEach(function (shape) {
-                    outlinesDisplay.addPolyLines(cam.pathDefToPolygons(shape.get('definition')));
+                    outlinesDisplay.addPolyLines(shape.get('polyline'));
                 });
                 this.get('nativeComponent').zoomExtent();
-            }.observes('controller.shapes.@each'),
+            }.observes('controller.shapes.@each.polyline'),
             synchronizeToolPosition: function () {
                 var threeDView = this.get('nativeComponent');
                 var position = this.get('controller.toolPosition');
