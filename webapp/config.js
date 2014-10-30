@@ -12,10 +12,12 @@ requirejs.config({
         ace: 'libs/ace/src-noconflict/ace',
         RSVP: 'libs/rsvp-latest',
         clipper: 'libs/clipper_unminified',
-        canvg: 'libs/canvg/canvg'
+        canvg: 'libs/canvg/canvg',
+        bootstrap : 'libs/bootstrap/js/bootstrap.min'
     },
     shim: {
-        'jQuery': {exports: '$'},
+        jQuery: {exports: '$'},
+        bootstrap: { deps: ['jQuery'] },
         'libs/jquery.mousewheel': {deps: ["jQuery"]},
         Ember: {
             deps: ["jQuery", "Handlebars"],
@@ -33,7 +35,7 @@ requirejs.config({
         'libs/svg-parser': {deps: ['libs/svg']},
         'libs/svg-import': {deps: ['libs/svg', 'libs/svg-parser']},
         RSVP: {exports: 'RSVP'},
-        'templates': {deps: ['Ember']},
-        'clipper': {exports: 'ClipperLib'}
+        templates: {deps: ['Ember']},
+        clipper: {exports: 'ClipperLib'}
     }
 });

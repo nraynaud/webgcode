@@ -530,21 +530,29 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
 function program1(depth0,data) {
   
   var buffer = '', stack1;
-  data.buffer.push("\n        ");
+  data.buffer.push("\n            <div class=\"dropdown\">\n                <button class=\"btn btn-default dropdown-toggle\" type=\"button\" id=\"dropdownMenu1\" data-toggle=\"dropdown\">\n                    <i ");
+  data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
+    'class': ("authProviderIcon")
+  },hashTypes:{'class': "STRING"},hashContexts:{'class': depth0},contexts:[],types:[],data:data})));
+  data.buffer.push("></i> ");
   stack1 = helpers._triageMustache.call(depth0, "backend.username", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n        <button ");
+  data.buffer.push("\n                    <span class=\"caret\"></span>\n                </button>\n                <ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">\n                    <li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" href=\"#\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "logout", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
-  data.buffer.push(">logout</button>\n    ");
+  data.buffer.push(">logout</a>\n                    </li>\n                </ul>\n            </div>\n        ");
   return buffer;
   }
 
 function program3(depth0,data) {
   
   var buffer = '';
-  data.buffer.push("\n        <button ");
-  data.buffer.push(escapeExpression(helpers.action.call(depth0, "login", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
-  data.buffer.push(">login with twitter</button>\n    ");
+  data.buffer.push("\n            <div class=\"dropdown\">\n                <button class=\"btn btn-default dropdown-toggle\" type=\"button\" id=\"dropdownMenu1\" data-toggle=\"dropdown\">\n                    login\n                    <span class=\"caret\"></span>\n                </button>\n                <ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">\n                    <li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" href=\"#\" ");
+  data.buffer.push(escapeExpression(helpers.action.call(depth0, "logintwitter", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
+  data.buffer.push("><i\n                            class=\"fa fa-twitter\"></i> Twitter Login</a></li>\n                    <li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" href=\"#\" ");
+  data.buffer.push(escapeExpression(helpers.action.call(depth0, "logingithub", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
+  data.buffer.push("><i\n                            class=\"fa fa-github\"></i> Github Login </a></li>\n                    <li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" href=\"#\" ");
+  data.buffer.push(escapeExpression(helpers.action.call(depth0, "loginfacebook", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
+  data.buffer.push("><i\n                            class=\"fa fa-facebook\"></i> Facebook Login </a></li>\n                </ul>\n            </div>\n        ");
   return buffer;
   }
 
@@ -577,10 +585,10 @@ function program8(depth0,data) {
   data.buffer.push("\n                No operation yet.\n            ");
   }
 
-  data.buffer.push("<div class=\"header\">\n    ");
+  data.buffer.push("<div class=\"header\">\n\n    <div class=\"identity\">\n        ");
   stack1 = helpers['if'].call(depth0, "backend.isConnected", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n</div>\n<div class=\"application\">\n    <div class=\"job\">\n        <table class=\"form\">\n            <tbody>\n            <tr>\n                <th>Safety Z:</th>\n                <td>");
+  data.buffer.push("\n    </div>\n</div>\n<div class=\"application\">\n    <div class=\"job\">\n        <table class=\"form\">\n            <tbody>\n            <tr>\n                <th>Safety Z:</th>\n                <td>");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash:{
     'value': ("safetyZ")
   },hashTypes:{'value': "ID"},hashContexts:{'value': depth0},contexts:[depth0],types:["ID"],data:data})));

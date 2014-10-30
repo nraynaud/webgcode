@@ -1,6 +1,6 @@
 "use strict";
 require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/operations',
-        'libs/svg', 'cnc/svgImporter', 'cnc/cad/wabble', 'cnc/util', 'templates', 'libs/svg-import'],
+        'libs/svg', 'cnc/svgImporter', 'cnc/cad/wabble', 'cnc/util', 'templates', 'libs/svg-import', 'bootstrap'],
     function (Ember, DS, models, views, TreeDView, Operations, SVG, svgImporter, Wabble, util, templates, _) {
         Ember.TEMPLATES['application'] = Ember.TEMPLATES['visucamApp'];
 
@@ -21,7 +21,14 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
             }.property('auth'),
             username: function () {
                 if (this.get('isConnected'))
-                    return this.get('auth.twitter.username')
+                    switch (this.get('auth.provider')) {
+                        case 'twitter' :
+                            return this.get('auth.twitter.displayName');
+                        case 'github' :
+                            return this.get('auth.github.displayName');
+                        case 'facebook' :
+                            return this.get('auth.facebook.displayName');
+                    }
             }.property('isConnected', 'auth')
         });
         var BACKEND = Visucam.Backend.create();
@@ -104,8 +111,18 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
                 }, false);
             },
             actions: {
-                login: function () {
+                logintwitter: function () {
                     this.get('backend.firebase').authWithOAuthPopup("twitter", function (error, authData) {
+                        console.log(arguments);
+                    });
+                },
+                logingithub: function () {
+                    this.get('backend.firebase').authWithOAuthPopup("github", function (error, authData) {
+                        console.log(arguments);
+                    });
+                },
+                loginfacebook: function () {
+                    this.get('backend.firebase').authWithOAuthPopup("facebook", function (error, authData) {
                         console.log(arguments);
                     });
                 },
@@ -120,7 +137,10 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
                 var shape = this.get('model').createShape(shapeDefinitions.join(' '));
                 var contour = this.get('model').createOperation({outline: shape});
                 this.transitionToRoute('operation', contour);
-            }
+            },
+            authProviderIcon: function () {
+                return 'fa fa-' + this.get('backend.auth.provider');
+            }.property('backend.auth.provider')
         });
 
         Visucam.OperationController = Ember.ObjectController.extend({
