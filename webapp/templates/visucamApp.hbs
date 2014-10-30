@@ -3,8 +3,9 @@
     <div class="identity">
         {{#if backend.isConnected}}
             <div class="dropdown">
-                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
-                    <i {{bind-attr class="authProviderIcon"}}></i> {{backend.username}}
+                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown"
+                    {{bind-attr title="authTitle"}}>
+                <i {{bind-attr class="authProviderIcon"}}></i> {{backend.username}}
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu1">

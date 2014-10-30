@@ -140,6 +140,9 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
             },
             authProviderIcon: function () {
                 return 'fa fa-' + this.get('backend.auth.provider');
+            }.property('backend.auth.provider'),
+            authTitle: function () {
+                return 'Authenticated with ' + this.get('backend.auth.provider');
             }.property('backend.auth.provider')
         });
 
