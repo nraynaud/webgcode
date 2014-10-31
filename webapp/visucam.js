@@ -14,6 +14,8 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
             updateAuth: function () {
                 var auth = this.get('firebase').getAuth();
                 this.set('auth', auth);
+                if (this.get('isConnected'))
+                    this.get('storageRoot').update({displayName: this.get('username')});
             },
             firebase: new Firebase('https://popping-fire-1042.firebaseio.com/'),
             isConnected: function () {
@@ -29,12 +31,24 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
                         case 'facebook' :
                             return this.get('auth.facebook.displayName');
                     }
-            }.property('isConnected', 'auth')
+            }.property('isConnected', 'auth'),
+            storageRoot: function () {
+                if (this.get('isConnected'))
+                    return this.get('firebase').child('users').child(this.get('auth.uid'));
+                return this.get('firebase');
+            }.property('firebase', 'auth')
         });
         var BACKEND = Visucam.Backend.create();
 
         Visucam.ApplicationAdapter = DS.FirebaseAdapter.extend({
-            firebase: BACKEND.get('firebase')
+            backend: BACKEND,
+            firebase: BACKEND.get('storageRoot'),
+            updateRef: function () {
+                //we have to hack the Adapter because changing the reference was not planned
+                this._ref = this.get('backend.storageRoot').ref();
+                this._findAllMapForType = {};
+                this._recordCacheForType = {};
+            }.observes('backend.storageRoot')
         });
         Visucam.NumberView = views.NumberField;
 
@@ -46,41 +60,22 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
         var wabble = new Wabble(13, 15, 1, 1, 5, 8, 3);
 
         Visucam.Router.map(function () {
-            this.resource('operation', {path: '/operations/:operation_id'});
-        });
-        Visucam.ApplicationRoute = Ember.Route.extend({
-            model: function () {
-                /*
-                 var doc = this.store.createRecord('job', {toolDiameter: 2});
-                 var shape = wabble.getEccentricShape();
-                 var outline = doc.createShape(shape);
-
-                 doc.createOperation({name: 'Eccentric Hole', type: 'PocketOperation', outline: outline});
-                 doc.createOperation({name: 'Output Holes', type: 'PocketOperation', outline: doc.createShape(wabble.getOutputHolesShape()), contour_inside: true});
-                 doc.createOperation({name: 'Crown', type: 'RampingContourOperation', outline: doc.createShape(wabble.getRotorShape()), contour_inside: false});
-                 doc.createOperation({name: 'Pins', type: 'RampingContourOperation', outline: doc.createShape(wabble.getPinsShape()), contour_inside: false});
-                 doc.createOperation({name: 'Output Pins', type: 'RampingContourOperation', outline: doc.createShape(wabble.getOutputPinsShape()), contour_inside: false});
-
-                 doc.save();*/
-                var doc = this.store.find('job').then(function (jobs) {
-                    var job = jobs.objectAt(0);
-                    //preload all the entities
-                    //[job.get('shapes'), job.get('operations')]
-                    return Ember.RSVP.all(['shapes', 'operations'].map(function (relationship) {
-                        return job.get(relationship);
-                    })).then(function () {
-                        return job;
-                    });
-                });
-                return doc;
-            }
+            this.resource('job', {path: 'jobs/:job_id'}, function () {
+                this.resource('operation', {path: 'operations/:operation_id'});
+            });
         });
         Visucam.IndexRoute = Ember.Route.extend({
-            setupController: function (controller, model) {
-                this._super.apply(this, arguments);
-                this.controller.set('currentOperation', null);
+            model: function () {
+                return this.store.find('job');
             }
         });
+
+        Visucam.JobRoute = Ember.Route.extend({
+            model: function (params) {
+                return this.store.find('job', params.job_id);
+            }
+        });
+
         Visucam.OperationRoute = Ember.Route.extend({
             model: function (params) {
                 return this.store.find('operation', params.operation_id);
@@ -91,25 +86,29 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
             },
             setupController: function (controller, model) {
                 this._super.apply(this, arguments);
-                this.controllerFor('application').set('currentOperation', model);
+                this.controllerFor('job').set('currentOperation', model);
+            }
+        });
+
+        Visucam.IndexController = Ember.ObjectController.extend({
+            actions: {
+                createExample: function () {
+                    var job = this.store.createRecord('job', {name: 'Cycloidal Drive Sample', toolDiameter: 2});
+                    var shape = wabble.getEccentricShape();
+                    var outline = job.createShape(shape);
+                    job.createOperation({name: 'Eccentric Hole', type: 'PocketOperation', outline: outline});
+                    job.createOperation({name: 'Output Holes', type: 'PocketOperation', outline: job.createShape(wabble.getOutputHolesShape()), contour_inside: true});
+                    job.createOperation({name: 'Crown', type: 'RampingContourOperation', outline: job.createShape(wabble.getRotorShape()), contour_inside: false});
+                    job.createOperation({name: 'Pins', type: 'RampingContourOperation', outline: job.createShape(wabble.getPinsShape()), contour_inside: false});
+                    job.createOperation({name: 'Output Pins', type: 'RampingContourOperation', outline: job.createShape(wabble.getOutputPinsShape()), contour_inside: false});
+                    job.saveAll();
+                    this.transitionToRoute('job', job);
+                }
             }
         });
 
         Visucam.ApplicationController = Ember.ObjectController.extend({
-            init: function () {
-                var _this = this;
-                window.addEventListener("message", function (event) {
-                    if (event.data['type'] == 'gimme program') {
-                        event.ports[0].postMessage({type: 'toolPath', toolPath: _this.get('model').computeSimulableToolpath(3000),
-                            parameters: event.data.parameters});
-                    }
-                    if (event.data['type'] == 'toolPosition') {
-                        var pos = event.data['position'];
-                        _this.set('toolPosition', new util.Point(pos.x, pos.y, pos.z));
-                        _this.set('model.startPoint', new util.Point(pos.x, pos.y, pos.z));
-                    }
-                }, false);
-            },
+            needs: ['job'],
             actions: {
                 logintwitter: function () {
                     this.get('backend.firebase').authWithOAuthPopup("twitter", function (error, authData) {
@@ -131,8 +130,6 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
                 }
             },
             backend: BACKEND,
-            currentOperation: null,
-            toolPosition: null,
             addShapes: function (shapeDefinitions) {
                 var shape = this.get('model').createShape(shapeDefinitions.join(' '));
                 var contour = this.get('model').createOperation({outline: shape});
@@ -146,6 +143,33 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
             }.property('backend.auth.provider')
         });
 
+        Visucam.JobController = Ember.ObjectController.extend({
+            init: function () {
+                this._super();
+                var _this = this;
+                window.addEventListener("message", function (event) {
+                    if (event.data['type'] == 'gimme program') {
+                        event.ports[0].postMessage({type: 'toolPath', toolPath: _this.get('model').computeSimulableToolpath(3000),
+                            parameters: event.data.parameters});
+                    }
+                    if (event.data['type'] == 'toolPosition') {
+                        var pos = event.data['position'];
+                        _this.set('toolPosition', new util.Point(pos.x, pos.y, pos.z));
+                        _this.set('model.startPoint', new util.Point(pos.x, pos.y, pos.z));
+                    }
+                }, false);
+            },
+            toolPosition: null,
+            currentOperation: null,
+            actions: {
+                save: function () {
+                    this.get('model').saveAll();
+                }
+            },
+            saveDisabled: function () {
+                return !this.get('model.isDirty');
+            }.property('model.isDirty')
+        });
         Visucam.OperationController = Ember.ObjectController.extend({
             specialTemplate: function () {
                 return Operations[this.get('type')].specialTemplate;
@@ -161,18 +185,18 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
             actions: {
                 delete: function () {
                     var operation = this.get('model');
-
-                    if (this.get('isCurrent')) {
-                        this.transitionToRoute('index').then(function () {
-                            operation.get('job').then(function (job) {
+                    if (this.get('isCurrent'))
+                        this.transitionToRoute('job', operation.get('job'))
+                            .then(function () {
+                                return operation.get('job');
+                            })
+                            .then(function (job) {
                                 job.deleteOperation(operation);
                             });
-                        });
-                    } else {
+                    else
                         operation.get('job').then(function (job) {
                             job.deleteOperation(operation);
                         });
-                    }
                 }
             },
             isCurrent: function () {

@@ -1,11 +1,13 @@
 <div class="header">
+    <div class="topMenu">
 
+    </div>
     <div class="identity">
         {{#if backend.isConnected}}
             <div class="dropdown">
                 <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown"
                     {{bind-attr title="authTitle"}}>
-                <i {{bind-attr class="authProviderIcon"}}></i> {{backend.username}}
+                    <i {{bind-attr class="authProviderIcon"}}></i> {{backend.username}}
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu1">
@@ -32,53 +34,5 @@
     </div>
 </div>
 <div class="application">
-    <div class="job">
-        <table class="form">
-            <tbody>
-            <tr>
-                <th>Safety Z:</th>
-                <td>{{view Visucam.NumberView value=safetyZ}}</td>
-            </tr>
-            <tr>
-                <th title="in mm">Tool Diameter:</th>
-                <td>{{view Visucam.NumberView value=toolDiameter min="0.001" step="0.001"}}</td>
-            </tr>
-            <tr>
-                <th>Tool Flutes:</th>
-                <td>{{view Visucam.NumberView value=toolFlutes min=1 step=1}}</td>
-            </tr>
-            <tr>
-                <th title="in m/min">Surface Speed:</th>
-                <td>{{view Visucam.NumberView value=surfaceSpeed min=1 max=1000}}</td>
-            </tr>
-            <tr>
-                <th title="in mm">Chip Load:</th>
-                <td>{{view Visucam.NumberView value=chipLoad min="0.001" step="0.001"}}</td>
-            </tr>
-            <tr>
-                <th title="in RPM">Speed:</th>
-                <td>{{view Visucam.NumberView value=speed min=1 step=10}}</td>
-            </tr>
-            <tr>
-                <th title="in mm/min">Feedrate:</th>
-                <td>{{view Visucam.NumberView value=feedrate min=1 max=3000 step=10}}</td>
-            </tr>
-            </tbody>
-        </table>
-        <ul class="operations">
-            {{#each operations itemController="operationListItem"}}
-                <li {{bind-attr class="isCurrent:current"}}>{{#link-to "operation" this}}{{name}}{{/link-to}}
-                    <button {{action "delete"}} title="Delete Operation">X</button>
-                </li>
-            {{else}}
-                No operation yet.
-            {{/each}}
-        </ul>
-    </div>
-    <div class="viewContainer">
-        {{view Visucam.ThreeDView}}
-    </div>
-    <div class="operation">
-        {{outlet}}
-    </div>
+    {{outlet}}
 </div>

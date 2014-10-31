@@ -70,6 +70,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
         var Operation = DS.Model.extend(operationDefinition);
 
         var Job = DS.Model.extend({
+            name: attr('string', {defaultValue: 'Unnamed Job'}),
             safetyZ: attr('number', {defaultValue: 5}),
             toolDiameter: attr('number', {defaultValue: 3}),
             toolFlutes: attr('number', {defaultValue: 2}),
@@ -83,6 +84,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             deleteOperation: function (operation) {
                 this.get('operations').removeObject(operation);
                 operation.destroyRecord();
+                this.save();
             },
             transitionTravels: function () {
                 var operations = this.get('operations');
@@ -120,16 +122,21 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 var operation = this.store.createRecord('operation', params);
                 operation.set('job', this);
                 this.get('operations').pushObject(operation);
-                operation.save();
-                this.save();
                 return operation;
             },
             createShape: function (def) {
                 var shape = this.store.createRecord('shape', {definition: def});
                 this.get('shapes').pushObject(shape);
-                shape.save();
-                this.save();
                 return shape;
+            },
+            saveAll: function () {
+                this.get('shapes').forEach(function (shape) {
+                    shape.save();
+                });
+                this.get('operations').forEach(function (operation) {
+                    operation.save();
+                });
+                this.save();
             },
             updateSpeed: function () {
                 var toolDiameter = this.get('toolDiameter');

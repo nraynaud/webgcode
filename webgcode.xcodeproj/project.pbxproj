@@ -188,6 +188,7 @@
 		DDAA57993DC17F9A33414D80 /* controllerEmber.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = controllerEmber.js; sourceTree = "<group>"; };
 		DDAA57A1B65CDC501D4100D6 /* pocket.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = pocket.js; sourceTree = "<group>"; };
 		DDAA57EC5BF49CA63E23EA57 /* draft.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = draft.html; sourceTree = "<group>"; };
+		DDAA5825769A005C1F8AFA15 /* job.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = job.hbs; sourceTree = "<group>"; };
 		DDAA58422CF9EADC8397599D /* background.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = background.js; path = webapp/background.js; sourceTree = "<group>"; };
 		DDAA584BFDA15E844B048D27 /* usb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = usb.c; sourceTree = "<group>"; };
 		DDAA587EC27F95C78E5D93C2 /* bezier.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = bezier.js; sourceTree = "<group>"; };
@@ -240,6 +241,7 @@
 		DDAA5E3A977BABE01A9F3E78 /* CNCMachine.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = CNCMachine.js; sourceTree = "<group>"; };
 		DDAA5E4E5A44413C0E0942C6 /* test_pycam.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngc; name = test_pycam.ngc; path = webapp/samples/test_pycam.ngc; sourceTree = "<group>"; };
 		DDAA5E5BE56C40B964FEF1B4 /* cam.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = cam.js; path = webapp/cnc/cam/cam.js; sourceTree = "<group>"; };
+		DDAA5E5FA216F4DFA9FD2521 /* index.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = index.hbs; sourceTree = "<group>"; };
 		DDAA5EE2867F451CC9A90B32 /* build-app.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "build-app.js"; sourceTree = "<group>"; };
 		DDAA5F0C5AECEECBCBD8D9E4 /* icon_fraise_128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_fraise_128.png; sourceTree = "<group>"; };
 		DDAA5F329B72AC25F4AAA0F4 /* toolpath.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = toolpath.js; sourceTree = "<group>"; };
@@ -250,6 +252,7 @@
 		DDAA5F8E872CAF0D98D72C3D /* icon_fraise_48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_fraise_48.png; sourceTree = "<group>"; };
 		DDAA5F9065BDDAC8C08A000D /* icon_fraise_48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_fraise_48.png; sourceTree = "<group>"; };
 		DDAA5F9F727CB3FC94D086B9 /* dremel_bracket.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = dremel_bracket.js; sourceTree = "<group>"; };
+		DDAA5FB75EA37BF204AB17BA /* index.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = index.hbs; sourceTree = "<group>"; };
 		DDAA5FD621B8DA11F0ECD11B /* js_sandbox.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = js_sandbox.js; sourceTree = "<group>"; };
 		DDAA5FFAC7F227AF3A40874C /* box2.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = box2.js; path = webapp/samples/box2.js; sourceTree = "<group>"; };
 		DDAA5FFBD0843DCB15BE40A2 /* parser.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = parser.js; sourceTree = "<group>"; };
@@ -326,6 +329,10 @@
 				DDAA516825B68A6E2F8C8BF2 /* rampingContour.hbs */,
 				DDAA512A6F80D13802A577A8 /* simpleEngraving.hbs */,
 				DDAA58A5DFBAB23556EC309E /* operationPocket.hbs */,
+				DDAA5825769A005C1F8AFA15 /* job.hbs */,
+				DDAA5842114ED8C7CB2317A1 /* job */,
+				DDAA5E5FA216F4DFA9FD2521 /* index.hbs */,
+				DDAA5FB75EA37BF204AB17BA /* index.hbs */,
 			);
 			path = templates;
 			sourceTree = "<group>";
@@ -372,6 +379,13 @@
 				DDAA5B3E3A796AE05E292A03 /* app */,
 			);
 			path = cnc;
+			sourceTree = "<group>";
+		};
+		DDAA5842114ED8C7CB2317A1 /* job */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = job;
 			sourceTree = "<group>";
 		};
 		DDAA59906CEEDDDE943F0A35 /* interpolator */ = {

@@ -259,6 +259,164 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.TwoDView", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data})));
   
 });
+Ember.TEMPLATES["index"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data) {
+    this.compilerInfo = [4, '>= 1.0.0'];
+    helpers = this.merge(helpers, Ember.Handlebars.helpers);
+    data = data || {};
+    var buffer = '', stack1, self = this, helperMissing = helpers.helperMissing, escapeExpression = this.escapeExpression;
+
+    function program1(depth0, data) {
+
+        var buffer = '', stack1, helper, options;
+        data.buffer.push("\n            <li>\n                ");
+        stack1 = (helper = helpers['link-to'] || (depth0 && depth0['link-to']), options = {hash: {}, hashTypes: {}, hashContexts: {}, inverse: self.noop, fn: self.program(2, program2, data), contexts: [depth0, depth0], types: ["STRING", "ID"], data: data}, helper ? helper.call(depth0, "job", "", options) : helperMissing.call(depth0, "link-to", "job", "", options));
+        if (stack1 || stack1 === 0) {
+            data.buffer.push(stack1);
+        }
+        data.buffer.push("\n            </li>\n        ");
+        return buffer;
+    }
+
+    function program2(depth0, data) {
+
+        var stack1;
+        stack1 = helpers._triageMustache.call(depth0, "name", {hash: {}, hashTypes: {}, hashContexts: {}, contexts: [depth0], types: ["ID"], data: data});
+        if (stack1 || stack1 === 0) {
+            data.buffer.push(stack1);
+        }
+        else {
+            data.buffer.push('');
+        }
+    }
+
+    function program4(depth0, data) {
+
+
+        data.buffer.push("\n            No job yet.\n        ");
+    }
+
+    data.buffer.push("<div>\n    <button class=\"btn btn-default\" ");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "createExample", {hash: {}, hashTypes: {}, hashContexts: {}, contexts: [depth0], types: ["STRING"], data: data})));
+    data.buffer.push(">Create Example</button>\n    <ul>\n        ");
+    stack1 = helpers.each.call(depth0, "model", {hash: {}, hashTypes: {}, hashContexts: {}, inverse: self.program(4, program4, data), fn: self.program(1, program1, data), contexts: [depth0], types: ["ID"], data: data});
+    if (stack1 || stack1 === 0) {
+        data.buffer.push(stack1);
+    }
+    data.buffer.push("\n    </ul>\n</div>");
+    return buffer;
+
+});
+Ember.TEMPLATES["job"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data) {
+    this.compilerInfo = [4, '>= 1.0.0'];
+    helpers = this.merge(helpers, Ember.Handlebars.helpers);
+    data = data || {};
+    var buffer = '', stack1, helper, options, escapeExpression = this.escapeExpression, self = this, helperMissing = helpers.helperMissing;
+
+    function program1(depth0, data) {
+
+        var buffer = '', stack1, helper, options;
+        data.buffer.push("\n            <li class=\"list-group-item\" ");
+        data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash: {
+            'class': ("isCurrent:active")
+        }, hashTypes: {'class': "STRING"}, hashContexts: {'class': depth0}, contexts: [], types: [], data: data})));
+        data.buffer.push(">");
+        stack1 = (helper = helpers['link-to'] || (depth0 && depth0['link-to']), options = {hash: {}, hashTypes: {}, hashContexts: {}, inverse: self.noop, fn: self.program(2, program2, data), contexts: [depth0, depth0], types: ["STRING", "ID"], data: data}, helper ? helper.call(depth0, "operation", "", options) : helperMissing.call(depth0, "link-to", "operation", "", options));
+        if (stack1 || stack1 === 0) {
+            data.buffer.push(stack1);
+        }
+        data.buffer.push("\n                <a class=\"delete badge\" ");
+        data.buffer.push(escapeExpression(helpers.action.call(depth0, "delete", {hash: {}, hashTypes: {}, hashContexts: {}, contexts: [depth0], types: ["STRING"], data: data})));
+        data.buffer.push(" title=\"Delete Operation\"><i class=\"fa fa-times\"></i></a>\n            </li>\n        ");
+        return buffer;
+    }
+
+    function program2(depth0, data) {
+
+        var stack1;
+        stack1 = helpers._triageMustache.call(depth0, "name", {hash: {}, hashTypes: {}, hashContexts: {}, contexts: [depth0], types: ["ID"], data: data});
+        if (stack1 || stack1 === 0) {
+            data.buffer.push(stack1);
+        }
+        else {
+            data.buffer.push('');
+        }
+    }
+
+    function program4(depth0, data) {
+
+
+        data.buffer.push("\n            No operation yet.\n        ");
+    }
+
+    data.buffer.push("<div class=\"job\">\n    <button class=\"btn btn-default\" ");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "save", {hash: {}, hashTypes: {}, hashContexts: {}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push(" ");
+    data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash: {
+        'disabled': ("saveDisabled")
+    }, hashTypes: {'disabled': "ID"}, hashContexts: {'disabled': depth0}, contexts: [], types: [], data: data})));
+    data.buffer.push(">Save</button>\n    <table class=\"form\">\n        <tbody>\n        <tr>\n            <th>Name:</th>\n            <td>");
+    data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input), options = {hash: {
+        'value': ("name")
+    }, hashTypes: {'value': "ID"}, hashContexts: {'value': depth0}, contexts: [], types: [], data: data}, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+    data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th>Safety Z:</th>\n            <td>");
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
+        'value': ("safetyZ")
+    }, hashTypes: {'value': "ID"}, hashContexts: {'value': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th title=\"in mm\">Tool Diameter:</th>\n            <td>");
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
+        'value': ("toolDiameter"),
+        'min': ("0.001"),
+        'step': ("0.001")
+    }, hashTypes: {'value': "ID", 'min': "STRING", 'step': "STRING"}, hashContexts: {'value': depth0, 'min': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th>Tool Flutes:</th>\n            <td>");
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
+        'value': ("toolFlutes"),
+        'min': (1),
+        'step': (1)
+    }, hashTypes: {'value': "ID", 'min': "INTEGER", 'step': "INTEGER"}, hashContexts: {'value': depth0, 'min': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th title=\"in m/min\">Surface Speed:</th>\n            <td>");
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
+        'value': ("surfaceSpeed"),
+        'min': (1),
+        'max': (1000)
+    }, hashTypes: {'value': "ID", 'min': "INTEGER", 'max': "INTEGER"}, hashContexts: {'value': depth0, 'min': depth0, 'max': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th title=\"in mm\">Chip Load:</th>\n            <td>");
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
+        'value': ("chipLoad"),
+        'min': ("0.001"),
+        'step': ("0.001")
+    }, hashTypes: {'value': "ID", 'min': "STRING", 'step': "STRING"}, hashContexts: {'value': depth0, 'min': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th title=\"in RPM\">Speed:</th>\n            <td>");
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
+        'value': ("speed"),
+        'min': (1),
+        'step': (10)
+    }, hashTypes: {'value': "ID", 'min': "INTEGER", 'step': "INTEGER"}, hashContexts: {'value': depth0, 'min': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th title=\"in mm/min\">Feedrate:</th>\n            <td>");
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
+        'value': ("feedrate"),
+        'min': (1),
+        'max': (3000),
+        'step': (10)
+    }, hashTypes: {'value': "ID", 'min': "INTEGER", 'max': "INTEGER", 'step': "INTEGER"}, hashContexts: {'value': depth0, 'min': depth0, 'max': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push("</td>\n        </tr>\n        </tbody>\n    </table>\n    <ul class=\"list-group\">\n        ");
+    stack1 = helpers.each.call(depth0, "operations", {hash: {
+        'itemController': ("operationListItem")
+    }, hashTypes: {'itemController': "STRING"}, hashContexts: {'itemController': depth0}, inverse: self.program(4, program4, data), fn: self.program(1, program1, data), contexts: [depth0], types: ["ID"], data: data});
+    if (stack1 || stack1 === 0) {
+        data.buffer.push(stack1);
+    }
+    data.buffer.push("\n    </ul>\n</div>\n<div class=\"viewContainer\">\n    ");
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.ThreeDView", {hash: {}, hashTypes: {}, hashContexts: {}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push("\n</div>\n<div class=\"operation\">\n    ");
+    stack1 = helpers._triageMustache.call(depth0, "outlet", {hash: {}, hashTypes: {}, hashContexts: {}, contexts: [depth0], types: ["ID"], data: data});
+    if (stack1 || stack1 === 0) {
+        data.buffer.push(stack1);
+    }
+    data.buffer.push("\n</div>");
+    return buffer;
+
+});
 Ember.TEMPLATES["jobView"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
@@ -525,7 +683,7 @@ function program3(depth0,data) {
 Ember.TEMPLATES["visucamApp"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
-  var buffer = '', stack1, escapeExpression=this.escapeExpression, self=this, helperMissing=helpers.helperMissing;
+    var buffer = '', stack1, escapeExpression = this.escapeExpression, self = this;
 
 function program1(depth0,data) {
   
@@ -534,7 +692,7 @@ function program1(depth0,data) {
   data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
     'title': ("authTitle")
   },hashTypes:{'title': "STRING"},hashContexts:{'title': depth0},contexts:[],types:[],data:data})));
-  data.buffer.push(">\n                <i ");
+    data.buffer.push(">\n                    <i ");
   data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
     'class': ("authProviderIcon")
   },hashTypes:{'class': "STRING"},hashContexts:{'class': depth0},contexts:[],types:[],data:data})));
@@ -560,90 +718,13 @@ function program3(depth0,data) {
   return buffer;
   }
 
-function program5(depth0,data) {
-  
-  var buffer = '', stack1, helper, options;
-  data.buffer.push("\n                <li ");
-  data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
-    'class': ("isCurrent:current")
-  },hashTypes:{'class': "STRING"},hashContexts:{'class': depth0},contexts:[],types:[],data:data})));
-  data.buffer.push(">");
-  stack1 = (helper = helpers['link-to'] || (depth0 && depth0['link-to']),options={hash:{},hashTypes:{},hashContexts:{},inverse:self.noop,fn:self.program(6, program6, data),contexts:[depth0,depth0],types:["STRING","ID"],data:data},helper ? helper.call(depth0, "operation", "", options) : helperMissing.call(depth0, "link-to", "operation", "", options));
-  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n                    <button ");
-  data.buffer.push(escapeExpression(helpers.action.call(depth0, "delete", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
-  data.buffer.push(" title=\"Delete Operation\">X</button>\n                </li>\n            ");
-  return buffer;
-  }
-function program6(depth0,data) {
-  
-  var stack1;
-  stack1 = helpers._triageMustache.call(depth0, "name", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
-  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  else { data.buffer.push(''); }
-  }
-
-function program8(depth0,data) {
-  
-  
-  data.buffer.push("\n                No operation yet.\n            ");
-  }
-
-  data.buffer.push("<div class=\"header\">\n\n    <div class=\"identity\">\n        ");
+    data.buffer.push("<div class=\"header\">\n    <div class=\"topMenu\">\n\n    </div>\n    <div class=\"identity\">\n        ");
   stack1 = helpers['if'].call(depth0, "backend.isConnected", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n    </div>\n</div>\n<div class=\"application\">\n    <div class=\"job\">\n        <table class=\"form\">\n            <tbody>\n            <tr>\n                <th>Safety Z:</th>\n                <td>");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash:{
-    'value': ("safetyZ")
-  },hashTypes:{'value': "ID"},hashContexts:{'value': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n            </tr>\n            <tr>\n                <th title=\"in mm\">Tool Diameter:</th>\n                <td>");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash:{
-    'value': ("toolDiameter"),
-    'min': ("0.001"),
-    'step': ("0.001")
-  },hashTypes:{'value': "ID",'min': "STRING",'step': "STRING"},hashContexts:{'value': depth0,'min': depth0,'step': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n            </tr>\n            <tr>\n                <th>Tool Flutes:</th>\n                <td>");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash:{
-    'value': ("toolFlutes"),
-    'min': (1),
-    'step': (1)
-  },hashTypes:{'value': "ID",'min': "INTEGER",'step': "INTEGER"},hashContexts:{'value': depth0,'min': depth0,'step': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n            </tr>\n            <tr>\n                <th title=\"in m/min\">Surface Speed:</th>\n                <td>");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash:{
-    'value': ("surfaceSpeed"),
-    'min': (1),
-    'max': (1000)
-  },hashTypes:{'value': "ID",'min': "INTEGER",'max': "INTEGER"},hashContexts:{'value': depth0,'min': depth0,'max': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n            </tr>\n            <tr>\n                <th title=\"in mm\">Chip Load:</th>\n                <td>");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash:{
-    'value': ("chipLoad"),
-    'min': ("0.001"),
-    'step': ("0.001")
-  },hashTypes:{'value': "ID",'min': "STRING",'step': "STRING"},hashContexts:{'value': depth0,'min': depth0,'step': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n            </tr>\n            <tr>\n                <th title=\"in RPM\">Speed:</th>\n                <td>");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash:{
-    'value': ("speed"),
-    'min': (1),
-    'step': (10)
-  },hashTypes:{'value': "ID",'min': "INTEGER",'step': "INTEGER"},hashContexts:{'value': depth0,'min': depth0,'step': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n            </tr>\n            <tr>\n                <th title=\"in mm/min\">Feedrate:</th>\n                <td>");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash:{
-    'value': ("feedrate"),
-    'min': (1),
-    'max': (3000),
-    'step': (10)
-  },hashTypes:{'value': "ID",'min': "INTEGER",'max': "INTEGER",'step': "INTEGER"},hashContexts:{'value': depth0,'min': depth0,'max': depth0,'step': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n            </tr>\n            </tbody>\n        </table>\n        <ul class=\"operations\">\n            ");
-  stack1 = helpers.each.call(depth0, "operations", {hash:{
-    'itemController': ("operationListItem")
-  },hashTypes:{'itemController': "STRING"},hashContexts:{'itemController': depth0},inverse:self.program(8, program8, data),fn:self.program(5, program5, data),contexts:[depth0],types:["ID"],data:data});
-  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n        </ul>\n    </div>\n    <div class=\"viewContainer\">\n        ");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.ThreeDView", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("\n    </div>\n    <div class=\"operation\">\n        ");
+    data.buffer.push("\n    </div>\n</div>\n<div class=\"application\">\n    ");
   stack1 = helpers._triageMustache.call(depth0, "outlet", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n    </div>\n</div>");
+    data.buffer.push("\n</div>");
   return buffer;
   
 });

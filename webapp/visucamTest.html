@@ -61,7 +61,8 @@
             justify-content: flex-end;
         }
 
-        .identity {
+        .topMenu {
+            flex: 1;
         }
 
         .application {
@@ -119,16 +120,20 @@
         }
 
         .operations a {
-
             color: inherit;
             text-decoration: none;
             display: block;
             flex: 2;
         }
 
-        .operations button {
+        .operations .delete {
             text-decoration: none;
             display: block;
+            flex: inherit;
+        }
+
+        .list-group-item.active a {
+            color: white;
         }
 
         .highlight {
