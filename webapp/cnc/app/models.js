@@ -79,8 +79,8 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             feedrate: attr('number', {defaultValue: 100}),
             speed: attr('number', {defaultValue: 24000}),
             startPoint: attr('point', {defaultValue: new util.Point(0, 0, 10)}),
-            operations: DS.hasMany('operation', {inverse: 'job', async: true}),
-            shapes: DS.hasMany('shape', {async: true}),
+            shapes: DS.hasMany('shape', {embedded: true}),
+            operations: DS.hasMany('operation', {inverse: 'job', embedded: true}),
             deleteOperation: function (operation) {
                 this.get('operations').removeObject(operation);
                 operation.destroyRecord();
@@ -130,12 +130,6 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 return shape;
             },
             saveAll: function () {
-                this.get('shapes').forEach(function (shape) {
-                    shape.save();
-                });
-                this.get('operations').forEach(function (operation) {
-                    operation.save();
-                });
                 this.save();
             },
             updateSpeed: function () {
