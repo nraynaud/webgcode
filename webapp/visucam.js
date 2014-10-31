@@ -8,7 +8,7 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
 
         Visucam.Backend = Ember.Object.extend({
             init: function () {
-                this.get('firebase').onAuth(this.updateAuth, this);
+                this.get('firebase').onAuth(Ember.run.bind(this, this.updateAuth));
                 this.updateAuth();
             },
             updateAuth: function () {
@@ -17,6 +17,7 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
                 if (auth && auth.provider != 'anonymous')
                     this.get('storageRoot').update({displayName: this.get('username')});
             },
+            auth: null,
             firebase: new Firebase('https://popping-fire-1042.firebaseio.com/'),
             isConnected: function () {
                 return this.get('auth') != null;
@@ -43,13 +44,13 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
         var BACKEND = Visucam.Backend.create();
 
         Visucam.ApplicationAdapter = DS.FirebaseAdapter.extend({
+            init: function () {
+                this.firebase = BACKEND.get('storageRoot');
+                this._super.apply(this, arguments);
+            },
             backend: BACKEND,
-            firebase: BACKEND.get('storageRoot'),
             updateRef: function () {
-                //we have to hack the Adapter because changing the reference was not planned
-                this._ref = this.get('backend.storageRoot').ref();
-                this._findAllMapForType = {};
-                this._recordCacheForType = {};
+                this.init();
             }.observes('backend.storageRoot')
         });
         Visucam.NumberView = views.NumberField;
@@ -65,6 +66,41 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
             this.resource('job', {path: 'jobs/:job_id'}, function () {
                 this.resource('operation', {path: 'operations/:operation_id'});
             });
+        });
+
+        Visucam.ApplicationRoute = Ember.Route.extend({
+            actions: {
+                logintwitter: function () {
+                    BACKEND.get('firebase').authWithOAuthPopup("twitter", function (error, authData) {
+                        console.log(arguments);
+                        Visucam.reset();
+                    });
+                },
+                logingithub: function () {
+                    BACKEND.get('firebase').authWithOAuthPopup("github", function (error, authData) {
+                        console.log(arguments);
+                        Visucam.reset();
+                    });
+                },
+                loginfacebook: function () {
+                    BACKEND.get('firebase').authWithOAuthPopup("facebook", function (error, authData) {
+                        console.log(arguments);
+                        Visucam.reset();
+                    });
+                },
+                loginanonymous: function () {
+                    BACKEND.get('firebase').authAnonymously(function (error, authData) {
+                        console.log(arguments);
+                        Visucam.reset();
+                    });
+                },
+                logout: function () {
+                    BACKEND.get('firebase').unauth();
+                    this.transitionTo('index').then(function () {
+                        Visucam.reset();
+                    });
+                }
+            }
         });
 
         Visucam.IndexRoute = Ember.Route.extend({
@@ -121,32 +157,6 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
         });
 
         Visucam.ApplicationController = Ember.ObjectController.extend({
-            actions: {
-                logintwitter: function () {
-                    this.get('backend.firebase').authWithOAuthPopup("twitter", function (error, authData) {
-                        console.log(arguments);
-                    });
-                },
-                logingithub: function () {
-                    this.get('backend.firebase').authWithOAuthPopup("github", function (error, authData) {
-                        console.log(arguments);
-                    });
-                },
-                loginfacebook: function () {
-                    this.get('backend.firebase').authWithOAuthPopup("facebook", function (error, authData) {
-                        console.log(arguments);
-                    });
-                },
-                loginanonymous: function () {
-                    this.get('backend.firebase').authAnonymously(function (error, authData) {
-                        console.log(arguments);
-                    });
-                },
-                logout: function () {
-                    this.get('backend.firebase').unauth();
-                    this.transitionToRoute('index');
-                }
-            },
             backend: BACKEND,
             addShapes: function (shapeDefinitions) {
                 var shape = this.get('model').createShape(shapeDefinitions.join(' '));
