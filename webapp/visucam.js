@@ -14,7 +14,7 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
             updateAuth: function () {
                 var auth = this.get('firebase').getAuth();
                 this.set('auth', auth);
-                if (this.get('isConnected'))
+                if (auth && auth.provider != 'anonymous')
                     this.get('storageRoot').update({displayName: this.get('username')});
             },
             firebase: new Firebase('https://popping-fire-1042.firebaseio.com/'),
