@@ -30,6 +30,8 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
                             return this.get('auth.github.displayName');
                         case 'facebook' :
                             return this.get('auth.facebook.displayName');
+                        case 'anonymous' :
+                            return 'anonymous';
                     }
             }.property('isConnected', 'auth'),
             storageRoot: function () {
@@ -64,15 +66,24 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
                 this.resource('operation', {path: 'operations/:operation_id'});
             });
         });
+
         Visucam.IndexRoute = Ember.Route.extend({
             model: function () {
-                return this.store.find('job');
+                if (BACKEND.get('isConnected'))
+                    return this.store.find('job');
+                return null;
             }
         });
 
         Visucam.JobRoute = Ember.Route.extend({
             model: function (params) {
                 return this.store.find('job', params.job_id);
+            }
+        });
+        Visucam.JobIndexRoute = Ember.Route.extend({
+            setupController: function (controller, model) {
+                this._super.apply(this, arguments);
+                this.controllerFor('job').set('currentOperation', null);
             }
         });
 
@@ -91,6 +102,7 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
         });
 
         Visucam.IndexController = Ember.ObjectController.extend({
+            needs: ['application'],
             actions: {
                 createExample: function () {
                     var job = this.store.createRecord('job', {name: 'Cycloidal Drive Sample', toolDiameter: 2});
@@ -104,11 +116,11 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
                     job.saveAll();
                     this.transitionToRoute('job', job);
                 }
-            }
+            },
+            isConnected: Ember.computed.alias('controllers.application.backend.isConnected')
         });
 
         Visucam.ApplicationController = Ember.ObjectController.extend({
-            needs: ['job'],
             actions: {
                 logintwitter: function () {
                     this.get('backend.firebase').authWithOAuthPopup("twitter", function (error, authData) {
@@ -125,8 +137,14 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
                         console.log(arguments);
                     });
                 },
+                loginanonymous: function () {
+                    this.get('backend.firebase').authAnonymously(function (error, authData) {
+                        console.log(arguments);
+                    });
+                },
                 logout: function () {
                     this.get('backend.firebase').unauth();
+                    this.transitionToRoute('index');
                 }
             },
             backend: BACKEND,
@@ -136,7 +154,14 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
                 this.transitionToRoute('operation', contour);
             },
             authProviderIcon: function () {
-                return 'fa fa-' + this.get('backend.auth.provider');
+                var icons = {
+                    facebook: 'fa fa-facebook',
+                    twitter: 'fa fa-twitter',
+                    github: 'fa fa-github',
+                    google: 'fa fa-google-plus',
+                    anonymous: 'fa fa-eye-slash'
+                };
+                return icons[ this.get('backend.auth.provider')];
             }.property('backend.auth.provider'),
             authTitle: function () {
                 return 'Authenticated with ' + this.get('backend.auth.provider');
@@ -181,7 +206,7 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
             }.property()
         });
         Visucam.OperationListItemController = Ember.ObjectController.extend({
-            needs: ['operation'],
+            needs: ['job'],
             actions: {
                 delete: function () {
                     var operation = this.get('model');
@@ -200,8 +225,8 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
                 }
             },
             isCurrent: function () {
-                return this.get('controllers.operation.model') === this.get('model');
-            }.property('controllers.operation.model')
+                return this.get('controllers.job.currentOperation') === this.get('model');
+            }.property('controllers.job.currentOperation')
         });
 
         function collectVertices(toolpath, defaultZ) {

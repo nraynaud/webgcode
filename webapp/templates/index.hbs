@@ -1,12 +1,16 @@
 <div>
-    <button class="btn btn-default" {{action "createExample"}}>Create Example</button>
-    <ul>
-        {{#each model}}
-            <li>
-                {{#link-to "job" this}}{{name}}{{/link-to}}
-            </li>
-        {{else}}
-            No job yet.
-        {{/each}}
-    </ul>
+    {{#if isConnected}}
+        <button class="btn btn-default" {{action "createExample"}}>Create Example</button>
+        <ul>
+            {{#each model}}
+                <li>
+                    {{#link-to "job" this}}{{name}}{{/link-to}}
+                </li>
+            {{else}}
+                No job yet.
+            {{/each}}
+        </ul>
+    {{else}}
+        Welcome, you need to log in before anything else.
+    {{/if}}
 </div>
