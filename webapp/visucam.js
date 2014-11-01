@@ -1,14 +1,17 @@
 "use strict";
-require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/operations',
+require(['Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/operations',
         'libs/svg', 'cnc/svgImporter', 'cnc/cad/wabble', 'cnc/util', 'templates', 'libs/svg-import', 'bootstrap'],
-    function (Ember, DS, models, views, TreeDView, Operations, SVG, svgImporter, Wabble, util, templates, _) {
+    function (Ember, Firebase, DS, models, views, TreeDView, Operations, SVG, svgImporter, Wabble, util, templates, _) {
         Ember.TEMPLATES['application'] = Ember.TEMPLATES['visucamApp'];
 
         window.Visucam = Ember.Application.create({});
 
+        Firebase.INTERNAL.forceWebSockets();
         Visucam.Backend = Ember.Object.extend({
             init: function () {
-                this.get('firebase').onAuth(Ember.run.bind(this, this.updateAuth));
+                var firebase = new Firebase('https://popping-fire-1042.firebaseio.com/');
+                this.set('firebase', firebase);
+                firebase.onAuth(Ember.run.bind(this, this.updateAuth));
                 this.updateAuth();
             },
             updateAuth: function () {
@@ -18,7 +21,7 @@ require(['Ember', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDV
                     this.get('storageRoot').update({displayName: this.get('username')});
             },
             auth: null,
-            firebase: new Firebase('https://popping-fire-1042.firebaseio.com/'),
+            firebase: null,
             isConnected: function () {
                 return this.get('auth') != null;
             }.property('auth'),

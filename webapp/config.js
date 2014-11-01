@@ -13,7 +13,7 @@ requirejs.config({
         RSVP: 'libs/rsvp-latest',
         clipper: 'libs/clipper_unminified',
         canvg: 'libs/canvg/canvg',
-        bootstrap : 'libs/bootstrap/js/bootstrap.min'
+        bootstrap: 'libs/bootstrap/js/bootstrap.min'
     },
     shim: {
         jQuery: {exports: '$'},
@@ -25,6 +25,7 @@ requirejs.config({
         },
         canvg: {deps: ["libs/canvg/rgbcolor.js"], exports: "canvg"},
         EmberData: {deps: ["Ember"], exports: "DS"},
+        Firebase: {exports: 'Firebase'},
         EmberFire: {deps: ["EmberData", "Firebase"], exports: "DS"},
         THREE: {exports: 'THREE'},
         TWEEN: {exports: 'TWEEN'},
