@@ -1,10 +1,12 @@
 "use strict";
-require(['Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/operations',
+require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/operations',
         'libs/svg', 'cnc/svgImporter', 'cnc/cad/wabble', 'cnc/util', 'templates', 'libs/svg-import', 'bootstrap'],
-    function (Ember, Firebase, DS, models, views, TreeDView, Operations, SVG, svgImporter, Wabble, util, templates, _) {
+    function ($, Ember, Firebase, DS, models, views, TreeDView, Operations, SVG, svgImporter, Wabble, util, templates, _) {
         Ember.TEMPLATES['application'] = Ember.TEMPLATES['visucamApp'];
 
         window.Visucam = Ember.Application.create({});
+
+        var IN_CROME_APP = !!window.chrome.permissions;
 
         Firebase.INTERNAL.forceWebSockets();
         Visucam.Backend = Ember.Object.extend({
@@ -69,27 +71,37 @@ require(['Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cn
             this.resource('job', {path: 'jobs/:job_id'}, function () {
                 this.resource('operation', {path: 'operations/:operation_id'});
             });
+            this.resource('login', {path: 'login/:login_type'});
         });
 
         Visucam.ApplicationRoute = Ember.Route.extend({
             actions: {
                 logintwitter: function () {
-                    BACKEND.get('firebase').authWithOAuthPopup("twitter", function (error, authData) {
-                        console.log(arguments);
-                        Visucam.reset();
-                    });
+                    if (IN_CROME_APP)
+                        this.transitionTo('login', 'twitter');
+                    else
+                        BACKEND.get('firebase').authWithOAuthPopup("twitter", function (error, authData) {
+                            console.log(arguments);
+                            Visucam.reset();
+                        });
                 },
                 logingithub: function () {
-                    BACKEND.get('firebase').authWithOAuthPopup("github", function (error, authData) {
-                        console.log(arguments);
-                        Visucam.reset();
-                    });
+                    if (IN_CROME_APP)
+                        this.transitionTo('login', 'github');
+                    else
+                        BACKEND.get('firebase').authWithOAuthPopup("github", function (error, authData) {
+                            console.log(arguments);
+                            Visucam.reset();
+                        });
                 },
                 loginfacebook: function () {
-                    BACKEND.get('firebase').authWithOAuthPopup("facebook", function (error, authData) {
-                        console.log(arguments);
-                        Visucam.reset();
-                    });
+                    if (IN_CROME_APP)
+                        this.transitionTo('login', 'facebook');
+                    else
+                        BACKEND.get('firebase').authWithOAuthPopup("facebook", function (error, authData) {
+                            console.log(arguments);
+                            Visucam.reset();
+                        });
                 },
                 loginanonymous: function () {
                     BACKEND.get('firebase').authAnonymously(function (error, authData) {
@@ -113,7 +125,6 @@ require(['Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cn
                 return null;
             }
         });
-
         Visucam.JobRoute = Ember.Route.extend({
             model: function (params) {
                 return this.store.find('job', params.job_id);
@@ -137,6 +148,13 @@ require(['Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cn
             setupController: function (controller, model) {
                 this._super.apply(this, arguments);
                 this.controllerFor('job').set('currentOperation', model);
+            }
+        });
+
+        Visucam.LoginRoute = Ember.Route.extend({
+            model: function (params) {
+                if (['twitter', 'facebook', 'github'].indexOf(params.login_type) != -1)
+                    return params.login_type;
             }
         });
 
@@ -279,7 +297,42 @@ require(['Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cn
                 reader.readAsText(file);
             }
         });
-
+        Visucam.LoginView = Ember.View.extend({
+            tagName: 'webview',
+            classNames: ['loginFrame'],
+            attributeBindings: ['src', ''],
+            didInsertElement: function () {
+                this.$().on('loadstop', Ember.run.bind(this, this.loadstop));
+            },
+            src: function () {
+                return 'https://auth.firebase.com/v2/popping-fire-1042/auth/' + this.get('controller.model')
+                + '?v=js-0.0.0&transport=json&suppress_status_codes=true'
+            }.property('controller.model'),
+            loadstop: function () {
+                var _this = this;
+                var service = _this.get('controller.model');
+                var url = this.$().attr('src').split('?')[0];
+                if (url.indexOf('/auth/' + service + '/callback') != -1) {
+                    this.$()[0].executeScript({code: "document.getElementsByTagName('pre')[0].innerHTML;"}, function (res) {
+                        var authData = JSON.parse(res[0]);
+                        var payload;
+                        if (service == 'twitter')
+                            payload = {
+                                user_id: authData.twitter.id,
+                                oauth_token: authData.twitter.accessToken,
+                                oauth_token_secret: authData.twitter.accessTokenSecret};
+                        else
+                            payload = authData[service].accessToken;
+                        BACKEND.get('firebase').authWithOAuthToken(service, payload, function () {
+                            console.log(arguments);
+                            _this.get('controller').transitionToRoute('index').then(function () {
+                                Visucam.reset();
+                            });
+                        });
+                    });
+                }
+            }
+        });
         Visucam.ThreeDView = Ember.View.extend({
             classNames: ['ThreeDView'],
             didInsertElement: function () {

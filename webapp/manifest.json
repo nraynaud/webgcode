@@ -3,14 +3,17 @@
     "version": "0.1",
     "manifest_version": 2,
     "minimum_chrome_version": "23",
-    "permissions": ["usb", "storage", {
-        "usbDevices": [
-            {
-                "vendorId": 1155,
-                "productId": 65535
-            }
-        ]
-    }],
+    "permissions": ["usb", "storage", "webview",
+        "https://auth.firebase.com/",
+        {
+            "usbDevices": [
+                {
+                    "vendorId": 1155,
+                    "productId": 65535
+                }
+            ]
+        }
+    ],
     "app": {
         "background": {
             "scripts": ["background.js"]
