@@ -12,6 +12,7 @@
 		DDAA513C5E9C37176C306B4B /* worker.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5622C29CE547B513B64F /* worker.js */; };
 		DDAA513DEAB1F20CBF66578D /* geometry.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA594E8EF545C3CD0D0873 /* geometry.js */; };
 		DDAA514E0F08D607D249A22C /* TrackballControls.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C1795288A876C637870 /* TrackballControls.js */; };
+		DDAA51C7A0C9EE7238B6378F /* view.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5F0312AAB5E2ACBE6A7A /* view.js */; };
 		DDAA51E5DC9B01FFC2D2154E /* build-sandbox.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA52E5A7394BAD5D0799D3 /* build-sandbox.js */; };
 		DDAA51F326C3B7DBDBA134E1 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5048B1B1F3BE543B936C /* Makefile */; };
 		DDAA5219D9583110B392E36B /* elliptic.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA58FBD65B40549EC27922 /* elliptic.js */; };
@@ -247,6 +248,7 @@
 		DDAA5E5BE56C40B964FEF1B4 /* cam.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = cam.js; path = webapp/cnc/cam/cam.js; sourceTree = "<group>"; };
 		DDAA5E5FA216F4DFA9FD2521 /* index.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = index.hbs; sourceTree = "<group>"; };
 		DDAA5EE2867F451CC9A90B32 /* build-app.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "build-app.js"; sourceTree = "<group>"; };
+		DDAA5F0312AAB5E2ACBE6A7A /* view.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = view.js; sourceTree = "<group>"; };
 		DDAA5F0C5AECEECBCBD8D9E4 /* icon_fraise_128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_fraise_128.png; sourceTree = "<group>"; };
 		DDAA5F329B72AC25F4AAA0F4 /* toolpath.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = toolpath.js; sourceTree = "<group>"; };
 		DDAA5F376DB68FEFFF7FC133 /* CAM.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = CAM.html; path = webapp/CAM.html; sourceTree = "<group>"; };
@@ -424,6 +426,7 @@
 			isa = PBXGroup;
 			children = (
 				DDAA54B87A480F458CED26C3 /* models.js */,
+				DDAA5F0312AAB5E2ACBE6A7A /* view.js */,
 			);
 			path = app;
 			sourceTree = "<group>";
@@ -717,6 +720,7 @@
 				DDAA5627DFA975E3CFD1372C /* models.js in Sources */,
 				DDAA5F486F34FA71AFAF3B94 /* firebase.js in Sources */,
 				DDAA58D07301B2E75AC0C420 /* firebase-debug.js in Sources */,
+				DDAA51C7A0C9EE7238B6378F /* view.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

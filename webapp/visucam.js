@@ -1,10 +1,18 @@
 "use strict";
-require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/ui/threeDView', 'cnc/cam/operations',
-        'libs/svg', 'cnc/svgImporter', 'cnc/cad/wabble', 'cnc/util', 'templates', 'libs/svg-import', 'bootstrap'],
-    function ($, Ember, Firebase, DS, models, views, TreeDView, Operations, SVG, svgImporter, Wabble, util, templates, _) {
+require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/views', 'cnc/app/view',
+        'cnc/cam/operations', 'cnc/cad/wabble', 'cnc/util', 'templates', 'libs/svg-import', 'bootstrap'],
+    function ($, Ember, Firebase, DS, models, views, appViews, Operations, Wabble, util, templates, _) {
         Ember.TEMPLATES['application'] = Ember.TEMPLATES['visucamApp'];
 
         window.Visucam = Ember.Application.create({});
+        Visucam.NumberView = views.NumberField;
+        Visucam.PointTransform = models.PointTransform;
+        Visucam.Job = models.Job;
+        Visucam.Operation = models.Operation;
+        Visucam.Shape = models.Shape;
+        Visucam.ThreeDView = appViews.ThreeDView;
+        Visucam.LoginView = appViews.LoginView;
+        Visucam.ApplicationView = appViews.ApplicationView;
 
         var IN_CROME_APP = !!window.chrome.permissions;
 
@@ -58,12 +66,6 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
                 this.init();
             }.observes('backend.storageRoot')
         });
-        Visucam.NumberView = views.NumberField;
-
-        Visucam.PointTransform = models.PointTransform;
-        Visucam.Job = models.Job;
-        Visucam.Operation = models.Operation;
-        Visucam.Shape = models.Shape;
 
         var wabble = new Wabble(13, 15, 1, 1, 5, 8, 3);
 
@@ -80,42 +82,32 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
                     if (IN_CROME_APP)
                         this.transitionTo('login', 'twitter');
                     else
-                        BACKEND.get('firebase').authWithOAuthPopup("twitter", function (error, authData) {
-                            console.log(arguments);
-                            Visucam.reset();
-                        });
+                        BACKEND.get('firebase').authWithOAuthPopup("twitter", this.get('afterAuth'));
                 },
                 logingithub: function () {
                     if (IN_CROME_APP)
                         this.transitionTo('login', 'github');
                     else
-                        BACKEND.get('firebase').authWithOAuthPopup("github", function (error, authData) {
-                            console.log(arguments);
-                            Visucam.reset();
-                        });
+                        BACKEND.get('firebase').authWithOAuthPopup("github", this.get('afterAuth'));
                 },
                 loginfacebook: function () {
                     if (IN_CROME_APP)
                         this.transitionTo('login', 'facebook');
                     else
-                        BACKEND.get('firebase').authWithOAuthPopup("facebook", function (error, authData) {
-                            console.log(arguments);
-                            Visucam.reset();
-                        });
+                        BACKEND.get('firebase').authWithOAuthPopup("facebook", this.get('afterAuth'));
                 },
                 loginanonymous: function () {
-                    BACKEND.get('firebase').authAnonymously(function (error, authData) {
-                        console.log(arguments);
-                        Visucam.reset();
-                    });
+                    BACKEND.get('firebase').authAnonymously(this.get('afterAuth'));
                 },
                 logout: function () {
                     BACKEND.get('firebase').unauth();
-                    this.transitionTo('index').then(function () {
-                        Visucam.reset();
-                    });
+                    this.transitionTo('index').then(this.get('afterAuth'));
                 }
-            }
+            },
+            afterAuth: Ember.run.bind(this, function (error, authData) {
+                console.log(arguments);
+                Visucam.reset();
+            })
         });
 
         Visucam.IndexRoute = Ember.Route.extend({
@@ -156,8 +148,30 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
                 if (['twitter', 'facebook', 'github'].indexOf(params.login_type) != -1)
                     return params.login_type;
             }
-        });
 
+        });
+        Visucam.LoginController = Ember.ObjectController.extend({
+            actions: {
+                loginWithToken: function (authData) {
+                    var _this = this;
+                    var service = this.get('model');
+                    var payload;
+                    if (service == 'twitter')
+                        payload = {
+                            user_id: authData.twitter.id,
+                            oauth_token: authData.twitter.accessToken,
+                            oauth_token_secret: authData.twitter.accessTokenSecret};
+                    else
+                        payload = authData[service].accessToken;
+                    BACKEND.get('firebase').authWithOAuthToken(service, payload, function () {
+                        console.log(arguments);
+                        _this.transitionToRoute('index').then(function () {
+                            Visucam.reset();
+                        });
+                    });
+                }
+            }
+        });
         Visucam.IndexController = Ember.ObjectController.extend({
             needs: ['application'],
             actions: {
@@ -239,7 +253,7 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
         Visucam.OperationListItemController = Ember.ObjectController.extend({
             needs: ['job'],
             actions: {
-                delete: function () {
+                'delete': function () {
                     var operation = this.get('model');
                     if (this.get('isCurrent'))
                         this.transitionToRoute('job', operation.get('job'))
@@ -258,142 +272,5 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
             isCurrent: function () {
                 return this.get('controllers.job.currentOperation') === this.get('model');
             }.property('controllers.job.currentOperation')
-        });
-
-        function collectVertices(toolpath, defaultZ) {
-            var res = [];
-            toolpath.forEachPoint(function (x, y, z, _) {
-                res.push(x, y, z);
-            }, defaultZ);
-            return new Float32Array(res);
-        }
-
-        Visucam.ApplicationView = Ember.View.extend({
-            classNames: ['rootview'],
-            didInsertElement: function () {
-                var canvas = $('<canvas id="myCanvas" style="visibility: hidden; display:none">');
-                this.$().append(canvas);
-                this.set('importCanvas', canvas);
-            },
-            dragEnter: function (event) {
-                event.preventDefault();
-                event.dataTransfer.dropEffect = 'move';
-            },
-            dragOver: function (event) {
-                event.preventDefault();
-                event.dataTransfer.dropEffect = 'move';
-            },
-            drop: function (event) {
-                var _this = this;
-                event.preventDefault();
-                event.stopPropagation();
-                var files = event.dataTransfer.files;
-                var file = files[0];
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    var res = svgImporter(_this.get('importCanvas'), e.target.result);
-                    _this.get('controller').addShapes(res);
-                };
-                reader.readAsText(file);
-            }
-        });
-        Visucam.LoginView = Ember.View.extend({
-            tagName: 'webview',
-            classNames: ['loginFrame'],
-            attributeBindings: ['src', ''],
-            didInsertElement: function () {
-                this.$().on('loadstop', Ember.run.bind(this, this.loadstop));
-            },
-            src: function () {
-                return 'https://auth.firebase.com/v2/popping-fire-1042/auth/' + this.get('controller.model')
-                + '?v=js-0.0.0&transport=json&suppress_status_codes=true'
-            }.property('controller.model'),
-            loadstop: function () {
-                var _this = this;
-                var service = _this.get('controller.model');
-                var url = this.$().attr('src').split('?')[0];
-                if (url.indexOf('/auth/' + service + '/callback') != -1) {
-                    this.$()[0].executeScript({code: "document.getElementsByTagName('pre')[0].innerHTML;"}, function (res) {
-                        var authData = JSON.parse(res[0]);
-                        var payload;
-                        if (service == 'twitter')
-                            payload = {
-                                user_id: authData.twitter.id,
-                                oauth_token: authData.twitter.accessToken,
-                                oauth_token_secret: authData.twitter.accessTokenSecret};
-                        else
-                            payload = authData[service].accessToken;
-                        BACKEND.get('firebase').authWithOAuthToken(service, payload, function () {
-                            console.log(arguments);
-                            _this.get('controller').transitionToRoute('index').then(function () {
-                                Visucam.reset();
-                            });
-                        });
-                    });
-                }
-            }
-        });
-        Visucam.ThreeDView = Ember.View.extend({
-            classNames: ['ThreeDView'],
-            didInsertElement: function () {
-                var threeDView = new TreeDView.ThreeDView(this.$());
-                threeDView.normalToolpathNode.material = new THREE.LineBasicMaterial({linewidth: 1.2, color: 0x6688aa});
-                threeDView.rapidMaterial = new THREE.LineBasicMaterial({linewidth: 1.2, color: 0xdd4c2f, depthWrite: false});
-                threeDView.outlineMaterial = new THREE.LineBasicMaterial({linewidth: 1.2, color: 0x000000});
-                threeDView.highlightMaterial = new THREE.LineBasicMaterial({depthWrite: false, overdraw: true, linewidth: 6,
-                    color: 0xdd4c2f, opacity: 0.5, transparent: true});
-                this.set('nativeComponent', threeDView);
-                this.set('travelDisplay', threeDView.createDrawingNode(threeDView.rapidMaterial));
-                this.set('outlinesDisplay', threeDView.createDrawingNode(threeDView.outlineMaterial));
-                this.set('highlightDisplay', threeDView.createOverlayNode(threeDView.highlightMaterial));
-
-                this.synchronizeCurrentOperation();
-                this.synchronizeJob();
-                this.synchronizeOutlines();
-            },
-            synchronizeCurrentOperationOutline: function () {
-                var highlightDisplay = this.get('highlightDisplay');
-                highlightDisplay.clear();
-                var operation = this.get('controller.currentOperation');
-                if (operation)
-                    highlightDisplay.addPolyLines(operation.get('outline.polyline'));
-            }.observes('controller.currentOperation.outline.polyline'),
-            synchronizeCurrentOperation: function () {
-                var threeDView = this.get('nativeComponent');
-                threeDView.clearToolpath();
-                var operation = this.get('controller.currentOperation');
-                if (operation) {
-                    var toolpath2 = operation.get('toolpath');
-                    if (toolpath2)
-                        toolpath2.forEach(function (toolpath) {
-                            threeDView.normalToolpathNode.addCollated(collectVertices(toolpath, operation.get('contourZ')));
-                        });
-                }
-                threeDView.reRender();
-            }.observes('controller.currentOperation', 'controller.currentOperation.toolpath.@each', 'controller.currentOperation.toolpath'),
-            synchronizeJob: function () {
-                var threeDView = this.get('nativeComponent');
-                var travelDisplay = this.get('travelDisplay');
-                travelDisplay.clear();
-                var travelMoves = this.get('controller.transitionTravels');
-                travelDisplay.addPolyLines(travelMoves.map(function (move) {
-                    return move.path;
-                }));
-                threeDView.reRender();
-            }.observes('controller.transitionTravels'),
-            synchronizeOutlines: function () {
-                var outlinesDisplay = this.get('outlinesDisplay');
-                outlinesDisplay.clear();
-                this.get('controller.shapes').forEach(function (shape) {
-                    outlinesDisplay.addPolyLines(shape.get('polyline'));
-                });
-                this.get('nativeComponent').zoomExtent();
-            }.observes('controller.shapes.@each.polyline'),
-            synchronizeToolPosition: function () {
-                var threeDView = this.get('nativeComponent');
-                var position = this.get('controller.toolPosition');
-                threeDView.setToolVisibility(true);
-                threeDView.setToolPosition(position.x, position.y, position.z);
-            }.observes('controller.toolPosition')
         });
     });
