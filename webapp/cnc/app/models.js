@@ -43,9 +43,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 });
             }.observesBefore('type'),
             computeToolpathObeserved: function () {
-                if (this.get('outline.definition') == null)
-                    return;
-                if (this.get('type'))
+                if (this.get('outline.definition') && this.get('type'))
                     Ember.run.debounce(this, this.computeToolpath, 100);
             }.observes('type', 'outline.polyline', 'job.toolDiameter', 'job.safetyZ').on('init'),
             computeToolpath: function () {
