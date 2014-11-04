@@ -32,21 +32,25 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 var properties = Operations[this.get('type')].properties;
                 var _this = this;
                 Object.keys(properties).forEach(function (key) {
-                    _this.addObserver(key, _this, _this.computeToolpath)
+                    _this.addObserver(key, _this, _this.computeToolpathObeserved)
                 });
             }.observes('type').on('didLoad'),
             uninstallObservers: function () {
                 var properties = Operations[this.get('type')].properties;
                 var _this = this;
                 Object.keys(properties).forEach(function (key) {
-                    _this.removeObserver(key, _this, _this.computeToolpath)
+                    _this.removeObserver(key, _this, _this.computeToolpathObeserved)
                 });
             }.observesBefore('type'),
-            computeToolpath: function () {
+            computeToolpathObeserved: function () {
                 if (this.get('outline.definition') == null)
                     return;
+                Ember.run.debounce(this, this.computeToolpath, 100);
+            }.observes('type', 'outline.polyline', 'job.toolDiameter', 'job.safetyZ').on('init'),
+            computeToolpath: function () {
+                console.log('computeToolpath');
                 Operations[this.get('type')]['computeToolpath'](this);
-            }.observes('type', 'outline.polyline', 'job.toolDiameter', 'job.safetyZ').on('init')
+            }
         };
 
         //add all the attributes from all the operations types
