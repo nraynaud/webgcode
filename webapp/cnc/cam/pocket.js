@@ -2,6 +2,7 @@
 
 define(['RSVP', 'clipper', 'cnc/cam/cam', 'require'], function (RSVP, clipper, cam, require) {
 
+    console.log('pocket');
     function lastItem(array) {
         return array[array.length - 1];
     }

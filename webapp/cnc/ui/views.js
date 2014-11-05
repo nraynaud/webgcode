@@ -5,13 +5,18 @@ define(['Ember'], function (Ember) {
         NumberField: Ember.TextField.extend({
             type: 'number',
             attributeBindings: ['min', 'max', 'step'],
-            numericValue: function (key, v) {
-                if (arguments.length === 1) {
-                    var val = parseFloat(this.get('value'));
-                    return isNaN(val) ? null : val;
-                } else
-                    this.set('value', v + '');
-            }.property('value')
+            valueChanged: function () {
+                var previousNumericValue = this.get('numericValue');
+                var newNumericValue = parseFloat(this.get('value'));
+                if (newNumericValue != previousNumericValue)
+                    this.set('numericValue', newNumericValue);
+            }.observes('value').on('init'),
+            numericValueChanged: function () {
+                var newNumericValue = this.get('numericValue');
+                var previousValue = parseFloat(this.get('value'));
+                if (previousValue != newNumericValue && isNaN(previousValue))
+                    this.set('value', newNumericValue + '');
+            }.observes('numericValue').on('init')
         })
     };
 });

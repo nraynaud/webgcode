@@ -1,5 +1,5 @@
 "use strict";
-define(['EmberData', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (DS, cam, tp, pocket) {
+define(['EmberData', 'RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (DS, RSVP, cam, tp, pocket) {
     var attr = DS.attr;
     return {
         'SimpleEngravingOperation': {

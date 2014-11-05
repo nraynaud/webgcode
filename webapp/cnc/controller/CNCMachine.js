@@ -1,5 +1,5 @@
 "use strict";
-define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/runner', 'cnc/util' ], function (rsvp, $, Ember, Connection, Runner, util) {
+define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/runner', 'cnc/util' ], function (RSVP, $, Ember, Connection, Runner, util) {
     var CONTROL_COMMANDS = {REQUEST_POSITION: 0, REQUEST_PARAMETERS: 1, REQUEST_STATE: 2, REQUEST_TOGGLE_MANUAL_STATE: 3,
         REQUEST_DEFINE_AXIS_POSITION: 4};
     var EVENTS = {PROGRAM_END: 1, PROGRAM_START: 2, MOVED: 3, ENTER_MANUAL_MODE: 4, EXIT_MANUAL_MODE: 5};
@@ -130,7 +130,7 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
                 });
         },
         transmitProgram: function () {
-            var deferred = rsvp.defer();
+            var deferred = RSVP.defer();
             $('#webView')[0].contentWindow.postMessage({type: 'gimme program', parameters: this.getParameters()}, '*',
                 [this.get('runner').getCodeChannel(deferred)]);
             return deferred.promise;

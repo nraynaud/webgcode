@@ -1,9 +1,9 @@
 "use strict";
-define(['RSVP', 'jQuery', 'Ember'], function (rsvp, $, Ember) {
+define(['RSVP', 'jQuery', 'Ember'], function (RSVP, $, Ember) {
     var DEVICE_INFO = {"vendorId": 0x0483, "productId": 0xFFFF};
 
     function emberizePromisize(usbFunction, firstArgs) {
-        return new rsvp.Promise(function (resolve, reject) {
+        return new RSVP.Promise(function (resolve, reject) {
             function callback() {
                 if (chrome.runtime.lastError)
                     reject(chrome.runtime.lastError, arguments, arguments[0].resultCode);

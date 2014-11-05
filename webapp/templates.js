@@ -189,10 +189,10 @@ Ember.TEMPLATES["controllerPanel"] = Ember.Handlebars.template(function anonymou
         data.buffer.push("\n                                ");
         data.buffer.push(escapeExpression((helper = helpers['edit-axis'] || (depth0 && depth0['edit-axis']), options = {hash: {
             'size': ("6"),
-            'value': ("bufferedPosition"),
+            'numericValue': ("bufferedPosition"),
             'insert-newline': ("acceptChanges"),
             'escape-press': ("cancelChanges")
-        }, hashTypes: {'size': "STRING", 'value': "ID", 'insert-newline': "STRING", 'escape-press': "STRING"}, hashContexts: {'size': depth0, 'value': depth0, 'insert-newline': depth0, 'escape-press': depth0}, contexts: [], types: [], data: data}, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "edit-axis", options))));
+        }, hashTypes: {'size': "STRING", 'numericValue': "ID", 'insert-newline': "STRING", 'escape-press': "STRING"}, hashContexts: {'size': depth0, 'numericValue': depth0, 'insert-newline': depth0, 'escape-press': depth0}, contexts: [], types: [], data: data}, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "edit-axis", options))));
         data.buffer.push("\n                            ");
         return buffer;
     }
@@ -412,46 +412,46 @@ Ember.TEMPLATES["job"] = Ember.Handlebars.template(function anonymous(Handlebars
         'value': ("name")
     }, hashTypes: {'value': "ID"}, hashContexts: {'value': depth0}, contexts: [], types: [], data: data}, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
     data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th>Safety Z:</th>\n            <td>");
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("safetyZ")
-    }, hashTypes: {'value': "ID"}, hashContexts: {'value': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash: {
+        'numericValue': ("safetyZ")
+    }, hashTypes: {'numericValue': "ID"}, hashContexts: {'numericValue': depth0}, contexts: [depth0], types: ["ID"], data: data})));
     data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th title=\"in mm\">Tool Diameter:</th>\n            <td>");
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("toolDiameter"),
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash: {
+        'numericValue': ("toolDiameter"),
         'min': ("0.001"),
         'step': ("0.001")
-    }, hashTypes: {'value': "ID", 'min': "STRING", 'step': "STRING"}, hashContexts: {'value': depth0, 'min': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    }, hashTypes: {'numericValue': "ID", 'min': "STRING", 'step': "STRING"}, hashContexts: {'numericValue': depth0, 'min': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
     data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th>Tool Flutes:</th>\n            <td>");
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("toolFlutes"),
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash: {
+        'numericValue': ("toolFlutes"),
         'min': (1),
         'step': (1)
-    }, hashTypes: {'value': "ID", 'min': "INTEGER", 'step': "INTEGER"}, hashContexts: {'value': depth0, 'min': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    }, hashTypes: {'numericValue': "ID", 'min': "INTEGER", 'step': "INTEGER"}, hashContexts: {'numericValue': depth0, 'min': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
     data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th title=\"in m/min\">Surface Speed:</th>\n            <td>");
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("surfaceSpeed"),
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash: {
+        'numericValue': ("surfaceSpeed"),
         'min': (1),
         'max': (1000)
-    }, hashTypes: {'value': "ID", 'min': "INTEGER", 'max': "INTEGER"}, hashContexts: {'value': depth0, 'min': depth0, 'max': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    }, hashTypes: {'numericValue': "ID", 'min': "INTEGER", 'max': "INTEGER"}, hashContexts: {'numericValue': depth0, 'min': depth0, 'max': depth0}, contexts: [depth0], types: ["ID"], data: data})));
     data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th title=\"in mm\">Chip Load:</th>\n            <td>");
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("chipLoad"),
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash: {
+        'numericValue': ("chipLoad"),
         'min': ("0.001"),
         'step': ("0.001")
-    }, hashTypes: {'value': "ID", 'min': "STRING", 'step': "STRING"}, hashContexts: {'value': depth0, 'min': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    }, hashTypes: {'numericValue': "ID", 'min': "STRING", 'step': "STRING"}, hashContexts: {'numericValue': depth0, 'min': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
     data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th title=\"in RPM\">Speed:</th>\n            <td>");
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("speed"),
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash: {
+        'numericValue': ("speed"),
         'min': (1),
         'step': (10)
-    }, hashTypes: {'value': "ID", 'min': "INTEGER", 'step': "INTEGER"}, hashContexts: {'value': depth0, 'min': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    }, hashTypes: {'numericValue': "ID", 'min': "INTEGER", 'step': "INTEGER"}, hashContexts: {'numericValue': depth0, 'min': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
     data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th title=\"in mm/min\">Feedrate:</th>\n            <td>");
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("feedrate"),
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash: {
+        'numericValue': ("feedrate"),
         'min': (1),
         'max': (3000),
         'step': (10)
-    }, hashTypes: {'value': "ID", 'min': "INTEGER", 'max': "INTEGER", 'step': "INTEGER"}, hashContexts: {'value': depth0, 'min': depth0, 'max': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    }, hashTypes: {'numericValue': "ID", 'min': "INTEGER", 'max': "INTEGER", 'step': "INTEGER"}, hashContexts: {'numericValue': depth0, 'min': depth0, 'max': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
     data.buffer.push("</td>\n        </tr>\n        </tbody>\n    </table>\n    <ul class=\"list-group\">\n        ");
     stack1 = helpers.each.call(depth0, "operations", {hash: {
         'itemController': ("operationListItem")
@@ -535,21 +535,21 @@ Ember.TEMPLATES["operationPocket"] = Ember.Handlebars.template(function anonymou
 
 
     data.buffer.push("<tr>\n    <th title=\"in mm\">Bottom Z:</th>\n    <td>");
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("pocket_depth")
-    }, hashTypes: {'value': "ID"}, hashContexts: {'value': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash: {
+        'numericValue': ("pocket_depth")
+    }, hashTypes: {'numericValue': "ID"}, hashContexts: {'numericValue': depth0}, contexts: [depth0], types: ["ID"], data: data})));
     data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"Engagement in %\">Radial Engagement:</th>\n    <td>");
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("pocket_engagement"),
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash: {
+        'numericValue': ("pocket_engagement"),
         'min': ("0"),
         'increment': ("1"),
         'max': ("100")
-    }, hashTypes: {'value': "ID", 'min': "STRING", 'increment': "STRING", 'max': "STRING"}, hashContexts: {'value': depth0, 'min': depth0, 'increment': depth0, 'max': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    }, hashTypes: {'numericValue': "ID", 'min': "STRING", 'increment': "STRING", 'max': "STRING"}, hashContexts: {'numericValue': depth0, 'min': depth0, 'increment': depth0, 'max': depth0}, contexts: [depth0], types: ["ID"], data: data})));
     data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"in mm\">Leave Stock (lateral):</th>\n    <td>");
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("pocket_leaveStock"),
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash: {
+        'numericValue': ("pocket_leaveStock"),
         'min': ("0")
-    }, hashTypes: {'value': "ID", 'min': "STRING"}, hashContexts: {'value': depth0, 'min': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    }, hashTypes: {'numericValue': "ID", 'min': "STRING"}, hashContexts: {'numericValue': depth0, 'min': depth0}, contexts: [depth0], types: ["ID"], data: data})));
     data.buffer.push("</td>\n</tr>");
     return buffer;
 
@@ -572,24 +572,24 @@ Ember.TEMPLATES["rampingContour"] = Ember.Handlebars.template(function anonymous
         'checked': ("contour_climbMilling")
     }, hashTypes: {'type': "STRING", 'checked': "ID"}, hashContexts: {'type': depth0, 'checked': depth0}, contexts: [], types: [], data: data}, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
     data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"How far the tool should stay away from the line in X-Y plane\">Leave Stock:</th>\n    <td>");
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("contour_leaveStock"),
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash: {
+        'numericValue': ("contour_leaveStock"),
         'min': ("0")
-    }, hashTypes: {'value': "ID", 'min': "STRING"}, hashContexts: {'value': depth0, 'min': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    }, hashTypes: {'numericValue': "ID", 'min': "STRING"}, hashContexts: {'numericValue': depth0, 'min': depth0}, contexts: [depth0], types: ["ID"], data: data})));
     data.buffer.push("</td>\n</tr>\n<tr>\n    <th>Start Z:</th>\n    <td>");
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("ramping_startZ")
-    }, hashTypes: {'value': "ID"}, hashContexts: {'value': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash: {
+        'numericValue': ("ramping_startZ")
+    }, hashTypes: {'numericValue': "ID"}, hashContexts: {'numericValue': depth0}, contexts: [depth0], types: ["ID"], data: data})));
     data.buffer.push("</td>\n</tr>\n<tr>\n    <th>Stop Z:</th>\n    <td>");
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("ramping_stopZ")
-    }, hashTypes: {'value': "ID"}, hashContexts: {'value': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash: {
+        'numericValue': ("ramping_stopZ")
+    }, hashTypes: {'numericValue': "ID"}, hashContexts: {'numericValue': depth0}, contexts: [depth0], types: ["ID"], data: data})));
     data.buffer.push("</td>\n</tr>\n<tr>\n    <th># of turns:</th>\n    <td>");
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("ramping_turns"),
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash: {
+        'numericValue': ("ramping_turns"),
         'min': ("1"),
         'step': ("1")
-    }, hashTypes: {'value': "ID", 'min': "STRING", 'step': "STRING"}, hashContexts: {'value': depth0, 'min': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    }, hashTypes: {'numericValue': "ID", 'min': "STRING", 'step': "STRING"}, hashContexts: {'numericValue': depth0, 'min': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
     data.buffer.push("</td>\n</tr>\n");
     return buffer;
 
@@ -612,14 +612,14 @@ Ember.TEMPLATES["simpleContour"] = Ember.Handlebars.template(function anonymous(
         'checked': ("contour_climbMilling")
     }, hashTypes: {'type': "STRING", 'checked': "ID"}, hashContexts: {'type': depth0, 'checked': depth0}, contexts: [], types: [], data: data}, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
     data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"How far the tool should stay away from the line in X-Y plane\">Leave Stock:</th>\n    <td>");
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("contour_leaveStock"),
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash: {
+        'numericValue': ("contour_leaveStock"),
         'min': ("0")
-    }, hashTypes: {'value': "ID", 'min': "STRING"}, hashContexts: {'value': depth0, 'min': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    }, hashTypes: {'numericValue': "ID", 'min': "STRING"}, hashContexts: {'numericValue': depth0, 'min': depth0}, contexts: [depth0], types: ["ID"], data: data})));
     data.buffer.push("</td>\n</tr>\n<tr>\n    <th>Contour Z:</th>\n    <td>");
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("simple_contourZ")
-    }, hashTypes: {'value': "ID"}, hashContexts: {'value': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash: {
+        'numericValue': ("simple_contourZ")
+    }, hashTypes: {'numericValue': "ID"}, hashContexts: {'numericValue': depth0}, contexts: [depth0], types: ["ID"], data: data})));
     data.buffer.push("</td>\n</tr>\n");
     return buffer;
 
@@ -632,9 +632,9 @@ Ember.TEMPLATES["simpleEngraving"] = Ember.Handlebars.template(function anonymou
 
 
     data.buffer.push("<tr>\n    <th>engraving Z:</th>\n    <td>");
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberView", {hash: {
-        'value': ("engraving_Z")
-    }, hashTypes: {'value': "ID"}, hashContexts: {'value': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash: {
+        'numericValue': ("engraving_Z")
+    }, hashTypes: {'numericValue': "ID"}, hashContexts: {'numericValue': depth0}, contexts: [depth0], types: ["ID"], data: data})));
     data.buffer.push("</td>\n</tr>\n");
     return buffer;
 

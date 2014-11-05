@@ -1,6 +1,6 @@
 "use strict";
-define(['libs/rsvp-latest', 'cnc/cam', 'clipper', 'libs/opentype', 'cnc/text', 'cnc/pocket'],
-    function (rsvp, cam, clipper, opentype, text, pocket) {
+define(['RSVP', 'cnc/cam', 'clipper', 'libs/opentype', 'cnc/text', 'cnc/pocket'],
+    function (RSVP, cam, clipper, opentype, text, pocket) {
         RSVP.on('error', function (reason) {
             console.log(reason);
         });
@@ -50,9 +50,9 @@ define(['libs/rsvp-latest', 'cnc/cam', 'clipper', 'libs/opentype', 'cnc/text', '
                     });
                 });
             }).catch(function (reason) {
-                    console.log('error', reason.stack);
-                    throw reason;
-                });
+                console.log('error', reason.stack);
+                throw reason;
+            });
             return true;
         }
 

@@ -5,7 +5,7 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
         Ember.TEMPLATES['application'] = Ember.TEMPLATES['visucamApp'];
 
         window.Visucam = Ember.Application.create({});
-        Visucam.NumberView = views.NumberField;
+        Visucam.NumberField = views.NumberField;
         Visucam.PointTransform = models.PointTransform;
         Visucam.Job = models.Job;
         Visucam.Operation = models.Operation;

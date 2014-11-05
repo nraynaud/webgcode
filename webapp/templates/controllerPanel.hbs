@@ -25,7 +25,7 @@
                         <th>{{name}}:</th>
                         <td class="posAxis">
                             {{#if isEditing}}
-                                {{edit-axis size="6" value=bufferedPosition
+                                {{edit-axis size="6" numericValue=bufferedPosition
                                 insert-newline="acceptChanges" escape-press="cancelChanges"}}
                             {{else}}
                                 <span class="pos">{{formattedPosition}}</span>
