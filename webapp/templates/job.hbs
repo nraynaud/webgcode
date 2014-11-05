@@ -1,4 +1,4 @@
-<div class="job">
+<div class="jobDetail">
     <button class="btn btn-default" {{action save}} {{bind-attr disabled=saveDisabled}}>Save</button>
     <table class="form">
         <tbody>
@@ -42,7 +42,7 @@
                 <a class="delete badge" {{action "delete"}} title="Delete Operation"><i class="fa fa-times"></i></a>
             </li>
         {{else}}
-            No operation yet.
+            No operation yet. Try dropping a SVG file on the window.
         {{/each}}
     </ul>
 </div>

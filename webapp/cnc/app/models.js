@@ -24,6 +24,10 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
         });
 
         var operationDefinition = {
+            init: function () {
+                this._super.apply(this, arguments);
+                console.log('operation');
+            },
             name: attr('string', {defaultValue: 'New Operation'}),
             type: attr('string', {defaultValue: 'SimpleEngravingOperation'}),
             outline: DS.belongsTo('shape', {async: true}),
@@ -82,8 +86,8 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             feedrate: attr('number', {defaultValue: 100}),
             speed: attr('number', {defaultValue: 24000}),
             startPoint: attr('point', {defaultValue: new util.Point(0, 0, 10)}),
-            shapes: DS.hasMany('shape', {embedded: true}),
-            operations: DS.hasMany('operation', {inverse: 'job', embedded: true}),
+            shapes: DS.hasMany('shape', {embedded: true, async: true}),
+            operations: DS.hasMany('operation', {inverse: 'job', embedded: true, async: true}),
             deleteOperation: function (operation) {
                 this.get('operations').removeObject(operation);
                 operation.destroyRecord();

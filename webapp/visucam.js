@@ -10,9 +10,10 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
         Visucam.Job = models.Job;
         Visucam.Operation = models.Operation;
         Visucam.Shape = models.Shape;
+        Visucam.ApplicationView = appViews.ApplicationView;
+        Visucam.JobView = appViews.JobView;
         Visucam.ThreeDView = appViews.ThreeDView;
         Visucam.LoginView = appViews.LoginView;
-        Visucam.ApplicationView = appViews.ApplicationView;
 
         var IN_CROME_APP = !!window.chrome.permissions;
 
@@ -186,6 +187,11 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
                     job.createOperation({name: 'Output Pins', type: 'RampingContourOperation', outline: job.createShape(wabble.getOutputPinsShape()), contour_inside: false});
                     job.saveAll();
                     this.transitionToRoute('job', job);
+                },
+                createJob: function () {
+                    var job = this.store.createRecord('job');
+                    job.saveAll();
+                    this.transitionToRoute('job', job);
                 }
             },
             isConnected: Ember.computed.alias('controllers.application.backend.isConnected')
@@ -193,11 +199,6 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
 
         Visucam.ApplicationController = Ember.ObjectController.extend({
             backend: BACKEND,
-            addShapes: function (shapeDefinitions) {
-                var shape = this.get('model').createShape(shapeDefinitions.join(' '));
-                var contour = this.get('model').createOperation({outline: shape});
-                this.transitionToRoute('operation', contour);
-            },
             authProviderIcon: function () {
                 var icons = {
                     facebook: 'fa fa-facebook',
@@ -231,6 +232,11 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
             },
             toolPosition: null,
             currentOperation: null,
+            addShapes: function (shapeDefinitions) {
+                var shape = this.get('model').createShape(shapeDefinitions.join(' '));
+                var contour = this.get('model').createOperation({outline: shape});
+                this.transitionToRoute('operation', contour);
+            },
             actions: {
                 save: function () {
                     this.get('model').saveAll();

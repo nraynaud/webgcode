@@ -305,7 +305,9 @@ Ember.TEMPLATES["index"] = Ember.Handlebars.template(function anonymous(Handleba
         var buffer = '', stack1;
         data.buffer.push("\n        <button class=\"btn btn-default\" ");
         data.buffer.push(escapeExpression(helpers.action.call(depth0, "createExample", {hash: {}, hashTypes: {}, hashContexts: {}, contexts: [depth0], types: ["STRING"], data: data})));
-        data.buffer.push(">Create Example</button>\n        <ul>\n            ");
+        data.buffer.push(">Create Example</button>\n        <button class=\"btn btn-default\" ");
+        data.buffer.push(escapeExpression(helpers.action.call(depth0, "createJob", {hash: {}, hashTypes: {}, hashContexts: {}, contexts: [depth0], types: ["STRING"], data: data})));
+        data.buffer.push(">Create New Job</button>\n        <ul>\n            ");
         stack1 = helpers.each.call(depth0, "model", {hash: {}, hashTypes: {}, hashContexts: {}, inverse: self.program(5, program5, data), fn: self.program(2, program2, data), contexts: [depth0], types: ["ID"], data: data});
         if (stack1 || stack1 === 0) {
             data.buffer.push(stack1);
@@ -398,10 +400,10 @@ Ember.TEMPLATES["job"] = Ember.Handlebars.template(function anonymous(Handlebars
     function program4(depth0, data) {
 
 
-        data.buffer.push("\n            No operation yet.\n        ");
+        data.buffer.push("\n            No operation yet. Try dropping a SVG file on the window.\n        ");
     }
 
-    data.buffer.push("<div class=\"job\">\n    <button class=\"btn btn-default\" ");
+    data.buffer.push("<div class=\"jobDetail\">\n    <button class=\"btn btn-default\" ");
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "save", {hash: {}, hashTypes: {}, hashContexts: {}, contexts: [depth0], types: ["ID"], data: data})));
     data.buffer.push(" ");
     data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash: {
@@ -750,9 +752,15 @@ Ember.TEMPLATES["visucamApp"] = Ember.Handlebars.template(function anonymous(Han
     this.compilerInfo = [4, '>= 1.0.0'];
     helpers = this.merge(helpers, Ember.Handlebars.helpers);
     data = data || {};
-    var buffer = '', stack1, escapeExpression = this.escapeExpression, self = this;
+    var buffer = '', stack1, helper, options, escapeExpression = this.escapeExpression, self = this, helperMissing = helpers.helperMissing;
 
     function program1(depth0, data) {
+
+
+        data.buffer.push("My Jobs");
+    }
+
+    function program3(depth0, data) {
 
         var buffer = '', stack1;
         data.buffer.push("\n            <div class=\"dropdown\">\n                <button class=\"btn btn-default dropdown-toggle\" type=\"button\" id=\"dropdownMenu1\" data-toggle=\"dropdown\"\n                    ");
@@ -774,7 +782,7 @@ Ember.TEMPLATES["visucamApp"] = Ember.Handlebars.template(function anonymous(Han
         return buffer;
     }
 
-    function program3(depth0, data) {
+    function program5(depth0, data) {
 
         var buffer = '';
         data.buffer.push("\n            <div class=\"dropdown\">\n                <button class=\"btn btn-default dropdown-toggle\" type=\"button\" id=\"dropdownMenu1\" data-toggle=\"dropdown\">\n                    login\n                    <span class=\"caret\"></span>\n                </button>\n                <ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">\n                    <li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" href=\"#\" ");
@@ -789,8 +797,13 @@ Ember.TEMPLATES["visucamApp"] = Ember.Handlebars.template(function anonymous(Han
         return buffer;
     }
 
-    data.buffer.push("<div class=\"header\">\n    <div class=\"topMenu\"></div>\n    <div class=\"identity\">\n        ");
-    stack1 = helpers['if'].call(depth0, "backend.isConnected", {hash: {}, hashTypes: {}, hashContexts: {}, inverse: self.program(3, program3, data), fn: self.program(1, program1, data), contexts: [depth0], types: ["ID"], data: data});
+    data.buffer.push("<div class=\"header\">\n    <div class=\"topMenu\">");
+    stack1 = (helper = helpers['link-to'] || (depth0 && depth0['link-to']), options = {hash: {}, hashTypes: {}, hashContexts: {}, inverse: self.noop, fn: self.program(1, program1, data), contexts: [depth0], types: ["STRING"], data: data}, helper ? helper.call(depth0, "index", options) : helperMissing.call(depth0, "link-to", "index", options));
+    if (stack1 || stack1 === 0) {
+        data.buffer.push(stack1);
+    }
+    data.buffer.push("</div>\n    <div class=\"identity\">\n        ");
+    stack1 = helpers['if'].call(depth0, "backend.isConnected", {hash: {}, hashTypes: {}, hashContexts: {}, inverse: self.program(5, program5, data), fn: self.program(3, program3, data), contexts: [depth0], types: ["ID"], data: data});
     if (stack1 || stack1 === 0) {
         data.buffer.push(stack1);
     }

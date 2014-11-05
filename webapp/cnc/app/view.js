@@ -2,7 +2,10 @@
 define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView'],
     function (Ember, svgImporter, TreeDView) {
         var ApplicationView = Ember.View.extend({
-            classNames: ['rootview'],
+            classNames: ['rootview']
+        });
+        var JobView = Ember.View.extend({
+            classNames: ['job'],
             didInsertElement: function () {
                 var canvas = $('<canvas id="myCanvas" style="visibility: hidden; display:none">');
                 this.$().append(canvas);
@@ -131,6 +134,7 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView'],
         return {
             ThreeDView: ThreeDView,
             LoginView: LoginView,
-            ApplicationView: ApplicationView
+            ApplicationView: ApplicationView,
+            JobView: JobView
         };
     });
