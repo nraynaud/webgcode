@@ -94,14 +94,13 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             this.renderer.sortObjects = false;
             this.renderer.setSize(width, height);
             this.renderer.autoClear = false;
-            function resize() {
+            this.resizeHandler = function () {
                 _this.camera.aspect = $container.width() / $container.height();
                 _this.camera.updateProjectionMatrix();
                 _this.renderer.setSize($container.width(), $container.height());
                 _this.reRender();
-            }
-
-            $(window).resize(resize);
+            };
+            $(window).resize(this.resizeHandler);
             $container.append(this.renderer.domElement);
             this.scene.add(this.camera);
             this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -239,6 +238,10 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                     this.renderRequested = true;
                     requestAnimationFrame(this.requestAnimationFrameCallback);
                 }
+            },
+            destroy: function () {
+                $(window).off('resize', $(window), this.resizeHandler);
+                this.renderer.domElement.remove();
             }
         };
         return {ThreeDView: ThreeDView};
