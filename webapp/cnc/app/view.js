@@ -7,9 +7,6 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView'],
         var JobView = Ember.View.extend({
             classNames: ['job'],
             didInsertElement: function () {
-                var canvas = $('<canvas id="myCanvas" style="visibility: hidden; display:none">');
-                this.$().append(canvas);
-                this.set('importCanvas', canvas);
             },
             dragEnter: function (event) {
                 event.preventDefault();
@@ -27,8 +24,14 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView'],
                 var file = files[0];
                 var reader = new FileReader();
                 reader.onload = function (e) {
-                    var res = svgImporter(_this.get('importCanvas'), e.target.result);
-                    _this.get('controller').addShapes(res);
+                    var canvas = $('<canvas id="myCanvas" style="visibility: hidden; display:none">');
+                    _this.$().append(canvas);
+                    try {
+                        var res = svgImporter(canvas, e.target.result);
+                        _this.get('controller').addShapes(res);
+                    } finally {
+                        canvas.remove();
+                    }
                 };
                 reader.readAsText(file);
             }
@@ -42,7 +45,6 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView'],
                 this.$().on('loadstop', Ember.run.bind(this, this.loadstop));
             },
             src: function () {
-                console.log('src');
                 return 'https://auth.firebase.com/v2/popping-fire-1042/auth/' + this.get('controller.model')
                 + '?v=js-0.0.0&transport=json&suppress_status_codes=true'
             }.property('controller.model'),
