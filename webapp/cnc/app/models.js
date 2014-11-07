@@ -14,6 +14,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
         });
 
         var Shape = DS.Model.extend({
+            name: attr('string', {defaultValue: 'New Shape'}),
             definition: attr('string'),
             polyline: function () {
                 return cam.pathDefToPolygons(this.get('definition'));
@@ -30,8 +31,8 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             },
             name: attr('string', {defaultValue: 'New Operation'}),
             type: attr('string', {defaultValue: 'SimpleEngravingOperation'}),
-            outline: DS.belongsTo('shape', {async: true}),
-            job: DS.belongsTo('job', {async: true}),
+            outline: DS.belongsTo('shape'),
+            job: DS.belongsTo('job'),
             installObservers: function () {
                 var properties = Operations[this.get('type')].properties;
                 var _this = this;
@@ -131,8 +132,8 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 this.get('operations').pushObject(operation);
                 return operation;
             },
-            createShape: function (def) {
-                var shape = this.store.createRecord('shape', {definition: def});
+            createShape: function (def, name) {
+                var shape = this.store.createRecord('shape', {definition: def, name: name});
                 this.get('shapes').pushObject(shape);
                 return shape;
             },

@@ -103,6 +103,9 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
                 logout: function () {
                     BACKEND.get('firebase').unauth();
                     this.transitionTo('index').then(this.get('afterAuth'));
+                },
+                error: function (reason) {
+                    this.transitionTo('index');
                 }
             },
             afterAuth: Ember.run.bind(this, function (error, authData) {
@@ -120,7 +123,9 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
         });
         Visucam.JobRoute = Ember.Route.extend({
             model: function (params) {
-                return this.store.find('job', params.job_id);
+                return this.store.find('job', params.job_id).then(null, function () {
+                    _this.transitionTo('index');
+                });
             }
         });
         Visucam.JobIndexRoute = Ember.Route.extend({
@@ -132,7 +137,10 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
 
         Visucam.OperationRoute = Ember.Route.extend({
             model: function (params) {
-                return this.store.find('operation', params.operation_id);
+                var _this = this;
+                return this.store.find('operation', params.operation_id).then(null, function () {
+                    _this.transitionTo('index');
+                });
             },
             afterModel: function (model) {
                 if (!model)
@@ -178,13 +186,11 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
             actions: {
                 createExample: function () {
                     var job = this.store.createRecord('job', {name: 'Cycloidal Drive Sample', toolDiameter: 2});
-                    var shape = wabble.getEccentricShape();
-                    var outline = job.createShape(shape);
-                    job.createOperation({name: 'Eccentric Hole', type: 'PocketOperation', outline: outline});
-                    job.createOperation({name: 'Output Holes', type: 'PocketOperation', outline: job.createShape(wabble.getOutputHolesShape()), contour_inside: true});
-                    job.createOperation({name: 'Crown', type: 'RampingContourOperation', outline: job.createShape(wabble.getRotorShape()), contour_inside: false});
-                    job.createOperation({name: 'Pins', type: 'RampingContourOperation', outline: job.createShape(wabble.getPinsShape()), contour_inside: false});
-                    job.createOperation({name: 'Output Pins', type: 'RampingContourOperation', outline: job.createShape(wabble.getOutputPinsShape()), contour_inside: false});
+                    job.createOperation({name: 'Eccentric Hole', type: 'PocketOperation', outline: job.createShape(wabble.getEccentricShape(), 'Eccentric Hole')});
+                    job.createOperation({name: 'Output Holes', type: 'PocketOperation', outline: job.createShape(wabble.getOutputHolesShape(), 'Output Hole'), contour_inside: true});
+                    job.createOperation({name: 'Crown', type: 'RampingContourOperation', outline: job.createShape(wabble.getRotorShape(), 'Crown'), contour_inside: false});
+                    job.createOperation({name: 'Pins', type: 'RampingContourOperation', outline: job.createShape(wabble.getPinsShape(), 'Pins'), contour_inside: false});
+                    job.createOperation({name: 'Output Pins', type: 'RampingContourOperation', outline: job.createShape(wabble.getOutputPinsShape(), 'Output Pin'), contour_inside: false});
                     job.saveAll();
                     this.transitionToRoute('job', job);
                 },
@@ -232,8 +238,8 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
             },
             toolPosition: null,
             currentOperation: null,
-            addShapes: function (shapeDefinitions) {
-                var shape = this.get('model').createShape(shapeDefinitions.join(' '));
+            addShapes: function (shapeDefinitions, name) {
+                var shape = this.get('model').createShape(shapeDefinitions.join(' '), name);
                 var contour = this.get('model').createOperation({outline: shape});
                 this.transitionToRoute('operation', contour);
             },

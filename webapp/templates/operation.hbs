@@ -7,7 +7,15 @@
         </tr>
         <tr>
             <th>Type</th>
-            <td>{{view Ember.Select value=type content=operationDescriptors optionValuePath="content.class" optionLabelPath="content.label"}}</td>
+            <td>{{view Ember.Select value=type content=operationDescriptors optionValuePath="content.class"
+            optionLabelPath="content.label"}}</td>
+        </tr>
+        <tr>
+            <th>Outline</th>
+            <td>
+                {{view Ember.Select selection=outline content=job.shapes optionValuePath="content.id"
+                optionLabelPath="content.name"}}
+            </td>
         </tr>
         {{partial specialTemplate}}
         </tbody>

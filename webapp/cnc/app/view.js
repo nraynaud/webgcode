@@ -28,7 +28,7 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView'],
                     _this.$().append(canvas);
                     try {
                         var res = svgImporter(canvas, e.target.result);
-                        _this.get('controller').addShapes(res);
+                        _this.get('controller').addShapes(res, 'Imported ' + file.name);
                     } finally {
                         canvas.remove();
                     }

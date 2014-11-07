@@ -36,13 +36,24 @@
         </tr>
         </tbody>
     </table>
+    <h2>Shapes</h2>
+    <ul class="list-group">
+        {{#each shapes}}
+            <li class="list-group-item">
+                {{name}}
+            </li>
+        {{else}}
+            No shape yet. Try dropping a SVG file on the window.
+        {{/each}}
+    </ul>
+    <h2>Operations</h2>
     <ul class="list-group">
         {{#each operations itemController="operationListItem"}}
             <li class="list-group-item" {{bind-attr class="isCurrent:active"}}>{{#link-to "operation" this}}{{name}}{{/link-to}}
                 <a class="delete badge" {{action "delete"}} title="Delete Operation"><i class="fa fa-times"></i></a>
             </li>
         {{else}}
-            No operation yet. Try dropping a SVG file on the window.
+            No operation yet.
         {{/each}}
     </ul>
 </div>
