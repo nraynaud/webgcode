@@ -91,7 +91,7 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView'],
                 var highlightDisplay = this.get('highlightDisplay');
                 highlightDisplay.clear();
                 var operation = this.get('controller.currentOperation');
-                if (operation)
+                if (operation && operation.get('outline.polyline'))
                     highlightDisplay.addPolyLines(operation.get('outline.polyline'));
             }.observes('controller.currentOperation.outline.polyline'),
             synchronizeCurrentOperation: function () {

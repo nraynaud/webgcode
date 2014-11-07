@@ -27,7 +27,6 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
         var operationDefinition = {
             init: function () {
                 this._super.apply(this, arguments);
-                console.log('operation');
             },
             name: attr('string', {defaultValue: 'New Operation'}),
             type: attr('string', {defaultValue: 'SimpleEngravingOperation'}),

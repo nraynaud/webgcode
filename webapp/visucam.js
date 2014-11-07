@@ -105,6 +105,9 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
                     this.transitionTo('index').then(this.get('afterAuth'));
                 },
                 error: function (reason) {
+                    console.log(reason);
+                    if (reason.stack)
+                        console.log(reason.stack);
                     this.transitionTo('index');
                 }
             },
@@ -126,6 +129,10 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
                 return this.store.find('job', params.job_id).then(null, function () {
                     _this.transitionTo('index');
                 });
+            },
+            setupController: function (controller, model) {
+                this._super.apply(this, arguments);
+                this.controllerFor('job').set('currentOperation', null);
             }
         });
         Visucam.JobIndexRoute = Ember.Route.extend({
@@ -138,9 +145,8 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
         Visucam.OperationRoute = Ember.Route.extend({
             model: function (params) {
                 var _this = this;
-                return this.store.find('operation', params.operation_id).then(null, function () {
-                    _this.transitionTo('index');
-                });
+                var job = this.modelFor('job');
+                return job.get('operations').findBy('id', params.operation_id);
             },
             afterModel: function (model) {
                 if (!model)
@@ -246,11 +252,20 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
             actions: {
                 save: function () {
                     this.get('model').saveAll();
+                },
+                createOperation: function () {
+                    this.transitionToRoute('operation', this.get('model').createOperation({}));
                 }
             },
             saveDisabled: function () {
-                return !this.get('model.isDirty');
-            }.property('model.isDirty')
+                return !this.get('model.isDirty')
+                && this.get('model.shapes').every(function (shape) {
+                    return !shape.get('isDirty');
+                })
+                && this.get('model.operations').every(function (operation) {
+                    return !operation.get('isDirty');
+                });
+            }.property('model.isDirty', 'model.shapes.@each.isDirty', 'model.operations.@each.isDirty')
         });
         Visucam.OperationController = Ember.ObjectController.extend({
             specialTemplate: function () {
@@ -270,15 +285,10 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
                     if (this.get('isCurrent'))
                         this.transitionToRoute('job', operation.get('job'))
                             .then(function () {
-                                return operation.get('job');
-                            })
-                            .then(function (job) {
-                                job.deleteOperation(operation);
+                                return operation.get('job').deleteOperation(operation);
                             });
                     else
-                        operation.get('job').then(function (job) {
-                            job.deleteOperation(operation);
-                        });
+                        operation.get('job').deleteOperation(operation);
                 }
             },
             isCurrent: function () {

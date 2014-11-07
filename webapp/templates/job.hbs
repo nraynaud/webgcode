@@ -46,16 +46,18 @@
             No shape yet. Try dropping a SVG file on the window.
         {{/each}}
     </ul>
-    <h2>Operations</h2>
-    <ul class="list-group">
+    <h2>Operations
+        <button title="create new operation" class="btn btn-default" {{action "createOperation"}}>+</button>
+    </h2>
+    <div class="list-group">
         {{#each operations itemController="operationListItem"}}
-            <li class="list-group-item" {{bind-attr class="isCurrent:active"}}>{{#link-to "operation" this}}{{name}}{{/link-to}}
-                <a class="delete badge" {{action "delete"}} title="Delete Operation"><i class="fa fa-times"></i></a>
-            </li>
+            {{#link-to "operation" this classNames="list-group-item"}}{{name}}
+                <span class="delete badge" {{action "delete"}} title="Delete Operation"><i
+                        class="fa fa-times"></i></span>{{/link-to}}
         {{else}}
             No operation yet.
         {{/each}}
-    </ul>
+    </div>
 </div>
 <div class="viewContainer">
     {{view Visucam.ThreeDView}}

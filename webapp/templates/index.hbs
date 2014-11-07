@@ -1,7 +1,8 @@
 <div>
     {{#if isConnected}}
-        <button class="btn btn-default" {{action "createExample"}}>Create Example</button>
-        <button class="btn btn-default" {{action "createJob"}}>Create New Job</button>
+        <h2>Jobs
+            <button title="create new job" class="btn btn-default" {{action "createJob"}}>+</button>
+        </h2>
         <ul>
             {{#each model}}
                 <li>
@@ -11,6 +12,7 @@
                 No job yet.
             {{/each}}
         </ul>
+        <button class="btn btn-default" {{action "createExample"}}>Create Example</button>
     {{else}}
         Welcome, you need to log in before anything else.
     {{/if}}
