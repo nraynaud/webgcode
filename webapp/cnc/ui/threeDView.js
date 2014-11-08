@@ -126,7 +126,27 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
 
             this.scene.add(createGrid());
             function createAxis(x, y, z, color) {
-                return new THREE.ArrowHelper(new THREE.Vector3(x, y, z), new THREE.Vector3(0, 0, 0), 10, color, 1, 1);
+                var obj = new THREE.Object3D();
+                var lineGeometry = new THREE.Geometry();
+                var dir = new THREE.Vector3(x, y, z);
+                var normDir = dir.clone().normalize();
+                lineGeometry.vertices.push(new THREE.Vector3(0, 0, 0), dir);
+                var coneGeometry = new THREE.CylinderGeometry(0, 0.5, 1, 10, 1);
+                coneGeometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, dir.length(), 0));
+                var cone = new THREE.Mesh(coneGeometry, new THREE.MeshBasicMaterial({color: color}));
+                if (normDir.y > 0.99999)
+                    cone.quaternion.set(0, 0, 0, 1);
+                else if (normDir.y < -0.99999)
+                    cone.quaternion.set(1, 0, 0, 0);
+                else {
+                    var axis = new THREE.Vector3();
+                    axis.set(normDir.z, 0, -normDir.x).normalize();
+                    var radians = Math.acos(normDir.y);
+                    cone.quaternion.setFromAxisAngle(axis, radians);
+                }
+                obj.add(new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({color: color})));
+                obj.add(cone);
+                return obj;
             }
 
             var axes = new THREE.Object3D();
