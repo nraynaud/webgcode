@@ -31,11 +31,31 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble'],
             actions: {
                 createExample: function () {
                     var job = this.store.createRecord('job', {name: 'Cycloidal Drive Sample', toolDiameter: 2});
-                    job.createOperation({name: 'Eccentric Hole', job: job, type: 'PocketOperation', outline: job.createShape(wabble.getEccentricShape(), 'Eccentric Hole')});
-                    job.createOperation({name: 'Output Holes', job: job, type: 'PocketOperation', outline: job.createShape(wabble.getOutputHolesShape(), 'Output Holes'), contour_inside: true});
-                    job.createOperation({name: 'Crown', job: job, type: 'RampingContourOperation', outline: job.createShape(wabble.getRotorShape(), 'Crown'), contour_inside: false});
-                    job.createOperation({name: 'Pins', job: job, type: 'RampingContourOperation', outline: job.createShape(wabble.getPinsShape(), 'Pins'), contour_inside: false});
-                    job.createOperation({name: 'Output Pins', job: job, type: 'RampingContourOperation', outline: job.createShape(wabble.getOutputPinsShape(), 'Output Pin'), contour_inside: false});
+                    var eccentric = job.createShape(wabble.getEccentricShape(), 'Eccentric Hole');
+                    var outputHoles = job.createShape(wabble.getOutputHolesShape(), 'Output Holes');
+                    var rotor = job.createShape(wabble.getRotorShape(), 'Crown');
+                    var pins = job.createShape(wabble.getPinsShape(), 'Pins');
+                    var outputPins = job.createShape(wabble.getOutputPinsShape(), 'Output Pin');
+                    job.createOperation({name: 'Eccentric Hole Roughing', job: job, type: 'PocketOperation',
+                        outline: eccentric, contour_inside: true});
+                    job.createOperation({name: 'Eccentric Hole Finishing', job: job, type: 'SimpleContourOperation',
+                        outline: eccentric, contour_inside: true, contour_leaveStock: 0, contour_climbMilling: false});
+                    job.createOperation({name: 'Output Holes Roughing', job: job, type: 'PocketOperation',
+                        outline: outputHoles, contour_inside: true});
+                    job.createOperation({name: 'Output Holes Finishing', job: job, type: 'SimpleContourOperation',
+                        outline: outputHoles, contour_inside: true, contour_leaveStock: 0, contour_climbMilling: false});
+                    job.createOperation({name: 'Crown Roughing', job: job, type: 'RampingContourOperation',
+                        outline: rotor, contour_inside: false});
+                    job.createOperation({name: 'Crown Finishing', job: job, type: 'SimpleContourOperation',
+                        outline: rotor, contour_inside: false, contour_leaveStock: 0, contour_climbMilling: false});
+                    job.createOperation({name: 'Pins Roughing', job: job, type: 'RampingContourOperation',
+                        outline: pins, contour_inside: false});
+                    job.createOperation({name: 'Pins Finishing', job: job, type: 'SimpleContourOperation',
+                        outline: pins, contour_inside: false, contour_leaveStock: 0, contour_climbMilling: false});
+                    job.createOperation({name: 'Output Pins Roughing', job: job, type: 'RampingContourOperation',
+                        outline: outputPins, contour_inside: false});
+                    job.createOperation({name: 'Output Pins Finishing', job: job, type: 'SimpleContourOperation',
+                        outline: outputPins, contour_inside: false, contour_leaveStock: 0, contour_climbMilling: false});
                     this.transitionToRoute('job', job).then(function () {
                         job.saveAll();
                     });
@@ -60,7 +80,6 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble'],
                 return icons[this.get('firebase.auth.provider')];
             }.property('firebase.auth.provider'),
             authTitle: function () {
-                console.log(this.get('firebase'));
                 return 'Authenticated with ' + this.get('firebase.auth.provider');
             }.property('firebase.auth.provider')
         });
