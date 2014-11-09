@@ -99,6 +99,7 @@
 		DDAA5EE058BB441CC4362AC1 /* runner.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA543BCEF47183F5DDA70F /* runner.js */; };
 		DDAA5F486F34FA71AFAF3B94 /* firebase.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA51A93DCA76CF68CA69AA /* firebase.js */; };
 		DDAA5F939B8D9099BE918948 /* simulation.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA564C2FBE78706409C739 /* simulation.js */; };
+		DDAA5FA9BD2B2F4586ADBFFC /* controller.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA59EA70480E724659BF78 /* controller.js */; };
 		DDAA5FC42305B4290E9C0612 /* simulation.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54613393642E5474B2DC /* simulation.js */; };
 /* End PBXBuildFile section */
 
@@ -212,6 +213,7 @@
 		DDAA59854CED3DBBCA224A7B /* simpleContour.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.handlebars; path = simpleContour.hbs; sourceTree = "<group>"; };
 		DDAA59E3CD1BC8E48FD71658 /* textApp.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; name = textApp.hbs; path = templates/textApp.hbs; sourceTree = "<group>"; };
 		DDAA59E7DF6E04578E0F4F11 /* jsEditor.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jsEditor.js; sourceTree = "<group>"; };
+		DDAA59EA70480E724659BF78 /* controller.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = controller.js; sourceTree = "<group>"; };
 		DDAA59FEF17A22C1216B27DD /* .nojekyll */ = {isa = PBXFileReference; lastKnownFileType = file.nojekyll; path = .nojekyll; sourceTree = "<group>"; };
 		DDAA5A4300864DA095799734 /* visucamApp.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.handelbars; path = visucamApp.hbs; sourceTree = "<group>"; };
 		DDAA5A55C036357C8CD5193C /* twoDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = twoDView.js; sourceTree = "<group>"; };
@@ -427,6 +429,7 @@
 			children = (
 				DDAA54B87A480F458CED26C3 /* models.js */,
 				DDAA5F0312AAB5E2ACBE6A7A /* view.js */,
+				DDAA59EA70480E724659BF78 /* controller.js */,
 			);
 			path = app;
 			sourceTree = "<group>";
@@ -721,6 +724,7 @@
 				DDAA5F486F34FA71AFAF3B94 /* firebase.js in Sources */,
 				DDAA58D07301B2E75AC0C420 /* firebase-debug.js in Sources */,
 				DDAA51C7A0C9EE7238B6378F /* view.js in Sources */,
+				DDAA5FA9BD2B2F4586ADBFFC /* controller.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

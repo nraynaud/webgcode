@@ -1,12 +1,11 @@
 <div class="header">
     <div class="topMenu">{{#link-to "index"}}My Jobs{{/link-to}}</div>
     <div class="identity">
-        {{#if backend.isConnected}}
+        {{#if firebase.isConnected}}
             <div class="dropdown">
                 <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown"
                     {{bind-attr title="authTitle"}}>
-                    <i {{bind-attr class="authProviderIcon"}}></i> {{backend.username}}
-                    <span class="caret"></span>
+                    <i {{bind-attr class="authProviderIcon"}}></i> {{firebase.username}} <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu1">
                     <li role="presentation"><a role="menuitem" tabindex="-1" href="#" {{action "logout"}}>logout</a>

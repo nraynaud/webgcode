@@ -86,6 +86,7 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView'],
                 this.synchronizeCurrentOperation();
                 this.synchronizeJob();
                 this.synchronizeOutlines();
+                this.synchronizeCurrentShape();
             },
             synchronizeCurrentOperationOutline: function () {
                 var highlightDisplay = this.get('highlightDisplay');
@@ -107,6 +108,14 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView'],
                 }
                 threeDView.reRender();
             }.observes('controller.currentOperation', 'controller.currentOperation.toolpath.@each', 'controller.currentOperation.toolpath'),
+            synchronizeCurrentShape: function () {
+                var highlightDisplay = this.get('highlightDisplay');
+                highlightDisplay.clear();
+                var shape = this.get('controller.currentShape');
+                if (shape && shape.get('polyline'))
+                    highlightDisplay.addPolyLines(shape.get('polyline'));
+                this.get('nativeComponent').reRender();
+            }.observes('controller.currentShape', 'controller.currentShape.polyline'),
             synchronizeJob: function () {
                 var threeDView = this.get('nativeComponent');
                 var travelDisplay = this.get('travelDisplay');
