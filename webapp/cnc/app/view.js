@@ -88,13 +88,6 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView'],
                 this.synchronizeOutlines();
                 this.synchronizeCurrentShape();
             },
-            synchronizeCurrentOperationOutline: function () {
-                var highlightDisplay = this.get('highlightDisplay');
-                highlightDisplay.clear();
-                var operation = this.get('controller.currentOperation');
-                if (operation && operation.get('outline.polyline'))
-                    highlightDisplay.addPolyLines(operation.get('outline.polyline'));
-            }.observes('controller.currentOperation.outline.polyline'),
             synchronizeCurrentOperation: function () {
                 var threeDView = this.get('nativeComponent');
                 threeDView.clearToolpath();

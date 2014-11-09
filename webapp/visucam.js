@@ -159,6 +159,7 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
             setupController: function (controller, model) {
                 this._super.apply(this, arguments);
                 this.controllerFor('job').set('currentOperation', model);
+                this.controllerFor('job').set('currentShape', null);
             }
         });
         Visucam.ShapeRoute = Ember.Route.extend({
@@ -172,6 +173,7 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
             },
             setupController: function (controller, model) {
                 this._super.apply(this, arguments);
+                this.controllerFor('job').set('currentOperation', null);
                 this.controllerFor('job').set('currentShape', model);
             }
         });

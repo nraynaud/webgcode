@@ -590,7 +590,7 @@ Ember.TEMPLATES["operationPocket"] = Ember.Handlebars.template(function anonymou
         'increment': ("1"),
         'max': ("100")
     }, hashTypes: {'numericValue': "ID", 'min': "STRING", 'increment': "STRING", 'max': "STRING"}, hashContexts: {'numericValue': depth0, 'min': depth0, 'increment': depth0, 'max': depth0}, contexts: [depth0], types: ["ID"], data: data})));
-    data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"in mm\">Leave Stock (lateral):</th>\n    <td>");
+    data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"lateral in mm\">Leave Stock:</th>\n    <td>");
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash: {
         'numericValue': ("pocket_leaveStock"),
         'min': ("0")
