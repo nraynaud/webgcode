@@ -36,9 +36,7 @@ define(['RSVP', 'cnc/cam/cam', 'clipper', 'libs/opentype'], function (RSVP, cam,
 
             for (var i = 0; i < path.commands.length; i++) {
                 var c = path.commands[i];
-                // do not push a 'Z' at the front side, this happens when the text starts with a space
-                if (!(res.length === 0 && c.type == 'Z'))
-                    res += ' ' + c.type;
+                res += ' ' + c.type;
                 if (c.type == 'M' || c.type == 'L')
                     res += ' ' + xy(c.x, c.y);
                 else if (c.type == 'Q')
