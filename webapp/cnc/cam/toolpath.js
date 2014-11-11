@@ -112,6 +112,9 @@ define(['cnc/util'], function (util) {
         },
         asGeneralToolpath: function (defaultZ) {
             return this;
+        },
+        toJSON: function () {
+            return {className: 'general-toolpath', path: this.path};
         }
     };
 

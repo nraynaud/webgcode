@@ -31,6 +31,23 @@ var tasks = {
             pocket.createPocketWorkerSide(event);
         });
     },
+    computeToolpath: function (event) {
+        require(['cnc/cam/operations', 'cnc/util'], function (operations, util) {
+            event.data.params.outline.clipperPolyline = event.data.params.outline.clipperPolyline.map(function (polygon) {
+                return polygon.map(function (point) {
+                    return new util.Point(point.x, point.y, point.z);
+                });
+            });
+            operations[event.data.params.type].
+                computeToolpath(event.data.params).then(function (toolpath) {
+                    self.postMessage({toolpath: toolpath.map(function (p) {
+                        return p.toJSON()
+                    })});
+                }).finally(function () {
+                    close();
+                });
+        });
+    },
     acceptProgram: function (event) {
         require(['cnc/gcode/parser', 'cnc/gcode/simulation'], function (parser, simulation) {
             function handleFragment(program) {

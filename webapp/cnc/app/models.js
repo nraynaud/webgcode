@@ -1,7 +1,7 @@
 "use strict";
 
-define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', 'cnc/cam/toolpath'],
-    function (Ember, DS, cam, util, Operations, tp) {
+define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', 'cnc/cam/toolpath', 'require'],
+    function (Ember, DS, cam, util, Operations, tp, require) {
         var attr = DS.attr;
 
         var PointTransform = DS.Transform.extend({
@@ -51,8 +51,32 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     Ember.run.debounce(this, this.computeToolpath, 100);
             }.observes('type', 'outline.polyline', 'job.toolDiameter', 'job.safetyZ').on('init'),
             computeToolpath: function () {
-                if (this.get('type'))
-                    Operations[this.get('type')]['computeToolpath'](this);
+                var _this = this;
+                if (this.get('type')) {
+                    var operation = Operations[this.get('type')];
+                    var params = {
+                        job: {safetyZ: this.get('job.safetyZ'), toolDiameter: this.get('job.toolDiameter')},
+                        outline: {clipperPolyline: this.get('outline.clipperPolyline')},
+                        type: this.get('type')
+                    };
+                    Object.keys(operation.properties).forEach(function (key) {
+                        params[key] = _this.get(key);
+                    });
+                    _this.set('toolpath', null);
+                    var worker = new Worker(require.toUrl('worker.js'));
+                    worker.onmessage = function (event) {
+                        _this.set('toolpath', event.data.toolpath.map(function (p) {
+                            return tp.decodeToolPath(p)
+                        }));
+                    };
+                    worker.onerror = function (error) {
+                        console.log(error);
+                    };
+                    worker.postMessage({
+                        operation: 'computeToolpath',
+                        params: params
+                    });
+                }
             }
         };
 
@@ -61,7 +85,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             var op = Operations[opName];
             for (var attrName in op.properties) {
                 var definition = op.properties[attrName];
-                operationDefinition[attrName] = definition;
+                operationDefinition[attrName] = attr(definition.type, definition.options);
             }
         }
 

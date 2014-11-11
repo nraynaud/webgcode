@@ -183,7 +183,7 @@ define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util'
         },
         rampToolPathArray: function (toolpath, startZ, stopZ, turns) {
             var machine = this;
-            return $.map(toolpath, function (path) {
+            return toolpath.map(function (path) {
                 return machine.rampToolPath(path, startZ, stopZ, turns);
             });
         },
