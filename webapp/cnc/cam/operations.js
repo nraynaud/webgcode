@@ -33,6 +33,7 @@ define(['EmberData', 'RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'
                 contour_leaveStock: attr('number', {defaultValue: 0}),
                 contour_climbMilling: attr('boolean', {defaultValue: true})},
             computeToolpath: function (op) {
+                console.log($.extend({}, op));
                 var machine = new cam.Machine(null);
                 machine.setParams(op.get('simple_contourZ'), 10, 100);
                 var polygon = op.get('outline.clipperPolyline');
