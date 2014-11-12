@@ -62,20 +62,28 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     Object.keys(operation.properties).forEach(function (key) {
                         params[key] = _this.get(key);
                     });
+                    var previousWorker = _this.get('toolpathWorker');
+                    if (previousWorker)
+                        previousWorker.terminate();
                     _this.set('toolpath', null);
                     var worker = new Worker(require.toUrl('worker.js'));
-                    worker.onmessage = function (event) {
+                    worker.onmessage = Ember.run.bind(this, function (event) {
+                        _this.get('toolpathWorker').terminate();
+                        _this.set('toolpathWorker', null);
                         _this.set('toolpath', event.data.toolpath.map(function (p) {
                             return tp.decodeToolPath(p)
                         }));
-                    };
-                    worker.onerror = function (error) {
+                    });
+                    worker.onerror = Ember.run.bind(this, function (error) {
+                        _this.get('toolpathWorker').terminate();
+                        _this.set('toolpathWorker', null);
                         console.log(error);
-                    };
+                    });
                     worker.postMessage({
                         operation: 'computeToolpath',
                         params: params
                     });
+                    this.set('toolpathWorker', worker);
                 }
             }
         };
@@ -112,12 +120,16 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             startPoint: attr('point', {defaultValue: new util.Point(0, 0, 10)}),
             shapes: DS.hasMany('shape', {embedded: true, async: true}),
             operations: DS.hasMany('operation', {inverse: 'job', embedded: true, async: true}),
+            transitionTravels: [],
             deleteOperation: function (operation) {
                 this.get('operations').removeObject(operation);
                 operation.destroyRecord();
                 this.save();
             },
-            transitionTravels: function () {
+            transitionTravelsObeserved: function () {
+                Ember.run.debounce(this, this.computeTransitionTravels, 100);
+            }.observes('operations.@each.toolpath.@each'),
+            computeTransitionTravels: function () {
                 var operations = this.get('operations');
                 var travelBits = [];
                 var pathFragments = [];
@@ -147,8 +159,8 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     suffix.pushPoint(this.get('startPoint'));
                     travelBits.push(suffix);
                 }
-                return travelBits;
-            }.property('operations.@each.toolpath.@each'),
+                this.set('transitionTravels', travelBits);
+            },
             createOperation: function (params) {
                 var operation = this.store.createRecord('operation', params);
                 operation.set('job', this);
