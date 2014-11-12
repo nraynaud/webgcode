@@ -19,7 +19,7 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
         $.extend(Visucam, appViews);
         $.extend(Visucam, controller);
 
-        var IN_CHROME_APP = !!window.chrome.permissions;
+        var IN_CHROME_APP = window['chrome'] && window['chrome']['permissions'];
 
         Firebase.INTERNAL.forceWebSockets();
         Visucam.Backend = Ember.Object.extend({
