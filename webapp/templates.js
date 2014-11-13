@@ -365,7 +365,7 @@ Ember.TEMPLATES["job"] = Ember.Handlebars.template(function anonymous(Handlebars
     this.compilerInfo = [4, '>= 1.0.0'];
     helpers = this.merge(helpers, Ember.Handlebars.helpers);
     data = data || {};
-    var buffer = '', stack1, helper, options, self = this, helperMissing = helpers.helperMissing, escapeExpression = this.escapeExpression;
+    var buffer = '', stack1, helper, options, escapeExpression = this.escapeExpression, self = this, helperMissing = helpers.helperMissing;
 
     function program1(depth0, data) {
 
@@ -383,14 +383,15 @@ Ember.TEMPLATES["job"] = Ember.Handlebars.template(function anonymous(Handlebars
 
     function program2(depth0, data) {
 
-        var stack1;
+        var buffer = '', stack1;
         stack1 = helpers._triageMustache.call(depth0, "name", {hash: {}, hashTypes: {}, hashContexts: {}, contexts: [depth0], types: ["ID"], data: data});
         if (stack1 || stack1 === 0) {
             data.buffer.push(stack1);
         }
-        else {
-            data.buffer.push('');
-        }
+        data.buffer.push("\n                <span class=\"delete badge\" ");
+        data.buffer.push(escapeExpression(helpers.action.call(depth0, "delete", {hash: {}, hashTypes: {}, hashContexts: {}, contexts: [depth0], types: ["STRING"], data: data})));
+        data.buffer.push(" title=\"Delete Shape\"><i\n                        class=\"fa fa-times\"></i></span>");
+        return buffer;
     }
 
     function program4(depth0, data) {
@@ -484,7 +485,9 @@ Ember.TEMPLATES["job"] = Ember.Handlebars.template(function anonymous(Handlebars
         'step': (10)
     }, hashTypes: {'numericValue': "ID", 'min': "INTEGER", 'max': "INTEGER", 'step': "INTEGER"}, hashContexts: {'numericValue': depth0, 'min': depth0, 'max': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
     data.buffer.push("</td>\n        </tr>\n        </tbody>\n    </table>\n    <h2>Shapes</h2>\n    <ul class=\"list-group\">\n        ");
-    stack1 = helpers.each.call(depth0, "shapes", {hash: {}, hashTypes: {}, hashContexts: {}, inverse: self.program(4, program4, data), fn: self.program(1, program1, data), contexts: [depth0], types: ["ID"], data: data});
+    stack1 = helpers.each.call(depth0, "shapes", {hash: {
+        'itemController': ("shapeListItem")
+    }, hashTypes: {'itemController': "STRING"}, hashContexts: {'itemController': depth0}, inverse: self.program(4, program4, data), fn: self.program(1, program1, data), contexts: [depth0], types: ["ID"], data: data});
     if (stack1 || stack1 === 0) {
         data.buffer.push(stack1);
     }

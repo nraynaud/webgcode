@@ -38,8 +38,10 @@
     </table>
     <h2>Shapes</h2>
     <ul class="list-group">
-        {{#each shapes}}
-            {{#link-to "shape" this classNames="list-group-item"}}{{name}}{{/link-to}}
+        {{#each shapes itemController="shapeListItem"}}
+            {{#link-to "shape" this classNames="list-group-item"}}{{name}}
+                <span class="delete badge" {{action "delete"}} title="Delete Shape"><i
+                        class="fa fa-times"></i></span>{{/link-to}}
         {{else}}
             No shape yet. Try dropping a SVG file on the window.
         {{/each}}

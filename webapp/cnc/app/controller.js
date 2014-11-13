@@ -156,12 +156,32 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble'],
                 return this.get('controllers.job.currentOperation') === this.get('model');
             }.property('controllers.job.currentOperation')
         });
+        var ShapeListItemController = Ember.ObjectController.extend({
+            needs: ['job'],
+            actions: {
+                'delete': function () {
+                    var shape = this.get('model');
+                    var job = this.get('controllers.job.model');
+                    if (this.get('isCurrent'))
+                        this.transitionToRoute('job', job)
+                            .then(function () {
+                                return job.deleteShape(shape);
+                            });
+                    else
+                        job.deleteShape(shape);
+                }
+            },
+            isCurrent: function () {
+                return this.get('controllers.job.currentShape') === this.get('model');
+            }.property('controllers.job.currentShape')
+        });
         return {
             LoginController: LoginController,
             IndexController: IndexController,
             ApplicationController: ApplicationController,
             JobController: JobController,
             OperationController: OperationController,
-            OperationListItemController: OperationListItemController
+            OperationListItemController: OperationListItemController,
+            ShapeListItemController: ShapeListItemController
         }
     });

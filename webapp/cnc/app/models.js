@@ -126,6 +126,11 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 operation.destroyRecord();
                 this.save();
             },
+            deleteShape: function (shape) {
+                this.get('shapes').removeObject(shape);
+                shape.destroyRecord();
+                this.save();
+            },
             transitionTravelsObeserved: function () {
                 Ember.run.debounce(this, this.computeTransitionTravels, 100);
             }.observes('operations.@each.toolpath.@each'),
