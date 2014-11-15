@@ -18,22 +18,30 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView'],
             },
             drop: function (event) {
                 var _this = this;
+
+                function loadSvg(file) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        var canvas = $('<canvas id="myCanvas" style="visibility: hidden; display:none">');
+                        _this.$().append(canvas);
+                        try {
+                            var res = svgImporter(canvas, e.target.result);
+                            _this.get('controller').addShapes(res, 'Imported ' + file.name);
+                        } finally {
+                            canvas.remove();
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+
                 event.preventDefault();
                 event.stopPropagation();
                 var files = event.dataTransfer.files;
-                var file = files[0];
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    var canvas = $('<canvas id="myCanvas" style="visibility: hidden; display:none">');
-                    _this.$().append(canvas);
-                    try {
-                        var res = svgImporter(canvas, e.target.result);
-                        _this.get('controller').addShapes(res, 'Imported ' + file.name);
-                    } finally {
-                        canvas.remove();
-                    }
-                };
-                reader.readAsText(file);
+                for (var i = 0; i < files.length; i++) {
+                    var file = files[i];
+                    if (file.type.indexOf('svg') != -1)
+                        loadSvg(file);
+                }
             }
         });
 
