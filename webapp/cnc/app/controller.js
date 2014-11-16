@@ -108,6 +108,11 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble'],
                 var contour = this.get('model').createOperation({outline: shape});
                 this.transitionToRoute('operation', contour);
             },
+            addSTL: function (stlData, name) {
+                var shape = this.get('model').createShape('', name);
+                shape.set('stlModel', encodeURI(stlData));
+                this.transitionToRoute('shape', shape);
+            },
             actions: {
                 save: function () {
                     this.get('model').saveAll();

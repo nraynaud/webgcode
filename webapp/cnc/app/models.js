@@ -16,6 +16,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
         var Shape = DS.Model.extend({
             name: attr('string', {defaultValue: 'New Shape'}),
             definition: attr('string'),
+            stlModel: attr('string'),
             polyline: function () {
                 return cam.pathDefToPolygons(this.get('definition'));
             }.property('definition'),

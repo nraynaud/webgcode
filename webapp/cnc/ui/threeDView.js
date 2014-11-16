@@ -1,6 +1,6 @@
 "use strict";
-define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cubeManipulator'],
-    function (THREE, TWEEN, util, OrbitControls, cubeManipulator) {
+define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cubeManipulator', 'libs/threejs/STLLoader'],
+    function (THREE, TWEEN, util, OrbitControls, cubeManipulator, STLLoader) {
 
         function webglSupported() {
             try {
@@ -167,6 +167,12 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             this.setToolVisibility(false);
             this.scene.add(this.tool);
             this.scene.add(this.drawing);
+            var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(1000, 1000, 1000);
+            this.scene.add(directionalLight);
+            var directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight2.position.set(-1000, -1000, 1000);
+            this.scene.add(directionalLight2);
             this.normalMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFFFFFF});
             this.rapidMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFF0000});
             this.outlineMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFFFF00});
@@ -181,6 +187,11 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
         }
 
         ThreeDView.prototype = {
+            loadSTL: function (data) {
+                var loader = new THREE.STLLoader();
+                var res = loader.parse(data);
+                return new THREE.Mesh(res, new THREE.MeshPhongMaterial({color: 0xFEEFFE}));
+            },
             addToolpathFragment: function (fragment) {
                 this[fragment.speedTag == 'rapid' ? 'rapidToolpathNode' : 'normalToolpathNode'].addCollated(fragment.vertices);
             },

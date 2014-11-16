@@ -19,6 +19,14 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView'],
             drop: function (event) {
                 var _this = this;
 
+                function loadStl(file) {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        _this.get('controller').addSTL(e.target.result, 'Imported ' + file.name);
+                    };
+                    reader.readAsBinaryString(file);
+                }
+
                 function loadSvg(file) {
                     var reader = new FileReader();
                     reader.onload = function (e) {
@@ -41,6 +49,8 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView'],
                     var file = files[i];
                     if (file.type.indexOf('svg') != -1)
                         loadSvg(file);
+                    else if (file.type.indexOf('stl') != -1 || file.name.match(/\.stl/i))
+                        loadStl(file);
                 }
             }
         });
@@ -128,13 +138,18 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView'],
                 threeDView.reRender();
             }.observes('controller.transitionTravels'),
             synchronizeOutlines: function () {
+                var _this = this;
                 var outlinesDisplay = this.get('outlinesDisplay');
                 outlinesDisplay.clear();
                 this.get('controller.shapes').forEach(function (shape) {
-                    outlinesDisplay.addPolyLines(shape.get('polyline'));
+                    var polyline = shape.get('polyline');
+                    outlinesDisplay.addPolyLines(polyline);
+                    var stlModel = shape.get('stlModel');
+                    if (stlModel)
+                        outlinesDisplay.node.add(_this.get('nativeComponent').loadSTL(decodeURI(stlModel)));
                 });
                 this.get('nativeComponent').zoomExtent();
-            }.observes('controller.shapes.@each.polyline'),
+            }.observes('controller.shapes.@each.polyline', 'controller.shapes.@each.stlModel'),
             synchronizeToolPosition: function () {
                 var threeDView = this.get('nativeComponent');
                 var position = this.get('controller.toolPosition');

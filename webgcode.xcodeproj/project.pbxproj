@@ -57,6 +57,7 @@
 		DDAA592CE143F93F5D214920 /* delaunay.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA59240776C46200C93D09 /* delaunay.js */; };
 		DDAA59DDAACDD4A61B30F37E /* wabble.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA55F97E8D9015119CC503 /* wabble.js */; };
 		DDAA59E5BD604F20F4F3EA38 /* contour.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5DA7202D3250BD94C922 /* contour.js */; };
+		DDAA59F0952A1BB4918E903B /* STLLoader.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5428E240AD53D84E839F /* STLLoader.js */; };
 		DDAA59F8C14ADBE647A5FE41 /* cnc.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = DDAA5C39B59BE70527721DE7 /* cnc.h */; };
 		DDAA5A17DAC86C6985919C73 /* cam.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA558DB0228EB233245972 /* cam.js */; };
 		DDAA5A767582AAED8D06A869 /* delaunay.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA561E868824DA17BCB9AA /* delaunay.js */; };
@@ -153,6 +154,7 @@
 		DDAA53D0D9AE21EE52463EAE /* manual.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = manual.c; path = interpolator/manual.c; sourceTree = "<group>"; };
 		DDAA53F77ADBB124F31E26D6 /* text.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = text.js; sourceTree = "<group>"; };
 		DDAA5407DEE90E0E2A589DCE /* wabble.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = wabble.js; sourceTree = "<group>"; };
+		DDAA5428E240AD53D84E839F /* STLLoader.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = STLLoader.js; path = libs/threejs/STLLoader.js; sourceTree = "<group>"; };
 		DDAA543BCEF47183F5DDA70F /* runner.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = runner.js; path = cnc/controller/runner.js; sourceTree = "<group>"; };
 		DDAA54613393642E5474B2DC /* simulation.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = simulation.js; path = gcode/simulation.js; sourceTree = "<group>"; };
 		DDAA54B37F49D0A2AC135D5A /* util.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = util.js; path = webapp/cnc/util.js; sourceTree = "<group>"; };
@@ -506,6 +508,7 @@
 				DDAA5C9FEE3CFFBDD4F6E9D2 /* visucam.js */,
 				DDAA51A93DCA76CF68CA69AA /* firebase.js */,
 				DDAA5785A33DF48AE7C33AE2 /* firebase-debug.js */,
+				DDAA5428E240AD53D84E839F /* STLLoader.js */,
 			);
 			path = webapp;
 			sourceTree = "<group>";
@@ -725,6 +728,7 @@
 				DDAA58D07301B2E75AC0C420 /* firebase-debug.js in Sources */,
 				DDAA51C7A0C9EE7238B6378F /* view.js in Sources */,
 				DDAA5FA9BD2B2F4586ADBFFC /* controller.js in Sources */,
+				DDAA59F0952A1BB4918E903B /* STLLoader.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

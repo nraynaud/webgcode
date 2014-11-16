@@ -32,6 +32,7 @@ requirejs.config({
         'libs/threejs/OrbitControls': {deps: ['THREE'], exports: 'THREE.OrbitControls'},
         'libs/threejs/TrackballControls': {deps: ['THREE'], exports: 'THREE.TrackballControls'},
         'libs/threejs/CSS3DRenderer': {deps: ['THREE'], exports: 'THREE.CSS3DRenderer'},
+        'libs/threejs/STLLoader': {deps: ['THREE'], exports: 'THREE.STLLoader'},
         ace: {exports: 'ace'},
         'libs/svg-parser': {deps: ['libs/svg']},
         'libs/svg-import': {deps: ['libs/svg', 'libs/svg-parser']},
