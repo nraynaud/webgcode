@@ -188,9 +188,11 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
 
         ThreeDView.prototype = {
             loadSTL: function (data) {
-                var loader = new THREE.STLLoader();
+                var loader = new STLLoader();
                 var res = loader.parse(data);
-                return new THREE.Mesh(res, new THREE.MeshPhongMaterial({color: 0xFEEFFE}));
+                res.computeFaceNormals();
+                res.computeVertexNormals();
+                return new THREE.Mesh(res, new THREE.MeshLambertMaterial({color: 0xFEEFFE, shading: THREE.SmoothShading}));
             },
             addToolpathFragment: function (fragment) {
                 this[fragment.speedTag == 'rapid' ? 'rapidToolpathNode' : 'normalToolpathNode'].addCollated(fragment.vertices);
