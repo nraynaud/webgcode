@@ -7,9 +7,9 @@ THREE.ShaderPass = function (shader, textureID) {
     this.textureID = ( textureID !== undefined ) ? textureID : "tDiffuse";
 
     this.uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-
     this.material = new THREE.ShaderMaterial({
 
+        defines: shader.defines || {},
         uniforms: this.uniforms,
         vertexShader: shader.vertexShader,
         fragmentShader: shader.fragmentShader
