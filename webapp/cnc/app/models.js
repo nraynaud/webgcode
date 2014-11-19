@@ -1,7 +1,7 @@
 "use strict";
 
-define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', 'cnc/cam/toolpath', 'require'],
-    function (Ember, DS, cam, util, Operations, tp, require) {
+define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', 'cnc/cam/toolpath', 'require', 'libs/pako.min', 'base64'],
+    function (Ember, DS, cam, util, Operations, tp, require, pako, base64) {
         var attr = DS.attr;
 
         var PointTransform = DS.Transform.extend({
@@ -16,13 +16,36 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
         var Shape = DS.Model.extend({
             name: attr('string', {defaultValue: 'New Shape'}),
             definition: attr('string'),
-            stlModel: attr('string'),
+            encodedStlModel: attr('string'),
             polyline: function () {
                 return cam.pathDefToPolygons(this.get('definition'));
             }.property('definition'),
             clipperPolyline: function () {
                 return cam.pathDefToClipper(this.get('definition'));
-            }.property('definition')
+            }.property('definition'),
+            stlModel: function (key, value) {
+                console.log(base64);
+                if (arguments.length > 1) {
+                    console.log('decoded', value.length);
+                    console.log('deflated', pako.deflate(value, {to: 'string', level: 6}).length);//820180
+                    var encoded = base64.toBase64(pako.deflate(value, {to: 'string', level: 6}));
+                    console.log('encoded', encoded.length);
+                    console.log('re-decoded 64', base64.fromBase64(encoded).length);
+                    console.log('re-decoded ', pako.inflate(base64.fromBase64(encoded), {to: 'string'}).length);
+                    this.set('encodedStlModel', encoded);
+                    return value;
+                } else {
+                    var encoded = this.get('encodedStlModel');
+                    if (encoded) {
+                        console.log('encoded', encoded.length);
+                        var decoded = pako.inflate(base64.fromBase64(encoded), {to: 'string'});
+                        console.log('decoded', decoded.length);
+                        return decoded;
+                    } else {
+                        return null;
+                    }
+                }
+            }.property('encodedStlModel')
         });
 
         var operationDefinition = {
@@ -89,7 +112,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             }
         };
 
-        //add all the attributes from all the operations types
+//add all the attributes from all the operations types
         for (var opName in Operations) {
             var op = Operations[opName];
             for (var attrName in op.properties) {
@@ -252,4 +275,5 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             Shape: Shape,
             PointTransform: PointTransform
         }
-    });
+    })
+;

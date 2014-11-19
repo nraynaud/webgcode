@@ -13,7 +13,8 @@ requirejs.config({
         RSVP: 'libs/rsvp-latest',
         clipper: 'libs/clipper_unminified',
         canvg: 'libs/canvg/canvg',
-        bootstrap: 'libs/bootstrap/js/bootstrap.min'
+        bootstrap: 'libs/bootstrap/js/bootstrap.min',
+        base64: 'libs/deflate/base64'
     },
     shim: {
         jQuery: {exports: '$'},
@@ -48,6 +49,7 @@ requirejs.config({
         'libs/svg-import': {deps: ['libs/svg', 'libs/svg-parser']},
         RSVP: {exports: 'RSVP'},
         templates: {deps: ['Ember']},
-        clipper: {exports: 'ClipperLib'}
+        clipper: {exports: 'ClipperLib'},
+        base64: {exports: 'Base64'}
     }
 });

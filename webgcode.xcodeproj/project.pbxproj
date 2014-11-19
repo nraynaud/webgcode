@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DDAA502D3982345913C9385A /* pako.min.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA546068AA808773A44475 /* pako.min.js */; };
 		DDAA5056C47AB29F4BFD5D4D /* jsEditor.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA59E7DF6E04578E0F4F11 /* jsEditor.js */; };
 		DDAA505D83526CACD8BEAE28 /* SubdivisionModifier.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA58A68B3AD6541C366CEB /* SubdivisionModifier.js */; };
 		DDAA5108FA65E4F9D6A1E675 /* cam.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5B08E58D8D0CDBC74EAA /* cam.js */; };
@@ -54,6 +55,7 @@
 		DDAA57C1DB0A19207E999D47 /* dremel_bracket.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C540B906C544541D05B /* dremel_bracket.js */; };
 		DDAA57F319E245AB1BBEDAF8 /* runner.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA513A9EE7AC2438C9E111 /* runner.js */; };
 		DDAA580B449779665EC9B1BB /* elliptic.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5367902362964A0915C2 /* elliptic.js */; };
+		DDAA58BE9DBD78082FD48E01 /* yenc.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5AC14AAD3A2C784B1419 /* yenc.js */; };
 		DDAA58D07301B2E75AC0C420 /* firebase-debug.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5785A33DF48AE7C33AE2 /* firebase-debug.js */; };
 		DDAA592CE143F93F5D214920 /* delaunay.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA59240776C46200C93D09 /* delaunay.js */; };
 		DDAA59DDAACDD4A61B30F37E /* wabble.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA55F97E8D9015119CC503 /* wabble.js */; };
@@ -158,6 +160,7 @@
 		DDAA5407DEE90E0E2A589DCE /* wabble.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = wabble.js; sourceTree = "<group>"; };
 		DDAA5428E240AD53D84E839F /* STLLoader.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = STLLoader.js; path = libs/threejs/STLLoader.js; sourceTree = "<group>"; };
 		DDAA543BCEF47183F5DDA70F /* runner.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = runner.js; path = cnc/controller/runner.js; sourceTree = "<group>"; };
+		DDAA546068AA808773A44475 /* pako.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = pako.min.js; path = libs/pako.min.js; sourceTree = "<group>"; };
 		DDAA54613393642E5474B2DC /* simulation.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = simulation.js; path = gcode/simulation.js; sourceTree = "<group>"; };
 		DDAA54B37F49D0A2AC135D5A /* util.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = util.js; path = webapp/cnc/util.js; sourceTree = "<group>"; };
 		DDAA54B87A480F458CED26C3 /* models.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = models.js; sourceTree = "<group>"; };
@@ -224,6 +227,7 @@
 		DDAA5A55C036357C8CD5193C /* twoDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = twoDView.js; sourceTree = "<group>"; };
 		DDAA5A99ECD28BC66706A677 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = file.json; name = manifest.json; path = webapp/manifest.json; sourceTree = "<group>"; };
 		DDAA5AAFC3B9C67160FA662D /* geometry.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = geometry.js; path = gcode/geometry.js; sourceTree = "<group>"; };
+		DDAA5AC14AAD3A2C784B1419 /* yenc.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = yenc.js; path = libs/yenc.js; sourceTree = "<group>"; };
 		DDAA5B08E58D8D0CDBC74EAA /* cam.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = cam.js; sourceTree = "<group>"; };
 		DDAA5B32ABEAC29E2C09425A /* tux.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngc; path = tux.ngc; sourceTree = "<group>"; };
 		DDAA5B712AE405ADF7EF281A /* CAM.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = CAM.js; sourceTree = "<group>"; };
@@ -515,6 +519,8 @@
 				DDAA5785A33DF48AE7C33AE2 /* firebase-debug.js */,
 				DDAA5428E240AD53D84E839F /* STLLoader.js */,
 				DDAA58A68B3AD6541C366CEB /* SubdivisionModifier.js */,
+				DDAA546068AA808773A44475 /* pako.min.js */,
+				DDAA5AC14AAD3A2C784B1419 /* yenc.js */,
 			);
 			path = webapp;
 			sourceTree = "<group>";
@@ -737,6 +743,8 @@
 				DDAA5FA9BD2B2F4586ADBFFC /* controller.js in Sources */,
 				DDAA59F0952A1BB4918E903B /* STLLoader.js in Sources */,
 				DDAA505D83526CACD8BEAE28 /* SubdivisionModifier.js in Sources */,
+				DDAA502D3982345913C9385A /* pako.min.js in Sources */,
+				DDAA58BE9DBD78082FD48E01 /* yenc.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

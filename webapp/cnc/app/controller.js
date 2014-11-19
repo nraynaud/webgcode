@@ -110,7 +110,7 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble'],
             },
             addSTL: function (stlData, name) {
                 var shape = this.get('model').createShape('', name);
-                shape.set('stlModel', encodeURI(stlData));
+                shape.set('stlModel', stlData);
                 this.transitionToRoute('shape', shape);
             },
             actions: {

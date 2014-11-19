@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE', 'libs/threejs/STLLoader',
         'libs/threejs/postprocessing/EffectComposer', 'libs/threejs/postprocessing/RenderPass',
         'libs/threejs/postprocessing/ShaderPass', 'libs/threejs/postprocessing/CopyShader'],
@@ -73,7 +73,7 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE', 'libs/threejs/
                 var service = _this.get('controller.model');
                 var url = this.$().attr('src').split('?')[0];
                 if (url.indexOf('/auth/' + service + '/callback') != -1) {
-                    this.$()[0].executeScript({code: "document.getElementsByTagName('pre')[0].innerHTML;"}, function (res) {
+                    this.$()[0].executeScript({code: 'document.getElementsByTagName("pre")[0].innerHTML;'}, function (res) {
                         var authData = JSON.parse(res[0]);
                         _this.get('controller').send('loginWithToken', authData);
                     });
@@ -148,7 +148,7 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE', 'libs/threejs/
                     outlinesDisplay.addPolyLines(polyline);
                     var stlModel = shape.get('stlModel');
                     if (stlModel)
-                        outlinesDisplay.node.add(_this.get('nativeComponent').loadSTL(decodeURI(stlModel)));
+                        outlinesDisplay.node.add(_this.get('nativeComponent').loadSTL(stlModel));
                 });
                 this.get('nativeComponent').zoomExtent();
             }.observes('controller.shapes.@each.polyline', 'controller.shapes.@each.stlModel'),
@@ -165,10 +165,10 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE', 'libs/threejs/
             init: function () {
                 console.log('init');
                 this._super.apply(this, arguments);
-                this.renderer = new THREE.WebGLRenderer({antialias: false, alpha: true});
+                this.renderer = new THREE.WebGLRenderer({antialias: false, alpha: true, precision: 'highp', autoClear: true});
                 var width = 320;
                 var height = 200;
-                this.camera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, 0, 100);
+                this.camera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, 1, 100);
                 this.scene = new THREE.Scene();
                 this.scene.add(this.camera);
                 this.renderer.sortObjects = false;
@@ -197,7 +197,10 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE', 'libs/threejs/
                     var displayRatio = height / width;
                     var model = this.get('controller.stlModel');
                     if (model) {
-                        var geometry = new STLLoader().parse(decodeURI(model));
+                        console.log(model.length);
+                        console.time('parsing');
+                        var geometry = new STLLoader().parse(model);
+                        console.timeEnd('parsing');
                         var object = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({wireframe: true, color: 0xFEEFFE}));
                         this.scene.add(object);
                         object.geometry.computeBoundingBox();
@@ -206,19 +209,22 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE', 'libs/threejs/
                         var center = bbox.center();
                         var modelRatio = bboxSize.y / bboxSize.x;
                         var ratio = displayRatio < modelRatio ? bboxSize.y / height : bboxSize.x / width;
+                        var pixelsPerMm = 1 / ratio;
+                        console.log('pixelsPerMm', pixelsPerMm);
                         this.camera.left = -width / 2 * ratio;
                         this.camera.right = width / 2 * ratio;
                         this.camera.top = height / 2 * ratio;
                         this.camera.bottom = -height / 2 * ratio;
                         this.camera.position.x = center.x;
                         this.camera.position.y = center.y;
-                        this.camera.position.z = bbox.max.z;
+                        this.camera.position.z = bbox.max.z + 1;
                         this.camera.lookAt(center);
-                        this.camera.far = bbox.max.z - bbox.min.z;
+                        this.camera.far = bbox.max.z - bbox.min.z + 1;
                         this.camera.updateProjectionMatrix();
+                        console.time('shader');
                         var overrideMaterial = new THREE.ShaderMaterial({
                             uniforms: {
-                                zRange: { type: "f", value: this.camera.far }
+                                zRange: { type: 'f', value: this.camera.far }
                             },
                             vertexShader: [
                                 'void main() {',
@@ -227,49 +233,71 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE', 'libs/threejs/
                             fragmentShader: [
                                 'uniform float zRange;',
                                 'void main() {',
-                                '    gl_FragColor = vec4(1.0-gl_FragCoord.z,0.0,0.5,1.0);',
+                                '   float r = 1.0 - gl_FragCoord.z;',
+                                '   float g = mod(r * 256.0, 1.0);',
+                                '   float b = mod(g * 256.0, 1.0);',
+                                '   gl_FragColor = vec4(r, g, b, 1.0);',
                                 '}'].join('\n')
                         });
-                        var target = new THREE.WebGLRenderTarget(width, height, {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter});
+                        var target = new THREE.WebGLRenderTarget(width, height, {minFilter: THREE.NearestFilter,
+                            magFilter: THREE.NearestFilter});
                         var composer = new EffectComposer(this.renderer, target);
                         composer.addPass(new RenderPass(this.scene, this.camera, overrideMaterial));
-                        var radius = 5;
-                        var collected = [];
-                        for (var i = -radius; i <= radius; i++)
-                            for (var j = -radius; j <= radius; j++) {
-                                if (j != 0 && i != 0 && i * i + j * j <= radius * radius)
-                                    collected.push('   sum = max(sum, texture2D(tDiffuse, vec2(vUv.x + ' + i + '.0 * w, vUv.y + ' + j + '.0 * h)).r);');
-                            }
-                        var pass2 = new ShaderPass({
+                        var radiusMM = 1.5;
+                        var pixelRadius = radiusMM * pixelsPerMm;
+                        var zRatio = 1 / (this.camera.far - this.camera.near);
+                        console.log(pixelRadius);
+                        var shader = {
                             uniforms: {
-                                "tDiffuse": { type: "t", value: null },
-                                "h": { type: "f", value: 1.0 / height },
-                                "w": { type: "f", value: 1.0 / width }
-
+                                tDiffuse: {type: 't', value: null},
+                                h: {type: 'f', value: 1.0 / height},
+                                w: {type: 'f', value: 1.0 / width},
+                                near: {type: 'f', value: this.camera.near},
+                                far: {type: 'f', value: this.camera.far},
+                                zRatio: {type: 'f', value: zRatio}
+                            },
+                            defines: {
+                                radius: pixelRadius
                             },
                             vertexShader: [
-                                "varying vec2 vUv;",
-                                "void main() {",
-                                "   vUv = uv;",
-                                "   gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );",
-                                "}"
-                            ].join("\n"),
+                                'varying vec2 vUv;',
+                                'void main() {',
+                                '   vUv = uv;',
+                                '   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);',
+                                '}'
+                            ].join('\n'),
                             fragmentShader: [
-                                "uniform sampler2D tDiffuse;",
-                                "uniform float h;",
-                                "uniform float w;",
-                                "varying vec2 vUv;",
-                                "void main() {",
-                                "   float sum = texture2D(tDiffuse, vec2(vUv.x, vUv.y)).r;"]
-                                .concat(collected, [
-                                    "   gl_FragColor = vec4(sum, 0.5, 0.0, 1.0);",
-                                    "}"]).join("\n")
-                        });
+                                'uniform sampler2D tDiffuse;',
+                                'uniform float h;',
+                                'uniform float w;',
+                                'varying vec2 vUv;',
+                                'float readHeight(vec2 pos) {',
+                                '   vec4 color = texture2D(tDiffuse, vUv + pos);',
+                                '   return color.r + color.g / 256.0 + color.b / 256.0 / 256.0;',
+                                '}',
+                                'void main() {',
+                                '   float sum = texture2D(tDiffuse, vec2(vUv.x, vUv.y)).r;',
+                                '   for (float i = 0.0; i <= radius; i++)',
+                                '       for (float j = 0.0; j <= radius; j++)',
+                                '           if (i * i + j * j <= radius * radius) {',
+                                '               vec2 point = vec2((i + 0.0) * w, (j + 0.0) * h);',
+                                '               sum = max(sum, readHeight(point * vec2(-1.0, +1.0)));',
+                                '               sum = max(sum, readHeight(point * vec2(+1.0, -1.0)));',
+                                '               sum = max(sum, readHeight(point * vec2(-1.0, -1.0)));',
+                                '               sum = max(sum, readHeight(point * vec2(+1.0, +1.0)));',
+                                '           }',
+                                '   float r = sum;',
+                                '   float g = mod(r * 256.0, 1.0);',
+                                '   float b = mod(g * 256.0, 1.0);',
+                                '   gl_FragColor = vec4(r, g, b, 1.0);',
+                                '}'].join('\n')
+                        };
+                        var pass2 = new ShaderPass(shader);
                         //pass2 = new ShaderPass(CopyShader);
                         pass2.renderToScreen = true;
                         composer.addPass(pass2);
                         composer.render();
-                        //this.renderer.render(this.scene, this.camera);
+                        console.timeEnd('shader');
                     }
                 }
             }
