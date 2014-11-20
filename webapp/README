@@ -1,6 +1,4 @@
 This directory is the chrome application root.
 It is also directly accessed online by the website.
 
-to generate the template.js file:
-
-ember-precompile templates/*.handlebars -f templates.js
+to generate the template.js file there is the compile_ember.sh script.
