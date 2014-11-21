@@ -24,26 +24,12 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 return cam.pathDefToClipper(this.get('definition'));
             }.property('definition'),
             stlModel: function (key, value) {
-                console.log(base64);
                 if (arguments.length > 1) {
-                    console.log('decoded', value.length);
-                    console.log('deflated', pako.deflate(value, {to: 'string', level: 6}).length);//820180
-                    var encoded = base64.toBase64(pako.deflate(value, {to: 'string', level: 6}));
-                    console.log('encoded', encoded.length);
-                    console.log('re-decoded 64', base64.fromBase64(encoded).length);
-                    console.log('re-decoded ', pako.inflate(base64.fromBase64(encoded), {to: 'string'}).length);
-                    this.set('encodedStlModel', encoded);
+                    this.set('encodedStlModel', base64.toBase64(pako.deflate(value, {to: 'string', level: 6})));
                     return value;
                 } else {
                     var encoded = this.get('encodedStlModel');
-                    if (encoded) {
-                        console.log('encoded', encoded.length);
-                        var decoded = pako.inflate(base64.fromBase64(encoded), {to: 'string'});
-                        console.log('decoded', decoded.length);
-                        return decoded;
-                    } else {
-                        return null;
-                    }
+                    return encoded ? pako.inflate(base64.fromBase64(encoded), {to: 'string'}) : null;
                 }
             }.property('encodedStlModel')
         });
