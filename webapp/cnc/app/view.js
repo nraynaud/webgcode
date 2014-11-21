@@ -188,10 +188,16 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE', 'libs/threejs/
                 this.displayModel();
             }.observes('controller.model.stlModel'),
             displayModel: function () {
+                function copy(src) {
+                    var dst = new ArrayBuffer(src.byteLength);
+                    new Uint8Array(dst).set(new Uint8Array(src));
+                    return dst;
+                }
+
                 if (this.state == 'inDOM') {
                     var $container = this.$();
-                    var width = $container.width();
-                    var height = $container.height();
+                    var width = $container.width() * 4;
+                    var height = $container.height() * 4;
                     this.renderer.setSize(width, height);
                     this.renderer.setViewport(0, 0, width, height);
                     var displayRatio = height / width;
@@ -201,11 +207,20 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE', 'libs/threejs/
                         console.time('parsing');
                         var geometry = new STLLoader().parse(model);
                         console.timeEnd('parsing');
-                        var object = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({wireframe: true, color: 0xFEEFFE}));
-                        this.scene.add(object);
-                        object.geometry.computeBoundingBox();
-                        var bbox = object.geometry.boundingBox;
-                        var bboxSize = object.geometry.boundingBox.size();
+                        var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: 0xFEEFFE}));
+                        this.scene.add(mesh);
+                        var pointsGeom = new THREE.BufferGeometry();
+                        // we add the vertices to force the rasterizer to raster them as at least 1 pixel
+                        // in case a "mountain" is spiky enough to slip thought the raster grid.
+                        pointsGeom.addAttribute('position', geometry.attributes.position.clone());
+                        this.scene.add(new THREE.PointCloud(pointsGeom));
+                        // we should add all the edges too because a whole "ridge" might be sharp enough to slip through
+                        // the raster grid but I have a problem where the end of some lines "poke" slightly through the surface
+                        // I don't know why.
+                        //this.scene.add(new THREE.WireframeHelper(mesh));
+                        mesh.geometry.computeBoundingBox();
+                        var bbox = mesh.geometry.boundingBox;
+                        var bboxSize = mesh.geometry.boundingBox.size();
                         var center = bbox.center();
                         var modelRatio = bboxSize.y / bboxSize.x;
                         var ratio = displayRatio < modelRatio ? bboxSize.y / height : bboxSize.x / width;
@@ -220,44 +235,48 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE', 'libs/threejs/
                         this.camera.position.z = bbox.max.z + 1;
                         this.camera.lookAt(center);
                         this.camera.far = bbox.max.z - bbox.min.z + 1;
+                        console.log('near, far', this.camera.near, this.camera.far);
                         this.camera.updateProjectionMatrix();
                         console.time('shader');
-                        var overrideMaterial = new THREE.ShaderMaterial({
-                            uniforms: {
-                                zRange: { type: 'f', value: this.camera.far }
-                            },
+                        var operation = {
+                            sizeAttenuation: false,
+                            linewidth: 1,
                             vertexShader: [
                                 'void main() {',
-                                '   gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);',
+                                '   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);',
                                 '}'].join('\n'),
+                            // depth encoding : http://aras-p.info/blog/2009/07/30/encoding-floats-to-rgba-the-final/
                             fragmentShader: [
-                                'uniform float zRange;',
+                                'highp float factor = (exp2(24.0) - 1.0) / exp2(24.0);',
+                                'vec3 EncodeFloatRGB(highp float v) {',
+                                '   vec3 enc = fract(vec3(1.0, 255.0, 255.0 * 255.0) * factor * v);',
+                                '   enc -= enc.yzz * vec3(1.0 / 255.0, 1.0 / 255.0, 0.0);',
+                                '   return enc;',
+                                '}',
+                                'highp float DecodeFloatRGB(vec3 rgb) {',
+                                '   return dot(rgb, vec3(1.0, 1.0 / 255.0, 1.0 / 255.0 / 255.0)) / factor;',
+                                '}',
                                 'void main() {',
-                                '   float r = 1.0 - gl_FragCoord.z;',
-                                '   float g = mod(r * 256.0, 1.0);',
-                                '   float b = mod(g * 256.0, 1.0);',
-                                '   gl_FragColor = vec4(r, g, b, 1.0);',
+                                '   gl_FragColor = vec4(EncodeFloatRGB((1.0 - gl_FragCoord.z)), 1.0);',
                                 '}'].join('\n')
-                        });
-                        var target = new THREE.WebGLRenderTarget(width, height, {minFilter: THREE.NearestFilter,
-                            magFilter: THREE.NearestFilter});
+                        };
+                        var target = new THREE.WebGLRenderTarget(width, height,
+                            {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter});
                         var composer = new EffectComposer(this.renderer, target);
-                        composer.addPass(new RenderPass(this.scene, this.camera, overrideMaterial));
-                        var radiusMM = 1.5;
+                        composer.addPass(new RenderPass(this.scene, this.camera, new THREE.ShaderMaterial(operation)));
+                        var radiusMM = 0.2;
                         var pixelRadius = radiusMM * pixelsPerMm;
                         var zRatio = 1 / (this.camera.far - this.camera.near);
                         console.log(pixelRadius);
                         var shader = {
                             uniforms: {
-                                tDiffuse: {type: 't', value: null},
-                                h: {type: 'f', value: 1.0 / height},
-                                w: {type: 'f', value: 1.0 / width},
-                                near: {type: 'f', value: this.camera.near},
-                                far: {type: 'f', value: this.camera.far},
-                                zRatio: {type: 'f', value: zRatio}
+                                tDiffuse: {type: 't', value: null}
                             },
                             defines: {
-                                radius: pixelRadius
+                                radius: pixelRadius,
+                                pixelsCount: Math.ceil(pixelRadius) + '.0',
+                                w: (1.0 / width).toPrecision(10),
+                                h: (1.0 / height).toPrecision(10)
                             },
                             vertexShader: [
                                 'varying vec2 vUv;',
@@ -268,28 +287,32 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE', 'libs/threejs/
                             ].join('\n'),
                             fragmentShader: [
                                 'uniform sampler2D tDiffuse;',
-                                'uniform float h;',
-                                'uniform float w;',
                                 'varying vec2 vUv;',
-                                'float readHeight(vec2 pos) {',
-                                '   vec4 color = texture2D(tDiffuse, vUv + pos);',
-                                '   return color.r + color.g / 256.0 + color.b / 256.0 / 256.0;',
+                                'highp float factor = (exp2(24.0) - 1.0) / exp2(24.0);',
+                                'vec3 EncodeFloatRGB(highp float v) {',
+                                '   vec3 enc = fract(vec3(1.0, 255.0, 255.0 * 255.0) * factor* v);',
+                                '   enc -= enc.yzz * vec3(1.0 / 255.0, 1.0 / 255.0, 0.0);',
+                                '   return enc;',
+                                '}',
+                                'highp float DecodeFloatRGB(vec3 rgb) {',
+                                '   return dot(rgb, vec3(1.0, 1.0 / 255.0, 1.0 / 255.0 / 255.0)) / factor;',
+                                '}',
+                                'highp float readHeight(vec2 pos) {',
+                                '   highp vec4 color = texture2D(tDiffuse, vUv + pos);',
+                                '   return DecodeFloatRGB(color.rgb);',
                                 '}',
                                 'void main() {',
-                                '   float sum = texture2D(tDiffuse, vec2(vUv.x, vUv.y)).r;',
-                                '   for (float i = 0.0; i <= radius; i++)',
-                                '       for (float j = 0.0; j <= radius; j++)',
+                                '   highp float sum = readHeight(vec2(0.0, 0.0));',
+                                '   for (float i = 0.0; i <= pixelsCount; i++)',
+                                '       for (float j = 0.0; j <= pixelsCount; j++)',
                                 '           if (i * i + j * j <= radius * radius) {',
-                                '               vec2 point = vec2((i + 0.0) * w, (j + 0.0) * h);',
+                                '               vec2 point = vec2(i * w, j * h);',
                                 '               sum = max(sum, readHeight(point * vec2(-1.0, +1.0)));',
                                 '               sum = max(sum, readHeight(point * vec2(+1.0, -1.0)));',
                                 '               sum = max(sum, readHeight(point * vec2(-1.0, -1.0)));',
                                 '               sum = max(sum, readHeight(point * vec2(+1.0, +1.0)));',
                                 '           }',
-                                '   float r = sum;',
-                                '   float g = mod(r * 256.0, 1.0);',
-                                '   float b = mod(g * 256.0, 1.0);',
-                                '   gl_FragColor = vec4(r, g, b, 1.0);',
+                                '   gl_FragColor = vec4(EncodeFloatRGB(sum), 1.0);',
                                 '}'].join('\n')
                         };
                         var pass2 = new ShaderPass(shader);
