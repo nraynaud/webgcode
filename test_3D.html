@@ -77,7 +77,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 return samples;
             }
 
-            function createCynlindricalTool(sampleCount, zRatio, radiusMM) {
+            function createCylindricalTool(sampleCount, zRatio, radiusMM) {
                 var samples = [];
                 for (var i = 0; i < sampleCount; i++)
                     samples.push(0);
@@ -153,7 +153,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 var pixelRadius = radiusMM * pixelsPerMm;
                 var zRatio = 1 / (camera.far - camera.near);
                 var pixelCount = Math.ceil(pixelRadius) + 1;
-                var toolProfile = new Float32Array(createCynlindricalTool(pixelCount, zRatio, radiusMM));
+                var toolProfile = new Float32Array(createSphericalTool(pixelCount, zRatio, radiusMM));
                 console.log(toolProfile);
                 var toolTexture = new THREE.DataTexture(toolProfile, pixelCount, 1, THREE.LuminanceFormat, THREE.FloatType);
                 toolTexture.needsUpdate = true;
@@ -332,7 +332,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 console.timeEnd('shader');
 
                 function setToolType(type) {
-                    var types = {cylinder: createCynlindricalTool, ball: createSphericalTool, v: createVTool};
+                    var types = {cylinder: createCylindricalTool, ball: createSphericalTool, v: createVTool};
                     pass2.material.uniforms.toolProfile.value.image.data.set(new Float32Array(types[type](pixelCount, zRatio, radiusMM)));
                     pass2.material.uniforms.toolProfile.value.needsUpdate = true;
                     composer.render();
@@ -347,8 +347,8 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
 </head>
 <body>
 <select name="select" onChange="javascript:setToolType(this.value);">
-    <option value="cylinder" selected>Cylinder</option>
-    <option value="ball">Ball Nose</option>
+    <option value="cylinder">Cylinder</option>
+    <option value="ball" selected>Ball Nose</option>
     <option value="v">V Carving</option>
 </select>
 </body>
