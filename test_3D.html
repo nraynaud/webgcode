@@ -40,11 +40,10 @@
 <script>
 require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessing/EffectComposer',
             'libs/threejs/postprocessing/RenderPass', 'libs/threejs/postprocessing/ShaderPass',
-            'libs/threejs/OrbitControls'],
-        function ($, THREE, STLLoader, EffectComposer, RenderPass, ShaderPass, OrbitControls) {
+            'libs/threejs/OrbitControls', 'libs/threejs/postprocessing/CopyShader'],
+        function ($, THREE, STLLoader, EffectComposer, RenderPass, ShaderPass, OrbitControls, CopyShader) {
             var $container = $('body');
             var renderer = new THREE.WebGLRenderer({antialias: false, alpha: true, precision: 'highp', autoClear: true});
-            console.log(renderer.context.getSupportedExtensions());
             $container.append(renderer.domElement);
             var outputWidth = $container.width();
             var outputHeight = $container.height();
@@ -90,8 +89,8 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: 0xFEEFFE}));
                 scene.add(mesh);
                 var pointsGeom = new THREE.BufferGeometry();
-                // we add the vertices to force the rasterizer to raster them as at least 1 pixel
-                // in case a "mountain" is spiky enough to slip thought the raster grid.
+                // we add the vertices to force webgl to raster on at least 1 pixel
+                // in case a "mountain" is spiky enough to slip thought the sampling grid.
                 pointsGeom.addAttribute('position', geometry.attributes.position.clone());
                 scene.add(new THREE.PointCloud(pointsGeom));
                 // we should add all the edges too because a whole "ridge" might be sharp enough to slip through
@@ -103,14 +102,14 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 var bboxSize = mesh.geometry.boundingBox.size();
                 var center = bbox.center();
                 var modelRatio = bboxSize.y / bboxSize.x;
-                var height = 800;
-                var width = 800;
+                var height = 512;
+                var width = 512;
                 var displayRatio = height / width;
                 var ratio = displayRatio < modelRatio ? bboxSize.y / height : bboxSize.x / width;
-                var pixelsPerMm = 1 / ratio;
+                var partPixelsPerMm = 1 / ratio;
                 var camera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, 1, 100);
                 scene.add(camera);
-                console.log('pixelsPerMm', pixelsPerMm);
+                console.log('partPixelsPerMm', partPixelsPerMm);
                 camera.left = -width / 2 * ratio;
                 camera.right = width / 2 * ratio;
                 camera.top = height / 2 * ratio;
@@ -122,7 +121,6 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 camera.far = bbox.max.z - bbox.min.z + 1;
                 console.log('near, far', camera.near, camera.far);
                 camera.updateProjectionMatrix();
-                console.time('shader');
                 var operation = {
                     sizeAttenuation: false,
                     linewidth: 1,
@@ -142,30 +140,29 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         '   return dot(rgb, vec3(1.0, 1.0 / 255.0, 1.0 / 255.0 / 255.0)) / factor;',
                         '}',
                         'void main() {',
-                        '   gl_FragColor = vec4(EncodeFloatRGB((1.0 - gl_FragCoord.z)), 1.0);',
+                        '   gl_FragData[0] = vec4(EncodeFloatRGB((1.0 - gl_FragCoord.z)), 1.0);',
                         '}'].join('\n')
                 };
                 var target = new THREE.WebGLRenderTarget(width, height,
-                        {minFilter: THREE.NearestMipMapNearestFilter, magFilter: THREE.LinearFilter});
+                        {minFilter: THREE.NearestFilter, magFilter: THREE.LinearFilter, type: THREE.FloatType });
                 var composer = new EffectComposer(renderer, target);
                 composer.addPass(new RenderPass(scene, camera, new THREE.ShaderMaterial(operation)));
-                var radiusMM = 3;
-                var pixelRadius = radiusMM * pixelsPerMm;
+                var toolRadiusMm = 1;
                 var zRatio = 1 / (camera.far - camera.near);
-                var pixelCount = Math.ceil(pixelRadius) + 1;
-                var toolProfile = new Float32Array(createSphericalTool(pixelCount, zRatio, radiusMM));
-                console.log(toolProfile);
-                var toolTexture = new THREE.DataTexture(toolProfile, pixelCount, 1, THREE.LuminanceFormat, THREE.FloatType);
+                var toolPixelRadius = 16;
+                var toolPixelsPerMm = toolPixelRadius / toolRadiusMm;
+                var toolProfile = new Float32Array(createSphericalTool(toolPixelRadius, zRatio, toolRadiusMm));
+                var toolTexture = new THREE.DataTexture(toolProfile, toolPixelRadius, 1, THREE.LuminanceFormat, THREE.FloatType);
                 toolTexture.needsUpdate = true;
-                console.log(pixelRadius);
+                console.log(toolPixelRadius);
                 var shader = {
                     uniforms: {
                         tDiffuse: {type: 't', value: null},
                         toolProfile: {type: 't', value: toolTexture}
                     },
                     defines: {
-                        radius: pixelRadius.toPrecision(10),
-                        pixelCount: pixelCount + '.0',
+                        toolToPartRatio: (toolPixelsPerMm / partPixelsPerMm).toPrecision(10),
+                        pixelCount: toolPixelRadius,
                         w: (1.0 / width).toPrecision(10),
                         h: (1.0 / height).toPrecision(10)
                     },
@@ -190,22 +187,23 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         '   return dot(rgb, vec3(1.0, 1.0 / 255.0, 1.0 / 255.0 / 255.0)) / factor;',
                         '}',
                         'highp float readHeight(vec2 pos) {',
-                        '   highp vec4 color = texture2D(tDiffuse, vUv + pos * vec2(w, h));',
-                        '   highp float displacement = texture2D(toolProfile, vec2(length(pos)/radius, 0.5)).r;',
+                        '   highp vec4 color = texture2D(tDiffuse, vUv + pos * vec2(w, h) / toolToPartRatio);',
+                        '   highp float displacement = texture2D(toolProfile, vec2(length(pos) / float(toolPixelRadius), 0.5)).r;',
                         '   return DecodeFloatRGB(color.rgb) - displacement;',
                         '}',
                         'void main() {',
+                        '   highp int radiusSquared = toolPixelRadius * toolPixelRadius;',
                         '   highp float sum = readHeight(vec2(0.0, 0.0));',
-                        '   for (float i = 0.0; i <= pixelCount; i++)',
-                        '       for (float j = 0.0; j <= pixelCount; j++)',
-                        '           if (i * i + j * j <= radius * radius) {',
+                        '   for (int i = 0; i <= toolPixelRadius; i++)',
+                        '       for (int j = 0; j <= toolPixelRadius; j++)',
+                        '           if (i * i + j * j <= radiusSquared) {',
                         '               vec2 point = vec2(i, j);',
                         '               sum = max(sum, readHeight(point * vec2(-1.0, +1.0)));',
                         '               sum = max(sum, readHeight(point * vec2(+1.0, -1.0)));',
                         '               sum = max(sum, readHeight(point * vec2(-1.0, -1.0)));',
                         '               sum = max(sum, readHeight(point * vec2(+1.0, +1.0)));',
                         '           }',
-                        '   gl_FragColor = vec4(EncodeFloatRGB(sum), 1.0);',
+                        '   gl_FragColor = vec4(sum, 0.0, 0.0, 1.0);',
                         '}'].join('\n')
                 };
                 var pass2 = new ShaderPass(shader);
@@ -228,6 +226,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
 
                 var terrainShader = {
                     wireframe: true,
+                    size: 2,
                     uniforms: {
                         tDisplacement: {type: 't', value: composer.readBuffer},
                         xSpan: {type: 'f', value: camera.right - camera.left},
@@ -236,12 +235,6 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         yCenter: {type: 'f', value: (camera.top - camera.bottom) / 2},
                         farPlane: {type: 'f', value: camera.far - 1},
                         zRatio: {type: 'f', value: zRatio}
-                    },
-                    defines: {
-                        radius: pixelRadius,
-                        pixelCount: pixelCount + '.0',
-                        w: (1.0 / outputWidth).toPrecision(10),
-                        h: (1.0 / outputHeight).toPrecision(10)
                     },
                     vertexShader: [
                         'uniform sampler2D tDisplacement;',
@@ -263,21 +256,23 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         '}',
                         'void main() {',
                         '   float x = position.x * xSpan;',
-                        '   float u = position.x +0.5;',
-                        '   float y =  position.y * ySpan;',
-                        '   float v = position.y +0.5;',
+                        '   float u = position.x + 0.5;',
+                        '   float y = position.y * ySpan;',
+                        '   float v = position.y + 0.5;',
                         '   color = texture2D(tDisplacement, vec2(u, v));',
-                        '   gl_Position = projectionMatrix * modelViewMatrix * vec4(x, y, DecodeFloatRGB(color.rgb) / zRatio - farPlane, 1.0);',
+                        '   gl_Position = projectionMatrix * modelViewMatrix * vec4(x, y, color.r / zRatio - farPlane, 1.0);',
                         '}'
                     ].join('\n'),
                     fragmentShader: [
                         'varying vec4 color;',
                         'void main() {',
-                        '   gl_FragColor = vec4(color.r/2.0, color.r/2.0, color.r/2.0, 1.0);',
+                        '   gl_FragColor = vec4(color.r/2.0, color.g/2.0, color.r/2.0, 1.0);',
                         '}'].join('\n')
                 };
 
-                function createGrid(xRes, yRes) {
+                var terrainMaterial = new THREE.ShaderMaterial(terrainShader);
+
+                function createGrid(xRes, yRes, points) {
                     var geometry = new THREE.BufferGeometry();
                     var vertices = [];
                     var offset = 0;
@@ -288,24 +283,31 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
 
                     for (var i = 0; i < xRes; i++)
                         for (var j = 0; j < yRes; j++) {
-                            if (i != 0) {
-                                pushVertex(i - 1, j);
+                            if (points)
                                 pushVertex(i, j);
-                            }
-                            if (j != 0) {
-                                pushVertex(i, j - 1);
-                                pushVertex(i, j);
+                            else {
+                                if (i != 0) {
+                                    pushVertex(i - 1, j);
+                                    pushVertex(i, j);
+                                }
+                                if (j != 0) {
+                                    pushVertex(i, j - 1);
+                                    pushVertex(i, j);
+                                }
                             }
                             offset += 3
                         }
                     geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
-                    return new THREE.Line(geometry, new THREE.ShaderMaterial(terrainShader), THREE.LinePieces);
+                    if (points)
+                        return new THREE.PointCloud(geometry, terrainMaterial);
+                    else
+                        return new THREE.Line(geometry, terrainMaterial, THREE.LinePieces);
                 }
 
                 var object = new THREE.LOD();
-                object.addLevel(createGrid(400, 400), 20);
-                object.addLevel(createGrid(100, 100), 50);
-                object.addLevel(createGrid(50, 50), 75);
+                object.addLevel(createGrid(1000, 1000, true), 20);
+                object.addLevel(createGrid(500, 500, true), 50);
+                object.addLevel(createGrid(100, 100), 75);
                 object.updateMatrix();
                 scene2.add(object);
                 scene2.add(new THREE.Mesh(clonedGeometry, new THREE.MeshLambertMaterial({color: 0xFEEFFE, shading: THREE.SmoothShading})));
@@ -329,28 +331,38 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 }
 
                 reRender();
-                console.timeEnd('shader');
 
                 function setToolType(type) {
+                    console.time('tool change');
                     var types = {cylinder: createCylindricalTool, ball: createSphericalTool, v: createVTool};
-                    pass2.material.uniforms.toolProfile.value.image.data.set(new Float32Array(types[type](pixelCount, zRatio, radiusMM)));
+                    pass2.material.uniforms.toolProfile.value.image.data.set(new Float32Array(types[type](toolPixelRadius, zRatio, toolRadiusMm)));
                     pass2.material.uniforms.toolProfile.value.needsUpdate = true;
+                    console.time('complete render');
                     composer.render();
                     reRender();
+
+                    //for pessimistic computation time measure, since gl.finish() is faked.
+                    var gl = renderer.getContext();
+                    gl.flush();
+                    var pixelBuffer = new Uint8Array(4);
+                    gl.readPixels(1, 1, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixelBuffer);
+                    console.timeEnd('complete render');
+                    console.timeEnd('tool change');
                 }
 
                 window.setToolType = setToolType;
             }
         });
-
 </script>
 </head>
 <body>
-<select name="select" onChange="javascript:setToolType(this.value);">
-    <option value="cylinder">Cylinder</option>
-    <option value="ball" selected>Ball Nose</option>
-    <option value="v">V Carving</option>
-</select>
+<div>
+    <select name="select" onChange="javascript:setToolType(this.value);">
+        <option value="cylinder">Cylinder</option>
+        <option value="ball" selected>Ball Nose</option>
+        <option value="v">V Carving</option>
+    </select>
+</div>
 </body>
 
 </html>
