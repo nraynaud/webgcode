@@ -252,6 +252,7 @@
 		DDAA5DA78FB055D13C9A76E0 /* test_voronoi.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_voronoi.html; sourceTree = "<group>"; };
 		DDAA5DAA497AA174431D8606 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = index.html; path = webapp/index.html; sourceTree = "<group>"; };
 		DDAA5DADF1563A99CFD20E6D /* geometry.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = geometry.js; sourceTree = "<group>"; };
+		DDAA5DB460D44711D0FB7387 /* test_3D.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_3D.html; sourceTree = "<group>"; };
 		DDAA5DBED23BB93B2FA59786 /* util.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = util.js; sourceTree = "<group>"; };
 		DDAA5E122DE608E329B07F71 /* compile_ember.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = compile_ember.sh; sourceTree = "<group>"; };
 		DDAA5E1979B9A72E31B3FBFE /* box.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = box.js; path = webapp/samples/box.js; sourceTree = "<group>"; };
@@ -569,6 +570,7 @@
 				DDAA59271DF6A4EFEC26F9A7 /* .gitignore */,
 				DDAA59906CEEDDDE943F0A35 /* interpolator */,
 				DDAA5DA78FB055D13C9A76E0 /* test_voronoi.html */,
+				DDAA5DB460D44711D0FB7387 /* test_3D.html */,
 			);
 			sourceTree = "<group>";
 		};

@@ -264,17 +264,40 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE', 'libs/threejs/
                             {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter});
                         var composer = new EffectComposer(this.renderer, target);
                         composer.addPass(new RenderPass(this.scene, this.camera, new THREE.ShaderMaterial(operation)));
-                        var radiusMM = 0.2;
+                        var radiusMM = 1;
                         var pixelRadius = radiusMM * pixelsPerMm;
                         var zRatio = 1 / (this.camera.far - this.camera.near);
+                        var pixelCount = Math.ceil(pixelRadius) + 1;
+                        var toolProfile = new Uint8Array(pixelCount);
+                        // 45° tool
+                        for (var i = 0; i < pixelCount; i++) {
+                            for (var j = 0; j < pixelCount; j++) {
+                                console.log(i, i / pixelRadius * radiusMM * zRatio);
+                                toolProfile[i * pixelCount * j] = 127;
+                            }
+                        }
+                        var lwidth = 64;
+                        var lheight = 64;
+                        var pixels = new Float32Array(width * height);
+                        for (var y = 0; y < height; ++y) {
+                            for (var x = 0; x < width; ++x) {
+                                var offset = (y * width + x);
+                                pixels[offset] = ((x * y) / (width * height)) * 256000;
+                            }
+                        }
+
+                        console.log(toolProfile);
+                        var toolTexture = new THREE.DataTexture(pixels, lwidth, lheight, THREE.LuminanceFormat, THREE.FloatType);
+                        toolTexture.needsUpdate = true;
                         console.log(pixelRadius);
                         var shader = {
                             uniforms: {
-                                tDiffuse: {type: 't', value: null}
+                                tDiffuse: {type: 't', value: null},
+                                tToolProfile: {type: 't', value: toolTexture}
                             },
                             defines: {
                                 radius: pixelRadius,
-                                pixelsCount: Math.ceil(pixelRadius) + '.0',
+                                pixelCount: pixelCount + '.0',
                                 w: (1.0 / width).toPrecision(10),
                                 h: (1.0 / height).toPrecision(10)
                             },
@@ -287,6 +310,7 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE', 'libs/threejs/
                             ].join('\n'),
                             fragmentShader: [
                                 'uniform sampler2D tDiffuse;',
+                                'uniform sampler2D tToolProfile;',
                                 'varying vec2 vUv;',
                                 'highp float factor = (exp2(24.0) - 1.0) / exp2(24.0);',
                                 'vec3 EncodeFloatRGB(highp float v) {',
@@ -299,12 +323,13 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE', 'libs/threejs/
                                 '}',
                                 'highp float readHeight(vec2 pos) {',
                                 '   highp vec4 color = texture2D(tDiffuse, vUv + pos);',
-                                '   return DecodeFloatRGB(color.rgb);',
+                                '   highp float displacement = texture2D(tToolProfile, vec2(length(pos), 0.5)).r;',
+                                '   return DecodeFloatRGB(color.rgb) - displacement;',
                                 '}',
                                 'void main() {',
                                 '   highp float sum = readHeight(vec2(0.0, 0.0));',
-                                '   for (float i = 0.0; i <= pixelsCount; i++)',
-                                '       for (float j = 0.0; j <= pixelsCount; j++)',
+                                '   for (float i = 0.0; i <= pixelCount; i++)',
+                                '       for (float j = 0.0; j <= pixelCount; j++)',
                                 '           if (i * i + j * j <= radius * radius) {',
                                 '               vec2 point = vec2(i * w, j * h);',
                                 '               sum = max(sum, readHeight(point * vec2(-1.0, +1.0)));',
