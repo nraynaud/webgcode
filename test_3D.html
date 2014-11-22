@@ -29,6 +29,12 @@
 
     body {
         font-family: sans-serif;
+        display: flex;
+        flex-direction: column;
+    }
+
+    canvas {
+        flex: 1;
     }
 </style>
 <script>
@@ -208,7 +214,9 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 var scene2 = new THREE.Scene();
                 var camera2 = new THREE.PerspectiveCamera(45, width / height, 0.01, 20000);
                 camera2.up.set(0, 0, 1);
+                camera2.position.z = 100;
                 scene2.add(camera2);
+                camera2.updateMatrixWorld();
                 var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
                 directionalLight.position.set(1000, 1000, 1000);
                 scene2.add(directionalLight);
