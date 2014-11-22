@@ -46,16 +46,12 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
             var renderer = new THREE.WebGLRenderer({antialias: false, alpha: true, precision: 'highp', autoClear: true});
             console.log(renderer.context.getSupportedExtensions());
             $container.append(renderer.domElement);
-            var width = $container.width();
-            var height = $container.height();
-            var camera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, 1, 100);
-            var scene = new THREE.Scene();
-            scene.add(camera);
+            var outputWidth = $container.width();
+            var outputHeight = $container.height();
             renderer.sortObjects = false;
-            renderer.setSize(width, height);
-            renderer.setViewport(0, 0, width, height);
+            renderer.setSize(outputWidth, outputHeight);
+            renderer.setViewport(0, 0, outputWidth, outputHeight);
             renderer.clear();
-            var displayRatio = height / width;
             new STLLoader().load('webapp/samples/soap.stl', function (geometry) {
                 function draw() {
                     displayGeometry(geometry);
@@ -89,6 +85,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
             }
 
             function displayGeometry(geometry) {
+                var scene = new THREE.Scene();
                 var clonedGeometry = geometry.clone();
                 var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: 0xFEEFFE}));
                 scene.add(mesh);
@@ -106,8 +103,13 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 var bboxSize = mesh.geometry.boundingBox.size();
                 var center = bbox.center();
                 var modelRatio = bboxSize.y / bboxSize.x;
+                var height = 800;
+                var width = 800;
+                var displayRatio = height / width;
                 var ratio = displayRatio < modelRatio ? bboxSize.y / height : bboxSize.x / width;
                 var pixelsPerMm = 1 / ratio;
+                var camera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, 1, 100);
+                scene.add(camera);
                 console.log('pixelsPerMm', pixelsPerMm);
                 camera.left = -width / 2 * ratio;
                 camera.right = width / 2 * ratio;
@@ -144,7 +146,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         '}'].join('\n')
                 };
                 var target = new THREE.WebGLRenderTarget(width, height,
-                        {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter});
+                        {minFilter: THREE.NearestMipMapNearestFilter, magFilter: THREE.LinearFilter});
                 var composer = new EffectComposer(renderer, target);
                 composer.addPass(new RenderPass(scene, camera, new THREE.ShaderMaterial(operation)));
                 var radiusMM = 3;
@@ -162,7 +164,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         toolProfile: {type: 't', value: toolTexture}
                     },
                     defines: {
-                        radius: pixelRadius,
+                        radius: pixelRadius.toPrecision(10),
                         pixelCount: pixelCount + '.0',
                         w: (1.0 / width).toPrecision(10),
                         h: (1.0 / height).toPrecision(10)
@@ -212,7 +214,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 composer.addPass(pass2);
                 composer.render();
                 var scene2 = new THREE.Scene();
-                var camera2 = new THREE.PerspectiveCamera(45, width / height, 0.01, 20000);
+                var camera2 = new THREE.PerspectiveCamera(45, outputWidth / outputHeight, 0.01, 20000);
                 camera2.up.set(0, 0, 1);
                 camera2.position.z = 100;
                 scene2.add(camera2);
@@ -238,8 +240,8 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     defines: {
                         radius: pixelRadius,
                         pixelCount: pixelCount + '.0',
-                        w: (1.0 / width).toPrecision(10),
-                        h: (1.0 / height).toPrecision(10)
+                        w: (1.0 / outputWidth).toPrecision(10),
+                        h: (1.0 / outputHeight).toPrecision(10)
                     },
                     vertexShader: [
                         'uniform sampler2D tDisplacement;',
@@ -249,7 +251,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         'uniform float yCenter;',
                         'uniform float farPlane;',
                         'uniform float zRatio;',
-                        'varying vec2 vUv;',
+                        'varying vec4 color;',
                         'highp float factor = (exp2(24.0) - 1.0) / exp2(24.0);',
                         'vec3 EncodeFloatRGB(highp float v) {',
                         '   vec3 enc = fract(vec3(1.0, 255.0, 255.0 * 255.0) * factor* v);',
@@ -260,17 +262,18 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         '   return dot(rgb, vec3(1.0, 1.0 / 255.0, 1.0 / 255.0 / 255.0)) / factor;',
                         '}',
                         'void main() {',
-                        '   vUv = uv;',
                         '   float x = position.x * xSpan;',
                         '   float u = position.x +0.5;',
                         '   float y =  position.y * ySpan;',
                         '   float v = position.y +0.5;',
-                        '   gl_Position = projectionMatrix * modelViewMatrix * vec4(x, y, DecodeFloatRGB(texture2D(tDisplacement, vec2(u, v)).rgb) / zRatio - farPlane, 1.0);',
+                        '   color = texture2D(tDisplacement, vec2(u, v));',
+                        '   gl_Position = projectionMatrix * modelViewMatrix * vec4(x, y, DecodeFloatRGB(color.rgb) / zRatio - farPlane, 1.0);',
                         '}'
                     ].join('\n'),
                     fragmentShader: [
+                        'varying vec4 color;',
                         'void main() {',
-                        '   gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);',
+                        '   gl_FragColor = vec4(color.r/2.0, color.r/2.0, color.r/2.0, 1.0);',
                         '}'].join('\n')
                 };
 
