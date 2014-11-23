@@ -350,18 +350,42 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     console.timeEnd('tool change');
                 }
 
+                function setToolRadius(radius) {
+                    console.time('tool change');
+                    var toolPixelsPerMm = toolPixelRadius / radius;
+                    pass2.material.defines.toolToPartRatio = (toolPixelsPerMm / partPixelsPerMm).toPrecision(10);
+                    pass2.material.needsUpdate = true;
+                    console.time('complete render');
+                    composer.render();
+                    reRender();
+
+                    //for pessimistic computation time measure, since gl.finish() is faked.
+                    var gl = renderer.getContext();
+                    gl.flush();
+                    var pixelBuffer = new Uint8Array(4);
+                    gl.readPixels(1, 1, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixelBuffer);
+                    console.timeEnd('complete render');
+                    console.timeEnd('tool change');
+                }
+
                 window.setToolType = setToolType;
+                window.setToolRadius = setToolRadius;
             }
         });
 </script>
 </head>
 <body>
-<div>
-    <select name="select" onChange="javascript:setToolType(this.value);">
-        <option value="cylinder">Cylinder</option>
-        <option value="ball" selected>Ball Nose</option>
-        <option value="v">V Carving</option>
-    </select>
+<div class="btn-toolbar" role="toolbar">
+    <div class="btn-group" role="group">
+        <label>shape: <select name="select" onChange="setToolType(this.value);">
+            <option value="cylinder">Cylinder</option>
+            <option value="ball" selected>Ball Nose</option>
+            <option value="v">V Carving</option>
+        </select></label>
+        <label>Radius: <input type="range" min="0" max="10" value="1" step="0.1"
+                              onchange="setToolRadius(this.value)"></label>
+    </div>
+
 </div>
 </body>
 
