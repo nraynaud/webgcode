@@ -305,7 +305,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 }
 
                 var object = new THREE.LOD();
-                object.addLevel(createGrid(1000, 1000, true), 20);
+                object.addLevel(createGrid(600, 600, true), 20);
                 object.addLevel(createGrid(500, 500, true), 50);
                 object.addLevel(createGrid(100, 100), 75);
                 object.updateMatrix();
@@ -337,24 +337,21 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     var types = {cylinder: createCylindricalTool, ball: createSphericalTool, v: createVTool};
                     pass2.material.uniforms.toolProfile.value.image.data.set(new Float32Array(types[type](toolPixelRadius, zRatio, toolRadiusMm)));
                     pass2.material.uniforms.toolProfile.value.needsUpdate = true;
-                    console.time('complete render');
-                    composer.render();
-                    reRender();
-
-                    //for pessimistic computation time measure, since gl.finish() is faked.
-                    var gl = renderer.getContext();
-                    gl.flush();
-                    var pixelBuffer = new Uint8Array(4);
-                    gl.readPixels(1, 1, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixelBuffer);
-                    console.timeEnd('complete render');
+                    reRenderPipeline();
                     console.timeEnd('tool change');
                 }
 
                 function setToolRadius(radius) {
+                    $('#radius').text(radius);
                     console.time('tool change');
                     var toolPixelsPerMm = toolPixelRadius / radius;
                     pass2.material.defines.toolToPartRatio = (toolPixelsPerMm / partPixelsPerMm).toPrecision(10);
                     pass2.material.needsUpdate = true;
+                    reRenderPipeline();
+                    console.timeEnd('tool change');
+                }
+
+                function reRenderPipeline() {
                     console.time('complete render');
                     composer.render();
                     reRender();
@@ -365,7 +362,6 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     var pixelBuffer = new Uint8Array(4);
                     gl.readPixels(1, 1, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixelBuffer);
                     console.timeEnd('complete render');
-                    console.timeEnd('tool change');
                 }
 
                 window.setToolType = setToolType;
@@ -382,8 +378,8 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
             <option value="ball" selected>Ball Nose</option>
             <option value="v">V Carving</option>
         </select></label>
-        <label>Radius: <input type="range" min="0" max="10" value="1" step="0.1"
-                              onchange="setToolRadius(this.value)"></label>
+        <label>Radius (<span id="radius">1</span>): <input type="range" min="0" max="10" value="1" step="0.1"
+                                                           onchange="setToolRadius(this.value)"></label>
     </div>
 
 </div>
