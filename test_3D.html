@@ -83,9 +83,8 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 return samples;
             }
 
-            function displayGeometry(geometry) {
+            function TerrainPipeline(geometry) {
                 var scene = new THREE.Scene();
-                var clonedGeometry = geometry.clone();
                 var mesh = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({color: 0xFEEFFE}));
                 scene.add(mesh);
                 var pointsGeom = new THREE.BufferGeometry();
@@ -188,7 +187,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         '}',
                         'highp float readHeight(vec2 pos) {',
                         '   highp vec4 color = texture2D(tDiffuse, vUv + pos * vec2(w, h) / toolToPartRatio);',
-                        '   highp float displacement = texture2D(toolProfile, vec2(length(pos) / float(toolPixelRadius), 0.5)).r;',
+                        '   highp float displacement = texture2D(toolProfile, vec2(length(pos) / float(toolPixelRadius), 0.5)).r / toolToPartRatio;',
                         '   return DecodeFloatRGB(color.rgb) - displacement;',
                         '}',
                         'void main() {',
@@ -210,7 +209,39 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 //pass2 = new ShaderPass(CopyShader);
                 //pass2.renderToScreen = true;
                 composer.addPass(pass2);
-                composer.render();
+                this.pass2 = pass2;
+                this.composer = composer;
+                this.toolPixelRadius = toolPixelRadius;
+                this.zRatio = zRatio;
+                this.toolRadiusMm = toolRadiusMm;
+                this.camera = camera;
+                this.partPixelsPerMm = partPixelsPerMm;
+            }
+
+            TerrainPipeline.prototype = {
+                render: function () {
+                    this.composer.render();
+                },
+                getCameraData: function () {
+                    var camera = this.camera;
+                    return new THREE.Vector4((camera.right - camera.left) / 2, (camera.top - camera.bottom) / 2,
+                            camera.right - camera.left, camera.top - camera.bottom);
+                },
+                setToolType: function (type) {
+                    var types = {cylinder: createCylindricalTool, ball: createSphericalTool, v: createVTool};
+                    this.pass2.material.uniforms.toolProfile.value.image.data.set(new Float32Array(types[type](this.toolPixelRadius, this.zRatio, this.toolRadiusMm)));
+                    this.pass2.material.uniforms.toolProfile.value.needsUpdate = true;
+                },
+                setToolRadius: function (radius) {
+                    this.toolPixelsPerMm = this.toolPixelRadius / radius;
+                    this.pass2.material.defines.toolToPartRatio = (this.toolPixelsPerMm / this.partPixelsPerMm).toPrecision(10);
+                    this.pass2.material.needsUpdate = true;
+                }
+            };
+
+            function displayGeometry(geometry) {
+                var clonedGeometry = geometry.clone();
+                var pipeline = new TerrainPipeline(geometry);
                 var scene2 = new THREE.Scene();
                 var camera2 = new THREE.PerspectiveCamera(45, outputWidth / outputHeight, 0.01, 20000);
                 camera2.up.set(0, 0, 1);
@@ -228,20 +259,14 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     wireframe: true,
                     size: 2,
                     uniforms: {
-                        tDisplacement: {type: 't', value: composer.readBuffer},
-                        xSpan: {type: 'f', value: camera.right - camera.left},
-                        xCenter: {type: 'f', value: (camera.right - camera.left) / 2},
-                        ySpan: {type: 'f', value: camera.top - camera.bottom},
-                        yCenter: {type: 'f', value: (camera.top - camera.bottom) / 2},
-                        farPlane: {type: 'f', value: camera.far - 1},
-                        zRatio: {type: 'f', value: zRatio}
+                        tDisplacement: {type: 't', value: pipeline.composer.writeBuffer},
+                        cameraXY: {type: 'v4', value: pipeline.getCameraData()},
+                        farPlane: {type: 'f', value: pipeline.camera.far - 1},
+                        zRatio: {type: 'f', value: pipeline.zRatio}
                     },
                     vertexShader: [
                         'uniform sampler2D tDisplacement;',
-                        'uniform float xSpan;',
-                        'uniform float xCenter;',
-                        'uniform float ySpan;',
-                        'uniform float yCenter;',
+                        'uniform vec4 cameraXY;',
                         'uniform float farPlane;',
                         'uniform float zRatio;',
                         'varying vec4 color;',
@@ -255,9 +280,9 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         '   return dot(rgb, vec3(1.0, 1.0 / 255.0, 1.0 / 255.0 / 255.0)) / factor;',
                         '}',
                         'void main() {',
-                        '   float x = position.x * xSpan;',
+                        '   float x = position.x * cameraXY.z;',
                         '   float u = position.x + 0.5;',
-                        '   float y = position.y * ySpan;',
+                        '   float y = position.y * cameraXY.w;',
                         '   float v = position.y + 0.5;',
                         '   color = texture2D(tDisplacement, vec2(u, v));',
                         '   gl_Position = projectionMatrix * modelViewMatrix * vec4(x, y, color.r / zRatio - farPlane, 1.0);',
@@ -330,13 +355,10 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     renderer.render(scene2, camera2);
                 }
 
-                reRender();
 
                 function setToolType(type) {
                     console.time('tool change');
-                    var types = {cylinder: createCylindricalTool, ball: createSphericalTool, v: createVTool};
-                    pass2.material.uniforms.toolProfile.value.image.data.set(new Float32Array(types[type](toolPixelRadius, zRatio, toolRadiusMm)));
-                    pass2.material.uniforms.toolProfile.value.needsUpdate = true;
+                    pipeline.setToolType(type);
                     reRenderPipeline();
                     console.timeEnd('tool change');
                 }
@@ -344,16 +366,14 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 function setToolRadius(radius) {
                     $('#radius').text(radius);
                     console.time('tool change');
-                    var toolPixelsPerMm = toolPixelRadius / radius;
-                    pass2.material.defines.toolToPartRatio = (toolPixelsPerMm / partPixelsPerMm).toPrecision(10);
-                    pass2.material.needsUpdate = true;
+                    pipeline.setToolRadius(radius);
                     reRenderPipeline();
                     console.timeEnd('tool change');
                 }
 
                 function reRenderPipeline() {
                     console.time('complete render');
-                    composer.render();
+                    pipeline.composer.render();
                     reRender();
 
                     //for pessimistic computation time measure, since gl.finish() is faked.
@@ -366,6 +386,8 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
 
                 window.setToolType = setToolType;
                 window.setToolRadius = setToolRadius;
+
+                reRenderPipeline();
             }
         });
 </script>
@@ -378,7 +400,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
             <option value="ball" selected>Ball Nose</option>
             <option value="v">V Carving</option>
         </select></label>
-        <label>Radius (<span id="radius">1</span>): <input type="range" min="0" max="10" value="1" step="0.1"
+        <label>Radius (<span id="radius">1</span>): <input type="range" min="0.1" max="10" value="1" step="0.1"
                                                            onchange="setToolRadius(this.value)"></label>
     </div>
 
