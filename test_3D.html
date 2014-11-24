@@ -136,6 +136,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 var halfDisplaySide = displaySideMm / 2;
                 var camera = new THREE.OrthographicCamera(-halfDisplaySide, halfDisplaySide, halfDisplaySide, -halfDisplaySide, 1, 100);
                 scene.add(camera);
+                var sampleRate = displaySide / displaySideMm;
                 camera.position.x = center.x;
                 camera.position.y = center.y;
                 camera.position.z = bbox.max.z + 1;
@@ -145,13 +146,15 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 camera.updateProjectionMatrix();
 
                 var target = new THREE.WebGLRenderTarget(displaySide, displaySide,
-                        {minFilter: THREE.NearestFilter, magFilter: THREE.LinearFilter});
+                        {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter});
                 var composer = new EffectComposer(renderer, target);
                 composer.addPass(new RenderPass(scene, camera));
                 var toolRadiusMm = 1;
                 var zRatio = 1 / (camera.far - camera.near);
-                var toolPixelRadius = 16;
-                var toolTexture = new THREE.DataTexture(new Float32Array(toolPixelRadius), toolPixelRadius, 1, THREE.LuminanceFormat, THREE.FloatType);
+                var toolShapePoints = 10;
+                var radialSamples = Math.ceil(toolRadiusMm * sampleRate);
+                console.log('radialSamples', radialSamples);
+                var toolTexture = new THREE.DataTexture(new Float32Array(toolShapePoints), toolShapePoints, 1, THREE.LuminanceFormat, THREE.FloatType);
                 var shader = {
                     uniforms: {
                         tDiffuse: {type: 't', value: null},
@@ -159,7 +162,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         toolToPartRatio: {type: 'f', value: toolRadiusMm / displaySideMm}
                     },
                     defines: {
-                        toolPixelRadius: toolPixelRadius
+                        radialSamples: radialSamples
                     },
                     vertexShader: [
                         'varying vec2 vUv;',
@@ -188,13 +191,13 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         '   return DecodeFloatRGB(color.rgb) - displacement;',
                         '}',
                         'void main() {',
-                        '   highp int radiusSquared = toolPixelRadius * toolPixelRadius;',
+                        '   highp int radiusSquared = radialSamples * radialSamples;',
                         '   highp float sum = readHeight(vec2(0.0, 0.0));',
-                        '   for (int i = -toolPixelRadius; i <= toolPixelRadius; i++)',
-                        '       for (int j = -toolPixelRadius; j <= toolPixelRadius; j++)',
+                        '   for (int i = -radialSamples; i <= radialSamples; i++)',
+                        '       for (int j = -radialSamples; j <= radialSamples; j++)',
                         '           if (i * i + j * j <= radiusSquared)',
-                        '               sum = max(sum, readHeight(vec2(i, j) / float(toolPixelRadius)));',
-                        '   gl_FragColor = vec4(sum, 0.0, 0.0, 1.0);',
+                        '               sum = max(sum, readHeight(vec2(i, j) / float(radialSamples)));',
+                        '   gl_FragColor = vec4(EncodeFloatRGB(sum), 1.0);',
                         '}'].join('\n')
                 };
                 var pass2 = new ShaderPass(shader);
@@ -203,11 +206,12 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 composer.addPass(pass2);
                 this.pass2 = pass2;
                 this.composer = composer;
-                this.toolPixelRadius = toolPixelRadius;
+                this.toolPixelRadius = toolShapePoints;
                 this.zRatio = zRatio;
                 this.toolRadiusMm = toolRadiusMm;
                 this.displaySideMm = displaySideMm;
                 this.toolRadiusMm = toolRadiusMm;
+                this.sampleRate = sampleRate;
                 this.camera = camera;
                 this.toolType = 'ball';
                 this.updateToolShape();
@@ -235,8 +239,9 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 setToolRadius: function (radius) {
                     this.toolRadiusMm = radius;
                     this.updateToolShape();
+                    this.pass2.material.defines.radialSamples = Math.ceil(radius * this.sampleRate);
                     this.pass2.material.uniforms.toolToPartRatio.value = (this.toolRadiusMm / this.displaySideMm).toPrecision(10);
-                    this.pass2.material.uniforms.toolToPartRatio.needsUpdate = true;
+                    this.pass2.material.needsUpdate = true;
                 }
             };
 
@@ -286,13 +291,13 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         '   float y = position.y * cameraXY.w;',
                         '   float v = position.y + 0.5;',
                         '   color = texture2D(tDisplacement, vec2(u, v));',
-                        '   gl_Position = projectionMatrix * modelViewMatrix * vec4(x, y, color.r / zRatio - farPlane, 1.0);',
+                        '   gl_Position = projectionMatrix * modelViewMatrix * vec4(x, y, DecodeFloatRGB(color.rgb) / zRatio - farPlane, 1.0);',
                         '}'
                     ].join('\n'),
                     fragmentShader: [
                         'varying vec4 color;',
                         'void main() {',
-                        '   gl_FragColor = vec4(color.r/2.0, color.g/2.0, color.r/2.0, 1.0);',
+                        '   gl_FragColor = vec4(color.r, 0.6 - abs(color.r - 0.5), 1.0 - color.r, 1.0);',
                         '}'].join('\n')
                 };
 
@@ -331,8 +336,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 }
 
                 var object = new THREE.LOD();
-                object.addLevel(createGrid(600, 600, true), 20);
-                object.addLevel(createGrid(500, 500, true), 50);
+                object.addLevel(createGrid(512, 512, true), 50);
                 object.addLevel(createGrid(100, 100), 75);
                 object.updateMatrix();
                 scene2.add(object);
@@ -355,7 +359,6 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     object.update(camera2);
                     renderer.render(scene2, camera2);
                 }
-
 
                 function setToolType(type) {
                     console.time('tool change');
