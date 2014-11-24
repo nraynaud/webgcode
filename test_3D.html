@@ -56,7 +56,6 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     displayGeometry(geometry);
                 }
 
-                window.draw = draw;
                 draw();
             });
             function createSphericalTool(sampleCount, zRatio, radiusMM) {
@@ -107,22 +106,21 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         '   return dot(rgb, vec3(1.0, 1.0 / 255.0, 1.0 / 255.0 / 255.0)) / factor;',
                         '}',
                         'void main() {',
-                        '   gl_FragData[0] = vec4(EncodeFloatRGB((1.0 - gl_FragCoord.z)), 1.0);',
+                        '   gl_FragData[0] = vec4(1.0 - gl_FragCoord.z, 0.0, 0.0, 1.0);',
                         '}'].join('\n')
                 };
 
                 this.renderMaterial = new THREE.ShaderMaterial(operation);
                 //display grid is always square
-                var displaySide = 512;
+                var displaySide = 1024;
                 this.displaySide = displaySide;
                 var displaySideMm = 1;
                 var halfDisplaySide = displaySideMm / 2;
-                var camera = new THREE.OrthographicCamera(-halfDisplaySide, halfDisplaySide, halfDisplaySide, -halfDisplaySide, 1, 100);
-                this.camera = camera;
-                scene.add(camera);
+                this.camera = new THREE.OrthographicCamera(-halfDisplaySide, halfDisplaySide, halfDisplaySide, -halfDisplaySide, 1, 100);
+                scene.add(this.camera);
                 this.sampleRate = displaySide / displaySideMm;
                 this.modelBuffer = new THREE.WebGLRenderTarget(displaySide, displaySide,
-                        {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter});
+                        {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, type: THREE.FloatType});
             }
 
             ModelStage.prototype = {
@@ -161,31 +159,24 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 resetCamera: function () {
                     var bbox = this.modelBbox;
                     var bboxSize = bbox.size();
-                    var center = bbox.center();
                     var modelRatio = bboxSize.y / bboxSize.x;
-                    this.displaySideMm = 1 < modelRatio ? bboxSize.y : bboxSize.x;
-                    var halfDisplaySide = this.displaySideMm / 2;
-                    this.camera.left = -halfDisplaySide + center.x;
-                    this.camera.right = halfDisplaySide + center.x;
-                    this.camera.top = halfDisplaySide + center.y;
-                    this.camera.bottom = -halfDisplaySide + center.y;
-                    this.camera.position.x = center.x;
-                    this.camera.position.y = center.y;
-                    this.camera.position.z = bbox.max.z + 1;
-                    this.camera.lookAt(center);
+                    var center = new THREE.Vector2(-3, 0);
+                    console.log('modelRatio', modelRatio);
+                    this.displaySideMm = bboxSize.x > bboxSize.y ? bboxSize.x : bboxSize.y;
+                    this.bufferOrigin = center.clone().addScalar(-this.displaySideMm / 2);
+                    this.bufferSize = new THREE.Vector2(this.displaySideMm, this.displaySideMm);
+                    this.camera.left = this.bufferOrigin.x;
+                    this.camera.right = this.bufferOrigin.x + this.bufferSize.x;
+                    this.camera.bottom = this.bufferOrigin.y;
+                    this.camera.top = this.bufferOrigin.y + this.bufferSize.y;
+                    this.camera.position.set(0, 0, bbox.max.z + 1);
+                    this.camera.lookAt(new THREE.Vector3(0, 0, bbox.min.z));
                     this.camera.far = bbox.max.z - bbox.min.z + 1;
                     this.zRatio = 1 / (this.camera.far - this.camera.near);
                     console.log('near, far', this.camera.near, this.camera.far);
                     this.camera.updateProjectionMatrix();
                     this.camera.updateMatrixWorld();
                     this.sampleRate = this.displaySide / this.displaySideMm;
-                    this.bufferOrigin = new THREE.Vector2(this.camera.left, this.camera.bottom);
-                    this.bufferSize = new THREE.Vector2(this.camera.right - this.camera.left, this.camera.top - this.camera.bottom);
-                },
-                getCameraData: function () {
-                    var camera = this.camera;
-                    return new THREE.Vector4((camera.right - camera.left) / 2, (camera.top - camera.bottom) / 2,
-                            camera.right - camera.left, camera.top - camera.bottom);
                 }
             };
 
@@ -201,21 +192,20 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 var radialSamples = Math.ceil(toolRadiusMm * this.modelStage.sampleRate);
                 console.log('radialSamples', radialSamples);
                 var toolTexture = new THREE.DataTexture(new Float32Array(toolShapePoints), toolShapePoints, 1, THREE.LuminanceFormat, THREE.FloatType);
-                var xSamples = 512;
-                var ySamples = 512;
-                var bufferOffset = new THREE.Vector2(0, 20);
+                var xSamples = 1024;
+                var ySamples = 10;
+                var bufferOffset = new THREE.Vector2(0, 45);
                 this.bufferOrigin = this.modelStage.bufferOrigin.clone().add(bufferOffset);
-                this.bufferSize = this.modelStage.bufferSize.clone().sub(bufferOffset).sub(new THREE.Vector2(0, 30));
+                this.bufferSize = this.modelStage.bufferSize.clone().multiply(new THREE.Vector2(0.5, 0.2));
                 var terrainRatio = divV(this.bufferSize.clone(), this.modelStage.bufferSize);
-                var terrainOrigin = divV(this.bufferOrigin.clone().sub(this.modelStage.bufferOrigin), this.modelStage.bufferSize);
-
+                var terrainTranslation = this.bufferOrigin.clone().sub(this.modelStage.bufferOrigin).divide(this.modelStage.bufferSize);
                 var shader = {
                     uniforms: {
                         tDiffuse: {type: 't', value: null},
                         toolProfile: {type: 't', value: toolTexture},
                         toolToPartRatio: {type: 'f', value: toolRadiusMm / this.modelStage.displaySideMm},
                         terrainRatio: {type: 'v2', value: terrainRatio},
-                        terrainTranslation: {type: 'v2', value: terrainOrigin}
+                        terrainTranslation: {type: 'v2', value: terrainTranslation}
                     },
                     defines: {
                         radialSamples: radialSamples
@@ -246,7 +236,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         'highp float readHeight(vec2 pos) {',
                         '   highp vec4 color = texture2D(tDiffuse, terrainRatio * vUv + terrainTranslation + pos * toolToPartRatio);',
                         '   highp float displacement = texture2D(toolProfile, vec2(length(pos), 0.0)).r;',
-                        '   return DecodeFloatRGB(color.rgb) - displacement;',
+                        '   return color.r - displacement;',
                         '}',
                         'void main() {',
                         '   highp int radiusSquared = radialSamples * radialSamples;',
@@ -255,11 +245,11 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         '       for (int j = -radialSamples; j <= radialSamples; j++)',
                         '           if (i * i + j * j <= radiusSquared)',
                         '               sum = max(sum, readHeight(vec2(i, j) / float(radialSamples)));',
-                        '   gl_FragColor = vec4(EncodeFloatRGB(sum), 1.0);',
+                        '   gl_FragColor = vec4(sum, 0.0, 0.0, 1.0);',
                         '}'].join('\n')
                 };
                 var toolPosBuffer = new THREE.WebGLRenderTarget(xSamples, ySamples,
-                        {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter});
+                        {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, type: THREE.FloatType});
                 this.pass2 = new ShaderPass(shader);
                 this.copy = new ShaderPass(CopyShader);
                 this.copy.renderToScreen = true;
@@ -276,7 +266,8 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 render: function (renderer) {
                     this.modelStage.render(renderer);
                     this.pass2.render(renderer, this.toolPosBuffer, this.modelStage.modelBuffer);
-                    this.copy.render(renderer, null, this.toolPosBuffer);
+                    //this.copy.render(renderer, null, this.modelStage.modelBuffer);
+                    //this.copy.render(renderer, null, this.toolPosBuffer);
                 },
                 updateToolShape: function () {
                     var types = {cylinder: createCylindricalTool, ball: createSphericalTool, v: createVTool};
@@ -292,6 +283,8 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     this.toolRadiusMm = radius;
                     this.updateToolShape();
                     this.pass2.material.defines.radialSamples = Math.ceil(radius * this.modelStage.sampleRate);
+
+                    console.log('radialSamples', this.pass2.material.defines.radialSamples);
                     this.pass2.material.uniforms.toolToPartRatio.value = (this.toolRadiusMm / this.modelStage.displaySideMm).toPrecision(10);
                     this.pass2.material.needsUpdate = true;
                 }
@@ -313,16 +306,16 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 directionalLight2.position.set(-1000, -1000, 1000);
                 scene2.add(directionalLight2);
 
+                var terrainToworldOffset = new THREE.Vector3(pipeline.bufferOrigin.x, pipeline.bufferOrigin.y, -(pipeline.modelStage.camera.far - 1));
                 var terrainShader = {
                     wireframe: true,
                     size: 2,
                     uniforms: {
                         tDisplacement: {type: 't', value: pipeline.toolPosBuffer},
-                        cameraXY: {type: 'v4', value: pipeline.modelStage.getCameraData()},
                         farPlane: {type: 'f', value: pipeline.modelStage.camera.far - 1},
                         zRatio: {type: 'f', value: pipeline.modelStage.zRatio},
                         terrainToWorldRatio: {type: 'v3', value: new THREE.Vector3(pipeline.bufferSize.x, pipeline.bufferSize.y, 1 / pipeline.modelStage.zRatio)},
-                        terrainToWorldOffset: {type: 'v3', value: new THREE.Vector3(pipeline.bufferOrigin.x, pipeline.bufferOrigin.y, -(pipeline.modelStage.camera.far - 1))}
+                        terrainToWorldOffset: {type: 'v3', value: terrainToworldOffset}
                     },
                     vertexShader: [
                         'uniform sampler2D tDisplacement;',
@@ -340,8 +333,8 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         '}',
                         'void main() {',
                         '   vec2 uv = position.xy;',
-                        '   color = texture2D(tDisplacement,vec2(uv));',
-                        '   gl_Position = projectionMatrix * modelViewMatrix * vec4(vec3(uv, DecodeFloatRGB(color.rgb)) * terrainToWorldRatio + terrainToWorldOffset, 1.0);',
+                        '   color = texture2D(tDisplacement, vec2(uv));',
+                        '   gl_Position = projectionMatrix * modelViewMatrix * vec4(vec3(uv, color.r) * terrainToWorldRatio + terrainToWorldOffset, 1.0);',
                         '}'
                     ].join('\n'),
                     fragmentShader: [
@@ -353,7 +346,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
 
                 var terrainMaterial = new THREE.ShaderMaterial(terrainShader);
 
-                function createGrid(xRes, yRes, points) {
+                function createGrid(xRes, yRes, points, avoidX, avoidY) {
                     var geometry = new THREE.BufferGeometry();
                     var vertices = [];
                     var offset = 0;
@@ -367,11 +360,11 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                             if (points)
                                 pushVertex(i, j);
                             else {
-                                if (i != 0) {
+                                if (i != 0 && !avoidX) {
                                     pushVertex(i - 1, j);
                                     pushVertex(i, j);
                                 }
-                                if (j != 0) {
+                                if (j != 0 && !avoidY) {
                                     pushVertex(i, j - 1);
                                     pushVertex(i, j);
                                 }
@@ -385,7 +378,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         return new THREE.Line(geometry, terrainMaterial, THREE.LinePieces);
                 }
 
-                scene2.add(createGrid(512, 512));
+                scene2.add(createGrid(pipeline.toolPosBuffer.width, pipeline.toolPosBuffer.height, false, false, true));
                 scene2.add(new THREE.Mesh(clonedGeometry, new THREE.MeshLambertMaterial({color: 0xFEEFFE, shading: THREE.SmoothShading})));
 
                 var controls = new OrbitControls(camera2, renderer.domElement);
