@@ -101,18 +101,12 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 var bboxSize = mesh.geometry.boundingBox.size();
                 var center = bbox.center();
                 var modelRatio = bboxSize.y / bboxSize.x;
-                var height = 512;
-                var width = 512;
-                var displayRatio = height / width;
-                var ratio = displayRatio < modelRatio ? bboxSize.y / height : bboxSize.x / width;
-                var partPixelsPerMm = 1 / ratio;
-                var camera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, 1, 100);
+                //display grid is always square
+                var displaySide = 512;
+                var displaySideMm = 1 < modelRatio ? bboxSize.y : bboxSize.x;
+                var halfDisplaySide = displaySideMm / 2;
+                var camera = new THREE.OrthographicCamera(-halfDisplaySide, halfDisplaySide, halfDisplaySide, -halfDisplaySide, 1, 100);
                 scene.add(camera);
-                console.log('partPixelsPerMm', partPixelsPerMm);
-                camera.left = -width / 2 * ratio;
-                camera.right = width / 2 * ratio;
-                camera.top = height / 2 * ratio;
-                camera.bottom = -height / 2 * ratio;
                 camera.position.x = center.x;
                 camera.position.y = center.y;
                 camera.position.z = bbox.max.z + 1;
@@ -142,14 +136,13 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         '   gl_FragData[0] = vec4(EncodeFloatRGB((1.0 - gl_FragCoord.z)), 1.0);',
                         '}'].join('\n')
                 };
-                var target = new THREE.WebGLRenderTarget(width, height,
+                var target = new THREE.WebGLRenderTarget(displaySide, displaySide,
                         {minFilter: THREE.NearestFilter, magFilter: THREE.LinearFilter, type: THREE.FloatType });
                 var composer = new EffectComposer(renderer, target);
                 composer.addPass(new RenderPass(scene, camera, new THREE.ShaderMaterial(operation)));
                 var toolRadiusMm = 1;
                 var zRatio = 1 / (camera.far - camera.near);
                 var toolPixelRadius = 16;
-                var toolPixelsPerMm = toolPixelRadius / toolRadiusMm;
                 var toolProfile = new Float32Array(createSphericalTool(toolPixelRadius, zRatio, toolRadiusMm));
                 var toolTexture = new THREE.DataTexture(toolProfile, toolPixelRadius, 1, THREE.LuminanceFormat, THREE.FloatType);
                 toolTexture.needsUpdate = true;
@@ -157,13 +150,11 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 var shader = {
                     uniforms: {
                         tDiffuse: {type: 't', value: null},
-                        toolProfile: {type: 't', value: toolTexture}
+                        toolProfile: {type: 't', value: toolTexture},
+                        toolToPartRatio: {type: 'f', value: toolRadiusMm / displaySideMm}
                     },
                     defines: {
-                        toolToPartRatio: (toolPixelsPerMm / partPixelsPerMm).toPrecision(10),
-                        toolPixelRadius: toolPixelRadius,
-                        w: (1.0 / width).toPrecision(10),
-                        h: (1.0 / height).toPrecision(10)
+                        toolPixelRadius: toolPixelRadius
                     },
                     vertexShader: [
                         'varying vec2 vUv;',
@@ -175,6 +166,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     fragmentShader: [
                         'uniform sampler2D tDiffuse;',
                         'uniform sampler2D toolProfile;',
+                        'uniform float toolToPartRatio;',
                         'varying vec2 vUv;',
                         'highp float factor = (exp2(24.0) - 1.0) / exp2(24.0);',
                         'vec3 EncodeFloatRGB(highp float v) {',
@@ -186,22 +178,17 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         '   return dot(rgb, vec3(1.0, 1.0 / 255.0, 1.0 / 255.0 / 255.0)) / factor;',
                         '}',
                         'highp float readHeight(vec2 pos) {',
-                        '   highp vec4 color = texture2D(tDiffuse, vUv + pos * vec2(w, h) / toolToPartRatio);',
-                        '   highp float displacement = texture2D(toolProfile, vec2(length(pos) / float(toolPixelRadius), 0.5)).r / toolToPartRatio;',
+                        '   highp vec4 color = texture2D(tDiffuse, vUv + pos * toolToPartRatio);',
+                        '   highp float displacement = texture2D(toolProfile, vec2(length(pos), 0.0)).r;',
                         '   return DecodeFloatRGB(color.rgb) - displacement;',
                         '}',
                         'void main() {',
                         '   highp int radiusSquared = toolPixelRadius * toolPixelRadius;',
                         '   highp float sum = readHeight(vec2(0.0, 0.0));',
-                        '   for (int i = 0; i <= toolPixelRadius; i++)',
-                        '       for (int j = 0; j <= toolPixelRadius; j++)',
-                        '           if (i * i + j * j <= radiusSquared) {',
-                        '               vec2 point = vec2(i, j);',
-                        '               sum = max(sum, readHeight(point * vec2(-1.0, +1.0)));',
-                        '               sum = max(sum, readHeight(point * vec2(+1.0, -1.0)));',
-                        '               sum = max(sum, readHeight(point * vec2(-1.0, -1.0)));',
-                        '               sum = max(sum, readHeight(point * vec2(+1.0, +1.0)));',
-                        '           }',
+                        '   for (int i = -toolPixelRadius; i <= toolPixelRadius; i++)',
+                        '       for (int j = -toolPixelRadius; j <= toolPixelRadius; j++)',
+                        '           if (i * i + j * j <= radiusSquared)',
+                        '               sum = max(sum, readHeight(vec2(i, j) / float(toolPixelRadius)));',
                         '   gl_FragColor = vec4(sum, 0.0, 0.0, 1.0);',
                         '}'].join('\n')
                 };
@@ -214,8 +201,10 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 this.toolPixelRadius = toolPixelRadius;
                 this.zRatio = zRatio;
                 this.toolRadiusMm = toolRadiusMm;
+                this.displaySideMm = displaySideMm;
+                this.toolRadiusMm = toolRadiusMm;
                 this.camera = camera;
-                this.partPixelsPerMm = partPixelsPerMm;
+                this.toolType = 'ball';
             }
 
             TerrainPipeline.prototype = {
@@ -227,15 +216,21 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     return new THREE.Vector4((camera.right - camera.left) / 2, (camera.top - camera.bottom) / 2,
                             camera.right - camera.left, camera.top - camera.bottom);
                 },
-                setToolType: function (type) {
+                updateToolShape: function () {
                     var types = {cylinder: createCylindricalTool, ball: createSphericalTool, v: createVTool};
-                    this.pass2.material.uniforms.toolProfile.value.image.data.set(new Float32Array(types[type](this.toolPixelRadius, this.zRatio, this.toolRadiusMm)));
+                    var samples = types[this.toolType](this.toolPixelRadius, this.zRatio, this.toolRadiusMm);
+                    this.pass2.material.uniforms.toolProfile.value.image.data.set(new Float32Array(samples));
                     this.pass2.material.uniforms.toolProfile.value.needsUpdate = true;
                 },
+                setToolType: function (type) {
+                    this.toolType = type;
+                    this.updateToolShape();
+                },
                 setToolRadius: function (radius) {
-                    this.toolPixelsPerMm = this.toolPixelRadius / radius;
-                    this.pass2.material.defines.toolToPartRatio = (this.toolPixelsPerMm / this.partPixelsPerMm).toPrecision(10);
-                    this.pass2.material.needsUpdate = true;
+                    this.toolRadiusMm = radius;
+                    this.updateToolShape();
+                    this.pass2.material.uniforms.toolToPartRatio.value = (this.toolRadiusMm / this.displaySideMm).toPrecision(10);
+                    this.pass2.material.uniforms.toolToPartRatio.needsUpdate = true;
                 }
             };
 
