@@ -83,9 +83,12 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 return samples;
             }
 
-            function TerrainPipeline(geometry) {
+            function ModelStage() {
                 var scene = new THREE.Scene();
+                this.scene = scene;
                 var operation = {
+                    depthTest: true,
+                    size: 1,
                     sizeAttenuation: false,
                     linewidth: 1,
                     vertexShader: [
@@ -107,59 +110,95 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         '   gl_FragData[0] = vec4(EncodeFloatRGB((1.0 - gl_FragCoord.z)), 1.0);',
                         '}'].join('\n')
                 };
-                var mesh = new THREE.Mesh(geometry, new THREE.ShaderMaterial(operation));
-                scene.add(mesh);
 
-                var pointsGeom = new THREE.BufferGeometry();
-                // we add the vertices to force webgl to raster on at least 1 pixel
-                // in case a "mountain" is spiky enough to slip thought the sampling grid.
-                pointsGeom.addAttribute('position', geometry.attributes.position.clone());
-                scene.add(new THREE.PointCloud(pointsGeom, new THREE.ShaderMaterial($.extend({depthTest: true, size: 1, sizeAttenuation: false}, operation))));
-                scene.add(new THREE.PointCloud(pointsGeom, new THREE.ShaderMaterial($.extend({depthTest: false, size: 1, sizeAttenuation: false}, operation))));
-                // we should add all the edges too because a whole "ridge" might be sharp enough to slip through
-                // the raster grid
-                // I have a problem where the end of some lines "poke" slightly through the surface I don't know why.
-                // question here: http://stackoverflow.com/questions/27097236/strange-artefacts-in-depth-buffer-with-lines
-                // To mask the problem, I write the vertices (pointcloud above) on top of the wireframe without depth test, this will
-                // squish all the buggy spikes. Since Three.js write from last to fist, I added the pointcloud first so it renders last.
-                var wireframeHelper = new THREE.WireframeHelper(mesh);
-                wireframeHelper.material = new THREE.ShaderMaterial(operation);
-                scene.add(wireframeHelper);
-                mesh.geometry.computeBoundingBox();
-                var bbox = mesh.geometry.boundingBox;
-                var bboxSize = mesh.geometry.boundingBox.size();
-                var center = bbox.center();
-                var modelRatio = bboxSize.y / bboxSize.x;
+                this.renderMaterial = new THREE.ShaderMaterial(operation);
                 //display grid is always square
                 var displaySide = 512;
-                var displaySideMm = 1 < modelRatio ? bboxSize.y : bboxSize.x;
+                this.displaySide = displaySide;
+                var displaySideMm = 1;
                 var halfDisplaySide = displaySideMm / 2;
                 var camera = new THREE.OrthographicCamera(-halfDisplaySide, halfDisplaySide, halfDisplaySide, -halfDisplaySide, 1, 100);
+                this.camera = camera;
                 scene.add(camera);
-                var sampleRate = displaySide / displaySideMm;
-                camera.position.x = center.x;
-                camera.position.y = center.y;
-                camera.position.z = bbox.max.z + 1;
-                camera.lookAt(center);
-                camera.far = bbox.max.z - bbox.min.z + 1;
-                console.log('near, far', camera.near, camera.far);
-                camera.updateProjectionMatrix();
-
-                var target = new THREE.WebGLRenderTarget(displaySide, displaySide,
+                this.sampleRate = displaySide / displaySideMm;
+                this.modelBuffer = new THREE.WebGLRenderTarget(displaySide, displaySide,
                         {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter});
-                var composer = new EffectComposer(renderer, target);
-                composer.addPass(new RenderPass(scene, camera));
+            }
+
+            ModelStage.prototype = {
+                render: function (renderer) {
+                    renderer.render(this.scene, this.camera, this.modelBuffer, true);
+                },
+                setGeometry: function (geometry) {
+                    if (this.model) {
+                        this.scene.remove(this.model);
+                        this.model = null;
+                    }
+                    this.model = new THREE.Object3D();
+                    var mesh = new THREE.Mesh(geometry, this.renderMaterial);
+                    this.model.add(mesh);
+
+                    // we add the vertices to force webgl to raster on at least 1 pixel
+                    // in case a "mountain" is spiky enough to slip thought the sampling grid.
+                    var pointsGeom = new THREE.BufferGeometry();
+                    pointsGeom.addAttribute('position', geometry.attributes.position.clone());
+                    this.model.add(new THREE.PointCloud(pointsGeom, new THREE.ShaderMaterial(this.renderMaterial)));
+
+                    // we should add all the edges too because a whole "ridge" might be sharp enough to slip through
+                    // the raster grid
+                    // I have a problem where the end of some lines "poke" slightly through the surface I don't know why.
+                    // question here: http://stackoverflow.com/questions/27097236/strange-artefacts-in-depth-buffer-with-lines
+                    //var wireframeHelper = new THREE.WireframeHelper(mesh);
+                    //wireframeHelper.material = this.renderMaterial;
+                    //this.model.add(wireframeHelper);
+
+                    mesh.geometry.computeBoundingBox();
+                    this.modelBbox = mesh.geometry.boundingBox;
+                    this.scene.add(this.model);
+                    this.resetCamera();
+                },
+                resetCamera: function () {
+                    var bbox = this.modelBbox;
+                    var bboxSize = bbox.size();
+                    var center = bbox.center();
+                    var modelRatio = bboxSize.y / bboxSize.x;
+                    this.displaySideMm = 1 < modelRatio ? bboxSize.y : bboxSize.x;
+                    var halfDisplaySide = this.displaySideMm / 2;
+                    this.camera.left = -halfDisplaySide + center.x;
+                    this.camera.right = halfDisplaySide + center.x;
+                    this.camera.top = halfDisplaySide + center.y;
+                    this.camera.bottom = -halfDisplaySide + center.y;
+                    this.camera.position.x = center.x;
+                    this.camera.position.y = center.y;
+                    this.camera.position.z = bbox.max.z + 1;
+                    this.camera.lookAt(center);
+                    this.camera.far = bbox.max.z - bbox.min.z + 1;
+                    this.zRatio = 1 / (this.camera.far - this.camera.near);
+                    console.log('near, far', this.camera.near, this.camera.far);
+                    this.camera.updateProjectionMatrix();
+                    this.sampleRate = this.displaySide / this.displaySideMm
+                },
+                getCameraData: function () {
+                    var camera = this.camera;
+                    return new THREE.Vector4((camera.right - camera.left) / 2, (camera.top - camera.bottom) / 2,
+                            camera.right - camera.left, camera.top - camera.bottom);
+                }
+            };
+
+            function TerrainPipeline(geometry) {
+                this.modelStage = new ModelStage();
+                this.modelStage.setGeometry(geometry);
                 var toolRadiusMm = 1;
-                var zRatio = 1 / (camera.far - camera.near);
                 var toolShapePoints = 10;
-                var radialSamples = Math.ceil(toolRadiusMm * sampleRate);
+                var radialSamples = Math.ceil(toolRadiusMm * this.modelStage.sampleRate);
                 console.log('radialSamples', radialSamples);
                 var toolTexture = new THREE.DataTexture(new Float32Array(toolShapePoints), toolShapePoints, 1, THREE.LuminanceFormat, THREE.FloatType);
+
                 var shader = {
                     uniforms: {
                         tDiffuse: {type: 't', value: null},
                         toolProfile: {type: 't', value: toolTexture},
-                        toolToPartRatio: {type: 'f', value: toolRadiusMm / displaySideMm}
+                        toolToPartRatio: {type: 'f', value: toolRadiusMm / this.modelStage.displaySideMm}
                     },
                     defines: {
                         radialSamples: radialSamples
@@ -200,35 +239,29 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         '   gl_FragColor = vec4(EncodeFloatRGB(sum), 1.0);',
                         '}'].join('\n')
                 };
-                var pass2 = new ShaderPass(shader);
+                var displaySide = 512;
+                var toolPosBuffer = new THREE.WebGLRenderTarget(displaySide, displaySide,
+                        {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter});
+                this.pass2 = new ShaderPass(shader);
                 //pass2 = new ShaderPass(CopyShader);
                 //pass2.renderToScreen = true;
-                composer.addPass(pass2);
-                this.pass2 = pass2;
-                this.composer = composer;
                 this.toolPixelRadius = toolShapePoints;
-                this.zRatio = zRatio;
                 this.toolRadiusMm = toolRadiusMm;
-                this.displaySideMm = displaySideMm;
                 this.toolRadiusMm = toolRadiusMm;
-                this.sampleRate = sampleRate;
-                this.camera = camera;
                 this.toolType = 'ball';
+                this.renderer = renderer;
+                this.toolPosBuffer = toolPosBuffer;
                 this.updateToolShape();
             }
 
             TerrainPipeline.prototype = {
-                render: function () {
-                    this.composer.render();
-                },
-                getCameraData: function () {
-                    var camera = this.camera;
-                    return new THREE.Vector4((camera.right - camera.left) / 2, (camera.top - camera.bottom) / 2,
-                            camera.right - camera.left, camera.top - camera.bottom);
+                render: function (renderer) {
+                    this.modelStage.render(renderer);
+                    this.pass2.render(renderer, this.toolPosBuffer, this.modelStage.modelBuffer);
                 },
                 updateToolShape: function () {
                     var types = {cylinder: createCylindricalTool, ball: createSphericalTool, v: createVTool};
-                    var samples = types[this.toolType](this.toolPixelRadius, this.zRatio, this.toolRadiusMm);
+                    var samples = types[this.toolType](this.toolPixelRadius, this.modelStage.zRatio, this.toolRadiusMm);
                     this.pass2.material.uniforms.toolProfile.value.image.data.set(new Float32Array(samples));
                     this.pass2.material.uniforms.toolProfile.value.needsUpdate = true;
                 },
@@ -239,8 +272,8 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 setToolRadius: function (radius) {
                     this.toolRadiusMm = radius;
                     this.updateToolShape();
-                    this.pass2.material.defines.radialSamples = Math.ceil(radius * this.sampleRate);
-                    this.pass2.material.uniforms.toolToPartRatio.value = (this.toolRadiusMm / this.displaySideMm).toPrecision(10);
+                    this.pass2.material.defines.radialSamples = Math.ceil(radius * this.modelStage.sampleRate);
+                    this.pass2.material.uniforms.toolToPartRatio.value = (this.toolRadiusMm / this.modelStage.displaySideMm).toPrecision(10);
                     this.pass2.material.needsUpdate = true;
                 }
             };
@@ -265,10 +298,10 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     wireframe: true,
                     size: 2,
                     uniforms: {
-                        tDisplacement: {type: 't', value: pipeline.composer.writeBuffer},
-                        cameraXY: {type: 'v4', value: pipeline.getCameraData()},
-                        farPlane: {type: 'f', value: pipeline.camera.far - 1},
-                        zRatio: {type: 'f', value: pipeline.zRatio}
+                        tDisplacement: {type: 't', value: pipeline.toolPosBuffer},
+                        cameraXY: {type: 'v4', value: pipeline.modelStage.getCameraData()},
+                        farPlane: {type: 'f', value: pipeline.modelStage.camera.far - 1},
+                        zRatio: {type: 'f', value: pipeline.modelStage.zRatio}
                     },
                     vertexShader: [
                         'uniform sampler2D tDisplacement;',
@@ -337,7 +370,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
 
                 var object = new THREE.LOD();
                 object.addLevel(createGrid(512, 512, true), 50);
-                object.addLevel(createGrid(100, 100), 75);
+                object.addLevel(createGrid(50, 50), 75);
                 object.updateMatrix();
                 scene2.add(object);
                 scene2.add(new THREE.Mesh(clonedGeometry, new THREE.MeshLambertMaterial({color: 0xFEEFFE, shading: THREE.SmoothShading})));
@@ -377,7 +410,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
 
                 function reRenderPipeline() {
                     console.time('complete render');
-                    pipeline.composer.render();
+                    pipeline.render(renderer);
                     reRender();
 
                     //for pessimistic computation time measure, since gl.finish() is faked.
