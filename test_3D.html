@@ -56,7 +56,6 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
             renderer.setSize(outputWidth, outputHeight);
             renderer.setViewport(0, 0, outputWidth, outputHeight);
             renderer.clear();
-            console.log(renderer)
             new STLLoader().load('webapp/samples/soap.stl', function (geometry) {
                 function draw() {
                     displayGeometry(geometry);
@@ -84,7 +83,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
             function createCylindricalTool(sampleCount, zRatio, radiusMM) {
                 var samples = [];
                 for (var i = 0; i < sampleCount; i++)
-                    samples.push();
+                    samples.push(0);
                 return samples;
             }
 
@@ -95,7 +94,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     depthTest: true,
                     size: 1,
                     sizeAttenuation: false,
-                    linewidth: 2,
+                    linewidth: 1,
                     vertexShader: [
                         'void main() {',
                         '   gl_PointSize = 2.0;',
@@ -237,7 +236,6 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 this.bufferSize = this.modelStage.bufferSize.clone().multiply(new THREE.Vector2(0.5, 0.2));
                 var terrainRatio = divV(this.bufferSize.clone(), this.modelStage.bufferSize);
                 var terrainTranslation = this.bufferOrigin.clone().sub(this.modelStage.bufferOrigin).divide(this.modelStage.bufferSize);
-                console.log(terrainTranslation, terrainRatio, toolRadiusMm / this.modelStage.displaySideMm);
                 var shader = {
                     uniforms: {
                         tDiffuse: {type: 't', value: null},
