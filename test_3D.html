@@ -36,6 +36,10 @@
     canvas {
         flex: 1;
     }
+
+    .moving {
+        cursor: move;
+    }
 </style>
 <script>
 require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessing/EffectComposer',
@@ -51,6 +55,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
             renderer.setSize(outputWidth, outputHeight);
             renderer.setViewport(0, 0, outputWidth, outputHeight);
             renderer.clear();
+            console.log(renderer)
             new STLLoader().load('webapp/samples/soap.stl', function (geometry) {
                 function draw() {
                     displayGeometry(geometry);
@@ -380,6 +385,18 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
 
                 scene2.add(createGrid(pipeline.toolPosBuffer.width, pipeline.toolPosBuffer.height, false, false, true));
                 scene2.add(new THREE.Mesh(clonedGeometry, new THREE.MeshLambertMaterial({color: 0xFEEFFE, shading: THREE.SmoothShading})));
+
+                document.documentElement.addEventListener('keydown', function(event) {
+                    if(event.shiftKey === true) {
+                        document.body.classList.add('moving');
+                    }
+                });
+
+                document.documentElement.addEventListener('keyup', function(event) {
+                    if(event.shiftKey === false) {
+                        document.body.classList.remove('moving');
+                    }
+                });
 
                 var controls = new OrbitControls(camera2, renderer.domElement);
                 controls.rotateSpeed = 1.0;
