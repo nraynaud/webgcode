@@ -20,6 +20,8 @@
 //    	controls = new THREE.TrackballControls( camera );
 //      controls.target.z = 150;
 // Simple substitute "OrbitControls" and the control should work as-is.
+//
+// Patched version to mimic Sketchup's pan controls
 
 THREE.OrbitControls = function (object, domElement) {
 
@@ -319,16 +321,14 @@ THREE.OrbitControls = function (object, domElement) {
     }
 
     function onMouseDown(event) {
-
         if (scope.enabled === false) return;
-        event.preventDefault();
 
-        if (event.button === 0) {
-            if (scope.noRotate === true) return;
+        if (event.button === 0 && event.shiftKey === true) {
+            if (scope.noPan === true) return;
 
-            state = STATE.ROTATE;
+            state = STATE.PAN;
 
-            rotateStart.set(event.clientX, event.clientY);
+            panStart.set(event.clientX, event.clientY);
 
         } else if (event.button === 1) {
             if (scope.noZoom === true) return;
@@ -337,13 +337,12 @@ THREE.OrbitControls = function (object, domElement) {
 
             dollyStart.set(event.clientX, event.clientY);
 
-        } else if (event.button === 2) {
-            if (scope.noPan === true) return;
+        } else if (event.button === 0) {
+            if (scope.noRotate === true) return;
 
-            state = STATE.PAN;
+            state = STATE.ROTATE;
 
-            panStart.set(event.clientX, event.clientY);
-
+            rotateStart.set(event.clientX, event.clientY);
         }
 
         document.addEventListener('mousemove', onMouseMove, false);
