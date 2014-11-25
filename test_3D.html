@@ -43,7 +43,8 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
             'libs/threejs/OrbitControls', 'libs/threejs/postprocessing/CopyShader'],
         function ($, THREE, STLLoader, EffectComposer, RenderPass, ShaderPass, OrbitControls, CopyShader) {
             var $container = $('body');
-            var renderer = new THREE.WebGLRenderer({antialias: false, alpha: true, precision: 'highp', autoClear: true});
+            var renderer = new THREE.WebGLRenderer({antialias: false, alpha: true, precision: 'highp', autoClear: false});
+            renderer.autoClear = false;
             $container.append(renderer.domElement);
             var outputWidth = $container.width();
             var outputHeight = $container.height();
@@ -89,9 +90,10 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     depthTest: true,
                     size: 1,
                     sizeAttenuation: false,
-                    linewidth: 1,
+                    linewidth: 2,
                     vertexShader: [
                         'void main() {',
+                        '   gl_PointSize = 2.0;',
                         '   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);',
                         '}'].join('\n'),
                     // depth encoding : http://aras-p.info/blog/2009/07/30/encoding-floats-to-rgba-the-final/
@@ -110,7 +112,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         '}'].join('\n')
                 };
 
-                this.renderMaterial = new THREE.ShaderMaterial(operation);
+                this.scene.overrideMaterial = new THREE.ShaderMaterial(operation);
                 //display grid is always square
                 var displaySide = 1024;
                 this.displaySide = displaySide;
@@ -120,7 +122,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 scene.add(this.camera);
                 this.sampleRate = displaySide / displaySideMm;
                 this.modelBuffer = new THREE.WebGLRenderTarget(displaySide, displaySide,
-                        {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, type: THREE.FloatType});
+                        {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.FloatType});
             }
 
             ModelStage.prototype = {
@@ -146,9 +148,40 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     // the raster grid
                     // I have a problem where the end of some lines "poke" slightly through the surface I don't know why.
                     // question here: http://stackoverflow.com/questions/27097236/strange-artefacts-in-depth-buffer-with-lines
-                    //var wireframeHelper = new THREE.WireframeHelper(mesh);
-                    //wireframeHelper.material = this.renderMaterial;
-                    //this.model.add(wireframeHelper);
+                    // by orienting the lines towards -z, I don't get the poky things
+                    var array = geometry.attributes.position.array;
+                    var lines = [];
+                    var vertical = new THREE.Vector3(0, 0, 1);
+
+                    function push(x1, y1, z1, x2, y2, z2) {
+                        var v = new THREE.Vector3(x2 - x1, y2 - y1, z2 - z1);
+                        if (v.dot(vertical) / v.length() / vertical.length() > 0)
+                            lines.push(x1, y1, z1, x2, y2, z2);
+                        else
+                            lines.push(x2, y2, z2, x1, y1, z1);
+                    }
+
+                    for (var i = 0; i < array.length; i += 9) {
+                        var x1 = array[i];
+                        var y1 = array[i + 1];
+                        var z1 = array[i + 2];
+
+                        var x2 = array[i + 3];
+                        var y2 = array[i + 4];
+                        var z2 = array[i + 5];
+
+                        var x3 = array[i + 6];
+                        var y3 = array[i + 7];
+                        var z3 = array[i + 8];
+
+                        push(x1, y1, z1, x2, y2, z2);
+                        push(x2, y2, z2, x3, y3, z3);
+                        push(x3, y3, z3, x1, y1, z1);
+                    }
+
+                    var geom = new THREE.BufferGeometry();
+                    geom.addAttribute('position', new THREE.BufferAttribute(new Float32Array(lines), 3));
+                    this.model.add(new THREE.Line(geom, undefined, THREE.LinePieces));
 
                     mesh.geometry.computeBoundingBox();
                     this.modelBbox = mesh.geometry.boundingBox;
@@ -193,12 +226,13 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 console.log('radialSamples', radialSamples);
                 var toolTexture = new THREE.DataTexture(new Float32Array(toolShapePoints), toolShapePoints, 1, THREE.LuminanceFormat, THREE.FloatType);
                 var xSamples = 1024;
-                var ySamples = 10;
+                var ySamples = 100;
                 var bufferOffset = new THREE.Vector2(0, 45);
                 this.bufferOrigin = this.modelStage.bufferOrigin.clone().add(bufferOffset);
                 this.bufferSize = this.modelStage.bufferSize.clone().multiply(new THREE.Vector2(0.5, 0.2));
                 var terrainRatio = divV(this.bufferSize.clone(), this.modelStage.bufferSize);
                 var terrainTranslation = this.bufferOrigin.clone().sub(this.modelStage.bufferOrigin).divide(this.modelStage.bufferSize);
+                console.log(terrainTranslation, terrainRatio, toolRadiusMm / this.modelStage.displaySideMm);
                 var shader = {
                     uniforms: {
                         tDiffuse: {type: 't', value: null},
@@ -294,7 +328,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 var clonedGeometry = geometry.clone();
                 var pipeline = new TerrainStage(geometry);
                 var scene2 = new THREE.Scene();
-                var camera2 = new THREE.PerspectiveCamera(45, outputWidth / outputHeight, 0.01, 20000);
+                var camera2 = new THREE.PerspectiveCamera(45, outputWidth / outputHeight, 0.1, 150);
                 camera2.up.set(0, 0, 1);
                 camera2.position.z = 100;
                 scene2.add(camera2);
@@ -308,14 +342,13 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
 
                 var terrainToworldOffset = new THREE.Vector3(pipeline.bufferOrigin.x, pipeline.bufferOrigin.y, -(pipeline.modelStage.camera.far - 1));
                 var terrainShader = {
-                    wireframe: true,
+                    wireframe: false,
                     size: 2,
                     uniforms: {
                         tDisplacement: {type: 't', value: pipeline.toolPosBuffer},
-                        farPlane: {type: 'f', value: pipeline.modelStage.camera.far - 1},
-                        zRatio: {type: 'f', value: pipeline.modelStage.zRatio},
                         terrainToWorldRatio: {type: 'v3', value: new THREE.Vector3(pipeline.bufferSize.x, pipeline.bufferSize.y, 1 / pipeline.modelStage.zRatio)},
-                        terrainToWorldOffset: {type: 'v3', value: terrainToworldOffset}
+                        terrainToWorldOffset: {type: 'v3', value: terrainToworldOffset},
+                        samplingDensity: {type: 'v2', value: new THREE.Vector2(pipeline.toolPosBuffer.width, pipeline.toolPosBuffer.height)}
                     },
                     vertexShader: [
                         'uniform sampler2D tDisplacement;',
