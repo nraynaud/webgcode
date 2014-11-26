@@ -200,9 +200,9 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     var bbox = this.modelBbox;
                     var bboxSize = bbox.size();
                     var modelRatio = bboxSize.y / bboxSize.x;
-                    var center = new THREE.Vector2(-3, 0);
+                    var center = new THREE.Vector2(0, 0);
                     console.log('modelRatio', modelRatio);
-                    this.displaySideMm = bboxSize.x > bboxSize.y ? bboxSize.x : bboxSize.y;
+                    this.displaySideMm = (bboxSize.x > bboxSize.y ? bboxSize.x : bboxSize.y) * 1.1;
                     this.bufferOrigin = center.clone().addScalar(-this.displaySideMm / 2);
                     this.bufferSize = new THREE.Vector2(this.displaySideMm, this.displaySideMm);
                     this.camera.left = this.bufferOrigin.x;
@@ -227,16 +227,16 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
 
                 this.modelStage = new ModelStage();
                 this.modelStage.setGeometry(geometry);
-                var toolRadiusMm = 1;
+                var toolRadiusMm = 2;
                 var toolShapePoints = 10;
                 var radialSamples = Math.ceil(toolRadiusMm * this.modelStage.sampleRate);
                 console.log('radialSamples', radialSamples);
                 var toolTexture = new THREE.DataTexture(new Float32Array(toolShapePoints), toolShapePoints, 1, THREE.LuminanceFormat, THREE.FloatType);
                 var xSamples = 1024;
                 var ySamples = 100;
-                var bufferOffset = new THREE.Vector2(0, 45);
+                var bufferOffset = new THREE.Vector2(0, 0);
                 this.bufferOrigin = this.modelStage.bufferOrigin.clone().add(bufferOffset);
-                this.bufferSize = this.modelStage.bufferSize.clone().multiply(new THREE.Vector2(0.5, 0.2));
+                this.bufferSize = this.modelStage.bufferSize.clone().multiply(new THREE.Vector2(1, 1));
                 var terrainRatio = divV(this.bufferSize.clone(), this.modelStage.bufferSize);
                 var terrainTranslation = this.bufferOrigin.clone().sub(this.modelStage.bufferOrigin).divide(this.modelStage.bufferSize);
                 this.minkowskiPass = new ShaderPass({
@@ -357,7 +357,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 setToolRadius: function (radius) {
                     this.toolRadiusMm = radius;
                     this.updateToolShape();
-                    this.minkowskiPass.material.defines.radialSamples = Math.ceil(radius * this.modelStage.sampleRate);
+                    this.minkowskiPass.material.defines.radialSamples = Math.floor(radius * this.modelStage.sampleRate) + 1;
                     console.log('radialSamples', this.minkowskiPass.material.defines.radialSamples);
                     this.minkowskiPass.material.uniforms.toolToPartRatio.value = (this.toolRadiusMm / this.modelStage.displaySideMm).toPrecision(10);
                     this.minkowskiPass.material.needsUpdate = true;
@@ -476,7 +476,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 controls.minDistance = 3;
                 controls.keys = [ 65, 83, 68 ];
                 controls.addEventListener('change', function () {
-                    reRender();
+                    reRenderPipeline();
                 });
                 function reRender() {
                     renderer.render(scene2, camera2);
@@ -535,8 +535,8 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
             <option value="v">V Carving</option>
         </select></label>
         <label>Radius (
-            <span id="radius">1</span>
-            ): <input type="range" min="0.1" max="10" value="1" step="0.1"
+            <span id="radius">2</span>
+            ): <input type="range" min="0" max="10" value="1" step="0.1"
                       oninput="setToolRadius(this.value)"></label>
         <label>Slice Z (
             <span id="slice">-7</span>
