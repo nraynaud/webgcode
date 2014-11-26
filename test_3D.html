@@ -450,7 +450,9 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         return new THREE.Line(geometry, terrainMaterial, THREE.LinePieces);
                 }
 
-                scene2.add(createGrid(pipeline.toolPosBuffer.width, pipeline.toolPosBuffer.height, false, false, true));
+                var grid = createGrid(pipeline.toolPosBuffer.width, pipeline.toolPosBuffer.height, false, false, true);
+                grid.frustumCulled = false;
+                scene2.add(grid);
                 scene2.add(new THREE.Mesh(clonedGeometry, new THREE.MeshLambertMaterial({color: 0xFEEFFE, shading: THREE.SmoothShading})));
 
                 document.documentElement.addEventListener('keydown', function (event) {
