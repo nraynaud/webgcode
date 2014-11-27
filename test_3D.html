@@ -46,6 +46,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
             'libs/threejs/postprocessing/RenderPass', 'libs/threejs/postprocessing/ShaderPass',
             'libs/threejs/OrbitControls', 'libs/threejs/postprocessing/CopyShader'],
         function ($, THREE, STLLoader, EffectComposer, RenderPass, ShaderPass, OrbitControls, CopyShader) {
+            var pixelsOnRadius = 10;
             var $container = $('body');
             var renderer = new THREE.WebGLRenderer({antialias: false, alpha: true, precision: 'highp', autoClear: true});
             renderer.autoClear = true;
@@ -96,15 +97,12 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     sizeAttenuation: false,
                     linewidth: 1,
                     vertexShader: [
-                        'varying float z;',
                         'void main() {',
                         '   gl_PointSize = 2.0;',
-                        '   float z = position.z;',
                         '   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);',
                         '}'].join('\n'),
                     // depth encoding : http://aras-p.info/blog/2009/07/30/encoding-floats-to-rgba-the-final/
                     fragmentShader: [
-                        'varying float z;',
                         'highp float factor = (exp2(24.0) - 1.0) / exp2(24.0);',
                         'vec3 EncodeFloatRGB(highp float v) {',
                         '   vec3 enc = fract(vec3(1.0, 255.0, 255.0 * 255.0) * factor * v);',
@@ -120,15 +118,10 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 };
 
                 this.scene.overrideMaterial = new THREE.ShaderMaterial(operation);
-                //display grid is always square
-                var displaySide = 1024;
-                this.displaySide = displaySide;
-                var displaySideMm = 1;
-                var halfDisplaySide = displaySideMm / 2;
-                this.camera = new THREE.OrthographicCamera(-halfDisplaySide, halfDisplaySide, halfDisplaySide, -halfDisplaySide, 1, 100);
+                this.displaySide = 1024;
+                this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 1, 100);
                 scene.add(this.camera);
-                this.sampleRate = displaySide / displaySideMm;
-                this.modelBuffer = new THREE.WebGLRenderTarget(displaySide, displaySide,
+                this.modelBuffer = new THREE.WebGLRenderTarget(this.displaySide, this.displaySide,
                         {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.FloatType});
             }
 
@@ -203,6 +196,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     var center = new THREE.Vector2(0, 0);
                     console.log('modelRatio', modelRatio);
                     this.displaySideMm = (bboxSize.x > bboxSize.y ? bboxSize.x : bboxSize.y) * 1.1;
+                    this.displaySide = this.sampleRate * this.displaySideMm;
                     this.bufferOrigin = center.clone().addScalar(-this.displaySideMm / 2);
                     this.bufferSize = new THREE.Vector2(this.displaySideMm, this.displaySideMm);
                     this.camera.left = this.bufferOrigin.x;
@@ -216,7 +210,16 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     console.log('near, far', this.camera.near, this.camera.far);
                     this.camera.updateProjectionMatrix();
                     this.camera.updateMatrixWorld();
-                    this.sampleRate = this.displaySide / this.displaySideMm;
+                    if (this.modelBuffer)
+                        this.modelBuffer.dispose();
+                    console.log('this.displaySide', this.displaySide);
+                    this.modelBuffer = new THREE.WebGLRenderTarget(this.displaySide, this.displaySide,
+                            {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.FloatType});
+                },
+                setSampleRate: function (newSampleRate) {
+                    console.log('sampleRate', newSampleRate);
+                    this.sampleRate = newSampleRate;
+                    this.resetCamera();
                 }
             };
 
@@ -228,12 +231,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 this.modelStage = new ModelStage();
                 this.modelStage.setGeometry(geometry);
                 var toolRadiusMm = 2;
-                var toolShapePoints = 10;
-                var radialSamples = Math.ceil(toolRadiusMm * this.modelStage.sampleRate);
-                console.log('radialSamples', radialSamples);
-                var toolTexture = new THREE.DataTexture(new Float32Array(toolShapePoints), toolShapePoints, 1, THREE.LuminanceFormat, THREE.FloatType);
-                var xSamples = 1024;
-                var ySamples = 100;
+                var toolTexture = new THREE.DataTexture(new Float32Array(pixelsOnRadius), pixelsOnRadius, 1, THREE.LuminanceFormat, THREE.FloatType);
                 var bufferOffset = new THREE.Vector2(0, 0);
                 this.bufferOrigin = this.modelStage.bufferOrigin.clone().add(bufferOffset);
                 this.bufferSize = this.modelStage.bufferSize.clone().multiply(new THREE.Vector2(1, 1));
@@ -248,7 +246,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         terrainTranslation: {type: 'v2', value: terrainTranslation}
                     },
                     defines: {
-                        radialSamples: radialSamples
+                        radialSamples: null
                     },
                     vertexShader: [
                         'varying vec2 vUv;',
@@ -309,18 +307,11 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         '}'].join('\n')
                 });
                 this.setSliceZ(-7);
-                var toolPosBuffer = new THREE.WebGLRenderTarget(xSamples, ySamples,
-                        {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, type: THREE.FloatType});
-                this.slicingBuffer = new THREE.WebGLRenderTarget(xSamples, ySamples,
-                        {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, type: THREE.FloatType});
                 this.copy = new ShaderPass(CopyShader);
                 this.copy.renderToScreen = true;
-                this.toolPixelRadius = toolShapePoints;
-                this.toolRadiusMm = toolRadiusMm;
                 this.toolRadiusMm = toolRadiusMm;
                 this.toolType = 'ball';
                 this.renderer = renderer;
-                this.toolPosBuffer = toolPosBuffer;
                 this.updateToolShape();
             }
 
@@ -344,11 +335,25 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     //this.copy.render(renderer, null, this.toolPosBuffer);
                 },
                 updateToolShape: function () {
+                    this.modelStage.setSampleRate(pixelsOnRadius / this.toolRadiusMm);
                     var types = {cylinder: createCylindricalTool, ball: createSphericalTool, v: createVTool};
-                    var samples = types[this.toolType](this.toolPixelRadius, this.modelStage.zRatio, this.toolRadiusMm);
+                    var samples = types[this.toolType](pixelsOnRadius, this.modelStage.zRatio, this.toolRadiusMm);
                     this.minkowskiPass.material.uniforms.toolProfile.value.image.data.set(new Float32Array(samples));
                     this.minkowskiPass.material.uniforms.toolProfile.value.needsUpdate = true;
-                    this.minkowskiPassClean = false;
+                    this.minkowskiPass.material.defines.radialSamples = pixelsOnRadius;
+                    console.log('radialSamples', this.minkowskiPass.material.defines.radialSamples);
+                    this.minkowskiPass.material.uniforms.toolToPartRatio.value = (this.toolRadiusMm / this.modelStage.displaySideMm).toPrecision(10);
+                    this.minkowskiPass.material.needsUpdate = true;
+                    var ySamples = 100;
+                    if (this.toolPosBuffer)
+                        this.toolPosBuffer.dispose();
+                    this.toolPosBuffer = new THREE.WebGLRenderTarget(this.modelStage.displaySide, ySamples,
+                            {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, type: THREE.FloatType});
+                    if (this.slicingBuffer)
+                        this.slicingBuffer.dispose();
+                    this.slicingBuffer = new THREE.WebGLRenderTarget(this.modelStage.displaySide, ySamples,
+                            {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, type: THREE.FloatType});
+                    this.modelStageClean = false;
                 },
                 setToolType: function (type) {
                     this.toolType = type;
@@ -357,10 +362,6 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 setToolRadius: function (radius) {
                     this.toolRadiusMm = radius;
                     this.updateToolShape();
-                    this.minkowskiPass.material.defines.radialSamples = Math.floor(radius * this.modelStage.sampleRate) + 1;
-                    console.log('radialSamples', this.minkowskiPass.material.defines.radialSamples);
-                    this.minkowskiPass.material.uniforms.toolToPartRatio.value = (this.toolRadiusMm / this.modelStage.displaySideMm).toPrecision(10);
-                    this.minkowskiPass.material.needsUpdate = true;
                 },
                 setSliceZ: function (z) {
                     this.slicingPass.material.uniforms.zCutoff.value = (z + (this.modelStage.camera.far - 1)) * this.modelStage.zRatio;
@@ -390,7 +391,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     wireframe: false,
                     size: 2,
                     uniforms: {
-                        tDisplacement: {type: 't', value: pipeline.slicingBuffer},
+                        tDisplacement: {type: 't', value: null},
                         terrainToWorldRatio: {type: 'v3', value: new THREE.Vector3(pipeline.bufferSize.x, pipeline.bufferSize.y, 1 / pipeline.modelStage.zRatio)},
                         terrainToWorldOffset: {type: 'v3', value: terrainToworldOffset},
                         samplingDensity: {type: 'v2', value: new THREE.Vector2(pipeline.toolPosBuffer.width, pipeline.toolPosBuffer.height)}
@@ -405,7 +406,6 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                         '   vec2 uv = position.xy;',
                         '   color = texture2D(tDisplacement, vec2(uv));',
                         '   vec3 pos = vec3(uv, color.r) * terrainToWorldRatio + terrainToWorldOffset;',
-                        //'   pos.z = max(-7.0, pos.z);',
                         '   gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);',
                         '}'
                     ].join('\n'),
@@ -481,6 +481,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     reRenderPipeline();
                 });
                 function reRender() {
+                    terrainMaterial.uniforms.tDisplacement.value = pipeline.slicingBuffer;
                     renderer.render(scene2, camera2);
                 }
 
