@@ -337,10 +337,27 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 updateToolShape: function () {
                     var totalPixels = 20000000;
                     var ySamples = 100;
-                    var pixelsOnRadius = Math.floor(Math.pow(totalPixels * this.toolRadiusMm / (ySamples * this.modelStage.displaySideMm * 4), 1 / 3)) + 1;
+                    var ds = this.modelStage.displaySideMm;
+                    var s = this.toolRadiusMm;
+                    var y = ySamples;
+                    var z = totalPixels;
+                    var pw = Math.pow;
+
+                    function crt(x) {
+                        return pw(x, 1 / 3);
+                    }
+
+                    //http://www.wolframalpha.com/input/?i=solve+4*r%5E2*y*d*r%2Fs%2Bd%5E2*r%5E2%2Fs%5E2+%3D+z+for+r
+                    var bigSquareRoot = Math.sqrt(108 * pw(ds, 4) * pw(s, 8) * pw(y, 4) * pw(z, 2) - pw(ds, 8) * pw(s, 4) * pw(y, 2) * z);
+                    var bigCubicRoot = crt(-pw(ds, 6) + 216 * pw(ds, 2) * pw(s, 4) * pw(y, 2) * z + 12 * Math.sqrt(3) * bigSquareRoot);
+                    var estimatePixels = (bigCubicRoot / (ds * s * y) + pw(ds, 3) / ((s * y * bigCubicRoot)) - ds / (s * y)) / 12;
+                    var newPixelsOnRadius = Math.floor(estimatePixels) + 1;
+                    console.log('radialSamples', newPixelsOnRadius);
+                    console.log('estimated pixel count (millions): ', 4 * pw(newPixelsOnRadius, 2) * ySamples * ds * (newPixelsOnRadius / this.toolRadiusMm) / 1000000);
+                    var pixelsOnRadius = newPixelsOnRadius;
                     this.modelStage.setSampleRate(pixelsOnRadius / this.toolRadiusMm);
-                    var pixelCount = (pixelsOnRadius * 2) * (pixelsOnRadius * 2) * ySamples * this.modelStage.displaySide;
-                    console.log('pixels (millions): ', pixelCount / 1000000);
+                    var pixelCount = (pixelsOnRadius * 2) * (pixelsOnRadius * 2) * ySamples * this.modelStage.displaySide + this.modelStage.displaySide * this.modelStage.displaySide;
+                    console.log('actual pixel count (millions): ', pixelCount / 1000000);
                     var types = {cylinder: createCylindricalTool, ball: createSphericalTool, v: createVTool};
                     var samples = types[this.toolType](pixelsOnRadius, this.modelStage.zRatio, this.toolRadiusMm);
                     this.minkowskiPass.material.uniforms.toolProfile.value.image.data = new Float32Array(samples);
@@ -348,7 +365,6 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     this.minkowskiPass.material.uniforms.toolProfile.value.needsUpdate = true;
                     this.minkowskiPass.material.defines.radialSamples = pixelsOnRadius;
                     this.minkowskiPass.material.needsUpdate = true;
-                    console.log('radialSamples', this.minkowskiPass.material.defines.radialSamples);
                     this.minkowskiPass.material.uniforms.toolToPartRatio.value = (this.toolRadiusMm / this.modelStage.displaySideMm).toPrecision(10);
                     this.minkowskiPass.material.needsUpdate = true;
                     if (this.toolPosBuffer)
