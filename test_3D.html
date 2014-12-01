@@ -145,8 +145,6 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 this.displaySide = 1024;
                 this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 1, 100);
                 scene.add(this.camera);
-                this.modelBuffer = new THREE.WebGLRenderTarget(this.displaySide, this.displaySide,
-                        {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.FloatType});
             }
 
             ModelStage.prototype = {
@@ -361,7 +359,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 },
                 updateToolShape: function () {
                     var totalPixels = 40000000;
-                    var ySamples = 100;
+                    var ySamples = 10;
                     var ds = this.modelStage.displaySideMm;
                     var s = this.toolRadiusMm + this.toolLeaveStockRadius;
                     var y = ySamples;
@@ -376,7 +374,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     var bigSquareRoot = Math.sqrt(108 * pw(ds, 4) * pw(s, 8) * pw(y, 4) * pw(z, 2) - pw(ds, 8) * pw(s, 4) * pw(y, 2) * z);
                     var bigCubicRoot = crt(-pw(ds, 6) + 216 * pw(ds, 2) * pw(s, 4) * pw(y, 2) * z + 12 * Math.sqrt(3) * bigSquareRoot);
                     var estimatePixels = (bigCubicRoot / (ds * s * y) + pw(ds, 3) / ((s * y * bigCubicRoot)) - ds / (s * y)) / 12;
-                    var newPixelsOnRadius = Math.floor(estimatePixels) + 1;
+                    var newPixelsOnRadius = isNaN(estimatePixels) ? 1 : Math.floor(estimatePixels) + 1;
                     console.log('s', s, 'radialSamples', newPixelsOnRadius);
                     console.log('estimated pixel count (millions): ', 4 * pw(newPixelsOnRadius, 2) * ySamples * ds * (newPixelsOnRadius / s) / 1000000);
                     var pixelsOnRadius = newPixelsOnRadius;
@@ -395,11 +393,11 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     if (this.toolPosBuffer)
                         this.toolPosBuffer.dispose();
                     this.toolPosBuffer = new THREE.WebGLRenderTarget(this.modelStage.displaySide, ySamples,
-                            {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, type: THREE.FloatType});
+                            {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.FloatType});
                     if (this.slicingBuffer)
                         this.slicingBuffer.dispose();
                     this.slicingBuffer = new THREE.WebGLRenderTarget(this.modelStage.displaySide, ySamples,
-                            {minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, type: THREE.FloatType});
+                            {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.FloatType});
                     this.modelStageClean = false;
                 },
                 setToolType: function (type) {
