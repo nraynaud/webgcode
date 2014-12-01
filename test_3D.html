@@ -64,27 +64,51 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
 
                 draw();
             });
-            function createSphericalTool(sampleCount, zRatio, radiusMM) {
+            function createSphericalTool(sampleCount, zRatio, radiusMM, roundDistance) {
                 var samples = [];
-                var maxIndex = sampleCount - 1;
+                var newRadius = radiusMM + roundDistance;
                 for (var i = 0; i < sampleCount; i++) {
-                    var relativeI = i / maxIndex;
-                    samples.push((1 - Math.sqrt(1 - relativeI * relativeI)) * radiusMM * zRatio);
+                    var r = newRadius * i / (sampleCount - 1);
+                    samples.push((radiusMM - Math.sqrt(newRadius * newRadius - r * r)) * zRatio);
                 }
                 return samples;
             }
 
-            function createVTool(sampleCount, zRatio, radiusMM) {
+            function createVTool(sampleCount, zRatio, radiusMM, roundDistance) {
                 var samples = [];
-                for (var i = 0; i < sampleCount; i++)
-                    samples.push(i / (sampleCount - 1) * radiusMM * zRatio);
-                return samples;
+                var profileRadius = radiusMM + roundDistance;
+                var sampleWidth = profileRadius / (sampleCount - 1);
+                for (var i = 0; i <= radiusMM; i += sampleWidth)
+                    samples.push(i);
+                return roundProfile(samples, sampleCount, roundDistance, radiusMM, zRatio);
             }
 
-            function createCylindricalTool(sampleCount, zRatio, radiusMM) {
+            function createCylindricalTool(sampleCount, zRatio, radiusMM, roundDistance) {
                 var samples = [];
-                for (var i = 0; i < sampleCount; i++)
+                var profileRadius = radiusMM + roundDistance;
+                var sampleWidth = profileRadius / (sampleCount - 1);
+                for (var i = 0; i <= radiusMM; i += sampleWidth)
                     samples.push(0);
+                return roundProfile(samples, sampleCount, roundDistance, radiusMM, zRatio);
+            }
+
+            function roundProfile(profile, sampleCount, roundDistance, radiusMM, zRatio) {
+                var samples = [];
+                var sphere = [];
+                var profileRadius = (radiusMM + roundDistance);
+                var sampleWidth = profileRadius / (sampleCount - 1);
+                for (var i = 0; i * sampleWidth <= roundDistance; i++)
+                    sphere.push(Math.sqrt(roundDistance * roundDistance - i * sampleWidth * i * sampleWidth));
+                for (i = 0; i < sampleCount; i++) {
+                    var sample = +Infinity;
+                    // don't try strange tool shapes, it *has* to be monotonic, we're using only one quadrant
+                    for (var j = 0; j < sphere.length; j++) {
+                        var index = i - j;
+                        if (index < profile.length && index >= 0)
+                            sample = Math.min(sample, profile[index] - sphere[j]);
+                    }
+                    samples.push(sample * zRatio);
+                }
                 return samples;
             }
 
@@ -312,6 +336,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 this.toolRadiusMm = toolRadiusMm;
                 this.toolType = 'ball';
                 this.renderer = renderer;
+                this.toolLeaveStockRadius = 0.5;
                 this.updateToolShape();
             }
 
@@ -335,10 +360,10 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     //this.copy.render(renderer, null, this.toolPosBuffer);
                 },
                 updateToolShape: function () {
-                    var totalPixels = 20000000;
+                    var totalPixels = 40000000;
                     var ySamples = 100;
                     var ds = this.modelStage.displaySideMm;
-                    var s = this.toolRadiusMm;
+                    var s = this.toolRadiusMm + this.toolLeaveStockRadius;
                     var y = ySamples;
                     var z = totalPixels;
                     var pw = Math.pow;
@@ -352,20 +377,20 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                     var bigCubicRoot = crt(-pw(ds, 6) + 216 * pw(ds, 2) * pw(s, 4) * pw(y, 2) * z + 12 * Math.sqrt(3) * bigSquareRoot);
                     var estimatePixels = (bigCubicRoot / (ds * s * y) + pw(ds, 3) / ((s * y * bigCubicRoot)) - ds / (s * y)) / 12;
                     var newPixelsOnRadius = Math.floor(estimatePixels) + 1;
-                    console.log('radialSamples', newPixelsOnRadius);
-                    console.log('estimated pixel count (millions): ', 4 * pw(newPixelsOnRadius, 2) * ySamples * ds * (newPixelsOnRadius / this.toolRadiusMm) / 1000000);
+                    console.log('s', s, 'radialSamples', newPixelsOnRadius);
+                    console.log('estimated pixel count (millions): ', 4 * pw(newPixelsOnRadius, 2) * ySamples * ds * (newPixelsOnRadius / s) / 1000000);
                     var pixelsOnRadius = newPixelsOnRadius;
-                    this.modelStage.setSampleRate(pixelsOnRadius / this.toolRadiusMm);
+                    this.modelStage.setSampleRate(pixelsOnRadius / s);
                     var pixelCount = (pixelsOnRadius * 2) * (pixelsOnRadius * 2) * ySamples * this.modelStage.displaySide + this.modelStage.displaySide * this.modelStage.displaySide;
                     console.log('actual pixel count (millions): ', pixelCount / 1000000);
                     var types = {cylinder: createCylindricalTool, ball: createSphericalTool, v: createVTool};
-                    var samples = types[this.toolType](pixelsOnRadius, this.modelStage.zRatio, this.toolRadiusMm);
+                    var samples = types[this.toolType](pixelsOnRadius, this.modelStage.zRatio, this.toolRadiusMm, this.toolLeaveStockRadius);
                     this.minkowskiPass.material.uniforms.toolProfile.value.image.data = new Float32Array(samples);
                     this.minkowskiPass.material.uniforms.toolProfile.value.image.width = pixelsOnRadius;
                     this.minkowskiPass.material.uniforms.toolProfile.value.needsUpdate = true;
                     this.minkowskiPass.material.defines.radialSamples = pixelsOnRadius;
                     this.minkowskiPass.material.needsUpdate = true;
-                    this.minkowskiPass.material.uniforms.toolToPartRatio.value = (this.toolRadiusMm / this.modelStage.displaySideMm).toPrecision(10);
+                    this.minkowskiPass.material.uniforms.toolToPartRatio.value = (s / this.modelStage.displaySideMm).toPrecision(10);
                     this.minkowskiPass.material.needsUpdate = true;
                     if (this.toolPosBuffer)
                         this.toolPosBuffer.dispose();
@@ -383,6 +408,10 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 },
                 setToolRadius: function (radius) {
                     this.toolRadiusMm = radius;
+                    this.updateToolShape();
+                },
+                setLeaveStock: function (radius) {
+                    this.toolLeaveStockRadius = radius;
                     this.updateToolShape();
                 },
                 setSliceZ: function (z) {
@@ -517,7 +546,7 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 function setToolRadius(radius) {
                     $('#radius').text(radius);
                     console.time('tool change');
-                    pipeline.setToolRadius(radius);
+                    pipeline.setToolRadius(parseFloat(radius));
                     reRenderPipeline();
                     console.timeEnd('tool change');
                 }
@@ -538,10 +567,16 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
                 window.setToolType = setToolType;
                 window.setToolRadius = setToolRadius;
                 window.setSliceZ = function (z) {
-                    console.log('setSliceZ');
                     $('#slice').text(z);
                     console.time('tool change');
                     pipeline.setSliceZ(parseFloat(z));
+                    reRenderPipeline();
+                    console.timeEnd('tool change');
+                };
+                window.setLeaveStock = function (radius) {
+                    $('#leaveStock').text(radius);
+                    console.time('tool change');
+                    pipeline.setLeaveStock(parseFloat(radius));
                     reRenderPipeline();
                     console.timeEnd('tool change');
                 };
@@ -567,6 +602,10 @@ require(['jQuery', 'THREE', 'libs/threejs/STLLoader', 'libs/threejs/postprocessi
             <span id="slice">-7</span>
             ): <input type="range" min="-25" max="0" value="-7" step="0.5"
                       oninput="setSliceZ(this.value)"></label>
+        <label>Leave stock (
+            <span id="leaveStock">0.5</span>
+            ): <input type="range" min="0" max="5" value="0.5" step="0.1"
+                      oninput="setLeaveStock(this.value)"></label>
     </div>
 
 </div>
