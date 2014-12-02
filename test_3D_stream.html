@@ -220,7 +220,7 @@ require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'libs/threejs/STLLoader', 'li
                 var modelBuffer = new THREE.WebGLRenderTarget(tileSizeX + 2 * toolSamples, tileSizeY + 2 * toolSamples,
                         {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.FloatType});
 
-                var toolTexture = new THREE.DataTexture(new Float32Array(profile), toolSamples, 1, THREE.LuminanceFormat, THREE.FloatType);
+                var toolTexture = new THREE.DataTexture(new Float32Array(profile), toolSamples, 1, THREE.LuminanceFormat, THREE.FloatType, THREE.UVMapping, THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping, THREE.NearestFilter, THREE.NearestFilter);
 
                 var minkowskiPass = new ShaderPass({
                     uniforms: {
