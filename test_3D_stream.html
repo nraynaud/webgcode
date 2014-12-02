@@ -211,8 +211,8 @@ require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'libs/threejs/STLLoader', 'li
                 var globalHeight = maxY - minY;
                 var pixelsPerTile = 30000000;
                 var tileArea = pixelsPerTile / (4 * toolSamples * toolSamples);
-                var tileSizeX = Math.ceil(globalWidth);
-                var tileSizeY = Math.ceil(tileArea / globalWidth);
+                var tileSizeX = Math.ceil(Math.sqrt(tileArea));
+                var tileSizeY = Math.ceil(Math.sqrt(tileArea));
                 console.log(globalWidth, globalHeight, tileSizeX, tileSizeY);
                 console.log('tile area', tileArea);
                 console.log('pixels per tile', toolSamples * toolSamples * 4 * tileSizeX * tileSizeY);
