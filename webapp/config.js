@@ -14,7 +14,8 @@ requirejs.config({
         clipper: 'libs/clipper_unminified',
         canvg: 'libs/canvg/canvg',
         bootstrap: 'libs/bootstrap/js/bootstrap.min',
-        base64: 'libs/deflate/base64'
+        base64: 'libs/deflate/base64',
+        Piecon: 'libs/piecon.min'
     },
     shim: {
         jQuery: {exports: '$'},
@@ -50,6 +51,7 @@ requirejs.config({
         RSVP: {exports: 'RSVP'},
         templates: {deps: ['Ember']},
         clipper: {exports: 'ClipperLib'},
-        base64: {exports: 'Base64'}
+        base64: {exports: 'Base64'},
+        Piecon: {exports: 'Piecon'}
     }
 });
