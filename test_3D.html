@@ -248,7 +248,7 @@ require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'libs/threejs/STLLoader', 'li
                         '}',
                         'highp float readHeight(vec2 pos) {',
                         '   highp vec4 color = texture2D(tDiffuse, terrainRatio * vUv + terrainTranslation + pos * toolToPartRatio);',
-                        '   highp float displacement = texture2D(toolProfile, vec2(length(pos), 0.0)).r;',
+                        '   highp float displacement = texture2D(toolProfile, vec2(0.5 / float(radialSamples) + length(pos) / float(radialSamples) * float(radialSamples - 1), 0.5)).r;',
                         '   return color.r - displacement;',
                         '}',
                         'void main() {',
@@ -396,16 +396,17 @@ require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'libs/threejs/STLLoader', 'li
                         tDisplacement: {type: 't', value: null},
                         terrainToWorldRatio: {type: 'v3', value: new THREE.Vector3(pipeline.bufferSize.x, pipeline.bufferSize.y, 1 / pipeline.modelStage.zRatio)},
                         terrainToWorldOffset: {type: 'v3', value: terrainToworldOffset},
-                        samplingDensity: {type: 'v2', value: new THREE.Vector2(pipeline.toolPosBuffer.width, pipeline.toolPosBuffer.height)}
+                        sampleCount: {type: 'v2', value: new THREE.Vector2(pipeline.toolPosBuffer.width, pipeline.toolPosBuffer.height)}
                     },
                     vertexShader: [
                         'uniform sampler2D tDisplacement;',
                         'uniform vec3 terrainToWorldRatio;',
                         'uniform vec3 terrainToWorldOffset;',
+                        'uniform vec2 sampleCount;',
                         'varying vec4 color;',
                         'highp float factor = (exp2(24.0) - 1.0) / exp2(24.0);',
                         'void main() {',
-                        '   vec2 uv = position.xy;',
+                        '   vec2 uv = position.xy / sampleCount * (sampleCount - 1.0) + 0.5 / sampleCount;',
                         '   color = texture2D(tDisplacement, vec2(uv));',
                         '   vec3 pos = vec3(uv, color.r) * terrainToWorldRatio + terrainToWorldOffset;',
                         '   gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);',
@@ -484,6 +485,7 @@ require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'libs/threejs/STLLoader', 'li
                 });
                 function reRender() {
                     terrainMaterial.uniforms.tDisplacement.value = pipeline.slicingBuffer;
+                    terrainMaterial.uniforms.sampleCount.value = new THREE.Vector2(pipeline.slicingBuffer.width, pipeline.slicingBuffer.height)
                     renderer.render(scene2, camera2);
                 }
 
