@@ -46,7 +46,7 @@ require(['jQuery', 'THREE', 'Piecon', 'cnc/cam/toolProfile', 'libs/threejs/STLLo
             'libs/threejs/postprocessing/RenderPass', 'libs/threejs/postprocessing/ShaderPass',
             'libs/threejs/OrbitControls', 'libs/threejs/postprocessing/CopyShader'],
         function ($, THREE, Piecon, toolProfile, STLLoader, EffectComposer, RenderPass, ShaderPass, OrbitControls, CopyShader) {
-            if (Notification.permission === 'default') {
+            if (Notification && Notification.permission === 'default') {
                 Notification.requestPermission(function (permission) {
                     console.log('Notification.permision', permission);
                 });
@@ -339,7 +339,8 @@ require(['jQuery', 'THREE', 'Piecon', 'cnc/cam/toolProfile', 'libs/threejs/STLLo
                     } else {
                         console.timeEnd('computation');
                         Piecon.reset();
-                        new Notification("Computation is done.", {icon: 'webapp/images/icon_fraise_48.png'})
+                        if (Notification)
+                            new Notification("Computation is done.", {icon: 'webapp/images/icon_fraise_48.png'})
                     }
                 }
 
