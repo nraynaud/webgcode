@@ -42,317 +42,195 @@
     }
 </style>
 <script>
-require(['jQuery', 'THREE', 'Piecon', 'cnc/cam/toolProfile', 'libs/threejs/STLLoader', 'libs/threejs/postprocessing/EffectComposer',
-            'libs/threejs/postprocessing/RenderPass', 'libs/threejs/postprocessing/ShaderPass',
-            'libs/threejs/OrbitControls', 'libs/threejs/postprocessing/CopyShader'],
-        function ($, THREE, Piecon, toolProfile, STLLoader, EffectComposer, RenderPass, ShaderPass, OrbitControls, CopyShader) {
-            if (window['Notification'] && Notification.permission === 'default') {
-                Notification.requestPermission(function (permission) {
-                    console.log('Notification.permision', permission);
+    require(['jQuery', 'THREE', 'Piecon', 'cnc/cam/toolProfile', 'cnc/cam/modelProjector', 'libs/threejs/STLLoader', 'libs/threejs/postprocessing/EffectComposer',
+                'libs/threejs/postprocessing/RenderPass', 'libs/threejs/postprocessing/ShaderPass',
+                'libs/threejs/OrbitControls', 'libs/threejs/postprocessing/CopyShader'],
+            function ($, THREE, Piecon, toolProfile, ModelStage, STLLoader, EffectComposer, RenderPass, ShaderPass, OrbitControls, CopyShader) {
+                if (window['Notification'] && Notification.permission === 'default') {
+                    Notification.requestPermission(function (permission) {
+                        console.log('Notification.permision', permission);
+                    });
+                }
+                var $container = $('body');
+                var renderer = new THREE.WebGLRenderer({antialias: false, alpha: true, precision: 'highp', autoClear: false, preserveDrawingBuffer: true});
+                $container.append(renderer.domElement);
+                var outputWidth = $container.width();
+                var outputHeight = $container.height();
+                renderer.sortObjects = false;
+                renderer.setSize(outputWidth, outputHeight);
+                renderer.setViewport(0, 0, outputWidth, outputHeight);
+                new STLLoader().load('webapp/samples/soap.stl', function (geometry) {
+                    function draw() {
+                        displayGeometry(geometry);
+                    }
+
+                    draw();
                 });
-            }
-            var $container = $('body');
-            var renderer = new THREE.WebGLRenderer({antialias: false, alpha: true, precision: 'highp', autoClear: false, preserveDrawingBuffer: true});
-            $container.append(renderer.domElement);
-            var outputWidth = $container.width();
-            var outputHeight = $container.height();
-            renderer.sortObjects = false;
-            renderer.setSize(outputWidth, outputHeight);
-            renderer.setViewport(0, 0, outputWidth, outputHeight);
-            new STLLoader().load('webapp/samples/soap.stl', function (geometry) {
-                function draw() {
-                    displayGeometry(geometry);
-                }
-
-                draw();
-            });
 
 
-            function ModelStage() {
-                var scene = new THREE.Scene();
-                this.scene = scene;
-                var operation = {
-                    depthTest: true,
-                    size: 1,
-                    sizeAttenuation: false,
-                    linewidth: 1,
-                    vertexShader: [
-                        'void main() {',
-                        '   gl_PointSize = 2.0;',
-                        '   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);',
-                        '}'].join('\n'),
-                    // depth encoding : http://aras-p.info/blog/2009/07/30/encoding-floats-to-rgba-the-final/
-                    fragmentShader: [
-                        'highp float factor = (exp2(24.0) - 1.0) / exp2(24.0);',
-                        'vec3 EncodeFloatRGB(highp float v) {',
-                        '   vec3 enc = fract(vec3(1.0, 255.0, 255.0 * 255.0) * factor * v);',
-                        '   enc -= enc.yzz * vec3(1.0 / 255.0, 1.0 / 255.0, 0.0);',
-                        '   return enc;',
-                        '}',
-                        'highp float DecodeFloatRGB(vec3 rgb) {',
-                        '   return dot(rgb, vec3(1.0, 1.0 / 255.0, 1.0 / 255.0 / 255.0)) / factor;',
-                        '}',
-                        'void main() {',
-                        '   gl_FragData[0] = vec4(EncodeFloatRGB(1.0 - gl_FragCoord.z), 1.0);',
-                        '}'].join('\n')
-                };
+                function displayGeometry(geometry) {
+                    var modelStage = new ModelStage();
+                    modelStage.setGeometry(geometry);
+                    var toolSamples = 30;
+                    var sampleRate = 30;
+                    var toolradius = toolSamples / sampleRate;
+                    var profile = toolProfile.createSphericalTool(toolSamples, modelStage.zRatio, toolradius, 0);
+                    var minX = Math.floor(modelStage.modelBbox.min.x * sampleRate);
+                    var maxX = Math.ceil(modelStage.modelBbox.max.x * sampleRate);
+                    var minY = Math.floor(modelStage.modelBbox.min.y * sampleRate);
+                    var maxY = Math.ceil(modelStage.modelBbox.max.y * sampleRate);
 
-                this.scene.overrideMaterial = new THREE.ShaderMaterial(operation);
-                this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 1, 100);
-                scene.add(this.camera);
-            }
-
-            ModelStage.prototype = {
-                render: function (renderer, buffer) {
-                    renderer.render(this.scene, this.camera, buffer, true);
-                },
-                setGeometry: function (geometry) {
-                    if (this.model) {
-                        this.scene.remove(this.model);
-                        this.model = null;
-                    }
-                    this.model = new THREE.Object3D();
-                    var mesh = new THREE.Mesh(geometry, this.renderMaterial);
-                    this.model.add(mesh);
-
-                    // we add the vertices to force webgl to raster on at least 1 pixel
-                    // in case a "mountain" is spiky enough to slip thought the sampling grid.
-                    var pointsGeom = new THREE.BufferGeometry();
-                    pointsGeom.addAttribute('position', geometry.attributes.position.clone());
-                    this.model.add(new THREE.PointCloud(pointsGeom, new THREE.ShaderMaterial(this.renderMaterial)));
-
-                    // we should add all the edges too because a whole "ridge" might be sharp enough to slip through
-                    // the raster grid
-                    // I have a problem where the end of some lines "poke" slightly through the surface I don't know why.
-                    // question here: http://stackoverflow.com/questions/27097236/strange-artefacts-in-depth-buffer-with-lines
-                    // by orienting the lines towards -z, I don't get the poky things
-                    var array = geometry.attributes.position.array;
-                    var lines = [];
-                    var vertical = new THREE.Vector3(0, 0, 1);
-
-                    function push(x1, y1, z1, x2, y2, z2) {
-                        var v = new THREE.Vector3(x2 - x1, y2 - y1, z2 - z1);
-                        if (v.dot(vertical) / v.length() / vertical.length() > 0)
-                            lines.push(x1, y1, z1, x2, y2, z2);
-                        else
-                            lines.push(x2, y2, z2, x1, y1, z1);
+                    function setCameraPix(minX, maxX, minY, maxY) {
+                        modelStage.setCamera(minX / sampleRate, maxX / sampleRate, minY / sampleRate, maxY / sampleRate);
                     }
 
-                    for (var i = 0; i < array.length; i += 9) {
-                        var x1 = array[i];
-                        var y1 = array[i + 1];
-                        var z1 = array[i + 2];
-
-                        var x2 = array[i + 3];
-                        var y2 = array[i + 4];
-                        var z2 = array[i + 5];
-
-                        var x3 = array[i + 6];
-                        var y3 = array[i + 7];
-                        var z3 = array[i + 8];
-
-                        push(x1, y1, z1, x2, y2, z2);
-                        push(x2, y2, z2, x3, y3, z3);
-                        push(x3, y3, z3, x1, y1, z1);
+                    function setTilePos(x, y) {
+                        setCameraPix(minX + x - toolSamples, minX + x + tileSizeX + toolSamples, minY + y - toolSamples, minY + y + tileSizeY + toolSamples);
                     }
 
-                    var geom = new THREE.BufferGeometry();
-                    geom.addAttribute('position', new THREE.BufferAttribute(new Float32Array(lines), 3));
-                    this.model.add(new THREE.Line(geom, undefined, THREE.LinePieces));
+                    var globalWidth = maxX - minX;
+                    var globalHeight = maxY - minY;
+                    var pixelsPerTile = 30000000;
+                    var tileArea = pixelsPerTile / (4 * toolSamples * toolSamples);
+                    var tileSizeX = Math.ceil(Math.sqrt(tileArea));
+                    var tileSizeY = Math.ceil(Math.sqrt(tileArea));
+                    console.log(globalWidth, globalHeight, tileSizeX, tileSizeY);
+                    console.log('tile area', tileArea);
+                    console.log('pixels per tile', toolSamples * toolSamples * 4 * tileSizeX * tileSizeY);
+                    console.log('total pixels', toolSamples * toolSamples * 4 * globalWidth * globalHeight);
+                    var modelBuffer = new THREE.WebGLRenderTarget(tileSizeX + 2 * toolSamples, tileSizeY + 2 * toolSamples,
+                            {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.UnsignedByteType});
 
-                    mesh.geometry.computeBoundingBox();
-                    this.modelBbox = mesh.geometry.boundingBox;
-                    this.scene.add(this.model);
-                    this.model.updateMatrixWorld();
-                    this.resetCamera();
-                },
-                resetCamera: function () {
-                    var bbox = this.modelBbox;
-                    var bboxSize = bbox.size();
-                    var modelRatio = bboxSize.y / bboxSize.x;
-                    console.log('modelRatio', modelRatio);
-                    this.displaySideMm = (bboxSize.x > bboxSize.y ? bboxSize.x : bboxSize.y) * 1.1;
-                    this.camera.position.set(0, 0, bbox.max.z + 1);
-                    this.camera.lookAt(new THREE.Vector3(0, 0, bbox.min.z));
-                    this.camera.far = bbox.max.z - bbox.min.z + 1;
-                    this.zRatio = 1 / (this.camera.far - this.camera.near);
-                    console.log('near, far', this.camera.near, this.camera.far);
-                    this.camera.updateProjectionMatrix();
-                    this.camera.updateMatrixWorld();
-                },
-                setCamera: function (left, right, bottom, top) {
-                    this.camera.bottom = bottom;
-                    this.camera.top = top;
-                    this.camera.left = left;
-                    this.camera.right = right;
-                    this.camera.updateProjectionMatrix();
-                    this.camera.updateMatrixWorld();
-                }
-            };
+                    var toolTexture = new THREE.DataTexture(new Float32Array(profile), toolSamples, 1, THREE.LuminanceFormat, THREE.UnsignedByteType, THREE.UVMapping, THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping, THREE.NearestFilter, THREE.NearestFilter);
 
-            function displayGeometry(geometry) {
-                var modelStage = new ModelStage();
-                modelStage.setGeometry(geometry);
-                var toolSamples = 30;
-                var sampleRate = 30;
-                var toolradius = toolSamples / sampleRate;
-                var profile = toolProfile.createSphericalTool(toolSamples, modelStage.zRatio, toolradius, 0);
-                var minX = Math.floor(modelStage.modelBbox.min.x * sampleRate);
-                var maxX = Math.ceil(modelStage.modelBbox.max.x * sampleRate);
-                var minY = Math.floor(modelStage.modelBbox.min.y * sampleRate);
-                var maxY = Math.ceil(modelStage.modelBbox.max.y * sampleRate);
+                    var minkowskiPass = new ShaderPass({
+                        uniforms: {
+                            tDiffuse: {type: 't'},
+                            toolProfile: {type: 't', value: toolTexture},
+                            toolToPartRatio: {type: 'v2', value: new THREE.Vector2(toolSamples / modelBuffer.width, toolSamples / modelBuffer.height)},
+                            terrainRatio: {type: 'v2', value: new THREE.Vector2(tileSizeX / modelBuffer.width, tileSizeY / modelBuffer.height)},
+                            terrainTranslation: {type: 'v2', value: new THREE.Vector2(toolSamples / modelBuffer.width, toolSamples / modelBuffer.height)}
+                        },
+                        defines: {
+                            radialSamples: toolSamples
+                        },
+                        vertexShader: [
+                            'varying vec2 vUv;',
+                            'void main() {',
+                            '   vUv = uv;',
+                            '   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);',
+                            '}'
+                        ].join('\n'),
+                        fragmentShader: [
+                            'uniform sampler2D tDiffuse;',
+                            'uniform sampler2D toolProfile;',
+                            'uniform vec2 toolToPartRatio;',
+                            'uniform vec2 terrainRatio;',
+                            'uniform vec2 terrainTranslation;',
+                            'varying vec2 vUv;',
+                            'highp float factor = (exp2(24.0) - 1.0) / exp2(24.0);',
+                            'vec3 EncodeFloatRGB(highp float v) {',
+                            '   vec3 enc = fract(vec3(1.0, 255.0, 255.0 * 255.0) * factor * v);',
+                            '   enc -= enc.yzz * vec3(1.0 / 255.0, 1.0 / 255.0, 0.0);',
+                            '   return enc;',
+                            '}',
+                            'highp float DecodeFloatRGB(vec3 rgb) {',
+                            '   return dot(rgb, vec3(1.0, 1.0 / 255.0, 1.0 / 255.0 / 255.0)) / factor;',
+                            '}',
+                            'highp float readHeight(vec2 pos) {',
+                            '   highp vec4 color = texture2D(tDiffuse, terrainRatio * vUv + terrainTranslation + pos * toolToPartRatio);',
+                            '   highp float displacement = texture2D(toolProfile, vec2(length(pos), 0.0)).r;',
+                            '   return DecodeFloatRGB(color.rgb) - displacement;',
+                            '}',
+                            'void main() {',
+                            '   highp int radiusSquared = radialSamples * radialSamples;',
+                            '   highp float sum = readHeight(vec2(0.0, 0.0));',
+                            '   for (int i = -radialSamples; i <= radialSamples; i++)',
+                            '       for (int j = -radialSamples; j <= radialSamples; j++)',
+                            '           if (i * i + j * j <= radiusSquared)',
+                            '               sum = max(sum, readHeight(vec2(i, j) / float(radialSamples)));',
+                            '   gl_FragColor = vec4(EncodeFloatRGB(sum), 1.0);',
+                            '}'].join('\n')
+                    });
+                    var minkowskiBuffer = new THREE.WebGLRenderTarget(tileSizeX, tileSizeY,
+                            {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.UnsignedByteType});
 
-                function setCameraPix(minX, maxX, minY, maxY) {
-                    modelStage.setCamera(minX / sampleRate, maxX / sampleRate, minY / sampleRate, maxY / sampleRate);
-                }
+                    var copyPass = new ShaderPass(CopyShader);
+                    copyPass.quad.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(1, 1, 0));
+                    var matrix = new THREE.Matrix4().makeScale(0.5 * tileSizeX, 0.5 * tileSizeY, 1);
+                    copyPass.quad.geometry.applyMatrix(matrix);
+                    copyPass.camera.left = 0;
+                    copyPass.camera.right = globalWidth;
+                    copyPass.camera.bottom = 0;
+                    copyPass.camera.top = globalHeight;
+                    copyPass.camera.updateProjectionMatrix();
+                    copyPass.renderToScreen = true;
+                    renderer.autoClear = false;
 
-                function setTilePos(x, y) {
-                    setCameraPix(minX + x - toolSamples, minX + x + tileSizeX + toolSamples, minY + y - toolSamples, minY + y + tileSizeY + toolSamples);
-                }
+                    var sequence = [];
+                    for (var j = 0; j < globalHeight; j += tileSizeY)
+                        for (var i = 0; i < globalWidth; i += tileSizeX)
+                            sequence.push([i, j]);
+                    var resultBuffer = new Float32Array(globalHeight * globalWidth);
+                    var resultTile = new Uint8Array(tileSizeX * tileSizeY * 4);
+                    var worker = new Worker('worker.js');
+                    var factor = (Math.pow(2, 24.0) - 1.0) / Math.pow(2, 24.0);
 
-                var globalWidth = maxX - minX;
-                var globalHeight = maxY - minY;
-                var pixelsPerTile = 30000000;
-                var tileArea = pixelsPerTile / (4 * toolSamples * toolSamples);
-                var tileSizeX = Math.ceil(Math.sqrt(tileArea));
-                var tileSizeY = Math.ceil(Math.sqrt(tileArea));
-                console.log(globalWidth, globalHeight, tileSizeX, tileSizeY);
-                console.log('tile area', tileArea);
-                console.log('pixels per tile', toolSamples * toolSamples * 4 * tileSizeX * tileSizeY);
-                console.log('total pixels', toolSamples * toolSamples * 4 * globalWidth * globalHeight);
-                var modelBuffer = new THREE.WebGLRenderTarget(tileSizeX + 2 * toolSamples, tileSizeY + 2 * toolSamples,
-                        {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.UnsignedByteType});
+                    function decodeFloatRgb(r, g, b) {
+                        return  (r / 255 + g / 255 / 255 + b / 255 / 255 / 255 ) / factor;
+                    }
 
-                var toolTexture = new THREE.DataTexture(new Float32Array(profile), toolSamples, 1, THREE.LuminanceFormat, THREE.UnsignedByteType, THREE.UVMapping, THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping, THREE.NearestFilter, THREE.NearestFilter);
+                    function copyResultTileToResultBuffer(x, y) {
+                        for (var j = 0; j < tileSizeY; j++)
+                            for (var i = 0; i < tileSizeX; i++) {
+                                var pixIndex = ((j * tileSizeX + i) * 4);
+                                resultBuffer[(y + j) * globalWidth + i + x] = decodeFloatRgb(resultTile[pixIndex], resultTile[pixIndex + 1], resultTile[pixIndex + 2]);
+                            }
+                    }
 
-                var minkowskiPass = new ShaderPass({
-                    uniforms: {
-                        tDiffuse: {type: 't'},
-                        toolProfile: {type: 't', value: toolTexture},
-                        toolToPartRatio: {type: 'v2', value: new THREE.Vector2(toolSamples / modelBuffer.width, toolSamples / modelBuffer.height)},
-                        terrainRatio: {type: 'v2', value: new THREE.Vector2(tileSizeX / modelBuffer.width, tileSizeY / modelBuffer.height)},
-                        terrainTranslation: {type: 'v2', value: new THREE.Vector2(toolSamples / modelBuffer.width, toolSamples / modelBuffer.height)}
-                    },
-                    defines: {
-                        radialSamples: toolSamples
-                    },
-                    vertexShader: [
-                        'varying vec2 vUv;',
-                        'void main() {',
-                        '   vUv = uv;',
-                        '   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);',
-                        '}'
-                    ].join('\n'),
-                    fragmentShader: [
-                        'uniform sampler2D tDiffuse;',
-                        'uniform sampler2D toolProfile;',
-                        'uniform vec2 toolToPartRatio;',
-                        'uniform vec2 terrainRatio;',
-                        'uniform vec2 terrainTranslation;',
-                        'varying vec2 vUv;',
-                        'highp float factor = (exp2(24.0) - 1.0) / exp2(24.0);',
-                        'vec3 EncodeFloatRGB(highp float v) {',
-                        '   vec3 enc = fract(vec3(1.0, 255.0, 255.0 * 255.0) * factor * v);',
-                        '   enc -= enc.yzz * vec3(1.0 / 255.0, 1.0 / 255.0, 0.0);',
-                        '   return enc;',
-                        '}',
-                        'highp float DecodeFloatRGB(vec3 rgb) {',
-                        '   return dot(rgb, vec3(1.0, 1.0 / 255.0, 1.0 / 255.0 / 255.0)) / factor;',
-                        '}',
-                        'highp float readHeight(vec2 pos) {',
-                        '   highp vec4 color = texture2D(tDiffuse, terrainRatio * vUv + terrainTranslation + pos * toolToPartRatio);',
-                        '   highp float displacement = texture2D(toolProfile, vec2(length(pos), 0.0)).r;',
-                        '   return DecodeFloatRGB(color.rgb) - displacement;',
-                        '}',
-                        'void main() {',
-                        '   highp int radiusSquared = radialSamples * radialSamples;',
-                        '   highp float sum = readHeight(vec2(0.0, 0.0));',
-                        '   for (int i = -radialSamples; i <= radialSamples; i++)',
-                        '       for (int j = -radialSamples; j <= radialSamples; j++)',
-                        '           if (i * i + j * j <= radiusSquared)',
-                        '               sum = max(sum, readHeight(vec2(i, j) / float(radialSamples)));',
-                        '   gl_FragColor = vec4(EncodeFloatRGB(sum), 1.0);',
-                        '}'].join('\n')
-                });
-                var minkowskiBuffer = new THREE.WebGLRenderTarget(tileSizeX, tileSizeY,
-                        {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.UnsignedByteType});
+                    var percentage = null;
 
-                var copyPass = new ShaderPass(CopyShader);
-                copyPass.quad.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(1, 1, 0));
-                var matrix = new THREE.Matrix4().makeScale(0.5 * tileSizeX, 0.5 * tileSizeY, 1);
-                copyPass.quad.geometry.applyMatrix(matrix);
-                copyPass.camera.left = 0;
-                copyPass.camera.right = globalWidth;
-                copyPass.camera.bottom = 0;
-                copyPass.camera.top = globalHeight;
-                copyPass.camera.updateProjectionMatrix();
-                copyPass.renderToScreen = true;
-                renderer.autoClear = false;
-
-                var sequence = [];
-                for (var j = 0; j < globalHeight; j += tileSizeY)
-                    for (var i = 0; i < globalWidth; i += tileSizeX)
-                        sequence.push([i, j]);
-                var resultBuffer = new Float32Array(globalHeight * globalWidth);
-                var resultTile = new Uint8Array(tileSizeX * tileSizeY * 4);
-                var worker = new Worker('worker.js');
-                var factor = (Math.pow(2, 24.0) - 1.0) / Math.pow(2, 24.0);
-
-                function decodeFloatRgb(r, g, b) {
-                    return  (r / 255 + g / 255 / 255 + b / 255 / 255 / 255 ) / factor;
-                }
-
-                function copyResultTileToResultBuffer(x, y) {
-                    for (var j = 0; j < tileSizeY; j++)
-                        for (var i = 0; i < tileSizeX; i++) {
-                            var pixIndex = ((j * tileSizeX + i) * 4);
-                            resultBuffer[(y + j) * globalWidth + i + x] = decodeFloatRgb(resultTile[pixIndex], resultTile[pixIndex + 1], resultTile[pixIndex + 2]);
+                    function drawTile(sequenceIndex) {
+                        if (sequenceIndex < sequence.length) {
+                            var newPercentage = Math.round(sequenceIndex / sequence.length * 25) * 4;
+                            if (newPercentage != percentage)
+                                Piecon.setProgress(newPercentage);
+                            percentage = newPercentage;
+                            var x = sequence[sequenceIndex][0];
+                            var y = sequence[sequenceIndex][1];
+                            setTilePos(x, y);
+                            var gl = renderer.getContext();
+                            modelStage.render(renderer, modelBuffer);
+                            minkowskiPass.render(renderer, minkowskiBuffer, modelBuffer);
+                            copyPass.quad.position.x = x;
+                            copyPass.quad.position.y = y;
+                            copyPass.render(renderer, null, minkowskiBuffer);
+                            renderer.setRenderTarget(minkowskiBuffer);
+                            gl.readPixels(0, 0, tileSizeX, tileSizeY, gl.RGBA, gl.UNSIGNED_BYTE, resultTile);
+                            //by keeping this loop in the main thread, I think we leaving some time for hte GPU to breathe.
+                            copyResultTileToResultBuffer(x, y);
+                            //setTimeout is not throttled in workers
+                            $(worker).one('message', function () {
+                                drawTile(sequenceIndex + 1);
+                            });
+                            worker.postMessage('ping');
+                        } else {
+                            console.timeEnd('computation');
+                            Piecon.reset();
+                            if (window['Notification'] && document['visibilityState'] == 'hidden')
+                                new Notification("Computation is done.", {icon: 'webapp/images/icon_fraise_48.png'})
                         }
-                }
-
-                var percentage = 0;
-
-                function drawTile(sequenceIndex) {
-                    if (sequenceIndex < sequence.length) {
-                        var newPercentage = Math.round(sequenceIndex / sequence.length * 25) * 4;
-                        if (newPercentage != percentage)
-                            Piecon.setProgress(newPercentage);
-                        percentage = newPercentage;
-                        var x = sequence[sequenceIndex][0];
-                        var y = sequence[sequenceIndex][1];
-                        setTilePos(x, y);
-                        var gl = renderer.getContext();
-                        modelStage.render(renderer, modelBuffer);
-                        minkowskiPass.render(renderer, minkowskiBuffer, modelBuffer);
-                        copyPass.quad.position.x = x;
-                        copyPass.quad.position.y = y;
-                        copyPass.render(renderer, null, minkowskiBuffer);
-                        renderer.setRenderTarget(minkowskiBuffer);
-                        gl.readPixels(0, 0, tileSizeX, tileSizeY, gl.RGBA, gl.UNSIGNED_BYTE, resultTile);
-                        //by keeping this loop in the main thread, I think we leaving some time for hte GPU to breathe.
-                        copyResultTileToResultBuffer(x, y);
-                        //setTimeout is not throttled in workers
-                        $(worker).one('message', function () {
-                            drawTile(sequenceIndex + 1);
-                        });
-                        worker.postMessage('ping');
-                    } else {
-                        console.timeEnd('computation');
-                        Piecon.reset();
-                        if (window['Notification'])
-                            new Notification("Computation is done.", {icon: 'webapp/images/icon_fraise_48.png'})
                     }
-                }
 
-                Piecon.setOptions({
-                    color: '#752D2D', // Pie chart color
-                    background: '#A9BBD1', // Empty pie chart color
-                    shadow: '#849DBD'
-                });
-                console.time('computation');
-                drawTile(0);
-            }
-        });
+                    Piecon.setOptions({
+                        color: '#752D2D', // Pie chart color
+                        background: '#A9BBD1', // Empty pie chart color
+                        shadow: '#849DBD'
+                    });
+                    console.time('computation');
+                    drawTile(0);
+                }
+            });
 </script>
 </head>
 <body>

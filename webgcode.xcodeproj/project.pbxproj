@@ -67,6 +67,7 @@
 		DDAA5A767582AAED8D06A869 /* delaunay.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA561E868824DA17BCB9AA /* delaunay.js */; };
 		DDAA5A80B590F73D124F1CDA /* elliptic.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA560A454AFC2E09FD860F /* elliptic.js */; };
 		DDAA5A8CE27B6D4D2A53A300 /* util.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5DBED23BB93B2FA59786 /* util.js */; };
+		DDAA5AB639E79D4E78BF20CD /* modelProjector.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5A48AB3C8F951527DFDD /* modelProjector.js */; };
 		DDAA5AC03D5FEAC07C257F39 /* toolpath.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5F329B72AC25F4AAA0F4 /* toolpath.js */; };
 		DDAA5ACF27FBFF82B945B8C5 /* simulation.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA518A65DC4269AC7A31E2 /* simulation.js */; };
 		DDAA5B116FD23E8192E7F356 /* geometry.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5DADF1563A99CFD20E6D /* geometry.js */; };
@@ -142,7 +143,6 @@
 		DDAA523D7A9109D74C7BA499 /* util.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = util.js; sourceTree = "<group>"; };
 		DDAA524C2453225E6A0DEB24 /* parser.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = parser.js; path = gcode/parser.js; sourceTree = "<group>"; };
 		DDAA526E8216C0F4B90FC84F /* connection.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = connection.js; path = controller/connection.js; sourceTree = "<group>"; };
-		DDAA529BF8EEBE4231120887 /* test_3D_flat.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_3D_flat.html; sourceTree = "<group>"; };
 		DDAA529E27A076D6E269389A /* connection.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = connection.js; sourceTree = "<group>"; };
 		DDAA52AFFAE054B9E7D1FA72 /* cnc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cnc.h; sourceTree = "<group>"; };
 		DDAA52B1A4915275E73497A2 /* box2.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = box2.js; sourceTree = "<group>"; };
@@ -231,6 +231,7 @@
 		DDAA59EA70480E724659BF78 /* controller.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = controller.js; sourceTree = "<group>"; };
 		DDAA59FEF17A22C1216B27DD /* .nojekyll */ = {isa = PBXFileReference; lastKnownFileType = file.nojekyll; path = .nojekyll; sourceTree = "<group>"; };
 		DDAA5A4300864DA095799734 /* visucamApp.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.handelbars; path = visucamApp.hbs; sourceTree = "<group>"; };
+		DDAA5A48AB3C8F951527DFDD /* modelProjector.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = modelProjector.js; sourceTree = "<group>"; };
 		DDAA5A55C036357C8CD5193C /* twoDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = twoDView.js; sourceTree = "<group>"; };
 		DDAA5A99ECD28BC66706A677 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = file.json; name = manifest.json; path = webapp/manifest.json; sourceTree = "<group>"; };
 		DDAA5AAFC3B9C67160FA662D /* geometry.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = geometry.js; path = gcode/geometry.js; sourceTree = "<group>"; };
@@ -326,6 +327,7 @@
 				DDAA5F329B72AC25F4AAA0F4 /* toolpath.js */,
 				DDAA5C7C2C93424ED58CED62 /* operations.js */,
 				DDAA546D6A8D1DE889741895 /* toolProfile.js */,
+				DDAA5A48AB3C8F951527DFDD /* modelProjector.js */,
 			);
 			path = cam;
 			sourceTree = "<group>";
@@ -580,7 +582,6 @@
 				DDAA5DA78FB055D13C9A76E0 /* test_voronoi.html */,
 				DDAA5DB460D44711D0FB7387 /* test_3D.html */,
 				DDAA57A9418E011585C0FF54 /* test_wireframe.html */,
-				DDAA529BF8EEBE4231120887 /* test_3D_flat.html */,
 				DDAA584D3D02743E506BD4E2 /* test_3D_stream.html */,
 				DDAA5822E10A043FC05B2441 /* worker.js */,
 			);
@@ -761,6 +762,7 @@
 				DDAA58BE9DBD78082FD48E01 /* yenc.js in Sources */,
 				DDAA5B500EB255FEBF8DA97B /* toolProfile.js in Sources */,
 				DDAA509CFC62EE78EAF713D8 /* worker.js in Sources */,
+				DDAA5AB639E79D4E78BF20CD /* modelProjector.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
