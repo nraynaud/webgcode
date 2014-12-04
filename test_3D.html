@@ -138,7 +138,7 @@ require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'cnc/cam/modelProjector', 'li
                         '       for (int j = -radialSamples; j <= radialSamples; j++)',
                         '           if (i * i + j * j <= radiusSquared)',
                         '               sum = max(sum, readHeight(vec2(i, j) / float(radialSamples)));',
-                        '   gl_FragColor = vec4(max(minZ, sum), 0.0, 0.0, 1.0);',
+                        '   gl_FragColor = vec4(EncodeFloatRGB(max(minZ, sum)), 1.0);',
                         '}'].join('\n')
                 });
                 this.copy = new ShaderPass(CopyShader);
@@ -239,7 +239,7 @@ require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'cnc/cam/modelProjector', 'li
                 var directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
                 directionalLight2.position.set(-1000, -1000, 1000);
                 scene2.add(directionalLight2);
-                var terrainToworldOffset = new THREE.Vector3(pipeline.bufferOrigin.x, pipeline.bufferOrigin.y, -(pipeline.modelStage.camera.far - 1));
+                var terrainToworldOffset = new THREE.Vector3(pipeline.bufferOrigin.x, pipeline.bufferOrigin.y, pipeline.modelStage.camera.position.z - pipeline.modelStage.camera.far);
                 var terrainShader = {
                     wireframe: false,
                     size: 2,
@@ -258,10 +258,13 @@ require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'cnc/cam/modelProjector', 'li
                         'uniform float minZ;',
                         'varying vec4 color;',
                         'highp float factor = (exp2(24.0) - 1.0) / exp2(24.0);',
+                        'highp float DecodeFloatRGB(vec3 rgb) {',
+                        '   return dot(rgb, vec3(1.0, 1.0 / 255.0, 1.0 / 255.0 / 255.0)) / factor;',
+                        '}',
                         'void main() {',
                         '   vec2 uv = position.xy / sampleCount * (sampleCount - 1.0) + 0.5 / sampleCount;',
                         '   color = texture2D(tDisplacement, vec2(uv));',
-                        '   vec3 pos = vec3(uv, color.r) * terrainToWorldRatio + terrainToWorldOffset;',
+                        '   vec3 pos = vec3(uv, DecodeFloatRGB(color.rgb)) * terrainToWorldRatio + terrainToWorldOffset;',
                         '   pos.z = max(minZ, pos.z);',
                         '   gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);',
                         '}'

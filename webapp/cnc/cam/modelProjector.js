@@ -48,7 +48,7 @@ define([], function () {
             fragmentShader: fragmentShader
         });
         this.displaySide = 1024;
-        this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 1, 100);
+        this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1);
         scene.add(this.camera);
         this.modelBuffer = new THREE.WebGLRenderTarget(this.displaySide, this.displaySide,
             {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.FloatType});
@@ -127,11 +127,12 @@ define([], function () {
             console.log('modelRatio', modelRatio);
             this.aspectRatio = bboxSize.x / bboxSize.y;
             this.displaySideMm = (bboxSize.x > bboxSize.y ? bboxSize.x : bboxSize.y) * 1.1;
-            this.camera.position.set(0, 0, bbox.max.z + 1);
             this.camera.lookAt(new THREE.Vector3(0, 0, bbox.min.z));
-            this.camera.far = bbox.max.z - bbox.min.z + 1;
+            this.camera.near = 1;
+            this.camera.position.set(0, 0, bbox.max.z + 10 + this.camera.near);
+            this.camera.far = this.camera.position.z - bbox.min.z;
             this.zRatio = 1 / (this.camera.far - this.camera.near);
-            console.log('near, far', this.camera.near, this.camera.far);
+            console.log('near, far', this.camera.near, this.camera.far, this.zRatio);
             this.setCamera(bbox.min.x, bbox.max.x, bbox.min.y, bbox.max.y);
         },
         setCamera: function (left, right, bottom, top) {
