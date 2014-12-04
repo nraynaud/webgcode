@@ -23,10 +23,8 @@ define([], function () {
             sizeAttenuation: false,
             linewidth: 1,
             uniforms: {pixelDiagonal: {type: 'f'}},
-            attributes: {maxZ: {type: 'f', value: null}},
             vertexShader: [
                 'uniform float pixelDiagonal;',
-                'attribute float maxZ;',
                 'void main() {',
                 '   vec3 pos = position;',
                 '   float zError = sqrt(1.0 - normal.z * normal.z) * pixelDiagonal;',
@@ -58,6 +56,9 @@ define([], function () {
 
     Projector.prototype = {
         render: function (renderer, buffer) {
+            var w = (this.camera.right - this.camera.left) / buffer.width;
+            var h = (this.camera.top - this.camera.bottom) / buffer.height;
+            this.meshMaterial.uniforms.pixelDiagonal.value = Math.sqrt(w * w + h * h) / 2;
             renderer.render(this.scene, this.camera, buffer, true);
         },
         setGeometry: function (meshGeometry) {
@@ -79,7 +80,6 @@ define([], function () {
             // by orienting the lines towards -z, I don't get the poky things
             var positions = meshGeometry.attributes.position.array;
             var lines = [];
-            var faceMaxZ = [];
             var vertical = new THREE.Vector3(0, 0, 1);
 
             function push(x1, y1, z1, x2, y2, z2) {
@@ -106,15 +106,10 @@ define([], function () {
                 push(x1, y1, z1, x2, y2, z2);
                 push(x2, y2, z2, x3, y3, z3);
                 push(x3, y3, z3, x1, y1, z1);
-
-
-                var maxZ = Math.max(z1, z2, z3);
-                faceMaxZ.push(maxZ, maxZ, maxZ);
             }
 
             var linesGeometry = new THREE.BufferGeometry();
             linesGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(lines), 3));
-            meshGeometry.addAttribute('maxZ', new THREE.BufferAttribute(new Float32Array(faceMaxZ), 1));
             this.model.add(new THREE.Line(linesGeometry, this.linePointMaterial, THREE.LinePieces));
             this.model.add(new THREE.PointCloud(pointsGeom, new THREE.ShaderMaterial(this.linePointMaterial)));
             var mesh = new THREE.Mesh(meshGeometry, this.meshMaterial);
@@ -130,14 +125,14 @@ define([], function () {
             var bboxSize = bbox.size();
             var modelRatio = bboxSize.y / bboxSize.x;
             console.log('modelRatio', modelRatio);
+            this.aspectRatio = bboxSize.x / bboxSize.y;
             this.displaySideMm = (bboxSize.x > bboxSize.y ? bboxSize.x : bboxSize.y) * 1.1;
             this.camera.position.set(0, 0, bbox.max.z + 1);
             this.camera.lookAt(new THREE.Vector3(0, 0, bbox.min.z));
             this.camera.far = bbox.max.z - bbox.min.z + 1;
             this.zRatio = 1 / (this.camera.far - this.camera.near);
             console.log('near, far', this.camera.near, this.camera.far);
-            this.camera.updateProjectionMatrix();
-            this.camera.updateMatrixWorld();
+            this.setCamera(bbox.min.x, bbox.max.x, bbox.min.y, bbox.max.y);
         },
         setCamera: function (left, right, bottom, top) {
             this.camera.bottom = bottom;
