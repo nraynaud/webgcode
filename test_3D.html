@@ -42,10 +42,10 @@
     }
 </style>
 <script>
-require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'libs/threejs/STLLoader', 'libs/threejs/postprocessing/EffectComposer',
+require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'cnc/cam/modelProjector', 'libs/threejs/STLLoader', 'libs/threejs/postprocessing/EffectComposer',
             'libs/threejs/postprocessing/RenderPass', 'libs/threejs/postprocessing/ShaderPass',
             'libs/threejs/OrbitControls', 'libs/threejs/postprocessing/CopyShader'],
-        function ($, THREE, toolProfile, STLLoader, EffectComposer, RenderPass, ShaderPass, OrbitControls, CopyShader) {
+        function ($, THREE, toolProfile, ModelStage, STLLoader, EffectComposer, RenderPass, ShaderPass, OrbitControls, CopyShader) {
             var pixelsOnRadius = 10;
             var $container = $('body');
             var renderer = new THREE.WebGLRenderer({antialias: false, alpha: true, precision: 'highp', autoClear: true});
@@ -65,139 +65,6 @@ require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'libs/threejs/STLLoader', 'li
                 draw();
             });
 
-            function ModelStage() {
-                var scene = new THREE.Scene();
-                this.scene = scene;
-                var operation = {
-                    depthTest: true,
-                    size: 1,
-                    sizeAttenuation: false,
-                    linewidth: 1,
-                    vertexShader: [
-                        'void main() {',
-                        '   gl_PointSize = 2.0;',
-                        '   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);',
-                        '}'].join('\n'),
-                    // depth encoding : http://aras-p.info/blog/2009/07/30/encoding-floats-to-rgba-the-final/
-                    fragmentShader: [
-                        'highp float factor = (exp2(24.0) - 1.0) / exp2(24.0);',
-                        'vec3 EncodeFloatRGB(highp float v) {',
-                        '   vec3 enc = fract(vec3(1.0, 255.0, 255.0 * 255.0) * factor * v);',
-                        '   enc -= enc.yzz * vec3(1.0 / 255.0, 1.0 / 255.0, 0.0);',
-                        '   return enc;',
-                        '}',
-                        'highp float DecodeFloatRGB(vec3 rgb) {',
-                        '   return dot(rgb, vec3(1.0, 1.0 / 255.0, 1.0 / 255.0 / 255.0)) / factor;',
-                        '}',
-                        'void main() {',
-                        '   gl_FragData[0] = vec4(1.0 - gl_FragCoord.z, 0.0, 0.0, 1.0);',
-                        '}'].join('\n')
-                };
-
-                this.scene.overrideMaterial = new THREE.ShaderMaterial(operation);
-                this.displaySide = 1024;
-                this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 1, 100);
-                scene.add(this.camera);
-            }
-
-            ModelStage.prototype = {
-                render: function (renderer) {
-                    renderer.render(this.scene, this.camera, this.modelBuffer, true);
-                },
-                setGeometry: function (geometry) {
-                    if (this.model) {
-                        this.scene.remove(this.model);
-                        this.model = null;
-                    }
-                    this.model = new THREE.Object3D();
-                    var mesh = new THREE.Mesh(geometry, this.renderMaterial);
-                    this.model.add(mesh);
-
-                    // we add the vertices to force webgl to raster on at least 1 pixel
-                    // in case a "mountain" is spiky enough to slip thought the sampling grid.
-                    var pointsGeom = new THREE.BufferGeometry();
-                    pointsGeom.addAttribute('position', geometry.attributes.position.clone());
-                    this.model.add(new THREE.PointCloud(pointsGeom, new THREE.ShaderMaterial(this.renderMaterial)));
-
-                    // we should add all the edges too because a whole "ridge" might be sharp enough to slip through
-                    // the raster grid
-                    // I have a problem where the end of some lines "poke" slightly through the surface I don't know why.
-                    // question here: http://stackoverflow.com/questions/27097236/strange-artefacts-in-depth-buffer-with-lines
-                    // by orienting the lines towards -z, I don't get the poky things
-                    var array = geometry.attributes.position.array;
-                    var lines = [];
-                    var vertical = new THREE.Vector3(0, 0, 1);
-
-                    function push(x1, y1, z1, x2, y2, z2) {
-                        var v = new THREE.Vector3(x2 - x1, y2 - y1, z2 - z1);
-                        if (v.dot(vertical) / v.length() / vertical.length() > 0)
-                            lines.push(x1, y1, z1, x2, y2, z2);
-                        else
-                            lines.push(x2, y2, z2, x1, y1, z1);
-                    }
-
-                    for (var i = 0; i < array.length; i += 9) {
-                        var x1 = array[i];
-                        var y1 = array[i + 1];
-                        var z1 = array[i + 2];
-
-                        var x2 = array[i + 3];
-                        var y2 = array[i + 4];
-                        var z2 = array[i + 5];
-
-                        var x3 = array[i + 6];
-                        var y3 = array[i + 7];
-                        var z3 = array[i + 8];
-
-                        push(x1, y1, z1, x2, y2, z2);
-                        push(x2, y2, z2, x3, y3, z3);
-                        push(x3, y3, z3, x1, y1, z1);
-                    }
-
-                    var geom = new THREE.BufferGeometry();
-                    geom.addAttribute('position', new THREE.BufferAttribute(new Float32Array(lines), 3));
-                    this.model.add(new THREE.Line(geom, undefined, THREE.LinePieces));
-
-                    mesh.geometry.computeBoundingBox();
-                    this.modelBbox = mesh.geometry.boundingBox;
-                    this.scene.add(this.model);
-                    this.model.updateMatrixWorld();
-                    this.resetCamera();
-                },
-                resetCamera: function () {
-                    var bbox = this.modelBbox;
-                    var bboxSize = bbox.size();
-                    var modelRatio = bboxSize.y / bboxSize.x;
-                    var center = new THREE.Vector2(0, 0);
-                    console.log('modelRatio', modelRatio);
-                    this.displaySideMm = (bboxSize.x > bboxSize.y ? bboxSize.x : bboxSize.y) * 1.1;
-                    this.displaySide = this.sampleRate * this.displaySideMm;
-                    this.bufferOrigin = center.clone().addScalar(-this.displaySideMm / 2);
-                    this.bufferSize = new THREE.Vector2(this.displaySideMm, this.displaySideMm);
-                    this.camera.left = this.bufferOrigin.x;
-                    this.camera.right = this.bufferOrigin.x + this.bufferSize.x;
-                    this.camera.bottom = this.bufferOrigin.y;
-                    this.camera.top = this.bufferOrigin.y + this.bufferSize.y;
-                    this.camera.position.set(0, 0, bbox.max.z + 1);
-                    this.camera.lookAt(new THREE.Vector3(0, 0, bbox.min.z));
-                    this.camera.far = bbox.max.z - bbox.min.z + 1;
-                    this.zRatio = 1 / (this.camera.far - this.camera.near);
-                    console.log('near, far', this.camera.near, this.camera.far);
-                    this.camera.updateProjectionMatrix();
-                    this.camera.updateMatrixWorld();
-                    if (this.modelBuffer)
-                        this.modelBuffer.dispose();
-                    console.log('this.displaySide', this.displaySide);
-                    this.modelBuffer = new THREE.WebGLRenderTarget(this.displaySide, this.displaySide,
-                            {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.FloatType});
-                },
-                setSampleRate: function (newSampleRate) {
-                    console.log('sampleRate', newSampleRate);
-                    this.sampleRate = newSampleRate;
-                    this.resetCamera();
-                }
-            };
-
             function TerrainStage(geometry) {
                 function divV(v1, v2) {
                     return v1.set(v1.x / v2.x, v1.y / v2.y);
@@ -205,20 +72,32 @@ require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'libs/threejs/STLLoader', 'li
 
                 this.modelStage = new ModelStage();
                 this.modelStage.setGeometry(geometry);
+
+                var bboxSize = this.modelStage.modelBbox.size();
+                var modelDisplaySideMm = (bboxSize.x > bboxSize.y ? bboxSize.x : bboxSize.y) * 1.1;
+                var bufferOrigin = new THREE.Vector2(0, 0).addScalar(-modelDisplaySideMm / 2);
+                var bufferSize = new THREE.Vector2(modelDisplaySideMm, modelDisplaySideMm);
+                this.modelStage.camera.left = bufferOrigin.x;
+                this.modelStage.camera.right = bufferOrigin.x + bufferSize.x;
+                this.modelStage.camera.bottom = bufferOrigin.y;
+                this.modelStage.camera.top = bufferOrigin.y + bufferSize.y;
+                this.modelStage.camera.updateProjectionMatrix();
+
                 var toolRadiusMm = 2;
                 var toolTexture = new THREE.DataTexture(new Float32Array(pixelsOnRadius), pixelsOnRadius, 1, THREE.LuminanceFormat, THREE.FloatType);
                 var bufferOffset = new THREE.Vector2(0, 0);
-                this.bufferOrigin = this.modelStage.bufferOrigin.clone().add(bufferOffset);
-                this.bufferSize = this.modelStage.bufferSize.clone().multiply(new THREE.Vector2(1, 1));
-                var terrainRatio = divV(this.bufferSize.clone(), this.modelStage.bufferSize);
-                var terrainTranslation = this.bufferOrigin.clone().sub(this.modelStage.bufferOrigin).divide(this.modelStage.bufferSize);
+                this.bufferOrigin = bufferOrigin.clone().add(bufferOffset);
+                this.bufferSize = bufferSize.clone().multiply(new THREE.Vector2(1, 1));
+                var terrainRatio = divV(this.bufferSize.clone(), bufferSize);
+                var terrainTranslation = this.bufferOrigin.clone().sub(bufferOrigin).divide(bufferSize);
                 this.minkowskiPass = new ShaderPass({
                     uniforms: {
                         tDiffuse: {type: 't'},
                         toolProfile: {type: 't', value: toolTexture},
                         toolToPartRatio: {type: 'f', value: toolRadiusMm / this.modelStage.displaySideMm},
                         terrainRatio: {type: 'v2', value: terrainRatio},
-                        terrainTranslation: {type: 'v2', value: terrainTranslation}
+                        terrainTranslation: {type: 'v2', value: terrainTranslation},
+                        minZ: {type: 'f', value: -Infinity}
                     },
                     defines: {
                         radialSamples: null
@@ -236,6 +115,7 @@ require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'libs/threejs/STLLoader', 'li
                         'uniform float toolToPartRatio;',
                         'uniform vec2 terrainRatio;',
                         'uniform vec2 terrainTranslation;',
+                        'uniform float minZ;',
                         'varying vec2 vUv;',
                         'highp float factor = (exp2(24.0) - 1.0) / exp2(24.0);',
                         'vec3 EncodeFloatRGB(highp float v) {',
@@ -249,7 +129,7 @@ require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'libs/threejs/STLLoader', 'li
                         'highp float readHeight(vec2 pos) {',
                         '   highp vec4 color = texture2D(tDiffuse, terrainRatio * vUv + terrainTranslation + pos * toolToPartRatio);',
                         '   highp float displacement = texture2D(toolProfile, vec2(0.5 / float(radialSamples) + length(pos) / float(radialSamples) * float(radialSamples - 1), 0.5)).r;',
-                        '   return color.r - displacement;',
+                        '   return DecodeFloatRGB(color.rgb) - displacement;',
                         '}',
                         'void main() {',
                         '   highp int radiusSquared = radialSamples * radialSamples;',
@@ -258,30 +138,9 @@ require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'libs/threejs/STLLoader', 'li
                         '       for (int j = -radialSamples; j <= radialSamples; j++)',
                         '           if (i * i + j * j <= radiusSquared)',
                         '               sum = max(sum, readHeight(vec2(i, j) / float(radialSamples)));',
-                        '   gl_FragColor = vec4(sum, 0.0, 0.0, 1.0);',
+                        '   gl_FragColor = vec4(max(minZ, sum), 0.0, 0.0, 1.0);',
                         '}'].join('\n')
                 });
-                this.slicingPass = new ShaderPass({
-                    uniforms: {
-                        tDiffuse: {type: 't', value: null},
-                        zCutoff: {type: 'f', value: null}
-                    },
-                    vertexShader: [
-                        'varying vec2 vUv;',
-                        'void main() {',
-                        '   vUv = uv;',
-                        '   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);',
-                        '}'
-                    ].join('\n'),
-                    fragmentShader: [
-                        'uniform sampler2D tDiffuse;',
-                        'uniform float zCutoff;',
-                        'varying vec2 vUv;',
-                        'void main() {',
-                        '   gl_FragColor = vec4(max(zCutoff, texture2D(tDiffuse, vUv).r), 0.0, 0.0, 1.0);',
-                        '}'].join('\n')
-                });
-                this.setSliceZ(-7);
                 this.copy = new ShaderPass(CopyShader);
                 this.copy.renderToScreen = true;
                 this.toolRadiusMm = toolRadiusMm;
@@ -294,21 +153,23 @@ require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'libs/threejs/STLLoader', 'li
             TerrainStage.prototype = {
                 render: function (renderer) {
                     if (!this.modelStageClean) {
-                        this.modelStage.render(renderer);
+                        this.modelStage.render(renderer, this.modelBuffer);
                         this.modelStageClean = true;
                         this.minkowskiPassClean = false;
                     }
                     if (!this.minkowskiPassClean) {
-                        this.minkowskiPass.render(renderer, this.toolPosBuffer, this.modelStage.modelBuffer);
+                        this.minkowskiPass.render(renderer, this.toolPosBuffer, this.modelBuffer);
                         this.minkowskiPassClean = true;
-                        this.slicingPassClean = false;
                     }
-                    if (!this.slicingPassClean) {
-                        this.slicingPass.render(renderer, this.slicingBuffer, this.toolPosBuffer);
-                        this.slicingPassClean = true;
-                    }
-                    //this.copy.render(renderer, null, this.slicingBuffer);
-                    //this.copy.render(renderer, null, this.toolPosBuffer);
+                },
+                setSampleRate: function (newSampleRate) {
+                    console.log('sampleRate', newSampleRate);
+                    if (this.modelBuffer)
+                        this.modelBuffer.dispose();
+                    var bboxSize = this.modelStage.modelBbox.size();
+                    var displaySide = (this.modelStage.aspectRatio >= 1 ? bboxSize.x : bboxSize.y) * newSampleRate;
+                    this.modelBuffer = new THREE.WebGLRenderTarget(displaySide, displaySide,
+                            {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.FloatType});
                 },
                 updateToolShape: function () {
                     var totalPixels = 40000000;
@@ -331,7 +192,7 @@ require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'libs/threejs/STLLoader', 'li
                     console.log('s', s, 'radialSamples', newPixelsOnRadius);
                     console.log('estimated pixel count (millions): ', 4 * pw(newPixelsOnRadius, 2) * ySamples * ds * (newPixelsOnRadius / s) / 1000000);
                     var pixelsOnRadius = newPixelsOnRadius;
-                    this.modelStage.setSampleRate(pixelsOnRadius / s);
+                    this.setSampleRate(pixelsOnRadius / s);
                     var pixelCount = (pixelsOnRadius * 2) * (pixelsOnRadius * 2) * ySamples * this.modelStage.displaySide + this.modelStage.displaySide * this.modelStage.displaySide;
                     console.log('actual pixel count (millions): ', pixelCount / 1000000);
                     var types = {cylinder: toolProfile.createCylindricalTool, ball: toolProfile.createSphericalTool, v: toolProfile.createVTool};
@@ -347,10 +208,6 @@ require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'libs/threejs/STLLoader', 'li
                         this.toolPosBuffer.dispose();
                     this.toolPosBuffer = new THREE.WebGLRenderTarget(this.modelStage.displaySide, ySamples,
                             {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.FloatType});
-                    if (this.slicingBuffer)
-                        this.slicingBuffer.dispose();
-                    this.slicingBuffer = new THREE.WebGLRenderTarget(this.modelStage.displaySide, ySamples,
-                            {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.FloatType});
                     this.modelStageClean = false;
                 },
                 setToolType: function (type) {
@@ -364,11 +221,6 @@ require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'libs/threejs/STLLoader', 'li
                 setLeaveStock: function (radius) {
                     this.toolLeaveStockRadius = radius;
                     this.updateToolShape();
-                },
-                setSliceZ: function (z) {
-                    this.slicingPass.material.uniforms.zCutoff.value = (z + (this.modelStage.camera.far - 1)) * this.modelStage.zRatio;
-                    this.slicingPass.material.uniforms.zCutoff.value.needsUpdate = true;
-                    this.slicingPassClean = false;
                 }
             };
 
@@ -387,7 +239,6 @@ require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'libs/threejs/STLLoader', 'li
                 var directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
                 directionalLight2.position.set(-1000, -1000, 1000);
                 scene2.add(directionalLight2);
-
                 var terrainToworldOffset = new THREE.Vector3(pipeline.bufferOrigin.x, pipeline.bufferOrigin.y, -(pipeline.modelStage.camera.far - 1));
                 var terrainShader = {
                     wireframe: false,
@@ -396,19 +247,22 @@ require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'libs/threejs/STLLoader', 'li
                         tDisplacement: {type: 't', value: null},
                         terrainToWorldRatio: {type: 'v3', value: new THREE.Vector3(pipeline.bufferSize.x, pipeline.bufferSize.y, 1 / pipeline.modelStage.zRatio)},
                         terrainToWorldOffset: {type: 'v3', value: terrainToworldOffset},
-                        sampleCount: {type: 'v2', value: new THREE.Vector2(pipeline.toolPosBuffer.width, pipeline.toolPosBuffer.height)}
+                        sampleCount: {type: 'v2', value: new THREE.Vector2(pipeline.toolPosBuffer.width, pipeline.toolPosBuffer.height)},
+                        minZ: {type: 'f', value: -7}
                     },
                     vertexShader: [
                         'uniform sampler2D tDisplacement;',
                         'uniform vec3 terrainToWorldRatio;',
                         'uniform vec3 terrainToWorldOffset;',
                         'uniform vec2 sampleCount;',
+                        'uniform float minZ;',
                         'varying vec4 color;',
                         'highp float factor = (exp2(24.0) - 1.0) / exp2(24.0);',
                         'void main() {',
                         '   vec2 uv = position.xy / sampleCount * (sampleCount - 1.0) + 0.5 / sampleCount;',
                         '   color = texture2D(tDisplacement, vec2(uv));',
                         '   vec3 pos = vec3(uv, color.r) * terrainToWorldRatio + terrainToWorldOffset;',
+                        '   pos.z = max(minZ, pos.z);',
                         '   gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);',
                         '}'
                     ].join('\n'),
@@ -484,8 +338,8 @@ require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'libs/threejs/STLLoader', 'li
                     reRenderPipeline();
                 });
                 function reRender() {
-                    terrainMaterial.uniforms.tDisplacement.value = pipeline.slicingBuffer;
-                    terrainMaterial.uniforms.sampleCount.value = new THREE.Vector2(pipeline.slicingBuffer.width, pipeline.slicingBuffer.height)
+                    terrainMaterial.uniforms.tDisplacement.value = pipeline.toolPosBuffer;
+                    terrainMaterial.uniforms.sampleCount.value = new THREE.Vector2(pipeline.toolPosBuffer.width, pipeline.toolPosBuffer.height);
                     renderer.render(scene2, camera2);
                 }
 
@@ -522,7 +376,7 @@ require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'libs/threejs/STLLoader', 'li
                 window.setSliceZ = function (z) {
                     $('#slice').text(z);
                     console.time('tool change');
-                    pipeline.setSliceZ(parseFloat(z));
+                    terrainMaterial.uniforms.minZ.value = parseFloat(z);
                     reRenderPipeline();
                     console.timeEnd('tool change');
                 };
