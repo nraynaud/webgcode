@@ -140,7 +140,8 @@ require(['jQuery', 'THREE', 'cnc/cam/3D/toolProfile', 'cnc/cam/3D/modelProjector
                     console.log('actual pixel count (millions): ', pixelCount / 1000000);
                     var types = {cylinder: toolProfile.createCylindricalTool, ball: toolProfile.createSphericalTool, v: toolProfile.createVTool};
                     var samples = types[this.toolType](pixelsOnRadius, this.modelStage.zRatio, this.toolRadiusMm, this.toolLeaveStockRadius);
-                    this.minkowskiPass.setParams(samples, s / this.modelStage.displaySideMm);
+                    var toolToPartRatio = s / this.modelStage.displaySideMm;
+                    this.minkowskiPass.setParams(samples, new THREE.Vector2(toolToPartRatio, toolToPartRatio));
                     if (this.toolPosBuffer)
                         this.toolPosBuffer.dispose();
                     this.toolPosBuffer = new THREE.WebGLRenderTarget(this.modelStage.displaySide, ySamples,

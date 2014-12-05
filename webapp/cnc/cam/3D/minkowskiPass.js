@@ -6,7 +6,7 @@ define(['libs/threejs/postprocessing/ShaderPass'], function (ShaderPass) {
             uniforms: {
                 modelHeight: {type: 't'},
                 toolProfile: {type: 't', value: toolTexture},
-                toolToPartRatio: {type: 'f', value: null},
+                toolToPartRatio: {type: 'v2', value: null},
                 terrainRatio: {type: 'v2', value: null},
                 terrainTranslation: {type: 'v2', value: null},
                 minZ: {type: 'f', value: -Infinity}
@@ -24,7 +24,7 @@ define(['libs/threejs/postprocessing/ShaderPass'], function (ShaderPass) {
             fragmentShader: [
                 'uniform sampler2D modelHeight;',
                 'uniform sampler2D toolProfile;',
-                'uniform float toolToPartRatio;',
+                'uniform vec2 toolToPartRatio;',
                 'uniform vec2 terrainRatio;',
                 'uniform vec2 terrainTranslation;',
                 'uniform float minZ;',
