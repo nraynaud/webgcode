@@ -42,11 +42,9 @@
     }
 </style>
 <script>
-require(['jQuery', 'THREE', 'cnc/cam/3D/toolProfile', 'cnc/cam/3D/modelProjector', 'libs/threejs/STLLoader', 'libs/threejs/postprocessing/EffectComposer',
-            'libs/threejs/postprocessing/RenderPass', 'libs/threejs/postprocessing/ShaderPass',
-            'libs/threejs/OrbitControls', 'libs/threejs/postprocessing/CopyShader'],
-        function ($, THREE, toolProfile, ModelStage, STLLoader, EffectComposer, RenderPass, ShaderPass, OrbitControls, CopyShader) {
-            var pixelsOnRadius = 10;
+require(['jQuery', 'THREE', 'cnc/cam/3D/toolProfile', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/minkowskiPass', 'libs/threejs/STLLoader',
+            'libs/threejs/postprocessing/ShaderPass', 'libs/threejs/OrbitControls'],
+        function ($, THREE, toolProfile, ModelStage, MinkowskiPass, STLLoader, ShaderPass, OrbitControls) {
             var $container = $('body');
             var renderer = new THREE.WebGLRenderer({antialias: false, alpha: true, precision: 'highp', autoClear: true});
             renderer.autoClear = true;
@@ -75,75 +73,20 @@ require(['jQuery', 'THREE', 'cnc/cam/3D/toolProfile', 'cnc/cam/3D/modelProjector
 
                 var bboxSize = this.modelStage.modelBbox.size();
                 var modelDisplaySideMm = (bboxSize.x > bboxSize.y ? bboxSize.x : bboxSize.y) * 1.1;
-                var bufferOrigin = new THREE.Vector2(0, 0).addScalar(-modelDisplaySideMm / 2);
+                var modelBufferOrigin = new THREE.Vector2(0, 0).addScalar(-modelDisplaySideMm / 2);
                 var modelBufferSize = new THREE.Vector2(modelDisplaySideMm, modelDisplaySideMm);
-                this.modelStage.camera.left = bufferOrigin.x;
-                this.modelStage.camera.right = bufferOrigin.x + modelBufferSize.x;
-                this.modelStage.camera.bottom = bufferOrigin.y;
-                this.modelStage.camera.top = bufferOrigin.y + modelBufferSize.y;
+                this.modelStage.camera.left = modelBufferOrigin.x;
+                this.modelStage.camera.right = modelBufferOrigin.x + modelBufferSize.x;
+                this.modelStage.camera.bottom = modelBufferOrigin.y;
+                this.modelStage.camera.top = modelBufferOrigin.y + modelBufferSize.y;
                 this.modelStage.camera.updateProjectionMatrix();
 
-                var toolRadiusMm = 2;
-                var toolTexture = new THREE.DataTexture(new Float32Array(pixelsOnRadius), pixelsOnRadius, 1, THREE.LuminanceFormat, THREE.FloatType);
-                var bufferOffset = new THREE.Vector2(0, 0);
-                this.bufferOrigin = bufferOrigin.clone().add(bufferOffset);
-                this.bufferSize = modelBufferSize.clone().multiply(new THREE.Vector2(1, 1));
-                var terrainRatio = divV(this.bufferSize.clone(), modelBufferSize);
-                var terrainTranslation = this.bufferOrigin.clone().sub(bufferOrigin).divide(modelBufferSize);
-                this.minkowskiPass = new ShaderPass({
-                    uniforms: {
-                        tDiffuse: {type: 't'},
-                        toolProfile: {type: 't', value: toolTexture},
-                        toolToPartRatio: {type: 'f', value: toolRadiusMm / this.modelStage.displaySideMm},
-                        terrainRatio: {type: 'v2', value: terrainRatio},
-                        terrainTranslation: {type: 'v2', value: terrainTranslation},
-                        minZ: {type: 'f', value: -Infinity}
-                    },
-                    defines: {
-                        radialSamples: null
-                    },
-                    vertexShader: [
-                        'varying vec2 vUv;',
-                        'void main() {',
-                        '   vUv = uv;',
-                        '   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);',
-                        '}'
-                    ].join('\n'),
-                    fragmentShader: [
-                        'uniform sampler2D tDiffuse;',
-                        'uniform sampler2D toolProfile;',
-                        'uniform float toolToPartRatio;',
-                        'uniform vec2 terrainRatio;',
-                        'uniform vec2 terrainTranslation;',
-                        'uniform float minZ;',
-                        'varying vec2 vUv;',
-                        'highp float factor = (exp2(24.0) - 1.0) / exp2(24.0);',
-                        'vec3 EncodeFloatRGB(highp float v) {',
-                        '   vec3 enc = fract(vec3(1.0, 255.0, 255.0 * 255.0) * factor * v);',
-                        '   enc -= enc.yzz * vec3(1.0 / 255.0, 1.0 / 255.0, 0.0);',
-                        '   return enc;',
-                        '}',
-                        'highp float DecodeFloatRGB(vec3 rgb) {',
-                        '   return dot(rgb, vec3(1.0, 1.0 / 255.0, 1.0 / 255.0 / 255.0)) / factor;',
-                        '}',
-                        'highp float readHeight(vec2 pos) {',
-                        '   highp vec4 color = texture2D(tDiffuse, terrainRatio * vUv + terrainTranslation + pos * toolToPartRatio);',
-                        '   highp float displacement = texture2D(toolProfile, vec2(0.5 / float(radialSamples) + length(pos) / float(radialSamples) * float(radialSamples - 1), 0.5)).r;',
-                        '   return DecodeFloatRGB(color.rgb) - displacement;',
-                        '}',
-                        'void main() {',
-                        '   highp int radiusSquared = radialSamples * radialSamples;',
-                        '   highp float sum = readHeight(vec2(0.0, 0.0));',
-                        '   for (int i = -radialSamples; i <= radialSamples; i++)',
-                        '       for (int j = -radialSamples; j <= radialSamples; j++)',
-                        '           if (i * i + j * j <= radiusSquared)',
-                        '               sum = max(sum, readHeight(vec2(i, j) / float(radialSamples)));',
-                        '   gl_FragColor = vec4(EncodeFloatRGB(max(minZ, sum)), 1.0);',
-                        '}'].join('\n')
-                });
-                this.copy = new ShaderPass(CopyShader);
-                this.copy.renderToScreen = true;
-                this.toolRadiusMm = toolRadiusMm;
+                this.bufferOrigin = modelBufferOrigin.clone();
+                this.bufferSize = modelBufferSize.clone();
+                this.terrainRatio = divV(this.bufferSize.clone(), modelBufferSize);
+                this.terrainTranslation = this.bufferOrigin.clone().sub(modelBufferOrigin).divide(modelBufferSize);
+                this.minkowskiPass = new MinkowskiPass();
+                this.toolRadiusMm = 2;
                 this.toolType = 'ball';
                 this.renderer = renderer;
                 this.toolLeaveStockRadius = 0.5;
@@ -158,7 +101,7 @@ require(['jQuery', 'THREE', 'cnc/cam/3D/toolProfile', 'cnc/cam/3D/modelProjector
                         this.minkowskiPassClean = false;
                     }
                     if (!this.minkowskiPassClean) {
-                        this.minkowskiPass.render(renderer, this.toolPosBuffer, this.modelBuffer);
+                        this.minkowskiPass.render(renderer, this.toolPosBuffer, this.modelBuffer, this.terrainRatio, this.terrainTranslation);
                         this.minkowskiPassClean = true;
                     }
                 },
@@ -197,13 +140,7 @@ require(['jQuery', 'THREE', 'cnc/cam/3D/toolProfile', 'cnc/cam/3D/modelProjector
                     console.log('actual pixel count (millions): ', pixelCount / 1000000);
                     var types = {cylinder: toolProfile.createCylindricalTool, ball: toolProfile.createSphericalTool, v: toolProfile.createVTool};
                     var samples = types[this.toolType](pixelsOnRadius, this.modelStage.zRatio, this.toolRadiusMm, this.toolLeaveStockRadius);
-                    this.minkowskiPass.material.uniforms.toolProfile.value.image.data = new Float32Array(samples);
-                    this.minkowskiPass.material.uniforms.toolProfile.value.image.width = pixelsOnRadius;
-                    this.minkowskiPass.material.uniforms.toolProfile.value.needsUpdate = true;
-                    this.minkowskiPass.material.defines.radialSamples = pixelsOnRadius;
-                    this.minkowskiPass.material.needsUpdate = true;
-                    this.minkowskiPass.material.uniforms.toolToPartRatio.value = (s / this.modelStage.displaySideMm).toPrecision(10);
-                    this.minkowskiPass.material.needsUpdate = true;
+                    this.minkowskiPass.setParams(samples, s / this.modelStage.displaySideMm);
                     if (this.toolPosBuffer)
                         this.toolPosBuffer.dispose();
                     this.toolPosBuffer = new THREE.WebGLRenderTarget(this.modelStage.displaySide, ySamples,
