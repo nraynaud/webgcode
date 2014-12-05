@@ -163,7 +163,7 @@ require(['jQuery', 'THREE', 'cnc/cam/3D/toolProfile', 'cnc/cam/3D/modelProjector
             };
 
             function displayGeometry(geometry) {
-                var clonedGeometry = geometry.clone();
+                var clonedGeometry = geometry;
                 var pipeline = new TerrainStage(geometry);
                 var scene2 = new THREE.Scene();
                 var camera2 = new THREE.PerspectiveCamera(45, outputWidth / outputHeight, 0.1, 1500);
