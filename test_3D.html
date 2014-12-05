@@ -42,7 +42,7 @@
     }
 </style>
 <script>
-require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'cnc/cam/modelProjector', 'libs/threejs/STLLoader', 'libs/threejs/postprocessing/EffectComposer',
+require(['jQuery', 'THREE', 'cnc/cam/3D/toolProfile', 'cnc/cam/3D/modelProjector', 'libs/threejs/STLLoader', 'libs/threejs/postprocessing/EffectComposer',
             'libs/threejs/postprocessing/RenderPass', 'libs/threejs/postprocessing/ShaderPass',
             'libs/threejs/OrbitControls', 'libs/threejs/postprocessing/CopyShader'],
         function ($, THREE, toolProfile, ModelStage, STLLoader, EffectComposer, RenderPass, ShaderPass, OrbitControls, CopyShader) {
@@ -76,20 +76,20 @@ require(['jQuery', 'THREE', 'cnc/cam/toolProfile', 'cnc/cam/modelProjector', 'li
                 var bboxSize = this.modelStage.modelBbox.size();
                 var modelDisplaySideMm = (bboxSize.x > bboxSize.y ? bboxSize.x : bboxSize.y) * 1.1;
                 var bufferOrigin = new THREE.Vector2(0, 0).addScalar(-modelDisplaySideMm / 2);
-                var bufferSize = new THREE.Vector2(modelDisplaySideMm, modelDisplaySideMm);
+                var modelBufferSize = new THREE.Vector2(modelDisplaySideMm, modelDisplaySideMm);
                 this.modelStage.camera.left = bufferOrigin.x;
-                this.modelStage.camera.right = bufferOrigin.x + bufferSize.x;
+                this.modelStage.camera.right = bufferOrigin.x + modelBufferSize.x;
                 this.modelStage.camera.bottom = bufferOrigin.y;
-                this.modelStage.camera.top = bufferOrigin.y + bufferSize.y;
+                this.modelStage.camera.top = bufferOrigin.y + modelBufferSize.y;
                 this.modelStage.camera.updateProjectionMatrix();
 
                 var toolRadiusMm = 2;
                 var toolTexture = new THREE.DataTexture(new Float32Array(pixelsOnRadius), pixelsOnRadius, 1, THREE.LuminanceFormat, THREE.FloatType);
                 var bufferOffset = new THREE.Vector2(0, 0);
                 this.bufferOrigin = bufferOrigin.clone().add(bufferOffset);
-                this.bufferSize = bufferSize.clone().multiply(new THREE.Vector2(1, 1));
-                var terrainRatio = divV(this.bufferSize.clone(), bufferSize);
-                var terrainTranslation = this.bufferOrigin.clone().sub(bufferOrigin).divide(bufferSize);
+                this.bufferSize = modelBufferSize.clone().multiply(new THREE.Vector2(1, 1));
+                var terrainRatio = divV(this.bufferSize.clone(), modelBufferSize);
+                var terrainTranslation = this.bufferOrigin.clone().sub(bufferOrigin).divide(modelBufferSize);
                 this.minkowskiPass = new ShaderPass({
                     uniforms: {
                         tDiffuse: {type: 't'},

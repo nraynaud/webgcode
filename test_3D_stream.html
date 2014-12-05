@@ -42,9 +42,10 @@
     }
 </style>
 <script>
-    require(['jQuery', 'THREE', 'Piecon', 'cnc/cam/toolProfile', 'cnc/cam/modelProjector', 'libs/threejs/STLLoader', 'libs/threejs/postprocessing/EffectComposer',
-                'libs/threejs/postprocessing/RenderPass', 'libs/threejs/postprocessing/ShaderPass',
-                'libs/threejs/OrbitControls', 'libs/threejs/postprocessing/CopyShader'],
+    require(['jQuery', 'THREE', 'Piecon', 'cnc/cam/3D/toolProfile', 'cnc/cam/3D/modelProjector', 'libs/threejs/STLLoader',
+                'libs/threejs/postprocessing/EffectComposer', 'libs/threejs/postprocessing/RenderPass',
+                'libs/threejs/postprocessing/ShaderPass', 'libs/threejs/OrbitControls',
+                'libs/threejs/postprocessing/CopyShader'],
             function ($, THREE, Piecon, toolProfile, ModelStage, STLLoader, EffectComposer, RenderPass, ShaderPass, OrbitControls, CopyShader) {
                 if (window['Notification'] && Notification.permission === 'default') {
                     Notification.requestPermission(function (permission) {
