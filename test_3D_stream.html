@@ -228,8 +228,9 @@ require(['jQuery', 'THREE', 'Piecon', 'cnc/cam/3D/toolProfile', 'cnc/cam/3D/mode
                         console.timeEnd('computation');
                         Piecon.reset();
                         var transformMatrix = new THREE.Matrix4()
-                                .makeScale(1 / sampleRate, 1 / sampleRate, 1 / modelStage.zRatio)
-                                .setPosition(new THREE.Vector3(minX / sampleRate, minY / sampleRate, modelStage.camera.position.z - modelStage.camera.far));
+                                .makeScale(1 / sampleRate, 1 / sampleRate, 1)
+                                .setPosition(new THREE.Vector3(minX / sampleRate, minY / sampleRate, 0));
+                        modelStage.pushZInverseProjOn(transformMatrix);
                         showResult(geometry, resultBuffer, globalWidth, globalHeight, transformMatrix);
                         if (window['Notification'] && document['visibilityState'] == 'hidden')
                             new Notification("Computation is done.", {icon: 'webapp/images/icon_fraise_48.png'});

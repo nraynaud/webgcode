@@ -142,6 +142,12 @@ define([], function () {
             this.camera.right = right;
             this.camera.updateProjectionMatrix();
             this.camera.updateMatrixWorld();
+        },
+        pushZInverseProjOn: function (matrix) {
+            var pos = new THREE.Vector3().setFromMatrixPosition(matrix);
+            pos.z = this.camera.position.z - this.camera.far;
+            matrix.scale(new THREE.Vector3(1, 1, this.camera.far - this.camera.near));
+            matrix.setPosition(pos);
         }
     };
 

@@ -177,21 +177,22 @@ require(['jQuery', 'THREE', 'cnc/cam/3D/toolProfile', 'cnc/cam/3D/modelProjector
                 var directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
                 directionalLight2.position.set(-1000, -1000, 1000);
                 scene2.add(directionalLight2);
-                var terrainToworldOffset = new THREE.Vector3(pipeline.bufferOrigin.x, pipeline.bufferOrigin.y, pipeline.modelStage.camera.position.z - pipeline.modelStage.camera.far);
+                var terrainToWorld = new THREE.Matrix4()
+                        .makeScale(pipeline.bufferSize.x, pipeline.bufferSize.y, 1)
+                        .setPosition(new THREE.Vector3(pipeline.bufferOrigin.x, pipeline.bufferOrigin.y, 0));
+                pipeline.modelStage.pushZInverseProjOn(terrainToWorld);
                 var terrainShader = {
                     wireframe: false,
                     size: 2,
                     uniforms: {
                         tDisplacement: {type: 't', value: null},
-                        terrainToWorldRatio: {type: 'v3', value: new THREE.Vector3(pipeline.bufferSize.x, pipeline.bufferSize.y, 1 / pipeline.modelStage.zRatio)},
-                        terrainToWorldOffset: {type: 'v3', value: terrainToworldOffset},
+                        terrainToWorld: {type: 'm4', value: terrainToWorld},
                         sampleCount: {type: 'v2', value: new THREE.Vector2(pipeline.toolPosBuffer.width, pipeline.toolPosBuffer.height)},
                         minZ: {type: 'f', value: -7}
                     },
                     vertexShader: [
                         'uniform sampler2D tDisplacement;',
-                        'uniform vec3 terrainToWorldRatio;',
-                        'uniform vec3 terrainToWorldOffset;',
+                        'uniform mat4 terrainToWorld;',
                         'uniform vec2 sampleCount;',
                         'uniform float minZ;',
                         'varying vec4 color;',
@@ -202,7 +203,7 @@ require(['jQuery', 'THREE', 'cnc/cam/3D/toolProfile', 'cnc/cam/3D/modelProjector
                         'void main() {',
                         '   vec2 uv = position.xy / sampleCount * (sampleCount - 1.0) + 0.5 / sampleCount;',
                         '   color = texture2D(tDisplacement, vec2(uv));',
-                        '   vec3 pos = vec3(uv, DecodeFloatRGB(color.rgb)) * terrainToWorldRatio + terrainToWorldOffset;',
+                        '   vec3 pos = (terrainToWorld * vec4(uv, DecodeFloatRGB(color.rgb), 1.0)).xyz;',
                         '   pos.z = max(minZ, pos.z);',
                         '   gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);',
                         '}'
