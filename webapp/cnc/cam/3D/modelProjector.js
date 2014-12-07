@@ -111,7 +111,7 @@ define([], function () {
             var linesGeometry = new THREE.BufferGeometry();
             linesGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(lines), 3));
             this.model.add(new THREE.Line(linesGeometry, this.linePointMaterial, THREE.LinePieces));
-            this.model.add(new THREE.PointCloud(pointsGeom, new THREE.ShaderMaterial(this.linePointMaterial)));
+            this.model.add(new THREE.PointCloud(pointsGeom, this.linePointMaterial));
             var mesh = new THREE.Mesh(meshGeometry, this.meshMaterial);
             this.model.add(mesh);
             mesh.geometry.computeBoundingBox();
