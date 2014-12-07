@@ -1,8 +1,6 @@
 'use strict';
-define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE', 'libs/threejs/STLLoader',
-        'libs/threejs/postprocessing/EffectComposer', 'libs/threejs/postprocessing/RenderPass',
-        'libs/threejs/postprocessing/ShaderPass', 'libs/threejs/postprocessing/CopyShader'],
-    function (Ember, svgImporter, TreeDView, THREE, STLLoader, EffectComposer, RenderPass, ShaderPass, CopyShader) {
+define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE'],
+    function (Ember, svgImporter, TreeDView, THREE) {
         var ApplicationView = Ember.View.extend({
             classNames: ['rootview']
         });
@@ -160,57 +158,10 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE', 'libs/threejs/
             }.observes('controller.toolPosition')
         });
 
-        var ShapeView = Ember.View.extend({
-            classNames: ['shapeView'],
-            init: function () {
-                console.log('init');
-                this._super.apply(this, arguments);
-                this.renderer = new THREE.WebGLRenderer({antialias: false, alpha: true, precision: 'highp', autoClear: true});
-                var width = 320;
-                var height = 200;
-                this.camera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, 1, 100);
-                this.scene = new THREE.Scene();
-                this.scene.add(this.camera);
-                this.renderer.sortObjects = false;
-                this.renderer.autoClear = false;
-                this.set('scene', this.scene);
-            },
-            didInsertElement: function () {
-                console.log('didInsertElement');
-                var $container = this.$();
-                var width = $container.width();
-                var height = $container.height();
-                this.renderer.setSize(width, height);
-                $container.append(this.renderer.domElement);
-                this.displayModel();
-            },
-            displaySTL: function () {
-                this.displayModel();
-            }.observes('controller.model.stlModel'),
-            displayModel: function () {
-                function copy(src) {
-                    var dst = new ArrayBuffer(src.byteLength);
-                    new Uint8Array(dst).set(new Uint8Array(src));
-                    return dst;
-                }
-
-                if (this.state == 'inDOM') {
-                    var $container = this.$();
-                    var width = $container.width() * 4;
-                    var height = $container.height() * 4;
-                    this.renderer.setSize(width, height);
-                    this.renderer.setViewport(0, 0, width, height);
-                    var displayRatio = height / width;
-                    var model = this.get('controller.stlModel');
-                }
-            }
-        });
-
         return {
             ThreeDView: ThreeDView,
             LoginView: LoginView,
             ApplicationView: ApplicationView,
-            JobView: JobView,
-            ShapeView: ShapeView
+            JobView: JobView
         };
     });

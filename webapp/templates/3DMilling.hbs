@@ -1,0 +1,17 @@
+<tr>
+    <th>Tool Profile:</th>
+    <td>{{view Ember.Select value=3d_toolType content=toolShapes optionValuePath="content.id" optionLabelPath="content.label"}}</td>
+</tr>
+<tr>
+    <th title="in all directions">Leave Stock:</th>
+    <td>{{view Visucam.NumberField numericValue=3d_leaveStock min="0"}}</td>
+</tr>
+<tr>
+    <th>Min Z:</th>
+    <td>{{view Visucam.NumberField numericValue=3d_minZ}}</td>
+</tr>
+<tr>
+    <td>
+        <button class="btn btn-default" {{action compute3D}}>Compute</button>
+    </td>
+</tr>

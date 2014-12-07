@@ -1,3 +1,32 @@
+Ember.TEMPLATES["3DMilling"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data) {
+    this.compilerInfo = [4, '>= 1.0.0'];
+    helpers = this.merge(helpers, Ember.Handlebars.helpers);
+    data = data || {};
+    var buffer = '', escapeExpression = this.escapeExpression;
+
+
+    data.buffer.push("<tr>\n    <th>Tool Profile:</th>\n    <td>");
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Ember.Select", {hash: {
+        'value': ("3d_toolType"),
+        'content': ("toolShapes"),
+        'optionValuePath': ("content.id"),
+        'optionLabelPath': ("content.label")
+    }, hashTypes: {'value': "ID", 'content': "ID", 'optionValuePath': "STRING", 'optionLabelPath': "STRING"}, hashContexts: {'value': depth0, 'content': depth0, 'optionValuePath': depth0, 'optionLabelPath': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"in all directions\">Leave Stock:</th>\n    <td>");
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash: {
+        'numericValue': ("3d_leaveStock"),
+        'min': ("0")
+    }, hashTypes: {'numericValue': "ID", 'min': "STRING"}, hashContexts: {'numericValue': depth0, 'min': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push("</td>\n</tr>\n<tr>\n    <th>Min Z:</th>\n    <td>");
+    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash: {
+        'numericValue': ("3d_minZ")
+    }, hashTypes: {'numericValue': "ID"}, hashContexts: {'numericValue': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push("</td>\n</tr>\n<tr>\n    <td>\n        <button class=\"btn btn-default\" ");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "compute3D", {hash: {}, hashTypes: {}, hashContexts: {}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push(">Compute</button>\n    </td>\n</tr>");
+    return buffer;
+
+});
 Ember.TEMPLATES["camApp"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data) {
     this.compilerInfo = [4, '>= 1.0.0'];
     helpers = this.merge(helpers, Ember.Handlebars.helpers);
@@ -555,14 +584,14 @@ Ember.TEMPLATES["operation"] = Ember.Handlebars.template(function anonymous(Hand
         'value': ("name"),
         'placeholder': ("name")
     }, hashTypes: {'value': "ID", 'placeholder': "STRING"}, hashContexts: {'value': depth0, 'placeholder': depth0}, contexts: [], types: [], data: data}, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
-    data.buffer.push(" </td>\n        </tr>\n        <tr>\n            <th>Type</th>\n            <td>");
+    data.buffer.push(" </td>\n        </tr>\n        <tr>\n            <th>Type:</th>\n            <td>");
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Ember.Select", {hash: {
         'value': ("type"),
         'content': ("operationDescriptors"),
         'optionValuePath': ("content.class"),
         'optionLabelPath': ("content.label")
     }, hashTypes: {'value': "ID", 'content': "ID", 'optionValuePath': "STRING", 'optionLabelPath': "STRING"}, hashContexts: {'value': depth0, 'content': depth0, 'optionValuePath': depth0, 'optionLabelPath': depth0}, contexts: [depth0], types: ["ID"], data: data})));
-    data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th>Outline</th>\n            <td>\n                ");
+    data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th>Outline:</th>\n            <td>\n                ");
     data.buffer.push(escapeExpression(helpers.view.call(depth0, "Ember.Select", {hash: {
         'selection': ("outline"),
         'content': ("job.shapes"),

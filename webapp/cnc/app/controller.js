@@ -1,7 +1,7 @@
 "use strict";
 
-define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble'],
-    function (Ember, Operations, util, Wabble) {
+define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/3D/3Dcomputer'],
+    function (Ember, Operations, util, Wabble, Computer) {
         var wabble = new Wabble(13, 15, 1, 1, 5, 8, 3);
         var LoginController = Ember.ObjectController.extend({
             actions: {
@@ -133,6 +133,21 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble'],
         });
 
         var OperationController = Ember.ObjectController.extend({
+            needs: ['job'],
+            actions: {
+                compute3D: function () {
+                    var _this = this;
+                    var model = this.get('model.outline.stlModel');
+                    var safetyZ = this.get('controllers.job.safetyZ');
+                    var toolDiameter = this.get('controllers.job.toolDiameter');
+                    var leaveStock = this.get('3d_leaveStock');
+                    var minZ = this.get('3d_minZ');
+                    var type = this.get('3d_toolType');
+                    Computer.computeGrid(model, type, toolDiameter / 2, leaveStock, safetyZ, minZ).then(function (result) {
+                        _this.set('model.toolpath', result);
+                    });
+                }
+            },
             specialTemplate: function () {
                 return Operations[this.get('type')].specialTemplate;
             }.property('type'),
@@ -140,6 +155,13 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble'],
                 return Object.keys(Operations).map(function (key) {
                     return $.extend({class: key}, Operations[key]);
                 });
+            }.property(),
+            toolShapes: function () {
+                return [
+                    {label: 'Cylinder', id: 'cylinder'},
+                    {label: 'Ball Nose', id: 'ball'},
+                    {label: 'V Shape', id: 'v'}
+                ];
             }.property()
         });
 

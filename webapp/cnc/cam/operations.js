@@ -129,6 +129,17 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                     });
                 });
             }
-        }
+        },
+        '3DlinearOperation': {
+            label: '3D linear milling',
+            specialTemplate: '3DMilling',
+            properties: {
+                '3d_leaveStock': attr('number', {defaultValue: 0.2}),
+                '3d_minZ': attr('number', {defaultValue: -1000}),
+                '3d_toolType': attr('string', {defaultValue: 'cylinder'})
+            },
+            computeToolpath: function (op) {
+                return null;
+            }}
     };
 });

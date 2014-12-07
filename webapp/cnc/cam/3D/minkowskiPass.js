@@ -55,13 +55,15 @@ define(['libs/threejs/postprocessing/ShaderPass'], function (ShaderPass) {
         }, 'modelHeight');
     };
     Pass.prototype = {
-        setParams: function (toolProfile, toolToPartRatio) {
+        setParams: function (toolProfile, toolToPartRatio, minZ) {
             var pixelsOnRadius = toolProfile.length;
             var uniforms = this.minkowskiPass.material.uniforms;
             uniforms.toolProfile.value.image.data = new Float32Array(toolProfile);
             uniforms.toolProfile.value.image.width = pixelsOnRadius;
             uniforms.toolProfile.value.needsUpdate = true;
             uniforms.toolToPartRatio.value = toolToPartRatio;
+            uniforms.minZ.value = minZ != null ? minZ : -Infinity;
+            console.log(uniforms.minZ.value);
             this.minkowskiPass.material.defines.radialSamples = pixelsOnRadius;
             this.minkowskiPass.material.needsUpdate = true;
         },

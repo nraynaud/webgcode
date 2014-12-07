@@ -91,6 +91,11 @@ var tasks = {
         require(['cnc/gcode/gcodeSimulation'], function (gcodeSimulation) {
             gcodeSimulation.simulateWorkerSide(event);
         });
+    },
+    ping: function (event) {
+        setTimeout(function () {
+            postMessage('pong');
+        }, 10);
     }
 };
 
