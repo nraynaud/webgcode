@@ -46,12 +46,11 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
         function computeGrid(stlData, toolType, toolRadius, leaveStock, safetyZ, minZ) {
             return new RSVP.Promise(function (resolve, reject) {
                 var geometry = new STLLoader().parse(stlData);
-                console.log('parsed');
                 var modelStage = new ModelProjector();
                 modelStage.setGeometry(geometry);
                 var renderer = new THREE.WebGLRenderer({antialias: false, alpha: true, precision: 'highp', autoClear: false, preserveDrawingBuffer: true});
                 var toolSamples = 30;
-                var sampleRate = (toolRadius + leaveStock) * 30;
+                var sampleRate = toolSamples / (toolRadius + leaveStock);
                 var types = {cylinder: toolProfile.createCylindricalTool, ball: toolProfile.createSphericalTool, v: toolProfile.createVTool};
                 var profile = types[toolType](toolSamples, modelStage.zRatio, toolRadius, leaveStock);
                 var minX = Math.floor(modelStage.modelBbox.min.x * sampleRate);

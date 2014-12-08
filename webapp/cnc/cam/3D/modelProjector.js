@@ -124,7 +124,6 @@ define([], function () {
             var bbox = this.modelBbox;
             var bboxSize = bbox.size();
             var modelRatio = bboxSize.y / bboxSize.x;
-            console.log('modelRatio', modelRatio);
             this.aspectRatio = bboxSize.x / bboxSize.y;
             this.displaySideMm = (bboxSize.x > bboxSize.y ? bboxSize.x : bboxSize.y) * 1.1;
             this.camera.lookAt(new THREE.Vector3(0, 0, bbox.min.z));
@@ -132,7 +131,6 @@ define([], function () {
             this.camera.position.set(0, 0, bbox.max.z + 10 + this.camera.near);
             this.camera.far = this.camera.position.z - bbox.min.z;
             this.zRatio = 1 / (this.camera.far - this.camera.near);
-            console.log('near, far', this.camera.near, this.camera.far, this.zRatio);
             this.setCamera(bbox.min.x, bbox.max.x, bbox.min.y, bbox.max.y);
         },
         setCamera: function (left, right, bottom, top) {

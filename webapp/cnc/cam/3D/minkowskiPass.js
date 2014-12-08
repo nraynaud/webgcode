@@ -63,7 +63,6 @@ define(['libs/threejs/postprocessing/ShaderPass'], function (ShaderPass) {
             uniforms.toolProfile.value.needsUpdate = true;
             uniforms.toolToPartRatio.value = toolToPartRatio;
             uniforms.minZ.value = minZ != null ? minZ : -Infinity;
-            console.log(uniforms.minZ.value);
             this.minkowskiPass.material.defines.radialSamples = pixelsOnRadius;
             this.minkowskiPass.material.needsUpdate = true;
         },
