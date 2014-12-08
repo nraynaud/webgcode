@@ -145,11 +145,14 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/3D
                     var leaveStock = this.get('3d_leaveStock');
                     var minZ = this.get('3d_minZ');
                     var type = this.get('3d_toolType');
-                    Computer.computeGrid(model, type, toolDiameter / 2, leaveStock, safetyZ, minZ).then(function (result) {
-                        _this.set('model.toolpath', result);
-                    }).finally(function () {
-                        _this.set('computing', false);
-                    });
+                    var stepover = this.get('3d_diametralEngagement') * toolDiameter / 100;
+                    Computer.computeGrid(model, stepover, type, toolDiameter / 2, leaveStock, safetyZ, minZ)
+                        .then(Ember.run.bind(this, function (result) {
+                            _this.set('model.toolpath', result);
+                        }))
+                        .finally(Ember.run.bind(this, function () {
+                            _this.set('computing', false);
+                        }));
                 }
             },
             specialTemplate: function () {

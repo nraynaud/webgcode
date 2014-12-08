@@ -11,7 +11,11 @@
     <td>{{view Visucam.NumberField numericValue=3d_minZ}}</td>
 </tr>
 <tr>
-    <th></th>
+    <th title="Engagement in %">Diametral Engagement:</th>
+    <td>{{view Visucam.NumberField numericValue=3d_diametralEngagement}}</td>
+</tr>
+<tr>
+<th></th>
     <td>
         <button class="btn btn-default" {{action compute3D}} {{bind-attr disabled=computing}}>Compute{{#if computing}}
             <i class="fa fa-cog fa-spin"></i>{{/if}}</button>
