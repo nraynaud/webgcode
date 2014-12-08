@@ -131,12 +131,14 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE'],
                 var threeDView = this.get('nativeComponent');
                 var travelDisplay = this.get('travelDisplay');
                 travelDisplay.clear();
-                var travelMoves = this.get('controller.transitionTravels');
-                travelDisplay.addPolyLines(travelMoves.map(function (move) {
-                    return move.path;
-                }));
+                if (this.get('controller.showTravel')) {
+                    var travelMoves = this.get('controller.transitionTravels');
+                    travelDisplay.addPolyLines(travelMoves.map(function (move) {
+                        return move.path;
+                    }));
+                }
                 threeDView.reRender();
-            }.observes('controller.transitionTravels'),
+            }.observes('controller.transitionTravels', 'controller.showTravel'),
             synchronizeOutlines: function () {
                 var _this = this;
                 var outlinesDisplay = this.get('outlinesDisplay');

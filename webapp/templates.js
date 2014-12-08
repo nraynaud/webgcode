@@ -513,6 +513,11 @@ Ember.TEMPLATES["job"] = Ember.Handlebars.template(function anonymous(Handlebars
         'max': (3000),
         'step': (10)
     }, hashTypes: {'numericValue': "ID", 'min': "INTEGER", 'max': "INTEGER", 'step': "INTEGER"}, hashContexts: {'numericValue': depth0, 'min': depth0, 'max': depth0, 'step': depth0}, contexts: [depth0], types: ["ID"], data: data})));
+    data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th title=\"travel path is displayed in red\">Display Travel</th>\n            <td>");
+    data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input), options = {hash: {
+        'type': ("checkbox"),
+        'checked': ("showTravel")
+    }, hashTypes: {'type': "STRING", 'checked': "ID"}, hashContexts: {'type': depth0, 'checked': depth0}, contexts: [], types: [], data: data}, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
     data.buffer.push("</td>\n        </tr>\n        </tbody>\n    </table>\n    <h2>Shapes</h2>\n    <ul class=\"list-group\">\n        ");
     stack1 = helpers.each.call(depth0, "shapes", {hash: {
         'itemController': ("shapeListItem")

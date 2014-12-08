@@ -34,6 +34,10 @@
             <th title="in mm/min">Feedrate:</th>
             <td>{{view Visucam.NumberField numericValue=feedrate min=1 max=3000 step=10}}</td>
         </tr>
+        <tr>
+            <th title="travel path is displayed in red">Display Travel</th>
+            <td>{{input type="checkbox" checked=showTravel}}</td>
+        </tr>
         </tbody>
     </table>
     <h2>Shapes</h2>

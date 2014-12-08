@@ -103,6 +103,7 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/3D
             toolPosition: null,
             currentOperation: null,
             currentShape: null,
+            showTravel: true,
             addShapes: function (shapeDefinitions, name) {
                 var shape = this.get('model').createShape(shapeDefinitions.join(' '), name);
                 var contour = this.get('model').createOperation({outline: shape});
