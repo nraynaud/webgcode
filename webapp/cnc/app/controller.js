@@ -138,6 +138,7 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/3D
             actions: {
                 compute3D: function () {
                     var _this = this;
+                    this.set('computing', true);
                     var model = this.get('model.outline.stlModel');
                     var safetyZ = this.get('controllers.job.safetyZ');
                     var toolDiameter = this.get('controllers.job.toolDiameter');
@@ -146,6 +147,8 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/3D
                     var type = this.get('3d_toolType');
                     Computer.computeGrid(model, type, toolDiameter / 2, leaveStock, safetyZ, minZ).then(function (result) {
                         _this.set('model.toolpath', result);
+                    }).finally(function () {
+                        _this.set('computing', false);
                     });
                 }
             },
