@@ -201,9 +201,10 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 var toolFlutes = this.get('toolFlutes');
                 this.set('feedrate', Math.round(speed * chipLoad * toolFlutes));
             }.observes('toolFlutes', 'chipLoad', 'speed'),
-            computeSimulableToolpath: function (travelFeedrate) {
+            computeCompactToolPath: function () {
                 var operations = this.get('operations');
                 var feedrate = this.get('feedrate');
+                var safetyZ = this.get('safetyZ');
                 var travelBits = [];
                 var pathFragments = [];
                 var endPoint = null;
@@ -211,45 +212,32 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     pathFragments.pushObjects(operation.get('toolpath'));
                 });
                 var startPoint = this.get('startPoint');
+                console.timeEnd('preparation');
                 var position = startPoint;
+                var safeStartPoint = new util.Point(startPoint.x, startPoint.y, Math.max(startPoint.z, safetyZ));
 
-                function travelTo(point, speedTag) {
-                    travelBits.push({
-                        type: 'line',
-                        from: position,
-                        to: point,
-                        speedTag: speedTag == null ? 'rapid' : speedTag,
-                        feedRate: speedTag == null ? travelFeedrate : feedrate});
-                    position = point;
+                function segment(p1, p2) {
+                    return new Float32Array([p1.x, p1.y, p1.z, p2.x, p2.y, p2.z]);
                 }
 
-                var safetyZ = this.get('safetyZ');
-                // it could happen that the cycle be started from a position that is lower than the start point
-                // for example after doing the Z zeroing, the user might leave the tool just a few mm over the stock
-                // or in a hole, it would be unsafe to travel from there.
-                var safeStartPoint = new util.Point(startPoint.x, startPoint.y, Math.max(startPoint.z, safetyZ));
+                travelBits.push({speedTag: 'rapid', path: segment(startPoint, safeStartPoint)});
                 if (pathFragments.length) {
-                    travelTo(safeStartPoint);
-                    travelTo(pathFragments[0].getStartPoint());
+                    position = pathFragments[0].getStartPoint();
+                    travelBits.push({speedTag: 'rapid', path: segment(safeStartPoint, position)});
                     for (var i = 0; i < pathFragments.length; i++) {
                         var fragment = pathFragments[i];
-                        fragment.forEachPoint(function (x, y, z) {
-                            travelTo(new util.Point(x, y, z), 'normal');
-                        });
+                        travelBits.push({speedTag: 'normal', feedRate: feedrate, path: fragment.asCompactToolpath()});
                         endPoint = fragment.getStopPoint();
-                        travelTo(new util.Point(endPoint.x, endPoint.y, safetyZ));
+                        position = new util.Point(endPoint.x, endPoint.y, safetyZ);
+                        travelBits.push({speedTag: 'rapid', path: segment(endPoint, position)});
                         if (i + 1 < pathFragments.length) {
                             var destinationPoint = pathFragments[i + 1].getStartPoint();
-                            travelTo(new util.Point(destinationPoint.x, destinationPoint.y, safetyZ));
+                            var newPos = new util.Point(destinationPoint.x, destinationPoint.y, safetyZ);
+                            travelBits.push({speedTag: 'rapid', path: segment(position, newPos)});
+                            position = newPos;
                         }
                     }
-                    travelTo(safeStartPoint);
-                }
-                for (i = 0; i < travelBits.length - 1; i++) {
-                    var previous = travelBits[i].to;
-                    var next = travelBits[i + 1].from;
-                    if (previous.sqDistance(next))
-                        console.error('continuity error', i, travelBits[i], travelBits[i + 1]);
+                    travelBits.push({speedTag: 'rapid', path: segment(position, safeStartPoint)});
                 }
                 return travelBits;
             }

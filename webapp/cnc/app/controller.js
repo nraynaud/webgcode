@@ -90,8 +90,16 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/3D
                 var _this = this;
                 window.addEventListener("message", function (event) {
                     if (event.data['type'] == 'gimme program') {
-                        event.ports[0].postMessage({type: 'toolPath', toolPath: _this.get('model').computeSimulableToolpath(3000),
-                            parameters: event.data.parameters});
+                        var toolPath = _this.get('model').computeCompactToolPath();
+                        console.log(toolPath.length);
+                        console.time('postMessage');
+                        var chunkSize = 100000;
+                        for (var i = 0, j = toolPath.length; i < j; i += chunkSize) {
+                            var chunk = toolPath.slice(i, i + chunkSize);
+                            event.ports[0].postMessage({type: 'compactToolPath', parameters: event.data.parameters,
+                                toolPath: chunk, hasMore: i + chunkSize < toolPath.length});
+                        }
+                        console.timeEnd('postMessage');
                     }
                     if (event.data['type'] == 'toolPosition') {
                         var pos = event.data['position'];

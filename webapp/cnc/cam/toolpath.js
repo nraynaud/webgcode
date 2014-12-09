@@ -115,6 +115,15 @@ define(['cnc/util'], function (util) {
         },
         toJSON: function () {
             return {className: 'general-toolpath', path: this.path};
+        },
+        asCompactToolpath: function () {
+            var buffer = new Float32Array(this.path.length * 3);
+            for (var i = 0; i < this.path.length; i++) {
+                buffer[i * 3] = this.path[i].x;
+                buffer[i * 3 + 1] = this.path[i].y;
+                buffer[i * 3 + 2] = this.path[i].z;
+            }
+            return buffer;
         }
     };
 

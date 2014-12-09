@@ -49,7 +49,7 @@ var tasks = {
         });
     },
     acceptProgram: function (event) {
-        require(['cnc/gcode/parser', 'cnc/gcode/simulation'], function (parser, simulation) {
+        require(['cnc/gcode/parser', 'cnc/gcode/simulation', 'cnc/util.js'], function (parser, simulation, util) {
             function handleFragment(program) {
                 var programLength = program.length * 3;
                 var formattedData = new ArrayBuffer(programLength + 4);
@@ -71,9 +71,46 @@ var tasks = {
                 self.postMessage(formattedData, [formattedData]);
             }
 
-            event.ports[0].onmessage = function (event) {
+            var toolPath = [];
+            var myPort = event.ports[0];
+            myPort.onmessage = function (event) {
                 var params = event.data.parameters;
-                var toolPath = event.data.type == 'gcode' ? parser.evaluate(event.data.program, params.maxFeedrate, params.maxFeedrate, params.position) : event.data.toolPath;
+                var typeConverter = {
+                    gcode: function (data) {
+                        return parser.evaluate(data.program, params.maxFeedrate, params.maxFeedrate, params.position);
+                    },
+                    toolPath: function (data) {
+                        return data.toolPath;
+                    },
+                    compactToolPath: function (data) {
+                        var fragments = data.toolPath;
+                        var travelBits = [];
+                        var position;
+                        var travelFeedrate = params.maxFeedrate;
+
+                        function travelTo(point, speedTag, feedrate) {
+                            if (position)
+                                travelBits.push({
+                                    type: 'line',
+                                    from: position,
+                                    to: point,
+                                    speedTag: speedTag,
+                                    feedRate: speedTag == 'rapid' ? travelFeedrate : feedrate});
+                            position = point;
+                        }
+
+                        for (var i = 0; i < fragments.length; i++) {
+                            var fragment = fragments[i];
+                            for (var j = 0; j < fragment.path.length; j += 3) {
+                                var point = new util.Point(fragment.path[j], fragment.path[j + 1], fragment.path[j + 2]);
+                                travelTo(point, fragment.speedTag, fragment.feedRate);
+                            }
+                        }
+                        return travelBits;
+                    }
+                };
+                toolPath = typeConverter[event.data.type](event.data);
+
                 var program = [];
                 simulation.planProgram(toolPath, params.maxAcceleration, 1 / params.stepsPerMillimeter, params.clockFrequency, function stepCollector(point) {
                     program.push(point);
@@ -83,7 +120,10 @@ var tasks = {
                     }
                 });
                 handleFragment(program);
-                self.postMessage(null);
+                if (!event.data['hasMore']) {
+                    self.postMessage(null);
+                    myPort.close();
+                }
             };
         });
     },
