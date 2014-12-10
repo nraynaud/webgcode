@@ -153,8 +153,9 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/3D
                     var leaveStock = this.get('3d_leaveStock');
                     var minZ = this.get('3d_minZ');
                     var type = this.get('3d_toolType');
+                    var orientation = this.get('3d_pathOrientation');
                     var stepover = this.get('3d_diametralEngagement') * toolDiameter / 100;
-                    Computer.computeGrid(model, stepover, type, toolDiameter / 2, leaveStock, safetyZ, minZ)
+                    Computer.computeGrid(model, stepover, type, toolDiameter / 2, leaveStock, safetyZ, minZ, orientation)
                         .then(Ember.run.bind(this, function (result) {
                             _this.set('model.toolpath', result);
                         }))
@@ -177,7 +178,11 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/3D
                     {label: 'Ball Nose', id: 'ball'},
                     {label: 'V Shape', id: 'v'}
                 ];
-            }.property()
+            }.property(),
+            pathOrientations: [
+                {label: 'X', id: 'x'},
+                {label: 'Y', id: 'y'}
+            ]
         });
 
         var OperationListItemController = Ember.ObjectController.extend({

@@ -137,7 +137,8 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                 '3d_leaveStock': attr('number', {defaultValue: 0.2}),
                 '3d_minZ': attr('number', {defaultValue: -1000}),
                 '3d_toolType': attr('string', {defaultValue: 'cylinder'}),
-                '3d_diametralEngagement': attr('number', {defaultValue: 90})
+                '3d_diametralEngagement': attr('number', {defaultValue: 90}),
+                '3d_pathOrientation': attr('string', {defaultValue: 'x'})
             },
             computeToolpath: function (op) {
                 return null;

@@ -25,21 +25,35 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
             }
         };
 
-        function convertGridToToolPath(heightField, stepover, safetyZ, minZ) {
+        function convertGridToToolPath(heightField, stepover, safetyZ, minZ, orientation) {
             var point = new THREE.Vector3(0, 0, 0);
             var list = [];
+            var majorSampleCount;
+            var minorSampleCount;
+            var majorAxis;
+            if (orientation == 'x') {
+                majorSampleCount = 'samplesY';
+                minorSampleCount = 'samplesX';
+                majorAxis = 'y';
+            } else {
+                majorSampleCount = 'samplesX';
+                minorSampleCount = 'samplesY';
+                majorAxis = 'x';
+            }
             point.set(0, 0, 0).applyMatrix4(heightField.bufferToWorldMatrix);
-            var startY = point.y;
+            var start = point[majorAxis];
             var currentStep = 0;
-            for (var j = 0; j < heightField.samplesY; currentStep++) {
+            for (var j = 0; j < heightField[majorSampleCount]; currentStep++) {
                 // add the stepover in the the world space
-                point.set(0, startY + currentStep * stepover, 0).applyMatrix4(heightField.worldToBufferMatrix);
+                point.set(0, 0, 0);
+                point[majorAxis] = start + currentStep * stepover;
+                point.applyMatrix4(heightField.worldToBufferMatrix);
                 // find the closest pixel
-                j = Math.round(point.y);
+                j = Math.round(point[majorAxis]);
                 var path = new tp.GeneralPolylineToolpath();
-                for (var i = 0; i < heightField.samplesX; i++) {
-                    point.setX(i);
-                    point.setY(j);
+                for (var i = 0; i < heightField[minorSampleCount]; i++) {
+                    point[orientation] = i;
+                    point[majorAxis] = j;
                     heightField.getPoint(point);
                     if (i == 0)
                         path.pushPointXYZ(point.x, point.y, safetyZ);
@@ -50,7 +64,7 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
             return list;
         }
 
-        function computeGrid(stlData, stepover, toolType, toolRadius, leaveStock, safetyZ, minZ) {
+        function computeGrid(stlData, stepover, toolType, toolRadius, leaveStock, safetyZ, minZ, orientation) {
             return new RSVP.Promise(function (resolve, reject) {
                 var geometry = new STLLoader().parse(stlData);
                 var modelStage = new ModelProjector();
@@ -175,7 +189,7 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
                 drawTile(0);
 
             }).then(function (heightField) {
-                    return convertGridToToolPath(heightField, stepover, safetyZ, minZ);
+                    return convertGridToToolPath(heightField, stepover, safetyZ, minZ, orientation);
                 });
         }
 

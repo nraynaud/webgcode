@@ -15,7 +15,11 @@
     <td>{{view Visucam.NumberField numericValue=3d_diametralEngagement}}</td>
 </tr>
 <tr>
-<th></th>
+    <th>Path Orientation:</th>
+    <td>{{view Ember.Select value=3d_pathOrientation content=pathOrientations optionValuePath="content.id" optionLabelPath="content.label"}}</td>
+</tr>
+<tr>
+    <th></th>
     <td>
         <button class="btn btn-default" {{action compute3D}} {{bind-attr disabled=computing}}>Compute{{#if computing}}
             <i class="fa fa-cog fa-spin"></i>{{/if}}</button>
