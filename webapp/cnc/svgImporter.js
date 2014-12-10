@@ -135,8 +135,13 @@ define(['canvg', 'cnc/util'], function (canvg, util) {
             this.currentPath.push('L ' + pt.x + ',' + pt.y);
         },
         arc: function (x, y, radius, startAngle, endAngle, anticlockwise) {
+            var endPoint = new util.Point(Math.sin(endAngle), Math.cos(endAngle), 0).scale(radius).add(new util.Point(x, y));
+            this.currentPosition = endPoint;
+            var arcSweep = endAngle - startAngle <= Math.PI ? "0" : "1";
+            var items = 'A ' + radius + ' ' + radius + ' 0 ' + arcSweep + ' ' + 0 + ' ' + endPoint.svg();
+            this.currentPath.push(items);
             console.log('arc');
-            console.log(new Error().stack);
+            console.log(items);
         },
         fill: function () {
 
@@ -180,6 +185,8 @@ define(['canvg', 'cnc/util'], function (canvg, util) {
 
         var transformStack = [new Transform()];
         canvg.contextvg(ctx, svgText, {ignoreMouse: true});
+        ctx.pathArray.push(ctx.currentPath.join(' '));
+        console.log(ctx.pathArray);
         return ctx.pathArray;
     }
 

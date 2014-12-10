@@ -1194,7 +1194,11 @@
 
                 if (ctx != null) {
                     ctx.beginPath();
-                    ctx.arc(cx, cy, r, 0, Math.PI * 2, true);
+                    ctx.moveTo(cx, cy - r);
+                    ctx.arc(cx, cy, r, 0, Math.PI / 2, true);
+                    ctx.arc(cx, cy, r, Math.PI / 2, Math.PI, true);
+                    ctx.arc(cx, cy, r, Math.PI, 3 * Math.PI / 2, true);
+                    ctx.arc(cx, cy, r, 3 * Math.PI / 2, Math.PI * 2, true);
                     ctx.closePath();
                 }
 
