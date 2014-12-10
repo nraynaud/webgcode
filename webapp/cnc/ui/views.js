@@ -8,7 +8,7 @@ define(['Ember'], function (Ember) {
             valueChanged: function () {
                 var previousNumericValue = this.get('numericValue');
                 var newNumericValue = parseFloat(this.get('value'));
-                if (newNumericValue != previousNumericValue)
+                if (!isNaN(newNumericValue) && newNumericValue != previousNumericValue)
                     this.set('numericValue', newNumericValue);
             }.observes('value').on('init'),
             numericValueChanged: function () {
