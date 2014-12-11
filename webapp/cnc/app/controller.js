@@ -90,13 +90,16 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/3D
                 var _this = this;
                 window.addEventListener("message", function (event) {
                     if (event.data['type'] == 'gimme program') {
+                        var parameters = event.data.parameters;
+                        parameters.maxAcceleration = 75;
+                        parameters.maxFeedrate = 2000;
                         var toolPath = _this.get('model').computeCompactToolPath();
-                        console.log(toolPath.length);
+                        console.log(parameters);
                         console.time('postMessage');
                         var chunkSize = 100000;
                         for (var i = 0, j = toolPath.length; i < j; i += chunkSize) {
                             var chunk = toolPath.slice(i, i + chunkSize);
-                            event.ports[0].postMessage({type: 'compactToolPath', parameters: event.data.parameters,
+                            event.ports[0].postMessage({type: 'compactToolPath', parameters: parameters,
                                 toolPath: chunk, hasMore: i + chunkSize < toolPath.length});
                         }
                         console.timeEnd('postMessage');
@@ -155,7 +158,9 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/3D
                     var type = this.get('3d_toolType');
                     var orientation = this.get('3d_pathOrientation');
                     var stepover = this.get('3d_diametralEngagement') * toolDiameter / 100;
-                    Computer.computeGrid(model, stepover, type, toolDiameter / 2, leaveStock, safetyZ, minZ, orientation)
+                    var startRatio = this.get('3d_startPercent') / 100;
+                    var stopRatio = this.get('3d_stopPercent') / 100;
+                    Computer.computeGrid(model, stepover, type, toolDiameter / 2, leaveStock, safetyZ, minZ, orientation, startRatio, stopRatio)
                         .then(Ember.run.bind(this, function (result) {
                             _this.set('model.toolpath', result);
                         }))
