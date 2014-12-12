@@ -43,13 +43,11 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
             point.set(0, 0, 0).applyMatrix4(heightField.bufferToWorldMatrix);
             var start = point[majorAxis];
             var currentStep = 0;
-            for (var j = 0; j < heightField[majorSampleCount]; currentStep++) {
+            for (var j = 0; j < heightField[majorSampleCount]; j++) {
                 // add the stepover in the the world space
                 point.set(0, 0, 0);
                 point[majorAxis] = start + currentStep * stepover;
                 point.applyMatrix4(heightField.worldToBufferMatrix);
-                // find the closest pixel
-                j = Math.round(point[majorAxis]);
                 var ratio = j / heightField[majorSampleCount];
                 if (ratio >= startRatio && ratio <= stopRatio) {
                     var path = new tp.GeneralPolylineToolpath();
@@ -77,56 +75,88 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
                 var sampleRate = toolSamples / (toolRadius + leaveStock);
                 var types = {cylinder: toolProfile.createCylindricalTool, ball: toolProfile.createSphericalTool, v: toolProfile.createVTool};
                 var profile = types[toolType](toolSamples, modelStage.zRatio, toolRadius, leaveStock);
-                var minX = Math.floor(modelStage.modelBbox.min.x * sampleRate);
-                var maxX = Math.ceil(modelStage.modelBbox.max.x * sampleRate);
-                var minY = Math.floor(modelStage.modelBbox.min.y * sampleRate);
-                var maxY = Math.ceil(modelStage.modelBbox.max.y * sampleRate);
+                var bbox = modelStage.modelBbox.clone();
+
+                var minX = Math.floor(bbox.min.x * sampleRate);
+                var maxX = Math.ceil(bbox.max.x * sampleRate);
+                var minY = Math.floor(bbox.min.y * sampleRate);
+                var maxY = Math.ceil(bbox.max.y * sampleRate);
 
                 function setCameraPix(minX, maxX, minY, maxY) {
                     modelStage.setCamera(minX / sampleRate, maxX / sampleRate, minY / sampleRate, maxY / sampleRate);
                 }
 
-                function setTilePos(x, y) {
-                    setCameraPix(minX + x - toolSamples, minX + x + tileSizeX + toolSamples, minY + y - toolSamples, minY + y + tileSizeY + toolSamples);
-                }
-
                 var globalWidth = maxX - minX;
                 var globalHeight = maxY - minY;
                 var pixelsPerTile = 30000000;
-                var tileArea = pixelsPerTile / (4 * toolSamples * toolSamples);
-                var tileSizeX = Math.ceil(Math.sqrt(tileArea));
-                var tileSizeY = Math.ceil(Math.sqrt(tileArea));
-                var modelBuffer = new THREE.WebGLRenderTarget(tileSizeX + 2 * toolSamples, tileSizeY + 2 * toolSamples,
+                var tilePixelsLength = pixelsPerTile / (2 * toolSamples);
+
+                var tileLength = tilePixelsLength / sampleRate;
+                console.log(tilePixelsLength, tileLength);
+                console.log('global', globalWidth, globalHeight);
+                var tileX;
+                var tileY;
+                var resultTileX;
+                var resultTileY;
+                var modelTileX;
+                var modelTileY;
+                var tileXCount;
+                var tileYCount;
+                var xratio;
+                var yratio;
+                var xPeriod;
+                var yPeriod;
+                if (orientation == 'x') {
+                    tileXCount = Math.floor(globalWidth / tileLength) + 1;
+                    tileYCount = Math.floor(bbox.size().y / stepover) + 1;
+                    tileX = Math.ceil(globalWidth / tileXCount);
+                    tileY = toolRadius * 2;
+                    resultTileX = tileX;
+                    resultTileY = 1;
+                    modelTileX = resultTileX + 2 * toolSamples;
+                    modelTileY = 2 * toolSamples + 1;
+                    xratio = sampleRate;
+                    yratio = 1 / stepover;
+                    xPeriod = tileX;
+                    yPeriod = stepover * sampleRate;
+                } else {
+                    tileXCount = Math.floor(bbox.size().x / stepover) + 1;
+                    tileYCount = Math.floor(globalHeight / tileLength) + 1;
+                    console.log('tileYCount', tileYCount, tileXCount);
+                    tileX = toolRadius * 2;
+                    tileY = Math.ceil(globalHeight / tileYCount);
+                    resultTileX = 1;
+                    resultTileY = tileY;
+                    modelTileX = 2 * toolSamples + 1;
+                    modelTileY = resultTileY + 2 * toolSamples;
+                    xratio = 1 / stepover;
+                    yratio = sampleRate;
+                    xPeriod = stepover * sampleRate;
+                    yPeriod = tileY;
+                }
+                var resultBufferWidth = tileXCount * resultTileX;
+                var resultBufferHeight = tileYCount * resultTileY;
+                console.log('modelBuffer', modelTileX, modelTileY)
+                var modelBuffer = new THREE.WebGLRenderTarget(modelTileX, modelTileY,
                     {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.UnsignedByteType});
 
                 var minkowskiPass = new MinkowskiPass();
                 minkowskiPass.setParams(profile, new THREE.Vector2(toolSamples / modelBuffer.width, toolSamples / modelBuffer.height));
-                var minkowskiBuffer = new THREE.WebGLRenderTarget(tileSizeX, tileSizeY,
+                var minkowskiBuffer = new THREE.WebGLRenderTarget(resultTileX, resultTileY,
                     {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.UnsignedByteType});
-
-                var copyPass = new ShaderPass(CopyShader);
-                copyPass.quad.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(1, 1, 0));
-                var matrix = new THREE.Matrix4().makeScale(0.5 * tileSizeX, 0.5 * tileSizeY, 1);
-                copyPass.quad.geometry.applyMatrix(matrix);
-                copyPass.camera.left = 0;
-                copyPass.camera.right = globalWidth;
-                copyPass.camera.bottom = 0;
-                copyPass.camera.top = globalHeight;
-                copyPass.camera.updateProjectionMatrix();
-                copyPass.renderToScreen = true;
                 renderer.autoClear = false;
 
                 var sequence = [];
-                for (var j = 0; j < globalHeight; j += tileSizeY)
-                    for (var i = 0; i < globalWidth; i += tileSizeX)
+                for (var j = 0; j < tileYCount; j++)
+                    for (var i = 0; i < tileXCount; i++)
                         sequence.push([i, j]);
-                var resultBuffer = new Float32Array(globalHeight * globalWidth);
+                var resultBuffer = new Float32Array(resultBufferWidth * resultBufferHeight);
                 var transformMatrix = new THREE.Matrix4()
-                    .makeScale(1 / sampleRate, 1 / sampleRate, 1)
+                    .makeScale(1 / xratio, 1 / yratio, 1)
                     .setPosition(new THREE.Vector3(minX / sampleRate, minY / sampleRate, 0));
                 modelStage.pushZInverseProjOn(transformMatrix);
-                var resultHeightField = new HeightField(resultBuffer, globalWidth, globalHeight, transformMatrix);
-                var resultTile = new Uint8Array(tileSizeX * tileSizeY * 4);
+                var resultHeightField = new HeightField(resultBuffer, resultBufferWidth, resultBufferHeight, transformMatrix);
+                var resultTile = new Uint8Array(resultTileX * resultTileY * 4);
                 var worker = new Worker('worker.js');
                 var factor = (Math.pow(2, 24.0) - 1.0) / Math.pow(2, 24.0);
 
@@ -135,20 +165,35 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
                 }
 
                 function copyResultTileToResultBuffer(x, y) {
-                    for (var j = 0; j < tileSizeY; j++)
-                        for (var i = 0; i < tileSizeX; i++) {
-                            if (y + j < globalHeight && i + x < globalWidth) {
-                                var pixIndex = ((j * tileSizeX + i) * 4);
-                                resultBuffer[(y + j) * globalWidth + i + x] = decodeFloatRgb(resultTile[pixIndex], resultTile[pixIndex + 1], resultTile[pixIndex + 2]);
+                    for (var j = 0; j < resultTileY; j++)
+                        for (var i = 0; i < resultTileX; i++) {
+                            if (y + j < resultBufferHeight && i + x < resultBufferWidth) {
+                                var pixIndex = ((j * resultTileX + i) * 4);
+                                resultBuffer[(y + j) * resultBufferWidth + i + x] =
+                                    decodeFloatRgb(resultTile[pixIndex], resultTile[pixIndex + 1], resultTile[pixIndex + 2]);
                             }
                         }
                 }
 
+                function setTilePos(x, y) {
+                    setCameraPix(minX + x - toolSamples, minX + x + resultTileX + toolSamples, minY + y - toolSamples, minY + y + resultTileY + toolSamples);
+                }
+
                 //compensate because the model tile has a margin of 1 tool radius around it
-                var terrainRatio = new THREE.Vector2(tileSizeX / modelBuffer.width, tileSizeY / modelBuffer.height);
+                var terrainRatio = new THREE.Vector2(resultTileX / modelBuffer.width, resultTileY / modelBuffer.height);
                 var terrainTranslation = new THREE.Vector2(toolSamples / modelBuffer.width, toolSamples / modelBuffer.height);
                 var percentage = null;
-
+                var copyPass = new ShaderPass(CopyShader);
+                copyPass.quad.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(1, 1, 0));
+                var matrix = new THREE.Matrix4().makeScale(0.5 * resultTileX, 0.5 * 2 * toolSamples, 1);
+                copyPass.quad.geometry.applyMatrix(matrix);
+                copyPass.camera.left = 0;
+                copyPass.camera.right = globalWidth;
+                copyPass.camera.bottom = 0;
+                copyPass.camera.top = globalHeight;
+                copyPass.camera.updateProjectionMatrix();
+                copyPass.renderToScreen = true;
+                renderer.autoClear = false;
                 function drawTile(sequenceIndex) {
                     if (sequenceIndex < sequence.length) {
                         var newPercentage = Math.round(sequenceIndex / sequence.length * 25) * 4;
@@ -157,17 +202,17 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
                         percentage = newPercentage;
                         var x = sequence[sequenceIndex][0];
                         var y = sequence[sequenceIndex][1];
-                        setTilePos(x, y);
+                        setTilePos(x * xPeriod, y * yPeriod);
                         var gl = renderer.getContext();
                         modelStage.render(renderer, modelBuffer);
                         minkowskiPass.render(renderer, minkowskiBuffer, modelBuffer, terrainRatio, terrainTranslation);
                         copyPass.quad.position.x = x;
                         copyPass.quad.position.y = y;
-                        copyPass.render(renderer, null, minkowskiBuffer);
+                        //copyPass.render(renderer, null, minkowskiBuffer);
                         renderer.setRenderTarget(minkowskiBuffer);
-                        gl.readPixels(0, 0, tileSizeX, tileSizeY, gl.RGBA, gl.UNSIGNED_BYTE, resultTile);
+                        gl.readPixels(0, 0, resultTileX, resultTileY, gl.RGBA, gl.UNSIGNED_BYTE, resultTile);
                         //by keeping this loop in the main thread, I think we are leaving some time for the GPU to breathe.
-                        copyResultTileToResultBuffer(x, y);
+                        copyResultTileToResultBuffer(x * resultTileX, y * resultTileY);
                         renderer.setRenderTarget(null);
                         //setTimeout is not throttled in workers
                         $(worker).one('message', function () {
@@ -177,6 +222,7 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
                     } else {
                         console.timeEnd('computation');
                         Piecon.reset();
+                        console.log(resultHeightField);
                         resolve(resultHeightField);
                         if (window['Notification'] && document['visibilityState'] == 'hidden')
                             new Notification("Computation is done.", {icon: 'images/icon_fraise_48.png'});
