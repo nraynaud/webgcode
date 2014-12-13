@@ -41,6 +41,7 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                 }
             },
             addCollated: function (rawVertices) {
+                var maxPoints = 10000;
 
                 function typedArrayConcat(first, second, constructor) {
                     var firstLength = first.length,
@@ -50,16 +51,24 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                     return result;
                 }
 
-                var vertices = new Float32Array(rawVertices);
+                var vertices = rawVertices instanceof Float32Array ? rawVertices : new Float32Array(rawVertices);
                 var pointsAdded = vertices.length / 3;
+
+                if (pointsAdded > maxPoints) {
+                    for (var i = 0; i < vertices.length; i += maxPoints * 3) {
+                        var group = vertices.subarray(i, i + maxPoints * 3);
+                        this.addCollated(group);
+                    }
+                    return;
+                }
                 var currentPoints = this.bufferedGeometry ? this.bufferedGeometry.attributes.position.array.length / 3 : 0;
-                if (this.bufferedGeometry && (pointsAdded + currentPoints >= 30000)) {
+                if (this.bufferedGeometry && (pointsAdded + currentPoints > maxPoints)) {
                     this.bufferedGeometry = null;
                     currentPoints = 0;
                 }
                 var startIndex = currentPoints;
                 var newIndices = new Uint16Array((pointsAdded - 1) * 2);
-                for (var i = 0; i < pointsAdded - 1; i++) {
+                for (i = 0; i < pointsAdded - 1; i++) {
                     newIndices[i * 2] = startIndex + i;
                     newIndices[i * 2 + 1] = startIndex + i + 1;
                 }
