@@ -51,7 +51,7 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
                         point[orientation] = zigzag && j % 2 == 0 ? heightField[minorSampleCount] - 1 - i : i;
                         point[majorAxis] = j;
                         heightField.getPoint(point);
-                        if (i == 0 && !zigzag || i == 0 && j == 0)
+                        if (path.path.length == 0)
                             path.pushPointXYZ(point.x, point.y, safetyZ);
                         path.pushPointXYZ(point.x, point.y, Math.max(minZ, point.z));
                     }
@@ -103,6 +103,7 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
                 var yratio;
                 var xPeriod;
                 var yPeriod;
+                var tileSelector;
                 if (orientation == 'x') {
                     tileXCount = Math.floor(globalWidth / tileLength) + 1;
                     tileYCount = Math.floor(bbox.size().y / stepover) + 1;
@@ -116,6 +117,9 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
                     yratio = 1 / stepover;
                     xPeriod = tileX;
                     yPeriod = stepover * sampleRate;
+                    tileSelector = function (i, j) {
+                        return j >= tileYCount * startRatio && j <= tileYCount * stopRatio;
+                    }
                 } else {
                     tileXCount = Math.floor(bbox.size().x / stepover) + 1;
                     tileYCount = Math.floor(globalHeight / tileLength) + 1;
@@ -130,6 +134,9 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
                     yratio = sampleRate;
                     xPeriod = stepover * sampleRate;
                     yPeriod = tileY;
+                    tileSelector = function (i, j) {
+                        return i >= tileXCount * startRatio && i <= tileXCount * stopRatio;
+                    }
                 }
                 var resultBufferWidth = tileXCount * resultTileX;
                 var resultBufferHeight = tileYCount * resultTileY;
@@ -146,7 +153,8 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
                 var sequence = [];
                 for (var j = 0; j < tileYCount; j++)
                     for (var i = 0; i < tileXCount; i++)
-                        sequence.push([i, j]);
+                        if (tileSelector(i, j))
+                            sequence.push([i, j]);
                 var resultBuffer = new Float32Array(resultBufferWidth * resultBufferHeight);
                 var transformMatrix = new THREE.Matrix4()
                     .makeScale(1 / xratio, 1 / yratio, 1)
@@ -219,7 +227,6 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
                     } else {
                         console.timeEnd('computation');
                         Piecon.reset();
-                        console.log(resultHeightField);
                         resolve(resultHeightField);
                         if (window['Notification'] && document['visibilityState'] == 'hidden')
                             new Notification("Computation is done.", {icon: 'images/icon_fraise_48.png'});
