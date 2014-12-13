@@ -160,7 +160,8 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/3D
                     var stepover = this.get('3d_diametralEngagement') * toolDiameter / 100;
                     var startRatio = this.get('3d_startPercent') / 100;
                     var stopRatio = this.get('3d_stopPercent') / 100;
-                    Computer.computeGrid(model, stepover, type, toolDiameter / 2, leaveStock, safetyZ, minZ, orientation, startRatio, stopRatio)
+                    var zigzag = this.get('3d_zigZag');
+                    Computer.computeGrid(model, stepover, type, toolDiameter / 2, leaveStock, safetyZ, minZ, orientation, startRatio, stopRatio, zigzag)
                         .then(Ember.run.bind(this, function (result) {
                             _this.set('model.toolpath', result);
                         }))
