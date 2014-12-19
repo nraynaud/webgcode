@@ -13,7 +13,8 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/3D
                         payload = {
                             user_id: authData.twitter.id,
                             oauth_token: authData.twitter.accessToken,
-                            oauth_token_secret: authData.twitter.accessTokenSecret};
+                            oauth_token_secret: authData.twitter.accessTokenSecret
+                        };
                     else
                         payload = authData[service].accessToken;
                     this.get('firebase.firebase').authWithOAuthToken(service, payload, function () {
@@ -36,26 +37,46 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/3D
                     var rotor = job.createShape(wabble.getRotorShape(), 'Crown');
                     var pins = job.createShape(wabble.getPinsShape(), 'Pins');
                     var outputPins = job.createShape(wabble.getOutputPinsShape(), 'Output Pin');
-                    job.createOperation({name: 'Eccentric Hole Roughing', job: job, type: 'PocketOperation',
-                        outline: eccentric, contour_inside: true});
-                    job.createOperation({name: 'Eccentric Hole Finishing', job: job, type: 'SimpleContourOperation',
-                        outline: eccentric, contour_inside: true, contour_leaveStock: 0, contour_climbMilling: false});
-                    job.createOperation({name: 'Output Holes Roughing', job: job, type: 'PocketOperation',
-                        outline: outputHoles, contour_inside: true});
-                    job.createOperation({name: 'Output Holes Finishing', job: job, type: 'SimpleContourOperation',
-                        outline: outputHoles, contour_inside: true, contour_leaveStock: 0, contour_climbMilling: false});
-                    job.createOperation({name: 'Crown Roughing', job: job, type: 'RampingContourOperation',
-                        outline: rotor, contour_inside: false});
-                    job.createOperation({name: 'Crown Finishing', job: job, type: 'SimpleContourOperation',
-                        outline: rotor, contour_inside: false, contour_leaveStock: 0, contour_climbMilling: false});
-                    job.createOperation({name: 'Pins Roughing', job: job, type: 'RampingContourOperation',
-                        outline: pins, contour_inside: false});
-                    job.createOperation({name: 'Pins Finishing', job: job, type: 'SimpleContourOperation',
-                        outline: pins, contour_inside: false, contour_leaveStock: 0, contour_climbMilling: false});
-                    job.createOperation({name: 'Output Pins Roughing', job: job, type: 'RampingContourOperation',
-                        outline: outputPins, contour_inside: false});
-                    job.createOperation({name: 'Output Pins Finishing', job: job, type: 'SimpleContourOperation',
-                        outline: outputPins, contour_inside: false, contour_leaveStock: 0, contour_climbMilling: false});
+                    job.createOperation({
+                        name: 'Eccentric Hole Roughing', job: job, type: 'PocketOperation',
+                        outline: eccentric, contour_inside: true
+                    });
+                    job.createOperation({
+                        name: 'Eccentric Hole Finishing', job: job, type: 'SimpleContourOperation',
+                        outline: eccentric, contour_inside: true, contour_leaveStock: 0, contour_climbMilling: false
+                    });
+                    job.createOperation({
+                        name: 'Output Holes Roughing', job: job, type: 'PocketOperation',
+                        outline: outputHoles, contour_inside: true
+                    });
+                    job.createOperation({
+                        name: 'Output Holes Finishing', job: job, type: 'SimpleContourOperation',
+                        outline: outputHoles, contour_inside: true, contour_leaveStock: 0, contour_climbMilling: false
+                    });
+                    job.createOperation({
+                        name: 'Crown Roughing', job: job, type: 'RampingContourOperation',
+                        outline: rotor, contour_inside: false
+                    });
+                    job.createOperation({
+                        name: 'Crown Finishing', job: job, type: 'SimpleContourOperation',
+                        outline: rotor, contour_inside: false, contour_leaveStock: 0, contour_climbMilling: false
+                    });
+                    job.createOperation({
+                        name: 'Pins Roughing', job: job, type: 'RampingContourOperation',
+                        outline: pins, contour_inside: false
+                    });
+                    job.createOperation({
+                        name: 'Pins Finishing', job: job, type: 'SimpleContourOperation',
+                        outline: pins, contour_inside: false, contour_leaveStock: 0, contour_climbMilling: false
+                    });
+                    job.createOperation({
+                        name: 'Output Pins Roughing', job: job, type: 'RampingContourOperation',
+                        outline: outputPins, contour_inside: false
+                    });
+                    job.createOperation({
+                        name: 'Output Pins Finishing', job: job, type: 'SimpleContourOperation',
+                        outline: outputPins, contour_inside: false, contour_leaveStock: 0, contour_climbMilling: false
+                    });
                     this.transitionToRoute('job', job).then(function () {
                         job.saveAll();
                     });
@@ -99,8 +120,12 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/3D
                         var chunkSize = 100000;
                         for (var i = 0, j = toolPath.length; i < j; i += chunkSize) {
                             var chunk = toolPath.slice(i, i + chunkSize);
-                            event.ports[0].postMessage({type: 'compactToolPath', parameters: parameters,
-                                toolPath: chunk, hasMore: i + chunkSize < toolPath.length});
+                            event.ports[0].postMessage({
+                                type: 'compactToolPath',
+                                parameters: parameters,
+                                toolPath: chunk,
+                                hasMore: i + chunkSize < toolPath.length
+                            });
                         }
                         console.timeEnd('postMessage');
                     }
@@ -135,12 +160,12 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/3D
             },
             saveDisabled: function () {
                 return !this.get('model.isDirty')
-                && this.get('model.shapes').every(function (shape) {
-                    return !shape.get('isDirty');
-                })
-                && this.get('model.operations').every(function (operation) {
-                    return !operation.get('isDirty');
-                });
+                    && this.get('model.shapes').every(function (shape) {
+                        return !shape.get('isDirty');
+                    })
+                    && this.get('model.operations').every(function (operation) {
+                        return !operation.get('isDirty');
+                    });
             }.property('model.isDirty', 'model.shapes.@each.isDirty', 'model.operations.@each.isDirty')
         });
 
@@ -161,7 +186,10 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/3D
                     var startRatio = this.get('3d_startPercent') / 100;
                     var stopRatio = this.get('3d_stopPercent') / 100;
                     var zigzag = this.get('3d_zigZag');
-                    Computer.computeGrid(model, stepover, type, toolDiameter / 2, leaveStock, safetyZ, minZ, orientation, startRatio, stopRatio, zigzag)
+                    Computer.computeHeightField(model, stepover, type, toolDiameter / 2, leaveStock, orientation, startRatio, stopRatio)
+                        .then(function (heightField) {
+                            return Computer.convertHeightFieldToToolPath(heightField, safetyZ, minZ, zigzag);
+                        })
                         .then(Ember.run.bind(this, function (result) {
                             _this.set('model.toolpath', result);
                         }))

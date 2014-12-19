@@ -8,12 +8,15 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
             console.assert(false, reason);
         });
 
-        function HeightField(data, samplesX, samplesY, bufferToWorldMatrix) {
+        function HeightField(data, samplesX, samplesY, bufferToWorldMatrix, orientation, startRatio, stopRatio) {
             this.data = data;
             this.samplesX = samplesX;
             this.samplesY = samplesY;
             this.bufferToWorldMatrix = bufferToWorldMatrix;
             this.worldToBufferMatrix = bufferToWorldMatrix.clone().getInverse(bufferToWorldMatrix);
+            this.orientation = orientation;
+            this.startRatio = startRatio;
+            this.stopRatio = stopRatio;
         }
 
         HeightField.prototype = {
@@ -25,13 +28,13 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
             }
         };
 
-        function convertGridToToolPath(heightField, safetyZ, minZ, orientation, startRatio, stopRatio, zigzag) {
+        function convertHeightFieldToToolPath(heightField, safetyZ, minZ, zigzag) {
             var point = new THREE.Vector3(0, 0, 0);
             var list = [];
             var majorSampleCount;
             var minorSampleCount;
             var majorAxis;
-            if (orientation == 'x') {
+            if (heightField.orientation == 'x') {
                 majorSampleCount = 'samplesY';
                 minorSampleCount = 'samplesX';
                 majorAxis = 'y';
@@ -41,14 +44,13 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
                 majorAxis = 'x';
             }
             var path = new tp.GeneralPolylineToolpath();
-            point.set(0, 0, 0).applyMatrix4(heightField.bufferToWorldMatrix);
             for (var j = 0; j < heightField[majorSampleCount]; j++) {
                 var ratio = j / heightField[majorSampleCount];
-                if (ratio >= startRatio && ratio <= stopRatio) {
+                if (ratio >= heightField.startRatio && ratio <= heightField.stopRatio) {
                     if (!zigzag)
                         path = new tp.GeneralPolylineToolpath();
                     for (var i = 0; i < heightField[minorSampleCount]; i++) {
-                        point[orientation] = zigzag && j % 2 == 0 ? heightField[minorSampleCount] - 1 - i : i;
+                        point[heightField.orientation] = zigzag && j % 2 == 0 ? heightField[minorSampleCount] - 1 - i : i;
                         point[majorAxis] = j;
                         heightField.getPoint(point);
                         if (path.path.length == 0)
@@ -62,15 +64,25 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
             return zigzag ? [path] : list;
         }
 
-        function computeGrid(stlData, stepover, toolType, toolRadius, leaveStock, safetyZ, minZ, orientation, startRatio, stopRatio, zigzag) {
+        function computeHeightField(stlData, stepover, toolType, toolRadius, leaveStock, orientation, startRatio, stopRatio) {
             return new RSVP.Promise(function (resolve, reject) {
                 var geometry = new STLLoader().parse(stlData);
                 var modelStage = new ModelProjector();
                 modelStage.setGeometry(geometry);
-                var renderer = new THREE.WebGLRenderer({antialias: false, alpha: true, precision: 'highp', autoClear: false, preserveDrawingBuffer: true});
-                var toolSamples = 30;
+                var renderer = new THREE.WebGLRenderer({
+                    antialias: false,
+                    alpha: true,
+                    precision: 'highp',
+                    autoClear: false,
+                    preserveDrawingBuffer: true
+                });
+                var toolSamples = 10;
                 var sampleRate = toolSamples / (toolRadius + leaveStock);
-                var types = {cylinder: toolProfile.createCylindricalTool, ball: toolProfile.createSphericalTool, v: toolProfile.createVTool};
+                var types = {
+                    cylinder: toolProfile.createCylindricalTool,
+                    ball: toolProfile.createSphericalTool,
+                    v: toolProfile.createVTool
+                };
                 var profile = types[toolType](toolSamples, modelStage.zRatio, toolRadius, leaveStock);
                 var bbox = modelStage.modelBbox.clone();
 
@@ -128,7 +140,7 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
                     tileY = Math.ceil(globalHeight / tileYCount);
                     resultTileX = 1;
                     resultTileY = tileY;
-                    modelTileX = 2 * toolSamples + 1;
+                    modelTileX = resultTileX * ( toolSamples + 1) + toolSamples;
                     modelTileY = resultTileY + 2 * toolSamples;
                     xratio = 1 / stepover;
                     yratio = sampleRate;
@@ -140,7 +152,7 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
                 }
                 var resultBufferWidth = tileXCount * resultTileX;
                 var resultBufferHeight = tileYCount * resultTileY;
-                console.log('modelBuffer', modelTileX, modelTileY)
+                console.log('modelBuffer', modelTileX, modelTileY);
                 var modelBuffer = new THREE.WebGLRenderTarget(modelTileX, modelTileY,
                     {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.UnsignedByteType});
 
@@ -160,13 +172,13 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
                     .makeScale(1 / xratio, 1 / yratio, 1)
                     .setPosition(new THREE.Vector3(minX / sampleRate, minY / sampleRate, 0));
                 modelStage.pushZInverseProjOn(transformMatrix);
-                var resultHeightField = new HeightField(resultBuffer, resultBufferWidth, resultBufferHeight, transformMatrix);
+                var resultHeightField = new HeightField(resultBuffer, resultBufferWidth, resultBufferHeight, transformMatrix, orientation, startRatio, stopRatio);
                 var resultTile = new Uint8Array(resultTileX * resultTileY * 4);
                 var worker = new Worker('worker.js');
                 var factor = (Math.pow(2, 24.0) - 1.0) / Math.pow(2, 24.0);
 
-                function decodeFloatRgb(r, g, b) {
-                    return  (r / 255 + g / 255 / 255 + b / 255 / 255 / 255 ) / factor;
+                function decodeHeight(r, g, b) {
+                    return (r / 255 + g / 255 / 255 + b / 255 / 255 / 255 ) / factor;
                 }
 
                 function copyResultTileToResultBuffer(x, y) {
@@ -175,7 +187,7 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
                             if (y + j < resultBufferHeight && i + x < resultBufferWidth) {
                                 var pixIndex = ((j * resultTileX + i) * 4);
                                 resultBuffer[(y + j) * resultBufferWidth + i + x] =
-                                    decodeFloatRgb(resultTile[pixIndex], resultTile[pixIndex + 1], resultTile[pixIndex + 2]);
+                                    decodeHeight(resultTile[pixIndex], resultTile[pixIndex + 1], resultTile[pixIndex + 2]);
                             }
                         }
                 }
@@ -241,10 +253,11 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
                 console.time('computation');
                 drawTile(0);
 
-            }).then(function (heightField) {
-                    return convertGridToToolPath(heightField, safetyZ, minZ, orientation, startRatio, stopRatio, zigzag);
-                });
+            });
         }
 
-        return {computeGrid: computeGrid};
+        return {
+            computeHeightField: computeHeightField,
+            convertHeightFieldToToolPath: convertHeightFieldToToolPath
+        };
     });
