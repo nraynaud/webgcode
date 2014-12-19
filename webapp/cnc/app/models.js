@@ -125,7 +125,8 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             toolFlutes: attr('number', {defaultValue: 2}),
             surfaceSpeed: attr('number', {defaultValue: 200}),
             chipLoad: attr('number', {defaultValue: 0.01}),
-            feedrate: attr('number', {defaultValue: 100}),
+            computeSpeedFeed: attr('boolean', {defaultValue: true}),
+            userFeedrate: attr('number', {defaultValue: 100}),
             speed: attr('number', {defaultValue: 24000}),
             startPoint: attr('point', {defaultValue: new util.Point(0, 0, 10)}),
             shapes: DS.hasMany('shape', {embedded: true, async: true}),
@@ -195,15 +196,19 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 var surfaceSpeed = this.get('surfaceSpeed');
                 this.set('speed', Math.round(surfaceSpeed * 1000 / Math.PI / toolDiameter));
             }.observes('surfaceSpeed', 'toolDiameter').on('didCreate'),
-            updateFeedrate: function () {
+            computedFeedrate: function () {
                 var speed = this.get('speed');
                 var chipLoad = this.get('chipLoad');
                 var toolFlutes = this.get('toolFlutes');
-                this.set('feedrate', Math.round(speed * chipLoad * toolFlutes));
-            }.observes('toolFlutes', 'chipLoad', 'speed'),
+                return Math.round(speed * chipLoad * toolFlutes);
+            }.property('toolFlutes', 'chipLoad', 'speed'),
+            feedrate: function () {
+                return this.get('computeSpeedFeed') ? this.get('computedFeedrate') : this.get('userFeedrate');
+            }.property('computedFeedrate', 'userFeedrate', 'computeSpeedFeed'),
             computeCompactToolPath: function () {
                 var operations = this.get('operations');
                 var feedrate = this.get('feedrate');
+                console.log('using feed rate', feedrate);
                 var safetyZ = this.get('safetyZ');
                 var travelBits = [];
                 var pathFragments = [];

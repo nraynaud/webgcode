@@ -14,26 +14,36 @@
             <th title="in mm">Tool Diameter:</th>
             <td>{{view Visucam.NumberField numericValue=toolDiameter min="0.001" step="0.001"}}</td>
         </tr>
-        <tr>
-            <th>Tool Flutes:</th>
-            <td>{{view Visucam.NumberField numericValue=toolFlutes min=1 step=1}}</td>
+        <tr class="speedComputerForm speedComputerFormFirst">
+            <td colspan="2">{{input type="checkbox" checked=computeSpeedFeed}} Compute Speed and Feed</td>
         </tr>
-        <tr>
-            <th title="in m/min">Surface Speed:</th>
-            <td>{{view Visucam.NumberField numericValue=surfaceSpeed min=1 max=1000}}</td>
-        </tr>
-        <tr>
-            <th title="in mm">Chip Load:</th>
-            <td>{{view Visucam.NumberField numericValue=chipLoad min="0.001" step="0.001"}}</td>
-        </tr>
-        <tr>
-            <th title="in RPM">Speed:</th>
-            <td>{{view Visucam.NumberField numericValue=speed min=1 step=10}}</td>
-        </tr>
-        <tr>
-            <th title="in mm/min">Feedrate:</th>
-            <td>{{view Visucam.NumberField numericValue=feedrate min=10 max=3000 step=10}}</td>
-        </tr>
+        {{#if computeSpeedFeed}}
+            <tr class="speedComputerForm">
+                <th>Tool Flutes:</th>
+                <td>{{view Visucam.NumberField numericValue=toolFlutes min=1 step=1}}</td>
+            </tr>
+            <tr class="speedComputerForm">
+                <th title="in m/min">Surface Speed:</th>
+                <td>{{view Visucam.NumberField numericValue=surfaceSpeed min=1 max=1000}}</td>
+            </tr>
+            <tr class="speedComputerForm">
+                <th title="in mm">Chip Load:</th>
+                <td>{{view Visucam.NumberField numericValue=chipLoad min="0.001" step="0.001"}}</td>
+            </tr>
+            <tr class="speedComputerForm">
+                <th title="in RPM">Speed:</th>
+                <td>{{view Visucam.NumberField numericValue=speed min=1 step=10}}</td>
+            </tr>
+            <tr class="speedComputerForm speedComputerFormLast">
+                <th title="in mm/min">Feedrate:</th>
+                <td>{{computedFeedrate}}</td>
+            </tr>
+        {{else}}
+            <tr>
+                <th title="in mm/min">Feedrate:</th>
+                <td>{{view Visucam.NumberField numericValue=userFeedrate min=10 max=3000 step=10}}</td>
+            </tr>
+        {{/if}}
         <tr>
             <th title="travel path is displayed in red">Display Travel</th>
             <td>{{input type="checkbox" checked=showTravel}}</td>

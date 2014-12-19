@@ -169,13 +169,21 @@
             padding: 0.4em 0.5em;
         }
 
-        .form td input, select {
+        .form td input[type="number"], select, input[type="text"] {
             display: block;
             width: 100%;
         }
 
         .form td input[type="number"] {
             text-align: right;
+        }
+
+        .form tr.speedComputerForm {
+            border-left: solid 3px #dd4c2f;
+        }
+
+        .form tr.speedComputerFormFirst {
+            border-top: solid 3px #dd4c2f;
         }
 
         .form-header {
