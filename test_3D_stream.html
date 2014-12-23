@@ -1,304 +1,91 @@
 <!DOCTYPE html >
 <html>
 <head>
-<meta http-equiv="X-UA-Compatible" content="chrome=1"/>
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
-<title>Visual CAM</title>
-<script src="webapp/libs/require.js"></script>
-<script src="webapp/config.js"></script>
-<script>
-    requirejs.config({
-        baseUrl: 'webapp'
-    });
-</script>
-<link rel="shortcut icon" href="webapp/images/icon_fraise_48.png"/>
-<link rel="stylesheet" href="webapp/twoDView.css" type="text/css">
-<link rel="stylesheet" href="webapp/threeDView.css" type="text/css">
-<link rel="stylesheet" href="webapp/libs/bootstrap/css/bootstrap.min.css">
-<link rel="stylesheet" href="webapp/libs/font-awesome-4.2.0/css/font-awesome.min.css">
-<style>
-
-    body, html {
-        height: 100%;
-        width: 100%;
-        margin: 0;
-        padding: 0;
-        background: #fafafa;
-        color: #444;
-    }
-
-    body {
-        font-family: sans-serif;
-        display: flex;
-        flex-direction: column;
-    }
-
-    canvas {
-        flex: 1;
-    }
-
-    .moving {
-        cursor: move;
-    }
-</style>
-<script>
-require(['jQuery', 'THREE', 'Piecon', 'cnc/cam/3D/toolProfile', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/minkowskiPass',
-            'libs/threejs/STLLoader', 'libs/threejs/postprocessing/ShaderPass', 'libs/threejs/postprocessing/CopyShader',
-            'libs/threejs/OrbitControls'],
-        function ($, THREE, Piecon, toolProfile, ModelStage, MinkowskiPass, STLLoader, ShaderPass, CopyShader, OrbitControls) {
-            if (window['Notification'] && Notification.permission === 'default') {
-                Notification.requestPermission(function (permission) {
-                    console.log('Notification.permision', permission);
-                });
-            }
-            var $container = $('body');
-            var renderer = new THREE.WebGLRenderer({antialias: false, alpha: true, precision: 'highp', autoClear: false, preserveDrawingBuffer: true});
-            $container.append(renderer.domElement);
-            var outputWidth = $container.width();
-            var outputHeight = $container.height();
-            renderer.sortObjects = false;
-            renderer.setSize(outputWidth, outputHeight);
-            renderer.setViewport(0, 0, outputWidth, outputHeight);
-            new STLLoader().load('webapp/samples/soap.stl', function (geometry) {
-                function draw() {
-                    displayGeometry(geometry);
-                }
-
-                draw();
-            });
-
-            function showResult(geometry, resultBuffer, bufferWidth, bufferHeight, transformMatrix) {
-                var scene2 = new THREE.Scene();
-                var camera2 = new THREE.PerspectiveCamera(45, outputWidth / outputHeight, 0.1, 1500);
-                camera2.up.set(0, 0, 1);
-                camera2.position.z = 100;
-                scene2.add(camera2);
-                camera2.updateMatrixWorld();
-                var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-                directionalLight.position.set(1000, 1000, 1000);
-                scene2.add(directionalLight);
-                var directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
-                directionalLight2.position.set(-1000, -1000, 1000);
-                scene2.add(directionalLight2);
-                scene2.add(new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: 0xFEEFFE, shading: THREE.SmoothShading})));
-
-                document.documentElement.addEventListener('keydown', function (event) {
-                    if (event.shiftKey === true) {
-                        document.body.classList.add('moving');
-                    }
-                });
-
-                document.documentElement.addEventListener('keyup', function (event) {
-                    if (event.shiftKey === false) {
-                        document.body.classList.remove('moving');
-                    }
-                });
-
-                var vertices = [];
-                for (var j = 0; j < bufferHeight; j++)
-                    for (var i = 0; i < bufferWidth; i++) {
-                        var pos = new THREE.Vector3(i, j, resultBuffer[j * bufferWidth + i]).applyMatrix4(transformMatrix);
-                        vertices.push(pos.x, pos.y, pos.z);
-                    }
-                var cloudGeometry = new THREE.BufferGeometry();
-                cloudGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
-                scene2.add(new THREE.PointCloud(cloudGeometry, new THREE.PointCloudMaterial({sizeAttenuation: false, size: 1, color: 0xFF0000})));
-                var controls = new OrbitControls(camera2, renderer.domElement);
-                controls.rotateSpeed = 1.0;
-                controls.zoomSpeed = 1.2;
-                controls.panSpeed = 0.8;
-                controls.noZoom = false;
-                controls.noPan = false;
-                controls.staticMoving = true;
-                controls.dynamicDampingFactor = 0.3;
-                controls.minDistance = 3;
-                controls.keys = [ 65, 83, 68 ];
-                controls.addEventListener('change', function () {
-                    renderer.clear(true, true, true);
-                    renderer.render(scene2, camera2);
-                });
-                renderer.clear(true, true, true);
-                renderer.render(scene2, camera2);
-                console.log('done')
-            }
-
-            function displayGeometry(geometry) {
-                var modelStage = new ModelStage();
-                modelStage.setGeometry(geometry);
-                var toolSamples = 30;
-                var toolRadius = 0.6;
-                var leaveStock = 0;
-                var toolType = 'toolType';
-                var orientation = 'x';
-                var stepover = 0.2;
-                var sampleRate = toolSamples / (toolRadius + leaveStock);
-                var types = {toolType: toolProfile.createCylindricalTool, ball: toolProfile.createSphericalTool, v: toolProfile.createVTool};
-                var profile = types[toolType](toolSamples, modelStage.zRatio, toolRadius, leaveStock);
-                var bbox = modelStage.modelBbox;
-                var minX = Math.floor(bbox.min.x * sampleRate);
-                var maxX = Math.ceil(bbox.max.x * sampleRate);
-                var minY = Math.floor(bbox.min.y * sampleRate);
-                var maxY = Math.ceil(bbox.max.y * sampleRate);
-
-                function setCameraPix(minX, maxX, minY, maxY) {
-                    modelStage.setCamera(minX / sampleRate, maxX / sampleRate, minY / sampleRate, maxY / sampleRate);
-                }
-
-                var globalWidth = maxX - minX;
-                var globalHeight = maxY - minY;
-                var pixelsPerTile = 30000000;
-                var tilePixelsLength = pixelsPerTile / (2 * toolSamples);
-
-                var tileLength = tilePixelsLength / sampleRate;
-                console.log(tilePixelsLength, tileLength);
-                console.log('global', globalWidth, globalHeight);
-                var tileX;
-                var tileY;
-                var resultTileX;
-                var resultTileY;
-                var modelTileX;
-                var modelTileY;
-                var tileXCount;
-                var tileYCount;
-                var xratio;
-                var yratio;
-                var xPeriod;
-                var yPeriod;
-                if (orientation == 'x') {
-                    tileXCount = Math.floor(globalWidth / tileLength) + 1;
-                    tileYCount = Math.floor(bbox.size().y / stepover) + 1;
-                    tileX = Math.ceil(globalWidth / tileXCount);
-                    tileY = toolRadius * 2;
-                    resultTileX = tileX;
-                    resultTileY = 1;
-                    modelTileX = resultTileX + 2 * toolSamples;
-                    modelTileY = 2 * toolSamples + 1;
-                    xratio = sampleRate;
-                    yratio = 1 / stepover;
-                    xPeriod = tileX;
-                    yPeriod = stepover * sampleRate;
-                } else {
-                    tileXCount = Math.floor(bbox.size().x / stepover) + 1;
-                    tileYCount = Math.floor(globalHeight / tileLength) + 1;
-                    console.log('tileYCount', tileYCount, tileXCount);
-                    tileX = toolRadius * 2;
-                    tileY = Math.ceil(globalHeight / tileYCount);
-                    resultTileX = 1;
-                    resultTileY = tileY;
-                    modelTileX = 2 * toolSamples + 1;
-                    modelTileY = resultTileY + 2 * toolSamples;
-                    xratio = 1 / stepover;
-                    yratio = sampleRate;
-                    xPeriod = stepover * sampleRate;
-                    yPeriod = tileY;
-                }
-                var resultBufferWidth = tileXCount * resultTileX;
-                var resultBufferHeight = tileYCount * resultTileY;
-                console.log('modelBuffer', modelTileX, modelTileY)
-                var modelBuffer = new THREE.WebGLRenderTarget(modelTileX, modelTileY,
-                        {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.UnsignedByteType});
-
-                var minkowskiPass = new MinkowskiPass();
-                minkowskiPass.setParams(profile, new THREE.Vector2(toolSamples / modelBuffer.width, toolSamples / modelBuffer.height));
-                var minkowskiBuffer = new THREE.WebGLRenderTarget(resultTileX, resultTileY,
-                        {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.UnsignedByteType});
-                renderer.autoClear = false;
-
-                var sequence = [];
-                for (var j = 0; j < tileYCount; j++)
-                    for (var i = 0; i < tileXCount; i++)
-                        sequence.push([i, j]);
-                var resultBuffer = new Float32Array(resultBufferWidth * resultBufferHeight);
-                var transformMatrix = new THREE.Matrix4()
-                        .makeScale(1 / xratio, 1 / yratio, 1)
-                        .setPosition(new THREE.Vector3(minX / sampleRate, minY / sampleRate, 0));
-                modelStage.pushZInverseProjOn(transformMatrix);
-                var resultTile = new Uint8Array(resultTileX * resultTileY * 4);
-                var worker = new Worker('worker.js');
-                var factor = (Math.pow(2, 24.0) - 1.0) / Math.pow(2, 24.0);
-
-                function decodeFloatRgb(r, g, b) {
-                    return  (r / 255 + g / 255 / 255 + b / 255 / 255 / 255 ) / factor;
-                }
-
-                function copyResultTileToResultBuffer(x, y) {
-                    for (var j = 0; j < resultTileY; j++)
-                        for (var i = 0; i < resultTileX; i++) {
-                            if (y + j < resultBufferHeight && i + x < resultBufferWidth) {
-                                var pixIndex = ((j * resultTileX + i) * 4);
-                                resultBuffer[(y + j) * resultBufferWidth + i + x] = decodeFloatRgb(resultTile[pixIndex], resultTile[pixIndex + 1], resultTile[pixIndex + 2]);
-                            }
-                        }
-                }
-
-                function setTilePos(x, y) {
-                    setCameraPix(minX + x - toolSamples, minX + x + resultTileX + toolSamples, minY + y - toolSamples, minY + y + resultTileY + toolSamples);
-                }
-
-                //compensate because the model tile has a margin of 1 tool radius around it
-                var terrainRatio = new THREE.Vector2(resultTileX / modelBuffer.width, resultTileY / modelBuffer.height);
-                var terrainTranslation = new THREE.Vector2(toolSamples / modelBuffer.width, toolSamples / modelBuffer.height);
-                var percentage = null;
-                var copyPass = new ShaderPass(CopyShader);
-                copyPass.quad.geometry.applyMatrix(new THREE.Matrix4().makeTranslation(1, 1, 0));
-                var matrix = new THREE.Matrix4().makeScale(0.5 * resultTileX, 0.5 * 2 * toolSamples, 1);
-                copyPass.quad.geometry.applyMatrix(matrix);
-                console.log(copyPass.quad.geometry);
-                copyPass.camera.left = 0;
-                copyPass.camera.right = globalWidth;
-                copyPass.camera.bottom = 0;
-                copyPass.camera.top = globalHeight;
-                copyPass.camera.updateProjectionMatrix();
-                copyPass.renderToScreen = true;
-                renderer.autoClear = false;
-                function drawTile(sequenceIndex) {
-                    if (sequenceIndex < sequence.length) {
-                        var newPercentage = Math.round(sequenceIndex / sequence.length * 25) * 4;
-                        if (newPercentage != percentage)
-                            Piecon.setProgress(newPercentage);
-                        percentage = newPercentage;
-                        var x = sequence[sequenceIndex][0] * xPeriod;
-                        var y = sequence[sequenceIndex][1] * yPeriod;
-                        setTilePos(x, y);
-                        var gl = renderer.getContext();
-                        modelStage.render(renderer, modelBuffer);
-                        minkowskiPass.render(renderer, minkowskiBuffer, modelBuffer, terrainRatio, terrainTranslation);
-                        copyPass.quad.position.x = x;
-                        copyPass.quad.position.y = y;
-                        copyPass.render(renderer, null, minkowskiBuffer);
-                        renderer.setRenderTarget(minkowskiBuffer);
-                        gl.readPixels(0, 0, resultTileX, resultTileY, gl.RGBA, gl.UNSIGNED_BYTE, resultTile);
-                        //by keeping this loop in the main thread, I think we are leaving some time for the GPU to breathe.
-                        copyResultTileToResultBuffer(x, y);
-                        renderer.setRenderTarget(null);
-                        //setTimeout is not throttled in workers
-                        $(worker).one('message', function () {
-                            drawTile(sequenceIndex + 1);
-                        });
-                        worker.postMessage('ping');
-                    } else {
-                        console.timeEnd('computation');
-                        Piecon.reset();
-                        var transformMatrix = new THREE.Matrix4()
-                                .makeScale(1 / sampleRate, 1 / sampleRate, 1)
-                                .setPosition(new THREE.Vector3(minX / sampleRate, minY / sampleRate, 0));
-                        modelStage.pushZInverseProjOn(transformMatrix);
-                        // showResult(geometry, resultBuffer, globalWidth, globalHeight, transformMatrix);
-                        if (window['Notification'] && document['visibilityState'] == 'hidden')
-                            new Notification("Computation is done.", {icon: 'webapp/images/icon_fraise_48.png'});
-                    }
-                }
-
-                Piecon.setOptions({
-                    color: '#752D2D', // Pie chart color
-                    background: '#A9BBD1', // Empty pie chart color
-                    shadow: '#849DBD'
-                });
-                console.time('computation');
-                drawTile(0);
-            }
+    <meta http-equiv="X-UA-Compatible" content="chrome=1"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+    <title>Visual CAM</title>
+    <script src="webapp/libs/require.js"></script>
+    <script src="webapp/config.js"></script>
+    <script>
+        requirejs.config({
+            baseUrl: 'webapp'
         });
-</script>
+    </script>
+    <link rel="shortcut icon" href="webapp/images/icon_fraise_48.png"/>
+    <link rel="stylesheet" href="webapp/twoDView.css" type="text/css">
+    <link rel="stylesheet" href="webapp/threeDView.css" type="text/css">
+    <link rel="stylesheet" href="webapp/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="webapp/libs/font-awesome-4.2.0/css/font-awesome.min.css">
+    <style>
+
+        body, html {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            background: #fafafa;
+            color: #444;
+        }
+
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        canvas {
+            flex: 1;
+        }
+
+        .moving {
+            cursor: move;
+        }
+    </style>
+    <script>
+        require(['jQuery', 'THREE', 'Piecon', 'cnc/cam/3D/toolProfile', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/minkowskiPass',
+                    'libs/threejs/STLLoader', 'cnc/cam/3D/3Dcomputer', 'libs/threejs/postprocessing/ShaderPass',
+                    'libs/threejs/postprocessing/CopyShader', 'libs/threejs/OrbitControls'],
+                function ($, THREE, Piecon, toolProfile, ModelStage, MinkowskiPass, STLLoader, Computer, ShaderPass, CopyShader, OrbitControls) {
+                    if (window['Notification'] && Notification.permission === 'default') {
+                        Notification.requestPermission(function (permission) {
+                            console.log('Notification.permision', permission);
+                        });
+                    }
+                    var $container = $('body');
+                    var renderer = new THREE.WebGLRenderer({
+                        antialias: false,
+                        alpha: true,
+                        precision: 'highp',
+                        autoClear: false,
+                        preserveDrawingBuffer: true
+                    });
+                    $container.append(renderer.domElement);
+                    var outputWidth = $container.width();
+                    var outputHeight = $container.height();
+                    renderer.sortObjects = false;
+                    renderer.setSize(outputWidth, outputHeight);
+                    renderer.setViewport(0, 0, outputWidth, outputHeight);
+
+                    function loadStlFile(url, callback) {
+                        function onloaded(event) {
+                            callback(event.target.response || event.target.responseText);
+                        }
+
+                        var xhr = new XMLHttpRequest();
+                        xhr.addEventListener('load', onloaded, false);
+                        if (xhr.overrideMimeType) xhr.overrideMimeType('text/plain; charset=x-user-defined');
+                        xhr.open('GET', url, true);
+                        xhr.responseType = 'arraybuffer';
+                        xhr.send(null);
+                    }
+
+                    loadStlFile('webapp/samples/soap.stl', function (stlData) {
+                        console.log('hello');
+                        console.log(typeof stlData);
+                        Computer.computeHeightField(stlData, 0.1, 'cylinder', 3, 0, 40, 0, 1, renderer, true);
+                    });
+                });
+    </script>
 </head>
 <body>
 <div class="btn-toolbar" role="toolbar">

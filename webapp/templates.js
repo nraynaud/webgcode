@@ -29,13 +29,20 @@ function program1(depth0,data) {
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
     'numericValue': ("3d_diametralEngagement")
   },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n</tr>\n<tr>\n    <th>Path Orientation:</th>\n    <td>");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Ember.Select", {hash:{
-    'value': ("3d_pathOrientation"),
-    'content': ("pathOrientations"),
-    'optionValuePath': ("content.id"),
-    'optionLabelPath': ("content.label")
-  },hashTypes:{'value': "ID",'content': "ID",'optionValuePath': "STRING",'optionLabelPath': "STRING"},hashContexts:{'value': depth0,'content': depth0,'optionValuePath': depth0,'optionLabelPath': depth0},contexts:[depth0],types:["ID"],data:data})));
+  data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"in degrees\">Path Orientation:</th>\n    <td>");
+  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {
+    hash: {
+      'numericValue': ("3d_pathOrientation"),
+      'min': (-90),
+      'max': (90),
+      'increment': (1)
+    },
+    hashTypes: {'numericValue': "ID", 'min': "INTEGER", 'max': "INTEGER", 'increment': "INTEGER"},
+    hashContexts: {'numericValue': depth0, 'min': depth0, 'max': depth0, 'increment': depth0},
+    contexts: [depth0],
+    types: ["ID"],
+    data: data
+  })));
   data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"to skip the beginning of the toolpath\">Start %:</th>\n    <td>");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
     'numericValue': ("3d_startPercent")

@@ -15,8 +15,8 @@
     <td>{{view Visucam.NumberField numericValue=3d_diametralEngagement}}</td>
 </tr>
 <tr>
-    <th>Path Orientation:</th>
-    <td>{{view Ember.Select value=3d_pathOrientation content=pathOrientations optionValuePath="content.id" optionLabelPath="content.label"}}</td>
+    <th title="in degrees">Path Orientation:</th>
+    <td>{{view Visucam.NumberField numericValue=3d_pathOrientation min=-90 max=90 increment=1}}</td>
 </tr>
 <tr>
     <th title="to skip the beginning of the toolpath">Start %:</th>

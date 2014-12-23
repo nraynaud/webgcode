@@ -4,6 +4,7 @@ define([], function () {
     function Projector() {
         var scene = new THREE.Scene();
         this.scene = scene;
+        this.angle = 0;
 
         var fragmentShader = [
             'highp float factor = (exp2(24.0) - 1.0) / exp2(24.0);',
@@ -62,6 +63,7 @@ define([], function () {
             renderer.render(this.scene, this.camera, buffer, true);
         },
         setGeometry: function (meshGeometry) {
+            this.inputGeometry = meshGeometry;
             if (this.model) {
                 this.scene.remove(this.model);
                 this.model = null;
@@ -114,8 +116,7 @@ define([], function () {
             this.model.add(new THREE.PointCloud(pointsGeom, this.linePointMaterial));
             var mesh = new THREE.Mesh(meshGeometry, this.meshMaterial);
             this.model.add(mesh);
-            mesh.geometry.computeBoundingBox();
-            this.modelBbox = mesh.geometry.boundingBox;
+            this.modelBbox = this.computeCameraBoundingBox();
             this.scene.add(this.model);
             this.model.updateMatrixWorld();
             this.resetCamera();
@@ -146,6 +147,41 @@ define([], function () {
             pos.z = this.camera.position.z - this.camera.far;
             matrix.scale(new THREE.Vector3(1, 1, this.camera.far - this.camera.near));
             matrix.setPosition(pos);
+        },
+        setAngle: function (angleDeg) {
+            this.angle = angleDeg;
+            this.camera.up.set(0, 1, 0).applyAxisAngle(new THREE.Vector3(0, 0, 1), angleDeg * Math.PI / 180);
+            this.camera.lookAt(this.camera.position.clone().sub(new THREE.Vector3(0, 0, 1)));
+            this.camera.updateProjectionMatrix();
+            this.camera.updateMatrixWorld();
+            this.modelBbox = this.computeCameraBoundingBox();
+        },
+        computeCameraBoundingBox: function () {
+            var vector = new THREE.Vector3();
+            var m = new THREE.Matrix4();
+            m.lookAt(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 1, 0).applyAxisAngle(new THREE.Vector3(0, 0, 1), this.angle * Math.PI / 180));
+            var boundingBox = new THREE.Box3();
+            console.log(this.inputGeometry);
+            var positions = this.inputGeometry.attributes.position.array;
+            if (positions) {
+                var bb = boundingBox;
+                bb.makeEmpty();
+                for (var i = 0, il = positions.length; i < il; i += 3) {
+                    vector.set(positions[i], positions[i + 1], positions[i + 2]);
+                    vector.applyMatrix4(m);
+                    bb.expandByPoint(vector);
+                }
+            }
+
+            if (positions === undefined || positions.length === 0) {
+                boundingBox.min.set(0, 0, 0);
+                boundingBox.max.set(0, 0, 0);
+            }
+
+            if (isNaN(boundingBox.min.x) || isNaN(boundingBox.min.y) || isNaN(boundingBox.min.z)) {
+                console.error('THREE.BufferGeometry.computeBoundingBox: Computed min/max have NaN values. The "position" attribute is likely to have NaN values.');
+            }
+            return boundingBox;
         }
     };
 
