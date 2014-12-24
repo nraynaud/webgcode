@@ -4,27 +4,33 @@
 </tr>
 <tr>
     <th title="in all directions">Leave Stock:</th>
-    <td>{{view Visucam.NumberField numericValue=3d_leaveStock min="0"}}</td>
+    <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=3d_leaveStock min="0"}}
+        <span class="input-group-addon" id="percent3">mm</span></td>
 </tr>
 <tr>
     <th>Min Z:</th>
-    <td>{{view Visucam.NumberField numericValue=3d_minZ}}</td>
+    <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=3d_minZ}}
+        <span class="input-group-addon" id="percent3">mm</span></td>
 </tr>
 <tr>
     <th title="Engagement in %">Diametral Engagement:</th>
-    <td>{{view Visucam.NumberField numericValue=3d_diametralEngagement}}</td>
+    <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=3d_diametralEngagement aria-describedby="percent3"}}
+        <span class="input-group-addon" id="percent3">%</span></td>
 </tr>
 <tr>
     <th title="in degrees">Path Orientation:</th>
-    <td>{{view Visucam.NumberField numericValue=3d_pathOrientation min=-90 max=90 increment=1}}</td>
+    <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=3d_pathOrientation min=-90 max=90 increment=1}}
+        <span class="input-group-addon" id="degrees">°</span></td>
 </tr>
 <tr>
     <th title="to skip the beginning of the toolpath">Start %:</th>
-    <td>{{view Visucam.NumberField numericValue=3d_startPercent}}</td>
+    <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=3d_startPercent}}
+        <span class="input-group-addon" id="percent1">%</span></td>
 </tr>
 <tr>
     <th title="to skip the end of the toolpath">Stop %:</th>
-    <td>{{view Visucam.NumberField numericValue=3d_stopPercent}}</td>
+    <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=3d_stopPercent}}
+        <span class="input-group-addon" id="percent2">%</span></td>
 </tr>
 <tr>
     <th>zigzag:</th>

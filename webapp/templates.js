@@ -16,42 +16,49 @@ function program1(depth0,data) {
     'optionValuePath': ("content.id"),
     'optionLabelPath': ("content.label")
   },hashTypes:{'value': "ID",'content': "ID",'optionValuePath': "STRING",'optionLabelPath': "STRING"},hashContexts:{'value': depth0,'content': depth0,'optionValuePath': depth0,'optionLabelPath': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"in all directions\">Leave Stock:</th>\n    <td>");
+  data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"in all directions\">Leave Stock:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
     'numericValue': ("3d_leaveStock"),
     'min': ("0")
   },hashTypes:{'numericValue': "ID",'min': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n</tr>\n<tr>\n    <th>Min Z:</th>\n    <td>");
+  data.buffer.push("\n        <span class=\"input-group-addon\" id=\"percent3\">mm</span></td>\n</tr>\n<tr>\n    <th>Min Z:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
     'numericValue': ("3d_minZ")
   },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"Engagement in %\">Diametral Engagement:</th>\n    <td>");
+  data.buffer.push("\n        <span class=\"input-group-addon\" id=\"percent3\">mm</span></td>\n</tr>\n<tr>\n    <th title=\"Engagement in %\">Diametral Engagement:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
-    'numericValue': ("3d_diametralEngagement")
-  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"in degrees\">Path Orientation:</th>\n    <td>");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {
-    hash: {
-      'numericValue': ("3d_pathOrientation"),
-      'min': (-90),
-      'max': (90),
-      'increment': (1)
-    },
+    'numericValue': ("3d_diametralEngagement"),
+    'aria-describedby': ("percent3")
+  },
+    hashTypes: {'numericValue': "ID", 'aria-describedby': "STRING"},
+    hashContexts: {'numericValue': depth0, 'aria-describedby': depth0},
+    contexts: [depth0],
+    types: ["ID"],
+    data: data
+  })));
+  data.buffer.push("\n        <span class=\"input-group-addon\" id=\"percent3\">%</span></td>\n</tr>\n<tr>\n    <th title=\"in degrees\">Path Orientation:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
+    'numericValue': ("3d_pathOrientation"),
+    'min': (-90),
+    'max': (90),
+    'increment': (1)
+  },
     hashTypes: {'numericValue': "ID", 'min': "INTEGER", 'max': "INTEGER", 'increment': "INTEGER"},
     hashContexts: {'numericValue': depth0, 'min': depth0, 'max': depth0, 'increment': depth0},
     contexts: [depth0],
     types: ["ID"],
     data: data
   })));
-  data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"to skip the beginning of the toolpath\">Start %:</th>\n    <td>");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
+  data.buffer.push("\n        <span class=\"input-group-addon\" id=\"degrees\">°</span></td>\n</tr>\n<tr>\n    <th title=\"to skip the beginning of the toolpath\">Start %:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {
+    hash: {
     'numericValue': ("3d_startPercent")
   },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"to skip the end of the toolpath\">Stop %:</th>\n    <td>");
+  data.buffer.push("\n        <span class=\"input-group-addon\" id=\"percent1\">%</span></td>\n</tr>\n<tr>\n    <th title=\"to skip the end of the toolpath\">Stop %:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
     'numericValue': ("3d_stopPercent")
   },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n</tr>\n<tr>\n    <th>zigzag:</th>\n    <td>");
+  data.buffer.push("\n        <span class=\"input-group-addon\" id=\"percent2\">%</span></td>\n</tr>\n<tr>\n    <th>zigzag:</th>\n    <td>");
   data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
     'type': ("checkbox"),
     'checked': ("3d_zigZag")
