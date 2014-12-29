@@ -4,7 +4,7 @@ requirejs.config({
         Firebase: 'libs/firebase',
         Ember: "libs/ember.min",
         EmberData: "libs/ember-data.min",
-        EmberFire: "libs/emberfire.min",
+        EmberFire: "libs/emberfire",
         Handlebars: "libs/handlebars-v1.3.0",
         jQuery: "libs/jquery-1.11.1.min",
         THREE: 'libs/threejs/three',
