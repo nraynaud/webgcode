@@ -8,17 +8,21 @@
 </tr>
 <tr>
     <th title="How far the tool should stay away from the line in X-Y plane">Leave Stock:</th>
-    <td>{{view Visucam.NumberField numericValue=contour_leaveStock min="0"}}</td>
+    <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=contour_leaveStock min="0"}} <span
+            class="input-group-addon">mm</span></td>
 </tr>
 <tr>
     <th>Start Z:</th>
-    <td>{{view Visucam.NumberField numericValue=ramping_startZ}}</td>
+    <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=ramping_startZ}} <span
+            class="input-group-addon">mm</span></td>
 </tr>
 <tr>
     <th>Stop Z:</th>
-    <td>{{view Visucam.NumberField numericValue=ramping_stopZ}}</td>
+    <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=ramping_stopZ}} <span
+            class="input-group-addon">mm</span></td>
 </tr>
 <tr>
     <th># of turns:</th>
-    <td>{{view Visucam.NumberField numericValue=ramping_turns min="1" step="1"}}</td>
+    <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=ramping_turns min="1" step="1"}}
+        <span class="input-group-addon">units</span></td>
 </tr>

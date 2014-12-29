@@ -49,12 +49,12 @@ function program1(depth0,data) {
     types: ["ID"],
     data: data
   })));
-  data.buffer.push("\n        <span class=\"input-group-addon\" id=\"degrees\">°</span></td>\n</tr>\n<tr>\n    <th title=\"to skip the beginning of the toolpath\">Start %:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push("\n        <span class=\"input-group-addon\" id=\"degrees\">°</span></td>\n</tr>\n<tr>\n    <th title=\"to skip the beginning of the toolpath\">Start:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {
     hash: {
     'numericValue': ("3d_startPercent")
   },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("\n        <span class=\"input-group-addon\" id=\"percent1\">%</span></td>\n</tr>\n<tr>\n    <th title=\"to skip the end of the toolpath\">Stop %:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push("\n        <span class=\"input-group-addon\" id=\"percent1\">%</span></td>\n</tr>\n<tr>\n    <th title=\"to skip the end of the toolpath\">Stop:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
     'numericValue': ("3d_stopPercent")
   },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[depth0],types:["ID"],data:data})));
@@ -629,23 +629,23 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   var buffer = '', escapeExpression=this.escapeExpression;
 
 
-  data.buffer.push("<tr>\n    <th title=\"in mm\">Bottom Z:</th>\n    <td>");
+  data.buffer.push("<tr>\n    <th title=\"in mm\">Bottom Z:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
     'numericValue': ("pocket_depth")
   },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"Engagement in %\">Radial Engagement:</th>\n    <td>");
+  data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th title=\"Engagement in %\">Radial Engagement:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
     'numericValue': ("pocket_engagement"),
     'min': ("0"),
     'increment': ("1"),
     'max': ("100")
   },hashTypes:{'numericValue': "ID",'min': "STRING",'increment': "STRING",'max': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0,'increment': depth0,'max': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"lateral in mm\">Leave Stock:</th>\n    <td>");
+  data.buffer.push("\n        <span class=\"input-group-addon\">%</span></td>\n</tr>\n<tr>\n    <th title=\"lateral in mm\">Leave Stock:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
     'numericValue': ("pocket_leaveStock"),
     'min': ("0")
   },hashTypes:{'numericValue': "ID",'min': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n</tr>");
+  data.buffer.push("\n        <span class=\"input-group-addon\">mm</span></td>\n</tr>");
   return buffer;
   
 });
@@ -665,26 +665,26 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
     'type': ("checkbox"),
     'checked': ("contour_climbMilling")
   },hashTypes:{'type': "STRING",'checked': "ID"},hashContexts:{'type': depth0,'checked': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
-  data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"How far the tool should stay away from the line in X-Y plane\">Leave Stock:</th>\n    <td>");
+  data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"How far the tool should stay away from the line in X-Y plane\">Leave Stock:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
     'numericValue': ("contour_leaveStock"),
     'min': ("0")
   },hashTypes:{'numericValue': "ID",'min': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n</tr>\n<tr>\n    <th>Start Z:</th>\n    <td>");
+  data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Start Z:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
     'numericValue': ("ramping_startZ")
   },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n</tr>\n<tr>\n    <th>Stop Z:</th>\n    <td>");
+  data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Stop Z:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
     'numericValue': ("ramping_stopZ")
   },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n</tr>\n<tr>\n    <th># of turns:</th>\n    <td>");
+  data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th># of turns:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
     'numericValue': ("ramping_turns"),
     'min': ("1"),
     'step': ("1")
   },hashTypes:{'numericValue': "ID",'min': "STRING",'step': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0,'step': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n</tr>\n");
+  data.buffer.push("\n        <span class=\"input-group-addon\">units</span></td>\n</tr>\n");
   return buffer;
   
 });
@@ -719,16 +719,16 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
     'type': ("checkbox"),
     'checked': ("contour_climbMilling")
   },hashTypes:{'type': "STRING",'checked': "ID"},hashContexts:{'type': depth0,'checked': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
-  data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"How far the tool should stay away from the line in X-Y plane\">Leave Stock:</th>\n    <td>");
+  data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"How far the tool should stay away from the line in X-Y plane\">Leave Stock:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
     'numericValue': ("contour_leaveStock"),
     'min': ("0")
   },hashTypes:{'numericValue': "ID",'min': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n</tr>\n<tr>\n    <th>Contour Z:</th>\n    <td>");
+  data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Contour Z:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
     'numericValue': ("simple_contourZ")
   },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n</tr>\n");
+  data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n");
   return buffer;
   
 });
@@ -738,11 +738,11 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   var buffer = '', escapeExpression=this.escapeExpression;
 
 
-  data.buffer.push("<tr>\n    <th>engraving Z:</th>\n    <td>");
+  data.buffer.push("<tr>\n    <th>engraving Z:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
     'numericValue': ("engraving_Z")
   },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n</tr>\n");
+  data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n");
   return buffer;
   
 });
