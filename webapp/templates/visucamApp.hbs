@@ -1,7 +1,7 @@
 <div class="header">
-    <div class="topMenu">{{#if firebase.isConnected}}{{#link-to "index"}}Job List{{/link-to}}{{/if}}</div>
+    <div class="topMenu">{{#if firebase.isAuthenticated}}{{#link-to "index"}}Job List{{/link-to}}{{/if}}</div>
     <div class="identity">
-        {{#if firebase.isConnected}}
+        {{#if firebase.isAuthenticated}}
             <div class="dropdown">
                 <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown"
                     {{bind-attr title="authTitle"}}>

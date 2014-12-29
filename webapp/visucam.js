@@ -37,11 +37,11 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
             },
             auth: null,
             firebase: null,
-            isConnected: function () {
+            isAuthenticated: function () {
                 return this.get('auth') != null;
             }.property('auth'),
             username: function () {
-                if (this.get('isConnected'))
+                if (this.get('isAuthenticated'))
                     switch (this.get('auth.provider')) {
                         case 'twitter' :
                             return this.get('auth.twitter.displayName');
@@ -52,10 +52,10 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
                         case 'anonymous' :
                             return 'anonymous';
                     }
-            }.property('isConnected', 'auth'),
+            }.property('isAuthenticated', 'auth'),
             storageRoot: function () {
                 var firebase = this.get('firebase');
-                if (this.get('isConnected'))
+                if (this.get('isAuthenticated'))
                     return firebase.child('users').child(this.get('auth.uid'));
                 return firebase;
             }.property('firebase', 'auth')
@@ -114,6 +114,8 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
                 }
             },
             afterAuth: Ember.run.bind(this, function (error, authData) {
+                if (error)
+                    console.log('afterAuth error', error);
                 console.log(arguments);
                 Visucam.reset();
             })
@@ -121,7 +123,7 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
 
         Visucam.IndexRoute = Ember.Route.extend({
             model: function () {
-                if (this.get('firebase.isConnected'))
+                if (this.get('firebase.isAuthenticated'))
                     return this.store.find('job');
                 return null;
             }

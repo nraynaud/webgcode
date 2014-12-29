@@ -385,7 +385,16 @@ function program7(depth0,data) {
   }
 
   data.buffer.push("<div>\n    ");
-  stack1 = helpers['if'].call(depth0, "firebase.isConnected", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(7, program7, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],data:data});
+  stack1 = helpers['if'].call(depth0, "firebase.isAuthenticated", {
+    hash: {},
+    hashTypes: {},
+    hashContexts: {},
+    inverse: self.program(7, program7, data),
+    fn: self.program(1, program1, data),
+    contexts: [depth0],
+    types: ["ID"],
+    data: data
+  });
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n</div>");
   return buffer;
@@ -405,42 +414,42 @@ function program1(depth0,data) {
     'min': (1),
     'step': (1)
   },hashTypes:{'numericValue': "ID",'min': "INTEGER",'step': "INTEGER"},hashContexts:{'numericValue': depth0,'min': depth0,'step': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n            </tr>\n            <tr class=\"speedComputerForm\">\n                <th title=\"in m/min\">Surface Speed:</th>\n                <td>");
+  data.buffer.push("</td>\n            </tr>\n            <tr class=\"speedComputerForm\">\n                <th title=\"in m/min\">Surface Speed:</th>\n                <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
     'numericValue': ("surfaceSpeed"),
     'min': (1),
     'max': (1000)
   },hashTypes:{'numericValue': "ID",'min': "INTEGER",'max': "INTEGER"},hashContexts:{'numericValue': depth0,'min': depth0,'max': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n            </tr>\n            <tr class=\"speedComputerForm\">\n                <th title=\"in mm\">Chip Load:</th>\n                <td>");
+  data.buffer.push("\n                    <span class=\"input-group-addon\">m/min</span></td>\n            </tr>\n            <tr class=\"speedComputerForm\">\n                <th title=\"in mm\">Chip Load:</th>\n                <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
     'numericValue': ("chipLoad"),
     'min': ("0.001"),
     'step': ("0.001")
   },hashTypes:{'numericValue': "ID",'min': "STRING",'step': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0,'step': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n            </tr>\n            <tr class=\"speedComputerForm\">\n                <th title=\"in RPM\">Speed:</th>\n                <td>");
+  data.buffer.push("\n                    <span class=\"input-group-addon\">mm</span></td>\n            </tr>\n            <tr class=\"speedComputerForm\">\n                <th title=\"in RPM\">Speed:</th>\n                <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
     'numericValue': ("speed"),
     'min': (1),
     'step': (10)
   },hashTypes:{'numericValue': "ID",'min': "INTEGER",'step': "INTEGER"},hashContexts:{'numericValue': depth0,'min': depth0,'step': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n            </tr>\n            <tr class=\"speedComputerForm speedComputerFormLast\">\n                <th title=\"in mm/min\">Feedrate:</th>\n                <td>");
+  data.buffer.push("\n                    <span class=\"input-group-addon\">rpm</span></td>\n            </tr>\n            <tr class=\"speedComputerForm speedComputerFormLast\">\n                <th title=\"in mm/min\">Feedrate:</th>\n                <td>");
   stack1 = helpers._triageMustache.call(depth0, "computedFeedrate", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("</td>\n            </tr>\n        ");
+  data.buffer.push(" mm/min</td>\n            </tr>\n        ");
   return buffer;
   }
 
 function program3(depth0,data) {
   
   var buffer = '';
-  data.buffer.push("\n            <tr>\n                <th title=\"in mm/min\">Feedrate:</th>\n                <td>");
+  data.buffer.push("\n            <tr>\n                <th title=\"in mm/min\">Feedrate:</th>\n                <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
     'numericValue': ("userFeedrate"),
     'min': (10),
     'max': (3000),
     'step': (10)
   },hashTypes:{'numericValue': "ID",'min': "INTEGER",'max': "INTEGER",'step': "INTEGER"},hashContexts:{'numericValue': depth0,'min': depth0,'max': depth0,'step': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n            </tr>\n        ");
+  data.buffer.push("\n                    <span class=\"input-group-addon\">mm/min</span></td>\n            </tr>\n        ");
   return buffer;
   }
 
@@ -514,13 +523,13 @@ function program13(depth0,data) {
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
     'numericValue': ("safetyZ")
   },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th title=\"in mm\">Tool Diameter:</th>\n            <td>");
+  data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th title=\"in mm\">Tool Diameter:</th>\n            <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
     'numericValue': ("toolDiameter"),
     'min': ("0.001"),
     'step': ("0.001")
   },hashTypes:{'numericValue': "ID",'min': "STRING",'step': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0,'step': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("</td>\n        </tr>\n        <tr class=\"speedComputerForm speedComputerFormFirst\">\n            <td colspan=\"2\">");
+  data.buffer.push("\n                <span class=\"input-group-addon\">mm</span></td>\n        </tr>\n        <tr class=\"speedComputerForm speedComputerFormFirst\">\n            <td colspan=\"2\">");
   data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
     'type': ("checkbox"),
     'checked': ("computeSpeedFeed")
@@ -907,7 +916,7 @@ function program1(depth0,data) {
   }
 
   data.buffer.push("<div class=\"header\">\n    <div class=\"topMenu\">");
-  stack1 = helpers['if'].call(depth0, "firebase.isConnected", {
+  stack1 = helpers['if'].call(depth0, "firebase.isAuthenticated", {
     hash: {},
     hashTypes: {},
     hashContexts: {},
@@ -919,7 +928,7 @@ function program1(depth0,data) {
   });
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("</div>\n    <div class=\"identity\">\n        ");
-  stack1 = helpers['if'].call(depth0, "firebase.isConnected", {
+  stack1 = helpers['if'].call(depth0, "firebase.isAuthenticated", {
     hash: {},
     hashTypes: {},
     hashContexts: {},
