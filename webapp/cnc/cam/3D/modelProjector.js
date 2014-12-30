@@ -161,7 +161,6 @@ define([], function () {
             var m = new THREE.Matrix4();
             m.lookAt(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 1, 0).applyAxisAngle(new THREE.Vector3(0, 0, 1), this.angle * Math.PI / 180));
             var boundingBox = new THREE.Box3();
-            console.log(this.inputGeometry);
             var positions = this.inputGeometry.attributes.position.array;
             if (positions) {
                 var bb = boundingBox;
