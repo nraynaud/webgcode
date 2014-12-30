@@ -124,7 +124,7 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
         Visucam.IndexRoute = Ember.Route.extend({
             model: function () {
                 if (this.get('firebase.isAuthenticated'))
-                    return this.store.find('job');
+                    return this.store.find('jobSummary');
                 return null;
             }
         });

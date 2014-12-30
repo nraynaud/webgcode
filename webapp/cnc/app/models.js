@@ -129,6 +129,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             userFeedrate: attr('number', {defaultValue: 100}),
             speed: attr('number', {defaultValue: 24000}),
             startPoint: attr('point', {defaultValue: new util.Point(0, 0, 10)}),
+            jobSummary: DS.belongsTo('jobSummary', {inverse: 'job', async: true}),
             shapes: DS.hasMany('shape', {embedded: true, async: true}),
             operations: DS.hasMany('operation', {inverse: 'job', embedded: true, async: true}),
             transitionTravels: [],
@@ -189,7 +190,17 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 return shape;
             },
             saveAll: function () {
-                this.save();
+                var summaryPromise = this.get('jobSummary');
+                var _this = this;
+                summaryPromise.then(function (summary) {
+                    if (summary == null) {
+                        summary = _this.store.createRecord('jobSummary', {job: _this, name: _this.get('name')});
+                        _this.set('jobSummary', summary);
+                    } else
+                        summary.set('name', _this.get('name'));
+                    summary.save();
+                    _this.save();
+                });
             },
             updateSpeed: function () {
                 var toolDiameter = this.get('toolDiameter');
@@ -248,8 +259,14 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             }
         });
 
+        var JobSummary = DS.Model.extend({
+            name: attr('string', {defaultValue: 'Unnamed Job'}),
+            job: DS.belongsTo('job', {inverse: 'jobSummary', async: true})
+        });
+
         return {
             Job: Job,
+            JobSummary: JobSummary,
             Operation: Operation,
             Shape: Shape,
             PointTransform: PointTransform

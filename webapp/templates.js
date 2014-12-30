@@ -370,7 +370,7 @@ function program2(depth0,data) {
     contexts: [depth0, depth0],
     types: ["STRING", "ID"],
     data: data
-  }, helper ? helper.call(depth0, "job", "", options) : helperMissing.call(depth0, "link-to", "job", "", options));
+  }, helper ? helper.call(depth0, "job", "_data.job.id", options) : helperMissing.call(depth0, "link-to", "job", "_data.job.id", options));
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n            ");
   return buffer;

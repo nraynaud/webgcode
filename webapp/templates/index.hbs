@@ -5,7 +5,7 @@
         </h2>
         <div class="list-group" style="display:inline-block;">
             {{#each model}}
-                {{#link-to "job" this classNames="list-group-item"}}{{name}}{{/link-to}}
+                {{#link-to "job" this._data.job.id classNames="list-group-item"}}{{name}}{{/link-to}}
             {{else}}
                 No job yet.
             {{/each}}
