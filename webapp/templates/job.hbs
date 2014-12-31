@@ -1,5 +1,15 @@
 <div class="jobDetail">
     <button class="btn btn-default" {{action save}} {{bind-attr disabled=saveDisabled}}>Save</button>
+    <div id="deleteBlock">
+        <div id="realDelete" style="display: none;">
+            {{input id="deleteSlider" type="range" min=0 max=1 step="0.1" value=deleteSlider}}
+            <span id="slideToDelete">Slide right deletes the job</span>
+            <span id="releaseToDelete" style="display: none;font-weight: bold">Release mouse to delete</span>
+        </div>
+        <div id="fakeDelete">
+            <button class="btn btn-default">Delete Job</button>
+        </div>
+    </div>
     <table class="form">
         <tbody>
         <tr>

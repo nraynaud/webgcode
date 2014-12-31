@@ -140,6 +140,7 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/3D
             currentOperation: null,
             currentShape: null,
             showTravel: true,
+            deleteSlider: 0,
             addShapes: function (shapeDefinitions, name) {
                 var shape = this.get('model').createShape(shapeDefinitions.join(' '), name);
                 var contour = this.get('model').createOperation({outline: shape});
@@ -156,6 +157,17 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/3D
                 },
                 createOperation: function () {
                     this.transitionToRoute('operation', this.get('model').createOperation({}));
+                },
+                'delete': function () {
+                    var _this = this;
+                    this.get('model.jobSummary').then(function (jobSummary) {
+                        return Ember.RSVP.hash({
+                            summary: jobSummary.destroyRecord(),
+                            job: _this.get('model').destroyRecord()
+                        });
+                    }).then(function () {
+                        _this.transitionToRoute('index');
+                    });
                 }
             },
             saveDisabled: function () {

@@ -7,6 +7,22 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE'],
         var JobView = Ember.View.extend({
             classNames: ['job'],
             didInsertElement: function () {
+                var _this = this;
+                this.$('#deleteBlock').hover(function () {
+                    $(this).data('hovering', true);
+                    _this.displayFakeDelete(false);
+                }, function () {
+                    $(this).data('hovering', false);
+                    if (_this.get('controller.deleteSlider') == 0)
+                        _this.displayFakeDelete(true);
+                });
+                this.$('#deleteSlider').mouseup(function () {
+                    if (_this.get('controller.deleteSlider') == 1) {
+                        _this.get('controller').send('delete');
+                        _this.displayFakeDelete(true);
+                    }
+                    _this.set('controller.deleteSlider', 0);
+                });
             },
             dragEnter: function (event) {
                 event.preventDefault();
@@ -52,7 +68,26 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE'],
                     else if (file.type.indexOf('stl') != -1 || file.name.match(/\.stl/i))
                         loadStl(file);
                 }
-            }
+            },
+            displayFakeDelete: function (displayFake) {
+                this.$('#fakeDelete').toggle(displayFake);
+                this.$('#realDelete').toggle(!displayFake);
+            },
+            observeDeleteSlider: function () {
+                var val = this.get('controller.deleteSlider');
+                if (this.$()) {
+                    this.$('#deleteBlock').css('background-color', 'rgba(255, 0, 0, ' + val + ')');
+                    if (val == 1) {
+                        $('#slideToDelete').hide();
+                        $('#releaseToDelete').show();
+                    } else {
+                        $('#slideToDelete').show();
+                        $('#releaseToDelete').hide();
+                    }
+                    if (val == 0 && !this.$('#deleteBlock').data('hovering'))
+                        this.displayFakeDelete(true);
+                }
+            }.observes('controller.deleteSlider')
         });
 
         var LoginView = Ember.View.extend({
@@ -64,7 +99,7 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE'],
             },
             src: function () {
                 return 'https://auth.firebase.com/v2/popping-fire-1042/auth/' + this.get('controller.model')
-                + '?v=js-0.0.0&transport=json&suppress_status_codes=true'
+                    + '?v=js-0.0.0&transport=json&suppress_status_codes=true'
             }.property('controller.model'),
             loadstop: function () {
                 var _this = this;
@@ -92,10 +127,16 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE'],
             didInsertElement: function () {
                 var threeDView = new TreeDView.ThreeDView(this.$());
                 threeDView.normalToolpathNode.material = new THREE.LineBasicMaterial({linewidth: 1.2, color: 0x6688aa});
-                threeDView.rapidMaterial = new THREE.LineBasicMaterial({linewidth: 1.2, color: 0xdd4c2f, depthWrite: false});
+                threeDView.rapidMaterial = new THREE.LineBasicMaterial({
+                    linewidth: 1.2,
+                    color: 0xdd4c2f,
+                    depthWrite: false
+                });
                 threeDView.outlineMaterial = new THREE.LineBasicMaterial({linewidth: 1.2, color: 0x000000});
-                threeDView.highlightMaterial = new THREE.LineBasicMaterial({depthWrite: false, overdraw: true, linewidth: 6,
-                    color: 0xdd4c2f, opacity: 0.5, transparent: true});
+                threeDView.highlightMaterial = new THREE.LineBasicMaterial({
+                    depthWrite: false, overdraw: true, linewidth: 6,
+                    color: 0xdd4c2f, opacity: 0.5, transparent: true
+                });
                 this.set('nativeComponent', threeDView);
                 this.set('travelDisplay', threeDView.createDrawingNode(threeDView.rapidMaterial));
                 this.set('outlinesDisplay', threeDView.createDrawingNode(threeDView.outlineMaterial));

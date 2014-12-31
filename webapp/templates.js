@@ -526,8 +526,24 @@ function program13(depth0,data) {
   data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
     'disabled': ("saveDisabled")
   },hashTypes:{'disabled': "ID"},hashContexts:{'disabled': depth0},contexts:[],types:[],data:data})));
-  data.buffer.push(">Save</button>\n    <table class=\"form\">\n        <tbody>\n        <tr>\n            <th>Name:</th>\n            <td>");
+  data.buffer.push(">Save</button>\n    <div id=\"deleteBlock\">\n        <div id=\"realDelete\" style=\"display: none;\">\n            ");
   data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
+    'id': ("deleteSlider"),
+    'type': ("range"),
+    'min': (0),
+    'max': (1),
+    'step': ("0.1"),
+    'value': ("deleteSlider")
+  },
+    hashTypes: {'id': "STRING", 'type': "STRING", 'min': "INTEGER", 'max': "INTEGER", 'step': "STRING", 'value': "ID"},
+    hashContexts: {'id': depth0, 'type': depth0, 'min': depth0, 'max': depth0, 'step': depth0, 'value': depth0},
+    contexts: [],
+    types: [],
+    data: data
+  }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+  data.buffer.push("\n            <span id=\"slideToDelete\">Slide right deletes the job</span>\n            <span id=\"releaseToDelete\" style=\"display: none;font-weight: bold\">Release mouse to delete</span>\n        </div>\n        <div id=\"fakeDelete\">\n            <button class=\"btn btn-default\">Delete Job</button>\n        </div>\n    </div>\n    <table class=\"form\">\n        <tbody>\n        <tr>\n            <th>Name:</th>\n            <td>");
+  data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input), options = {
+    hash: {
     'value': ("name")
   },hashTypes:{'value': "ID"},hashContexts:{'value': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
   data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th>Safety Z:</th>\n            <td>");
