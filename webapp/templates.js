@@ -541,7 +541,7 @@ function program13(depth0,data) {
     types: [],
     data: data
   }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
-  data.buffer.push("\n            <span id=\"slideToDelete\">Slide right deletes the job</span>\n            <span id=\"releaseToDelete\" style=\"display: none;font-weight: bold\">Release mouse to delete</span>\n        </div>\n        <div id=\"fakeDelete\">\n            <button class=\"btn btn-default\">Delete Job</button>\n        </div>\n    </div>\n    <table class=\"form\">\n        <tbody>\n        <tr>\n            <th>Name:</th>\n            <td>");
+  data.buffer.push("\n            <span id=\"slideToDelete\">Slide right deletes the job</span>\n            <span id=\"releaseToDelete\" style=\"display: none;font-weight: bold\">Release mouse to delete</span>\n        </div>\n        <div id=\"fakeDelete\">\n            <button class=\"btn btn-default\">Delete</button>\n        </div>\n    </div>\n    <table class=\"form\">\n        <tbody>\n        <tr>\n            <th>Name:</th>\n            <td>");
   data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input), options = {
     hash: {
     'value': ("name")
