@@ -39,7 +39,7 @@
 <tr>
     <th></th>
     <td>
-        <button class="btn btn-default" {{action compute3D}} {{bind-attr disabled=computing}}>Compute{{#if computing}}
-            <i class="fa fa-cog fa-spin"></i>{{/if}}</button>
+        <button class="btn btn-default" {{action compute3D}}>{{#if computing}}Stop
+            <i class="fa fa-cog fa-spin"></i>{{else}}Compute{{/if}}</button>
     </td>
 </tr>
