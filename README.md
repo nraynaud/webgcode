@@ -7,6 +7,13 @@ Some people might be interested so I did everything in web technologies for easy
 
 I will try to remove the dependency on g-code, since that language is just a disaster. I might keep some compatibility to help people try out this system or use it only partially.
 
+Web Stuff
+---------
+
+A preliminary CAM system for toolpath generation is present here: http://nraynaud.github.io/webgcode/webapp/visucamTest.html#/
+
+There is a g-code simulator here: http://nraynaud.github.io/webgcode/
+
 Controller Board
 ----------------
 
@@ -25,12 +32,3 @@ Chrome Application
 
 On the computer, you can send the g-code to the machine. The application's main part is simply an iframe with the normal g-code simulator web page in it.
 The USB protocol is custom since I couldn't find any standard. This is all Chrome in the hope to remove OS re-compilation/deployment efforts.
-
-
-Web Stuff
----------
-There is a g-code simulator here: http://nraynaud.github.io/webgcode/
-
-A preliminary CAM system for toolpath generation from JS using SVG and JS clipper is also present.
-
-Example: http://nraynaud.github.io/webgcode/webapp/CAM.html
