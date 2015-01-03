@@ -37,46 +37,37 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/3D
                     var rotor = job.createShape(wabble.getRotorShape(), 'Crown');
                     var pins = job.createShape(wabble.getPinsShape(), 'Pins');
                     var outputPins = job.createShape(wabble.getOutputPinsShape(), 'Output Pin');
-                    job.createOperation({
-                        name: 'Eccentric Hole Roughing', job: job, type: 'PocketOperation',
-                        outline: eccentric, contour_inside: true
-                    });
-                    job.createOperation({
-                        name: 'Eccentric Hole Finishing', job: job, type: 'SimpleContourOperation',
-                        outline: eccentric, contour_inside: true, contour_leaveStock: 0, contour_climbMilling: false
-                    });
-                    job.createOperation({
-                        name: 'Output Holes Roughing', job: job, type: 'PocketOperation',
-                        outline: outputHoles, contour_inside: true
-                    });
-                    job.createOperation({
-                        name: 'Output Holes Finishing', job: job, type: 'SimpleContourOperation',
-                        outline: outputHoles, contour_inside: true, contour_leaveStock: 0, contour_climbMilling: false
-                    });
-                    job.createOperation({
-                        name: 'Crown Roughing', job: job, type: 'RampingContourOperation',
-                        outline: rotor, contour_inside: false
-                    });
-                    job.createOperation({
-                        name: 'Crown Finishing', job: job, type: 'SimpleContourOperation',
-                        outline: rotor, contour_inside: false, contour_leaveStock: 0, contour_climbMilling: false
-                    });
-                    job.createOperation({
-                        name: 'Pins Roughing', job: job, type: 'RampingContourOperation',
-                        outline: pins, contour_inside: false
-                    });
-                    job.createOperation({
-                        name: 'Pins Finishing', job: job, type: 'SimpleContourOperation',
-                        outline: pins, contour_inside: false, contour_leaveStock: 0, contour_climbMilling: false
-                    });
-                    job.createOperation({
-                        name: 'Output Pins Roughing', job: job, type: 'RampingContourOperation',
-                        outline: outputPins, contour_inside: false
-                    });
-                    job.createOperation({
-                        name: 'Output Pins Finishing', job: job, type: 'SimpleContourOperation',
-                        outline: outputPins, contour_inside: false, contour_leaveStock: 0, contour_climbMilling: false
-                    });
+                    [{
+                        name: 'Eccentric Hole Roughing', type: 'PocketOperation', outline: eccentric,
+                        contour_inside: true
+                    }, {
+                        name: 'Eccentric Hole Finishing', type: 'SimpleContourOperation', outline: eccentric,
+                        contour_inside: true, contour_leaveStock: 0, contour_climbMilling: false
+                    }, {
+                        name: 'Output Holes Roughing', type: 'PocketOperation', outline: outputHoles,
+                        contour_inside: true
+                    }, {
+                        name: 'Output Holes Finishing', type: 'SimpleContourOperation', outline: outputHoles,
+                        contour_inside: true, contour_leaveStock: 0, contour_climbMilling: false
+                    }, {
+                        name: 'Crown Roughing', type: 'RampingContourOperation', outline: rotor, contour_inside: false
+                    }, {
+                        name: 'Crown Finishing', type: 'SimpleContourOperation', outline: rotor,
+                        contour_inside: false, contour_leaveStock: 0, contour_climbMilling: false
+                    }, {
+                        name: 'Pins Roughing', type: 'RampingContourOperation', outline: pins, contour_inside: false
+                    }, {
+                        name: 'Pins Finishing', type: 'SimpleContourOperation', outline: pins,
+                        contour_inside: false, contour_leaveStock: 0, contour_climbMilling: false
+                    }, {
+                        name: 'Output Pins Roughing', type: 'RampingContourOperation', outline: outputPins,
+                        contour_inside: false
+                    }, {
+                        name: 'Output Pins Finishing', type: 'SimpleContourOperation', outline: outputPins,
+                        contour_inside: false, contour_leaveStock: 0, contour_climbMilling: false
+                    }].forEach(function (op) {
+                            job.createOperation(op);
+                        });
                     this.transitionToRoute('job', job).then(function () {
                         job.saveAll();
                     });
