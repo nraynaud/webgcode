@@ -176,13 +176,7 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/3D
             needs: ['job'],
             actions: {
                 compute3D: function () {
-                    var computer = this.get('computer');
-                    if (computer) {
-                        computer.cancel();
-                        return;
-                    }
                     var _this = this;
-                    this.set('computing', true);
                     var model = this.get('model.outline.stlModel');
                     var safetyZ = this.get('controllers.job.safetyZ');
                     var toolDiameter = this.get('controllers.job.toolDiameter');
@@ -194,26 +188,32 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/3D
                     var startRatio = this.get('3d_startPercent') / 100;
                     var stopRatio = this.get('3d_stopPercent') / 100;
                     var zigzag = this.get('3d_zigZag');
-                    computer = new Computer.ToolPathComputer();
-                    this.set('computer', computer);
-                    computer.computeHeightField(model, stepover, type, toolDiameter / 2, leaveStock, orientation, startRatio, stopRatio)
+                    var computer = new Computer.ToolPathComputer();
+                    var task = computer.computeHeightField(model, stepover, type, toolDiameter / 2, leaveStock, orientation, startRatio, stopRatio);
+                    this.set('task', task);
+                    task.addObserver('isDone', function () {
+                        _this.set('task', null);
+                    });
+                    task.get('promise')
                         .then(function (heightField) {
                             return Computer.convertHeightFieldToToolPath(heightField, safetyZ, minZ, zigzag);
-                        }, Ember.run.bind(this, function (error) {
-                            if (error == 'cancel') {
-                                _this.set('computing', false);
-                                _this.set('computer', null);
-                            }
-                        }))
+                        })
                         .then(Ember.run.bind(this, function (result) {
                             _this.set('model.toolpath', result);
-                        }))
-                        .finally(Ember.run.bind(this, function () {
-                            _this.set('computing', false);
-                            _this.set('computer', null);
                         }));
+                    task.start();
+                },
+                pause: function () {
+                    this.get('task').pause();
+                },
+                resume: function () {
+                    this.get('task').resume();
+                },
+                cancel: function () {
+                    this.get('task').cancel();
                 }
             },
+            task: null,
             specialTemplate: function () {
                 return Operations[this.get('type')].specialTemplate;
             }.property('type'),
@@ -229,6 +229,14 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/3D
                     {label: 'V Shape', id: 'v'}
                 ];
             }.property(),
+            computing: function () {
+                console.log('computing', this.get('task') && !this.get('task.isDone'));
+                return this.get('task') && !this.get('task.isDone');
+            }.property('task', 'task.isDone'),
+            paused: function () {
+                console.log('computing', this.get('task') && !this.get('task.isDone'));
+                return this.get('task.isPaused');
+            }.property('task', 'task.isPaused'),
             pathOrientations: [
                 {label: 'X', id: 'x'},
                 {label: 'Y', id: 'y'}

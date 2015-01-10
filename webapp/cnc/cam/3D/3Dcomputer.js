@@ -1,9 +1,10 @@
 "use strict";
 define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/minkowskiPass',
         'cnc/cam/3D/toolProfile', 'libs/threejs/postprocessing/ShaderPass', 'libs/threejs/postprocessing/CopyShader',
-        'cnc/cam/toolpath', 'require'
+        'cnc/cam/toolpath', 'cnc/app/task', 'require'
     ],
-    function (RSVP, THREE, Piecon, STLLoader, ModelProjector, MinkowskiPass, toolProfile, ShaderPass, CopyShader, tp, require) {
+    function (RSVP, THREE, Piecon, STLLoader, ModelProjector, MinkowskiPass, toolProfile, ShaderPass, CopyShader, tp,
+              Task, require) {
         RSVP.on('error', function (reason) {
             console.assert(false, reason);
             if (reason.stack)
@@ -11,16 +12,14 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
         });
 
         function ToolPathComputer() {
-            this.canceled = false;
         }
 
         ToolPathComputer.prototype = {
-            cancel: function () {
-                this.canceled = true;
-            },
             computeHeightField: function (stlData, stepover, toolType, toolRadius, leaveStock, angle, startRatio, stopRatio, renderer, displayResult) {
                 var _this = this;
-                return new RSVP.Promise(function (resolve, reject) {
+
+                function work(task, resolve, reject) {
+                    console.log('preparation');
                     if (angle == null)
                         angle = 0;
                     var geometry = new STLLoader().parse(stlData);
@@ -135,15 +134,14 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
                     copyPass.camera.updateProjectionMatrix();
                     copyPass.renderToScreen = true;
                     renderer.autoClear = false;
-                    function drawTile(sequenceIndex) {
-                        if (_this.canceled) {
-                            Piecon.reset();
-                            reject('canceled');
-                        }
+                    var sequenceIndex = 0;
+
+                    function drawTile() {
+                        console.log('drawTile');
+                        if (task.get('isPaused'))
+                            return;
                         if (sequenceIndex < sequence.length) {
                             var newPercentage = Math.round(sequenceIndex / sequence.length * 25) * 4;
-                            if (newPercentage != percentage)
-                                Piecon.setProgress(newPercentage);
                             percentage = newPercentage;
                             var x = sequence[sequenceIndex][0];
                             var y = sequence[sequenceIndex][1];
@@ -161,27 +159,27 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
                             copyResultTileToResultBuffer(x * resultTileX, y * resultTileY);
                             renderer.setRenderTarget(null);
                             //setTimeout is not throttled in workers
-                            $(worker).one('message', function () {
-                                drawTile(sequenceIndex + 1);
-                            });
+                            $(worker).one('message', drawTile);
                             worker.postMessage({operation: 'ping'});
+                            sequenceIndex++;
                         } else {
+                            worker.terminate();
                             console.timeEnd('computation');
-                            Piecon.reset();
                             resolve(resultHeightField);
                             if (window['Notification'] && document['visibilityState'] == 'hidden')
                                 new Notification("Computation is done.", {icon: require.toUrl('images/icon_fraise_48.png')});
                         }
                     }
 
-                    Piecon.setOptions({
-                        color: '#752D2D', // Pie chart color
-                        background: '#A9BBD1', // Empty pie chart color
-                        shadow: '#849DBD'
-                    });
                     console.time('computation');
-                    drawTile(0);
-                });
+                    task.resumeWork = drawTile;
+                    task.cancelWork = function () {
+                        worker.terminate();
+                    };
+                    drawTile();
+                }
+
+                return Task.create({work: work});
             }
         };
 
@@ -190,7 +188,6 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
             this.samplesX = samplesX;
             this.samplesY = samplesY;
             this.bufferToWorldMatrix = bufferToWorldMatrix;
-            this.worldToBufferMatrix = bufferToWorldMatrix.clone().getInverse(bufferToWorldMatrix);
             this.startRatio = startRatio;
             this.stopRatio = stopRatio;
         }

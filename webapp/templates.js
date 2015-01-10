@@ -1,18 +1,84 @@
 Ember.TEMPLATES["3DMilling"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
-  var buffer = '', stack1, helper, options, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing, self=this;
+  var buffer = '', stack1, helper, options, escapeExpression = this.escapeExpression, self = this, helperMissing = helpers.helperMissing;
 
 function program1(depth0,data) {
 
+  var buffer = '', stack1;
+  data.buffer.push("\n        ");
+  stack1 = helpers['if'].call(depth0, "task.isPaused", {
+    hash: {},
+    hashTypes: {},
+    hashContexts: {},
+    inverse: self.program(4, program4, data),
+    fn: self.program(2, program2, data),
+    contexts: [depth0],
+    types: ["ID"],
+    data: data
+  });
+  if (stack1 || stack1 === 0) {
+    data.buffer.push(stack1);
+  }
+  data.buffer.push("\n    ");
+  return buffer;
+}
 
-  data.buffer.push("Stop\n            <i class=\"fa fa-cog fa-spin\"></i>");
+  function program2(depth0, data) {
+
+    var buffer = '';
+    data.buffer.push("\n            <td style=\"text-align: right;\">\n                <button class=\"btn btn-default\" ");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "cancel", {
+      hash: {},
+      hashTypes: {},
+      hashContexts: {},
+      contexts: [depth0],
+      types: ["ID"],
+      data: data
+    })));
+    data.buffer.push("><i class=\"fa fa-stop\"></i> Cancel</button>\n            </td>\n            <td>\n                <button class=\"btn btn-default\" ");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "resume", {
+      hash: {},
+      hashTypes: {},
+      hashContexts: {},
+      contexts: [depth0],
+      types: ["ID"],
+      data: data
+    })));
+    data.buffer.push("><i class=\"fa fa-play\"></i> Resume</button>\n            </td>\n        ");
+    return buffer;
   }
 
-  function program3(depth0, data) {
+  function program4(depth0, data) {
 
+    var buffer = '';
+    data.buffer.push("\n            <td></td>\n            <td>\n                <button class=\"btn btn-default\" ");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "pause", {
+      hash: {},
+      hashTypes: {},
+      hashContexts: {},
+      contexts: [depth0],
+      types: ["ID"],
+      data: data
+    })));
+    data.buffer.push("><i class=\"fa fa-pause\"></i> Pause <i\n                        class=\"fa fa-cog fa-spin\"></i></button>\n            </td>\n        ");
+    return buffer;
+  }
 
-    data.buffer.push("Compute");
+  function program6(depth0, data) {
+
+    var buffer = '';
+    data.buffer.push("\n        <td></td>\n        <td>\n            <button class=\"btn btn-default\" ");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "compute3D", {
+      hash: {},
+      hashTypes: {},
+      hashContexts: {},
+      contexts: [depth0],
+      types: ["ID"],
+      data: data
+    })));
+    data.buffer.push("><i class=\"fa fa-play\"></i> Compute</button>\n        </td>\n    ");
+    return buffer;
   }
 
   data.buffer.push("<tr>\n    <th>Tool Profile:</th>\n    <td>");
@@ -69,21 +135,19 @@ function program1(depth0,data) {
     'type': ("checkbox"),
     'checked': ("3d_zigZag")
   },hashTypes:{'type': "STRING",'checked': "ID"},hashContexts:{'type': depth0,'checked': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
-  data.buffer.push("</td>\n</tr>\n<tr>\n    <th></th>\n    <td>\n        <button class=\"btn btn-default\" ");
-  data.buffer.push(escapeExpression(helpers.action.call(depth0, "compute3D", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push(">");
-  stack1 = helpers['if'].call(depth0, "computing", {
+  data.buffer.push("</td>\n</tr>\n<tr>\n    ");
+  stack1 = helpers['if'].call(depth0, "task", {
     hash: {},
     hashTypes: {},
     hashContexts: {},
-    inverse: self.program(3, program3, data),
+    inverse: self.program(6, program6, data),
     fn: self.program(1, program1, data),
     contexts: [depth0],
     types: ["ID"],
     data: data
   });
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("</button>\n    </td>\n</tr>");
+  data.buffer.push("\n</tr>");
   return buffer;
   
 });

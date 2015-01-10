@@ -30,6 +30,7 @@
 		DDAA53647A0132493517CB99 /* text.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5025C78B5E2021BC5F1C /* text.js */; };
 		DDAA53EB6E3F53DD1452FF40 /* contour.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA51DE17B96DCF612B22D5 /* contour.js */; };
 		DDAA53F8EC144A6CD65CB9E3 /* util.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54B37F49D0A2AC135D5A /* util.js */; };
+		DDAA5427DBFF039E57D1F32D /* task.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5A32F9D205231BDF381E /* task.js */; };
 		DDAA542953A819135BF87E2B /* wabble.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5407DEE90E0E2A589DCE /* wabble.js */; };
 		DDAA54852E03FAA2BCD78712 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5F4033A35CFACA352CEE /* Makefile */; };
 		DDAA54A183E699E9FC378EA6 /* visucam.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C9FEE3CFFBDD4F6E9D2 /* visucam.js */; };
@@ -237,6 +238,7 @@
 		DDAA59E7DF6E04578E0F4F11 /* jsEditor.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jsEditor.js; sourceTree = "<group>"; };
 		DDAA59EA70480E724659BF78 /* controller.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = controller.js; sourceTree = "<group>"; };
 		DDAA59FEF17A22C1216B27DD /* .nojekyll */ = {isa = PBXFileReference; lastKnownFileType = file.nojekyll; path = .nojekyll; sourceTree = "<group>"; };
+		DDAA5A32F9D205231BDF381E /* task.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = task.js; sourceTree = "<group>"; };
 		DDAA5A4300864DA095799734 /* visucamApp.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.handelbars; path = visucamApp.hbs; sourceTree = "<group>"; };
 		DDAA5A55C036357C8CD5193C /* twoDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = twoDView.js; sourceTree = "<group>"; };
 		DDAA5A99ECD28BC66706A677 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = file.json; name = manifest.json; path = webapp/manifest.json; sourceTree = "<group>"; };
@@ -474,6 +476,7 @@
 				DDAA54B87A480F458CED26C3 /* models.js */,
 				DDAA5F0312AAB5E2ACBE6A7A /* view.js */,
 				DDAA59EA70480E724659BF78 /* controller.js */,
+				DDAA5A32F9D205231BDF381E /* task.js */,
 			);
 			path = app;
 			sourceTree = "<group>";
@@ -789,6 +792,7 @@
 				DDAA5A151ABE5BF21E85D111 /* modelProjector.js in Sources */,
 				DDAA59B0F8FA43BFF1934F05 /* minkowskiPass.js in Sources */,
 				DDAA5BF9DA78E56D2C8A9A8D /* 3Dcomputer.js in Sources */,
+				DDAA5427DBFF039E57D1F32D /* task.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
