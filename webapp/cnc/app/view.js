@@ -46,14 +46,8 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE'],
                 function loadSvg(file) {
                     var reader = new FileReader();
                     reader.onload = function (e) {
-                        var canvas = $('<canvas id="myCanvas" style="visibility: hidden; display:none">');
-                        _this.$().append(canvas);
-                        try {
-                            var res = svgImporter(canvas, e.target.result);
-                            _this.get('controller').addShapes(res, 'Imported ' + file.name);
-                        } finally {
-                            canvas.remove();
-                        }
+                        var res = svgImporter(e.target.result);
+                        _this.get('controller').addShapes(res, 'Imported ' + file.name);
                     };
                     reader.readAsText(file);
                 }

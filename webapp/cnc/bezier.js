@@ -42,10 +42,12 @@ define(['cnc/util'], function (util) {
                 var bx = sq(3.0 * c[4] - 2.0 * c[6] - c[0]);
                 var by = sq(3.0 * c[5] - 2.0 * c[7] - c[1]);
                 var flatness = Math.max(ax, bx) + Math.max(ay, by);
+                if (isNaN(flatness))
+                    throw new Error('flatness is NaN');
                 return flatness <= flatness_limit;
             }
 
-            if (isFlat(curve)) {
+            if (isFlat(curve) || Math.abs(tstart - tend) < 1e-200) {
                 collector(curve[0], curve[1]);
                 return;
             }

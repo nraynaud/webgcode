@@ -55,6 +55,7 @@
 		DDAA5748456A3971A5DA31C8 /* controllerEmber.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA57993DC17F9A33414D80 /* controllerEmber.js */; };
 		DDAA577C5CD9C4CF90DA1665 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA56A96A84A867D1FB119B /* main.c */; };
 		DDAA57C1DB0A19207E999D47 /* dremel_bracket.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C540B906C544541D05B /* dremel_bracket.js */; };
+		DDAA57D2E5598CB83A286091 /* flatten.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5CA206006D8E2D7FCDB5 /* flatten.js */; };
 		DDAA57F319E245AB1BBEDAF8 /* runner.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA513A9EE7AC2438C9E111 /* runner.js */; };
 		DDAA580B449779665EC9B1BB /* elliptic.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5367902362964A0915C2 /* elliptic.js */; };
 		DDAA58BE9DBD78082FD48E01 /* yenc.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5AC14AAD3A2C784B1419 /* yenc.js */; };
@@ -261,6 +262,7 @@
 		DDAA5C7DCC7731222576D7BA /* delaunay.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = delaunay.js; path = webapp/cnc/delaunay.js; sourceTree = "<group>"; };
 		DDAA5C8A7830C1829BD88573 /* graphicView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = graphicView.js; sourceTree = "<group>"; };
 		DDAA5C9FEE3CFFBDD4F6E9D2 /* visucam.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = visucam.js; sourceTree = "<group>"; };
+		DDAA5CA206006D8E2D7FCDB5 /* flatten.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = flatten.js; path = libs/flatten.js; sourceTree = "<group>"; };
 		DDAA5CE2FE1C0B27B819EAC7 /* spinner.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; path = spinner.svg; sourceTree = "<group>"; };
 		DDAA5D0CF378287552FFC123 /* textApp.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = textApp.hbs; sourceTree = "<group>"; };
 		DDAA5D362B64EEE93DE54810 /* views.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = views.js; sourceTree = "<group>"; };
@@ -558,6 +560,7 @@
 				DDAA58A68B3AD6541C366CEB /* SubdivisionModifier.js */,
 				DDAA546068AA808773A44475 /* pako.min.js */,
 				DDAA5AC14AAD3A2C784B1419 /* yenc.js */,
+				DDAA5CA206006D8E2D7FCDB5 /* flatten.js */,
 			);
 			path = webapp;
 			sourceTree = "<group>";
@@ -793,6 +796,7 @@
 				DDAA59B0F8FA43BFF1934F05 /* minkowskiPass.js in Sources */,
 				DDAA5BF9DA78E56D2C8A9A8D /* 3Dcomputer.js in Sources */,
 				DDAA5427DBFF039E57D1F32D /* task.js in Sources */,
+				DDAA57D2E5598CB83A286091 /* flatten.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
