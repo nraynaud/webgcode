@@ -159,7 +159,7 @@ define([], function () {
         computeCameraBoundingBox: function () {
             var vector = new THREE.Vector3();
             var m = new THREE.Matrix4();
-            m.lookAt(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 1, 0).applyAxisAngle(new THREE.Vector3(0, 0, 1), this.angle * Math.PI / 180));
+            m.lookAt(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 1, 0).applyAxisAngle(new THREE.Vector3(0, 0, 1), -this.angle * Math.PI / 180));
             var boundingBox = new THREE.Box3();
             var positions = this.inputGeometry.attributes.position.array;
             if (positions) {

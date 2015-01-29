@@ -141,8 +141,7 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
                         if (task.get('isPaused'))
                             return;
                         if (sequenceIndex < sequence.length) {
-                            var newPercentage = Math.round(sequenceIndex / sequence.length * 25) * 4;
-                            percentage = newPercentage;
+                            percentage = Math.round(sequenceIndex / sequence.length * 25) * 4;
                             var x = sequence[sequenceIndex][0];
                             var y = sequence[sequenceIndex][1];
                             setTilePos(x * xPeriod, y * yPeriod);
