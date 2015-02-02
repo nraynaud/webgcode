@@ -81,8 +81,9 @@
 
                     loadStlFile('webapp/samples/soap.stl', function (stlData) {
                         console.log('hello');
-                        console.log(typeof stlData);
-                        Computer.computeHeightField(stlData, 0.1, 'cylinder', 3, 0, 40, 0, 1, renderer, true);
+                        new Computer.ToolPathComputer()
+                                .computeHeightField(stlData, 0.1, 'cylinder', 0.5, 0, 10, 0, 1, renderer, true)
+                                .start();
                     });
                 });
     </script>
