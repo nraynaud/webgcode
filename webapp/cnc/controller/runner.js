@@ -25,6 +25,7 @@ define(['RSVP'], function (RSVP) {
             function loop() {
                 if (workQueue.length) {
                     running = true;
+                    chrome.power.requestKeepAwake('system');
                     sendSpeed(workQueue.shift()).then(loop, function (errorCode) {
                         console.log('sendSpeed errorCode', errorCode);
                         _this.terminateWorker();
@@ -39,6 +40,7 @@ define(['RSVP'], function (RSVP) {
                     if (_this.worker == null)
                         sendSpeed(new ArrayBuffer(0)).finally(function () {//flush
                             deferred.resolve();
+                            chrome.power.releaseKeepAwake();
                         });
                 }
             }
