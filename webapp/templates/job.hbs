@@ -81,6 +81,7 @@
     <div class="list-group">
         {{#each operations itemController="operationListItem"}}
             {{#link-to "operation" this classNames="list-group-item"}}{{name}}
+                {{#if computing}}<i class="fa fa-cog fa-spin"></i>{{/if}}
                 <span class="delete badge" {{action "delete"}} title="Delete Operation"><i
                         class="fa fa-times"></i></span>{{/link-to}}
         {{else}}

@@ -1,7 +1,7 @@
 "use strict";
 
-define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', 'cnc/cam/toolpath', 'require', 'libs/pako.min', 'base64'],
-    function (Ember, DS, cam, util, Operations, tp, require, pako, base64) {
+define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', 'cnc/cam/toolpath', 'cnc/cam/3D/3Dcomputer', 'require', 'libs/pako.min', 'base64'],
+    function (Ember, DS, cam, util, Operations, tp, Computer, require, pako, base64) {
         var attr = DS.attr;
 
         var PointTransform = DS.Transform.extend({
@@ -42,6 +42,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             type: attr('string', {defaultValue: 'SimpleEngravingOperation'}),
             outline: DS.belongsTo('shape'),
             job: DS.belongsTo('job'),
+            task: null,
             installObservers: function () {
                 var properties = Operations[this.get('type')].properties;
                 var _this = this;
@@ -95,7 +96,41 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     });
                     this.set('toolpathWorker', worker);
                 }
-            }
+            },
+            compute3D: function (safetyZ, toolDiameter) {
+                var _this = this;
+                var model = this.get('outline.stlModel');
+                var leaveStock = this.get('3d_leaveStock');
+                var minZ = this.get('3d_minZ');
+                var type = this.get('3d_toolType');
+                var orientation = this.get('3d_pathOrientation');
+                var stepover = this.get('3d_diametralEngagement') * toolDiameter / 100;
+                var startRatio = this.get('3d_startPercent') / 100;
+                var stopRatio = this.get('3d_stopPercent') / 100;
+                var zigzag = this.get('3d_zigZag');
+                var computer = new Computer.ToolPathComputer();
+                var task = computer.computeHeightField(model, stepover, type, toolDiameter / 2, leaveStock, orientation, startRatio, stopRatio);
+                this.set('task', task);
+                task.addObserver('isDone', function () {
+                    _this.set('task', null);
+                });
+                task.get('promise')
+                    .then(function (heightField) {
+                        return Computer.convertHeightFieldToToolPath(heightField, safetyZ, minZ, zigzag);
+                    })
+                    .then(Ember.run.bind(this, function (result) {
+                        _this.set('toolpath', result);
+                    }));
+                task.start();
+            },
+            computing: function () {
+                console.log('computing', this.get('task') && !this.get('task.isDone'));
+                return this.get('task') && !this.get('task.isDone');
+            }.property('task', 'task.isDone'),
+            paused: function () {
+                console.log('computing', this.get('task') && !this.get('task.isDone'));
+                return this.get('task.isPaused');
+            }.property('task', 'task.isPaused')
         };
 
 //add all the attributes from all the operations types
