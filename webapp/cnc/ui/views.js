@@ -14,7 +14,7 @@ define(['Ember'], function (Ember) {
             numericValueChanged: function () {
                 var newNumericValue = this.get('numericValue');
                 var previousValue = parseFloat(this.get('value'));
-                if (previousValue != newNumericValue && isNaN(previousValue))
+                if (previousValue != newNumericValue)
                     this.set('value', newNumericValue + '');
             }.observes('numericValue').on('init')
         })
