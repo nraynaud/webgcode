@@ -23,6 +23,8 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
                     if (angle == null)
                         angle = 0;
                     var geometry = new STLLoader().parse(stlData);
+                    if (geometry.type != 'BufferGeometry')
+                        geometry = new THREE.BufferGeometry().fromGeometry(geometry);
                     var modelStage = new ModelProjector();
                     modelStage.setGeometry(geometry);
                     modelStage.setAngle(angle);
