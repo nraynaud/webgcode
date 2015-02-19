@@ -152,7 +152,13 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble'],
                 createShape: function () {
                     this.transitionToRoute('shape', this.get('model').createShape(null, 'New Shape', {
                         'type': 'manual',
-                        manualDefinition: JSON.stringify({type: 'rectangle', width: 15, height: 20})
+                        manualDefinition: JSON.stringify({
+                            type: 'rectangle',
+                            width: 15,
+                            height: 20,
+                            offsetX: 0,
+                            offsetY: 0
+                        })
                     }));
                 },
                 'delete': function () {
@@ -186,15 +192,27 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble'],
                 var w = this.get('width');
                 var h = this.get('height');
                 if (w != null && h != null) {
-                    var json = JSON.stringify({type: 'rectangle', width: w, height: h});
+                    var offsetX = this.get('offsetX');
+                    offsetX = offsetX == null ? 0 : offsetX;
+                    var offsetY = this.get('offsetY');
+                    offsetY = offsetY == null ? 0 : offsetY;
+                    var json = JSON.stringify({
+                        type: 'rectangle',
+                        width: w,
+                        height: h,
+                        offsetX: offsetX,
+                        offsetY: offsetY
+                    });
                     this.set('model.manualDefinition', json);
                 }
-            }.observes('width', 'height'),
+            }.observes('width', 'height', 'offsetX', 'offsetY'),
             modelChanged: function () {
                 if (this.get('model.type') == 'manual' && this.get('model.manualDefinition')) {
                     var json = JSON.parse(this.get('model.manualDefinition'));
                     this.set('width', json.width);
                     this.set('height', json.height);
+                    this.set('offsetX', json.offsetX);
+                    this.set('offsetY', json.offsetY);
                 }
             }.observes('model')
         });

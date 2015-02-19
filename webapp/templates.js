@@ -864,6 +864,28 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
             types: ["ID"],
             data: data
         })));
+        data.buffer.push(" <span\n                        class=\"input-group-addon\">mm</span></td>\n            </tr>\n            <tr>\n                <th>X Offset:</th>\n                <td class=\"input-group input-group-sm\">");
+        data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {
+            hash: {
+                'numericValue': ("offsetX")
+            },
+            hashTypes: {'numericValue': "ID"},
+            hashContexts: {'numericValue': depth0},
+            contexts: [depth0],
+            types: ["ID"],
+            data: data
+        })));
+        data.buffer.push(" <span\n                        class=\"input-group-addon\">mm</span></td>\n            </tr>\n            <tr>\n                <th>Y Offset:</th>\n                <td class=\"input-group input-group-sm\">");
+        data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {
+            hash: {
+                'numericValue': ("offsetY")
+            },
+            hashTypes: {'numericValue': "ID"},
+            hashContexts: {'numericValue': depth0},
+            contexts: [depth0],
+            types: ["ID"],
+            data: data
+        })));
         data.buffer.push(" <span\n                        class=\"input-group-addon\">mm</span></td>\n            </tr>\n        ");
         return buffer;
     }

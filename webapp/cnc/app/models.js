@@ -40,7 +40,9 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     if (defObject && defObject.type == 'rectangle') {
                         var w = defObject.width;
                         var h = defObject.height;
-                        this.set('definition', 'M0,0' + 'L0,' + h + 'L' + w + ',' + h + 'L' + w + ',0Z');
+                        var offsetX = defObject.offsetX;
+                        var offsetY = defObject.offsetY;
+                        this.set('definition', 'M' + offsetX + ',' + offsetY + 'L' + offsetX + ',' + (offsetY + h) + 'L' + (offsetX + w) + ',' + (offsetY + h) + 'L' + (offsetX + w) + ',' + offsetY + 'Z');
                     }
                 }
             }.observes('manualDefinition')
