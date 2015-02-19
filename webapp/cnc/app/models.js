@@ -15,6 +15,8 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
 
         var Shape = DS.Model.extend({
             name: attr('string', {defaultValue: 'New Shape'}),
+            type: attr('string', {defaultValue: 'imported'}),
+            manualDefinition: attr('string'),
             definition: attr('string'),
             encodedStlModel: attr('string'),
             polyline: function () {
@@ -31,7 +33,17 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     var encoded = this.get('encodedStlModel');
                     return encoded ? pako.inflate(base64.fromBase64(encoded), {to: 'string'}) : null;
                 }
-            }.property('encodedStlModel')
+            }.property('encodedStlModel'),
+            manualDefinitionChanged: function () {
+                if (this.get('type') == 'manual') {
+                    var defObject = JSON.parse(this.get('manualDefinition'));
+                    if (defObject && defObject.type == 'rectangle') {
+                        var w = defObject.width;
+                        var h = defObject.height;
+                        this.set('definition', 'M0,0' + 'L0,' + h + 'L' + w + ',' + h + 'L' + w + ',0Z');
+                    }
+                }
+            }.observes('manualDefinition')
         });
 
         var operationDefinition = {
@@ -219,8 +231,8 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 this.get('operations').pushObject(operation);
                 return operation;
             },
-            createShape: function (def, name) {
-                var shape = this.store.createRecord('shape', {definition: def, name: name});
+            createShape: function (def, name, params) {
+                var shape = this.store.createRecord('shape', $.extend({definition: def, name: name}, params));
                 this.get('shapes').pushObject(shape);
                 return shape;
             },

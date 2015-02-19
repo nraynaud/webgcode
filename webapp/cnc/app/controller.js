@@ -149,6 +149,12 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble'],
                 createOperation: function () {
                     this.transitionToRoute('operation', this.get('model').createOperation({}));
                 },
+                createShape: function () {
+                    this.transitionToRoute('shape', this.get('model').createShape(null, 'New Shape', {
+                        'type': 'manual',
+                        manualDefinition: JSON.stringify({type: 'rectangle', width: 15, height: 20})
+                    }));
+                },
                 'delete': function () {
                     var _this = this;
                     this.get('model.jobSummary').then(function (jobSummary) {
@@ -170,6 +176,27 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble'],
                         return !operation.get('isDirty');
                     });
             }.property('model.isDirty', 'model.shapes.@each.isDirty', 'model.operations.@each.isDirty')
+        });
+
+        var ShapeController = Ember.ObjectController.extend({
+            isManual: function () {
+                return this.get('type') == 'manual';
+            }.property('type'),
+            rectangleChanged: function () {
+                var w = this.get('width');
+                var h = this.get('height');
+                if (w != null && h != null) {
+                    var json = JSON.stringify({type: 'rectangle', width: w, height: h});
+                    this.set('model.manualDefinition', json);
+                }
+            }.observes('width', 'height'),
+            modelChanged: function () {
+                if (this.get('model.type') == 'manual' && this.get('model.manualDefinition')) {
+                    var json = JSON.parse(this.get('model.manualDefinition'));
+                    this.set('width', json.width);
+                    this.set('height', json.height);
+                }
+            }.observes('model')
         });
 
         var OperationController = Ember.ObjectController.extend({
@@ -253,6 +280,7 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble'],
             IndexController: IndexController,
             ApplicationController: ApplicationController,
             JobController: JobController,
+            ShapeController: ShapeController,
             OperationController: OperationController,
             OperationListItemController: OperationListItemController,
             ShapeListItemController: ShapeListItemController

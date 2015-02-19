@@ -562,9 +562,9 @@ function program6(depth0,data) {
   }
 
 function program8(depth0,data) {
-  
-  
-  data.buffer.push("\n            No shape yet. Try dropping a SVG file on the window.\n        ");
+
+
+    data.buffer.push("\n            No shape yet. Try dropping a SVG or STL file on the window.\n        ");
   }
 
 function program10(depth0,data) {
@@ -671,7 +671,16 @@ function program11(depth0,data) {
     'type': ("checkbox"),
     'checked': ("showTravel")
   },hashTypes:{'type': "STRING",'checked': "ID"},hashContexts:{'type': depth0,'checked': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
-  data.buffer.push("</td>\n        </tr>\n        </tbody>\n    </table>\n    <h2>Shapes</h2>\n    <ul class=\"list-group\">\n        ");
+    data.buffer.push("</td>\n        </tr>\n        </tbody>\n    </table>\n    <h2>Shapes\n        <button title=\"create new shape\" class=\"btn btn-default\" ");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "createShape", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["STRING"],
+        data: data
+    })));
+    data.buffer.push(">+</button>\n    </h2>\n    <ul class=\"list-group\">\n        ");
   stack1 = helpers.each.call(depth0, "shapes", {hash:{
     'itemController': ("shapeListItem")
   },hashTypes:{'itemController': "STRING"},hashContexts:{'itemController': depth0},inverse:self.program(8, program8, data),fn:self.program(5, program5, data),contexts:[depth0],types:["ID"],data:data});
@@ -828,15 +837,57 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
 Ember.TEMPLATES["shape"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
-  var buffer = '', helper, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression;
+    var buffer = '', stack1, helper, options, escapeExpression = this.escapeExpression, helperMissing = helpers.helperMissing, self = this;
 
+    function program1(depth0, data) {
+
+        var buffer = '';
+        data.buffer.push("\n            <tr>\n                <th>Width:</th>\n                <td class=\"input-group input-group-sm\">");
+        data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {
+            hash: {
+                'numericValue': ("width")
+            },
+            hashTypes: {'numericValue': "ID"},
+            hashContexts: {'numericValue': depth0},
+            contexts: [depth0],
+            types: ["ID"],
+            data: data
+        })));
+        data.buffer.push(" <span\n                        class=\"input-group-addon\">mm</span></td>\n            </tr>\n            <tr>\n                <th>Height:</th>\n                <td class=\"input-group input-group-sm\">");
+        data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {
+            hash: {
+                'numericValue': ("height")
+            },
+            hashTypes: {'numericValue': "ID"},
+            hashContexts: {'numericValue': depth0},
+            contexts: [depth0],
+            types: ["ID"],
+            data: data
+        })));
+        data.buffer.push(" <span\n                        class=\"input-group-addon\">mm</span></td>\n            </tr>\n        ");
+        return buffer;
+    }
 
   data.buffer.push("<div>\n    <table class=\"form\">\n        <tbody>\n        <tr class=\"form-header\">\n            <th>Name:</th>\n            <td>");
   data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
     'value': ("name"),
     'placeholder': ("name")
   },hashTypes:{'value': "ID",'placeholder': "STRING"},hashContexts:{'value': depth0,'placeholder': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
-  data.buffer.push(" </td>\n        </tr>\n        </tbody>\n    </table>\n</div>");
+    data.buffer.push("</td>\n        </tr>\n        ");
+    stack1 = helpers['if'].call(depth0, "isManual", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        inverse: self.noop,
+        fn: self.program(1, program1, data),
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    });
+    if (stack1 || stack1 === 0) {
+        data.buffer.push(stack1);
+    }
+    data.buffer.push("\n        </tbody>\n    </table>\n\n</div>");
   return buffer;
   
 });

@@ -3,8 +3,21 @@
         <tbody>
         <tr class="form-header">
             <th>Name:</th>
-            <td>{{input value=name placeholder="name"}} </td>
+            <td>{{input value=name placeholder="name"}}</td>
         </tr>
+        {{#if isManual}}
+            <tr>
+                <th>Width:</th>
+                <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=width}} <span
+                        class="input-group-addon">mm</span></td>
+            </tr>
+            <tr>
+                <th>Height:</th>
+                <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=height}} <span
+                        class="input-group-addon">mm</span></td>
+            </tr>
+        {{/if}}
         </tbody>
     </table>
+
 </div>

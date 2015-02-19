@@ -65,14 +65,16 @@
         </tr>
         </tbody>
     </table>
-    <h2>Shapes</h2>
+    <h2>Shapes
+        <button title="create new shape" class="btn btn-default" {{action "createShape"}}>+</button>
+    </h2>
     <ul class="list-group">
         {{#each shapes itemController="shapeListItem"}}
             {{#link-to "shape" this classNames="list-group-item"}}{{name}}
                 <span class="delete badge" {{action "delete"}} title="Delete Shape"><i
                         class="fa fa-times"></i></span>{{/link-to}}
         {{else}}
-            No shape yet. Try dropping a SVG file on the window.
+            No shape yet. Try dropping a SVG or STL file on the window.
         {{/each}}
     </ul>
     <h2>Operations
