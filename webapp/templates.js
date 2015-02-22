@@ -89,47 +89,82 @@ function program1(depth0,data) {
     'optionLabelPath': ("content.label")
   },hashTypes:{'value': "ID",'content': "ID",'optionValuePath': "STRING",'optionLabelPath': "STRING"},hashContexts:{'value': depth0,'content': depth0,'optionValuePath': depth0,'optionLabelPath': depth0},contexts:[depth0],types:["ID"],data:data})));
   data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"in all directions\">Leave Stock:</th>\n    <td class=\"input-group input-group-sm\">");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
-    'numericValue': ("3d_leaveStock"),
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
+            'value': ("3d_leaveStock"),
     'min': ("0")
-  },hashTypes:{'numericValue': "ID",'min': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0},contexts:[depth0],types:["ID"],data:data})));
+        },
+        hashTypes: {'type': "STRING", 'value': "ID", 'min': "STRING"},
+        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n        <span class=\"input-group-addon\" id=\"percent3\">mm</span></td>\n</tr>\n<tr>\n    <th>Min Z:</th>\n    <td class=\"input-group input-group-sm\">");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
-    'numericValue': ("3d_minZ")
-  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[depth0],types:["ID"],data:data})));
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
+            'value': ("3d_minZ")
+        },
+        hashTypes: {'type': "STRING", 'value': "ID"},
+        hashContexts: {'type': depth0, 'value': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n        <span class=\"input-group-addon\" id=\"percent3\">mm</span></td>\n</tr>\n<tr>\n    <th title=\"Engagement in %\">Diametral Engagement:</th>\n    <td class=\"input-group input-group-sm\">");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
-    'numericValue': ("3d_diametralEngagement"),
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
+            'value': ("3d_diametralEngagement"),
     'aria-describedby': ("percent3")
-  },
-      hashTypes: {'numericValue': "ID", 'aria-describedby': "STRING"},
-      hashContexts: {'numericValue': depth0, 'aria-describedby': depth0},
-      contexts: [depth0],
-      types: ["ID"],
-      data: data
-  })));
+        },
+        hashTypes: {'type': "STRING", 'value': "ID", 'aria-describedby': "STRING"},
+        hashContexts: {'type': depth0, 'value': depth0, 'aria-describedby': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n        <span class=\"input-group-addon\" id=\"percent3\">%</span></td>\n</tr>\n<tr>\n    <th title=\"in degrees\">Path Orientation:</th>\n    <td class=\"input-group input-group-sm\">");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
-    'numericValue': ("3d_pathOrientation"),
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
+            'value': ("3d_pathOrientation"),
     'min': (-90),
     'max': (90),
     'increment': (1)
-  },
-      hashTypes: {'numericValue': "ID", 'min': "INTEGER", 'max': "INTEGER", 'increment': "INTEGER"},
-      hashContexts: {'numericValue': depth0, 'min': depth0, 'max': depth0, 'increment': depth0},
-      contexts: [depth0],
-      types: ["ID"],
-      data: data
-  })));
+        },
+        hashTypes: {'type': "STRING", 'value': "ID", 'min': "INTEGER", 'max': "INTEGER", 'increment': "INTEGER"},
+        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0, 'max': depth0, 'increment': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n        <span class=\"input-group-addon\" id=\"degrees\">°</span></td>\n</tr>\n<tr>\n    <th title=\"to skip the beginning of the toolpath\">Start:</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-    'numericValue': ("3d_startPercent")
-  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[depth0],types:["ID"],data:data})));
+            'type': ("number"),
+            'value': ("3d_startPercent")
+        },
+        hashTypes: {'type': "STRING", 'value': "ID"},
+        hashContexts: {'type': depth0, 'value': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n        <span class=\"input-group-addon\" id=\"percent1\">%</span></td>\n</tr>\n<tr>\n    <th title=\"to skip the end of the toolpath\">Stop:</th>\n    <td class=\"input-group input-group-sm\">");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
-    'numericValue': ("3d_stopPercent")
-  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[depth0],types:["ID"],data:data})));
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
+            'value': ("3d_stopPercent")
+        },
+        hashTypes: {'type': "STRING", 'value': "ID"},
+        hashContexts: {'type': depth0, 'value': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n        <span class=\"input-group-addon\" id=\"percent2\">%</span></td>\n</tr>\n<tr>\n    <th>zigzag:</th>\n    <td>");
   data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
     'type': ("checkbox"),
@@ -489,35 +524,67 @@ function program7(depth0,data) {
 Ember.TEMPLATES["job"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
-  var buffer = '', stack1, helper, options, escapeExpression=this.escapeExpression, self=this, helperMissing=helpers.helperMissing;
+    var buffer = '', stack1, helper, options, helperMissing = helpers.helperMissing, escapeExpression = this.escapeExpression, self = this;
 
 function program1(depth0,data) {
-  
-  var buffer = '', stack1;
+
+    var buffer = '', stack1, helper, options;
   data.buffer.push("\n            <tr class=\"speedComputerForm\">\n                <th>Tool Flutes:</th>\n                <td>");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
-    'numericValue': ("toolFlutes"),
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
+            'value': ("toolFlutes"),
     'min': (1),
     'step': (1)
-  },hashTypes:{'numericValue': "ID",'min': "INTEGER",'step': "INTEGER"},hashContexts:{'numericValue': depth0,'min': depth0,'step': depth0},contexts:[depth0],types:["ID"],data:data})));
+        },
+        hashTypes: {'type': "STRING", 'value': "ID", 'min': "INTEGER", 'step': "INTEGER"},
+        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0, 'step': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("</td>\n            </tr>\n            <tr class=\"speedComputerForm\">\n                <th title=\"in m/min\">Surface Speed:</th>\n                <td class=\"input-group input-group-sm\">");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
-    'numericValue': ("surfaceSpeed"),
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
+            'value': ("surfaceSpeed"),
     'min': (1),
     'max': (1000)
-  },hashTypes:{'numericValue': "ID",'min': "INTEGER",'max': "INTEGER"},hashContexts:{'numericValue': depth0,'min': depth0,'max': depth0},contexts:[depth0],types:["ID"],data:data})));
+        },
+        hashTypes: {'type': "STRING", 'value': "ID", 'min': "INTEGER", 'max': "INTEGER"},
+        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0, 'max': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n                    <span class=\"input-group-addon\">m/min</span></td>\n            </tr>\n            <tr class=\"speedComputerForm\">\n                <th title=\"in mm\">Chip Load:</th>\n                <td class=\"input-group input-group-sm\">");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
-    'numericValue': ("chipLoad"),
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
+            'value': ("chipLoad"),
     'min': ("0.001"),
     'step': ("0.001")
-  },hashTypes:{'numericValue': "ID",'min': "STRING",'step': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0,'step': depth0},contexts:[depth0],types:["ID"],data:data})));
+        },
+        hashTypes: {'type': "STRING", 'value': "ID", 'min': "STRING", 'step': "STRING"},
+        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0, 'step': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n                    <span class=\"input-group-addon\">mm</span></td>\n            </tr>\n            <tr class=\"speedComputerForm\">\n                <th title=\"in RPM\">Speed:</th>\n                <td class=\"input-group input-group-sm\">");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
-    'numericValue': ("speed"),
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
+            'value': ("speed"),
     'min': (1),
     'step': (10)
-  },hashTypes:{'numericValue': "ID",'min': "INTEGER",'step': "INTEGER"},hashContexts:{'numericValue': depth0,'min': depth0,'step': depth0},contexts:[depth0],types:["ID"],data:data})));
+        },
+        hashTypes: {'type': "STRING", 'value': "ID", 'min': "INTEGER", 'step': "INTEGER"},
+        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0, 'step': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n                    <span class=\"input-group-addon\">rpm</span></td>\n            </tr>\n            <tr class=\"speedComputerForm speedComputerFormLast\">\n                <th title=\"in mm/min\">Feedrate:</th>\n                <td>");
   stack1 = helpers._triageMustache.call(depth0, "computedFeedrate", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
@@ -526,15 +593,23 @@ function program1(depth0,data) {
   }
 
 function program3(depth0,data) {
-  
-  var buffer = '';
+
+    var buffer = '', helper, options;
   data.buffer.push("\n            <tr>\n                <th title=\"in mm/min\">Feedrate:</th>\n                <td class=\"input-group input-group-sm\">");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
-    'numericValue': ("userFeedrate"),
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
+            'value': ("userFeedrate"),
     'min': (10),
     'max': (3000),
     'step': (10)
-  },hashTypes:{'numericValue': "ID",'min': "INTEGER",'max': "INTEGER",'step': "INTEGER"},hashContexts:{'numericValue': depth0,'min': depth0,'max': depth0,'step': depth0},contexts:[depth0],types:["ID"],data:data})));
+        },
+        hashTypes: {'type': "STRING", 'value': "ID", 'min': "INTEGER", 'max': "INTEGER", 'step': "INTEGER"},
+        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0, 'max': depth0, 'step': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n                    <span class=\"input-group-addon\">mm/min</span></td>\n            </tr>\n        ");
   return buffer;
   }
@@ -649,15 +724,31 @@ function program11(depth0,data) {
     'value': ("name")
   },hashTypes:{'value': "ID"},hashContexts:{'value': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
   data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th>Safety Z:</th>\n            <td>");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
-    'numericValue': ("safetyZ")
-  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[depth0],types:["ID"],data:data})));
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
+            'value': ("safetyZ")
+        },
+        hashTypes: {'type': "STRING", 'value': "ID"},
+        hashContexts: {'type': depth0, 'value': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th title=\"in mm\">Tool Diameter:</th>\n            <td class=\"input-group input-group-sm\">");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
-    'numericValue': ("toolDiameter"),
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
+            'value': ("toolDiameter"),
     'min': ("0.001"),
     'step': ("0.001")
-  },hashTypes:{'numericValue': "ID",'min': "STRING",'step': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0,'step': depth0},contexts:[depth0],types:["ID"],data:data})));
+        },
+        hashTypes: {'type': "STRING", 'value': "ID", 'min': "STRING", 'step': "STRING"},
+        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0, 'step': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n                <span class=\"input-group-addon\">mm</span></td>\n        </tr>\n        <tr class=\"speedComputerForm speedComputerFormFirst\">\n            <td colspan=\"2\">");
   data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
     'type': ("checkbox"),
@@ -772,25 +863,49 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
 Ember.TEMPLATES["operationPocket"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
-  var buffer = '', escapeExpression=this.escapeExpression;
+    var buffer = '', helper, options, helperMissing = helpers.helperMissing, escapeExpression = this.escapeExpression;
 
 
   data.buffer.push("<tr>\n    <th title=\"in mm\">Bottom Z:</th>\n    <td class=\"input-group input-group-sm\">");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
-    'numericValue': ("pocket_depth")
-  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[depth0],types:["ID"],data:data})));
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
+            'value': ("pocket_depth")
+        },
+        hashTypes: {'type': "STRING", 'value': "ID"},
+        hashContexts: {'type': depth0, 'value': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th title=\"Engagement in %\">Radial Engagement:</th>\n    <td class=\"input-group input-group-sm\">");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
-    'numericValue': ("pocket_engagement"),
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
+            'value': ("pocket_engagement"),
     'min': ("0"),
     'increment': ("1"),
     'max': ("100")
-  },hashTypes:{'numericValue': "ID",'min': "STRING",'increment': "STRING",'max': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0,'increment': depth0,'max': depth0},contexts:[depth0],types:["ID"],data:data})));
+        },
+        hashTypes: {'type': "STRING", 'value': "ID", 'min': "STRING", 'increment': "STRING", 'max': "STRING"},
+        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0, 'increment': depth0, 'max': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n        <span class=\"input-group-addon\">%</span></td>\n</tr>\n<tr>\n    <th title=\"lateral in mm\">Leave Stock:</th>\n    <td class=\"input-group input-group-sm\">");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
-    'numericValue': ("pocket_leaveStock"),
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
+            'value': ("pocket_leaveStock"),
     'min': ("0")
-  },hashTypes:{'numericValue': "ID",'min': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0},contexts:[depth0],types:["ID"],data:data})));
+        },
+        hashTypes: {'type': "STRING", 'value': "ID", 'min': "STRING"},
+        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n        <span class=\"input-group-addon\">mm</span></td>\n</tr>");
   return buffer;
   
@@ -812,24 +927,56 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
     'checked': ("contour_climbMilling")
   },hashTypes:{'type': "STRING",'checked': "ID"},hashContexts:{'type': depth0,'checked': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
   data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"How far the tool should stay away from the line in X-Y plane\">Leave Stock:</th>\n    <td class=\"input-group input-group-sm\">");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
-    'numericValue': ("contour_leaveStock"),
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
+            'value': ("contour_leaveStock"),
     'min': ("0")
-  },hashTypes:{'numericValue': "ID",'min': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0},contexts:[depth0],types:["ID"],data:data})));
+        },
+        hashTypes: {'type': "STRING", 'value': "ID", 'min': "STRING"},
+        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Start Z:</th>\n    <td class=\"input-group input-group-sm\">");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
-    'numericValue': ("ramping_startZ")
-  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[depth0],types:["ID"],data:data})));
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
+            'value': ("ramping_startZ")
+        },
+        hashTypes: {'type': "STRING", 'value': "ID"},
+        hashContexts: {'type': depth0, 'value': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Stop Z:</th>\n    <td class=\"input-group input-group-sm\">");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
-    'numericValue': ("ramping_stopZ")
-  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[depth0],types:["ID"],data:data})));
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
+            'value': ("ramping_stopZ")
+        },
+        hashTypes: {'type': "STRING", 'value': "ID"},
+        hashContexts: {'type': depth0, 'value': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th># of turns:</th>\n    <td class=\"input-group input-group-sm\">");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
-    'numericValue': ("ramping_turns"),
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
+            'value': ("ramping_turns"),
     'min': ("1"),
     'step': ("1")
-  },hashTypes:{'numericValue': "ID",'min': "STRING",'step': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0,'step': depth0},contexts:[depth0],types:["ID"],data:data})));
+        },
+        hashTypes: {'type': "STRING", 'value': "ID", 'min': "STRING", 'step': "STRING"},
+        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0, 'step': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n        <span class=\"input-group-addon\">units</span></td>\n</tr>\n");
   return buffer;
   
@@ -837,56 +984,136 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
 Ember.TEMPLATES["shape"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
-    var buffer = '', stack1, helper, options, escapeExpression = this.escapeExpression, helperMissing = helpers.helperMissing, self = this;
+    var buffer = '', stack1, helper, options, helperMissing = helpers.helperMissing, escapeExpression = this.escapeExpression, self = this;
 
     function program1(depth0, data) {
 
-        var buffer = '';
-        data.buffer.push("\n            <tr>\n                <th>Width:</th>\n                <td class=\"input-group input-group-sm\">");
-        data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {
+        var buffer = '', stack1;
+        data.buffer.push("\n            <tr>\n                <th>Shape:</th>\n                <td class=\"input-group input-group-sm\">");
+        data.buffer.push(escapeExpression(helpers.view.call(depth0, "Ember.Select", {
             hash: {
-                'numericValue': ("width")
+                'value': ("shape"),
+                'content': ("shapeTypes")
             },
-            hashTypes: {'numericValue': "ID"},
-            hashContexts: {'numericValue': depth0},
+            hashTypes: {'value': "ID", 'content': "ID"},
+            hashContexts: {'value': depth0, 'content': depth0},
             contexts: [depth0],
             types: ["ID"],
             data: data
         })));
-        data.buffer.push(" <span\n                        class=\"input-group-addon\">mm</span></td>\n            </tr>\n            <tr>\n                <th>Height:</th>\n                <td class=\"input-group input-group-sm\">");
-        data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {
-            hash: {
-                'numericValue': ("height")
-            },
-            hashTypes: {'numericValue': "ID"},
-            hashContexts: {'numericValue': depth0},
+        data.buffer.push("</td>\n            </tr>\n            ");
+        stack1 = helpers['if'].call(depth0, "isRectangle", {
+            hash: {},
+            hashTypes: {},
+            hashContexts: {},
+            inverse: self.program(4, program4, data),
+            fn: self.program(2, program2, data),
             contexts: [depth0],
             types: ["ID"],
             data: data
-        })));
-        data.buffer.push(" <span\n                        class=\"input-group-addon\">mm</span></td>\n            </tr>\n            <tr>\n                <th>X Offset:</th>\n                <td class=\"input-group input-group-sm\">");
-        data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {
+        });
+        if (stack1 || stack1 === 0) {
+            data.buffer.push(stack1);
+        }
+        data.buffer.push("\n        ");
+        return buffer;
+    }
+
+    function program2(depth0, data) {
+
+        var buffer = '', helper, options;
+        data.buffer.push("\n                <tr>\n                    <th>Width:</th>\n                    <td class=\"input-group input-group-sm\">");
+        data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
             hash: {
-                'numericValue': ("offsetX")
+                'type': ("number"),
+                'value': ("width")
             },
-            hashTypes: {'numericValue': "ID"},
-            hashContexts: {'numericValue': depth0},
-            contexts: [depth0],
-            types: ["ID"],
+            hashTypes: {'type': "STRING", 'value': "ID"},
+            hashContexts: {'type': depth0, 'value': depth0},
+            contexts: [],
+            types: [],
             data: data
-        })));
-        data.buffer.push(" <span\n                        class=\"input-group-addon\">mm</span></td>\n            </tr>\n            <tr>\n                <th>Y Offset:</th>\n                <td class=\"input-group input-group-sm\">");
-        data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {
+        }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+        data.buffer.push(" <span\n                            class=\"input-group-addon\">mm</span></td>\n                </tr>\n                <tr>\n                    <th>Height:</th>\n                    <td class=\"input-group input-group-sm\">");
+        data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
             hash: {
-                'numericValue': ("offsetY")
+                'type': ("number"),
+                'value': ("height")
             },
-            hashTypes: {'numericValue': "ID"},
-            hashContexts: {'numericValue': depth0},
-            contexts: [depth0],
-            types: ["ID"],
+            hashTypes: {'type': "STRING", 'value': "ID"},
+            hashContexts: {'type': depth0, 'value': depth0},
+            contexts: [],
+            types: [],
             data: data
-        })));
-        data.buffer.push(" <span\n                        class=\"input-group-addon\">mm</span></td>\n            </tr>\n        ");
+        }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+        data.buffer.push(" <span\n                            class=\"input-group-addon\">mm</span></td>\n                </tr>\n                <tr>\n                    <th>X Offset:</th>\n                    <td class=\"input-group input-group-sm\">");
+        data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+            hash: {
+                'type': ("number"),
+                'value': ("offsetX")
+            },
+            hashTypes: {'type': "STRING", 'value': "ID"},
+            hashContexts: {'type': depth0, 'value': depth0},
+            contexts: [],
+            types: [],
+            data: data
+        }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+        data.buffer.push(" <span\n                            class=\"input-group-addon\">mm</span></td>\n                </tr>\n                <tr>\n                    <th>Y Offset:</th>\n                    <td class=\"input-group input-group-sm\">");
+        data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+            hash: {
+                'type': ("number"),
+                'value': ("offsetY")
+            },
+            hashTypes: {'type': "STRING", 'value': "ID"},
+            hashContexts: {'type': depth0, 'value': depth0},
+            contexts: [],
+            types: [],
+            data: data
+        }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+        data.buffer.push(" <span\n                            class=\"input-group-addon\">mm</span></td>\n                </tr>\n            ");
+        return buffer;
+    }
+
+    function program4(depth0, data) {
+
+        var buffer = '', helper, options;
+        data.buffer.push("\n                <tr>\n                    <th>Radius:</th>\n                    <td class=\"input-group input-group-sm\">");
+        data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+            hash: {
+                'type': ("number"),
+                'value': ("radius")
+            },
+            hashTypes: {'type': "STRING", 'value': "ID"},
+            hashContexts: {'type': depth0, 'value': depth0},
+            contexts: [],
+            types: [],
+            data: data
+        }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+        data.buffer.push(" <span\n                            class=\"input-group-addon\">mm</span></td>\n                </tr>\n                <tr>\n                    <th>X:</th>\n                    <td class=\"input-group input-group-sm\">");
+        data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+            hash: {
+                'type': ("number"),
+                'value': ("x")
+            },
+            hashTypes: {'type': "STRING", 'value': "ID"},
+            hashContexts: {'type': depth0, 'value': depth0},
+            contexts: [],
+            types: [],
+            data: data
+        }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+        data.buffer.push(" <span\n                            class=\"input-group-addon\">mm</span></td>\n                </tr>\n                <tr>\n                    <th>Y:</th>\n                    <td class=\"input-group input-group-sm\">");
+        data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+            hash: {
+                'type': ("number"),
+                'value': ("y")
+            },
+            hashTypes: {'type': "STRING", 'value': "ID"},
+            hashContexts: {'type': depth0, 'value': depth0},
+            contexts: [],
+            types: [],
+            data: data
+        }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+        data.buffer.push(" <span\n                            class=\"input-group-addon\">mm</span></td>\n                </tr>\n            ");
         return buffer;
     }
 
@@ -930,14 +1157,30 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
     'checked': ("contour_climbMilling")
   },hashTypes:{'type': "STRING",'checked': "ID"},hashContexts:{'type': depth0,'checked': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
   data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"How far the tool should stay away from the line in X-Y plane\">Leave Stock:</th>\n    <td class=\"input-group input-group-sm\">");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
-    'numericValue': ("contour_leaveStock"),
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
+            'value': ("contour_leaveStock"),
     'min': ("0")
-  },hashTypes:{'numericValue': "ID",'min': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0},contexts:[depth0],types:["ID"],data:data})));
+        },
+        hashTypes: {'type': "STRING", 'value': "ID", 'min': "STRING"},
+        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Contour Z:</th>\n    <td class=\"input-group input-group-sm\">");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
-    'numericValue': ("simple_contourZ")
-  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[depth0],types:["ID"],data:data})));
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
+            'value': ("simple_contourZ")
+        },
+        hashTypes: {'type': "STRING", 'value': "ID"},
+        hashContexts: {'type': depth0, 'value': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n");
   return buffer;
   
@@ -945,13 +1188,21 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
 Ember.TEMPLATES["simpleEngraving"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
-  var buffer = '', escapeExpression=this.escapeExpression;
+    var buffer = '', helper, options, helperMissing = helpers.helperMissing, escapeExpression = this.escapeExpression;
 
 
   data.buffer.push("<tr>\n    <th>engraving Z:</th>\n    <td class=\"input-group input-group-sm\">");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.NumberField", {hash:{
-    'numericValue': ("engraving_Z")
-  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[depth0],types:["ID"],data:data})));
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
+            'value': ("engraving_Z")
+        },
+        hashTypes: {'type': "STRING", 'value': "ID"},
+        hashContexts: {'type': depth0, 'value': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n");
   return buffer;
   
@@ -991,13 +1242,35 @@ function program3(depth0,data) {
     'title': ("your text")
   },hashTypes:{'type': "STRING",'id': "STRING",'valueBinding': "STRING",'title': "STRING"},hashContexts:{'type': depth0,'id': depth0,'valueBinding': depth0,'title': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
   data.buffer.push("\n        </div>\n    </div>\n    <div class=\"controlPanel\">\n        <h3>Font</h3>\n\n        <div class=\"controlPanelContent\">\n            <label for=\"fontSize\">Size:</label><br>\n            ");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "TextApplication.NumberField", {hash:{
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
     'id': ("fontSize"),
     'placeholder': ("Font Size"),
-    'numericValueBinding': ("fontSize"),
+            'valueBinding': ("fontSize"),
     'min': ("0.01"),
     'max': ("500")
-  },hashTypes:{'id': "STRING",'placeholder': "STRING",'numericValueBinding': "STRING",'min': "STRING",'max': "STRING"},hashContexts:{'id': depth0,'placeholder': depth0,'numericValueBinding': depth0,'min': depth0,'max': depth0},contexts:[depth0],types:["ID"],data:data})));
+        },
+        hashTypes: {
+            'type': "STRING",
+            'id': "STRING",
+            'placeholder': "STRING",
+            'valueBinding': "STRING",
+            'min': "STRING",
+            'max': "STRING"
+        },
+        hashContexts: {
+            'type': depth0,
+            'id': depth0,
+            'placeholder': depth0,
+            'valueBinding': depth0,
+            'min': depth0,
+            'max': depth0
+        },
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n            <br>\n            ");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Ember.Select", {hash:{
     'content': ("controllers.fonts"),
@@ -1009,44 +1282,134 @@ function program3(depth0,data) {
   stack1 = helpers['if'].call(depth0, "hasFontVariants", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n        </div>\n    </div>\n\n    <div class=\"controlPanel\">\n        <h3>Tool</h3>\n\n        <div class=\"controlPanelContent\">\n            <label for=\"toolDiameter\" title=\"in mm\">Tool Diameter:</label><br>\n            ");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "TextApplication.NumberField", {hash:{
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
     'id': ("toolDiameter"),
     'placeholder': ("tool diameter"),
-    'numericValueBinding': ("toolDiameter"),
+            'valueBinding': ("toolDiameter"),
     'min': ("0"),
     'action': ("launchComputationImmediately")
-  },hashTypes:{'id': "STRING",'placeholder': "STRING",'numericValueBinding': "STRING",'min': "STRING",'action': "STRING"},hashContexts:{'id': depth0,'placeholder': depth0,'numericValueBinding': depth0,'min': depth0,'action': depth0},contexts:[depth0],types:["ID"],data:data})));
+        },
+        hashTypes: {
+            'type': "STRING",
+            'id': "STRING",
+            'placeholder': "STRING",
+            'valueBinding': "STRING",
+            'min': "STRING",
+            'action': "STRING"
+        },
+        hashContexts: {
+            'type': depth0,
+            'id': depth0,
+            'placeholder': depth0,
+            'valueBinding': depth0,
+            'min': depth0,
+            'action': depth0
+        },
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n            <br>\n            <label for=\"radialEngagement\" title=\"ratio ]0-1]\">Radial Engagement:</label><br>\n            ");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "TextApplication.NumberField", {hash:{
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
     'id': ("radialEngagement"),
     'placeholder': ("radial engagement"),
-    'numericValueBinding': ("radialEngagementRatio"),
+            'valueBinding': ("radialEngagementRatio"),
     'min': ("0"),
     'max': ("1"),
     'step': ("0.05"),
     'action': ("launchComputationImmediately")
-  },hashTypes:{'id': "STRING",'placeholder': "STRING",'numericValueBinding': "STRING",'min': "STRING",'max': "STRING",'step': "STRING",'action': "STRING"},hashContexts:{'id': depth0,'placeholder': depth0,'numericValueBinding': depth0,'min': depth0,'max': depth0,'step': depth0,'action': depth0},contexts:[depth0],types:["ID"],data:data})));
+        },
+        hashTypes: {
+            'type': "STRING",
+            'id': "STRING",
+            'placeholder': "STRING",
+            'valueBinding': "STRING",
+            'min': "STRING",
+            'max': "STRING",
+            'step': "STRING",
+            'action': "STRING"
+        },
+        hashContexts: {
+            'type': depth0,
+            'id': depth0,
+            'placeholder': depth0,
+            'valueBinding': depth0,
+            'min': depth0,
+            'max': depth0,
+            'step': depth0,
+            'action': depth0
+        },
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n            <br>\n\n            <div class=\"controlPanel\">\n                <h3>Pocket</h3>\n\n                <div class=\"controlPanelContent\">\n                    <label for=\"workZ\" title=\"in mm\">Work Z:</label><br>\n                    ");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "TextApplication.NumberField", {hash:{
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
     'id': ("workZ"),
     'placeholder': ("workZ"),
-    'numericValueBinding': ("workZ"),
+            'valueBinding': ("workZ"),
     'action': ("computeGCode")
-  },hashTypes:{'id': "STRING",'placeholder': "STRING",'numericValueBinding': "STRING",'action': "STRING"},hashContexts:{'id': depth0,'placeholder': depth0,'numericValueBinding': depth0,'action': depth0},contexts:[depth0],types:["ID"],data:data})));
+        },
+        hashTypes: {
+            'type': "STRING",
+            'id': "STRING",
+            'placeholder': "STRING",
+            'valueBinding': "STRING",
+            'action': "STRING"
+        },
+        hashContexts: {'type': depth0, 'id': depth0, 'placeholder': depth0, 'valueBinding': depth0, 'action': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n                    <br>\n                    <label for=\"travelZ\" title=\"in mm\">Travel Z:</label><br>\n                    ");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "TextApplication.NumberField", {hash:{
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
     'id': ("travelZ"),
     'placeholder': ("travelZ"),
-    'numericValueBinding': ("travelZ"),
+            'valueBinding': ("travelZ"),
     'action': ("computeGCode")
-  },hashTypes:{'id': "STRING",'placeholder': "STRING",'numericValueBinding': "STRING",'action': "STRING"},hashContexts:{'id': depth0,'placeholder': depth0,'numericValueBinding': depth0,'action': depth0},contexts:[depth0],types:["ID"],data:data})));
+        },
+        hashTypes: {
+            'type': "STRING",
+            'id': "STRING",
+            'placeholder': "STRING",
+            'valueBinding': "STRING",
+            'action': "STRING"
+        },
+        hashContexts: {'type': depth0, 'id': depth0, 'placeholder': depth0, 'valueBinding': depth0, 'action': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n                    <br>\n                    <label for=\"feedRate\" title=\"in mm/min\">Feed Rate:</label><br>\n                    ");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "TextApplication.NumberField", {hash:{
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'type': ("number"),
     'id': ("feedRate"),
     'placeholder': ("feedRate"),
-    'numericValueBinding': ("feedRate"),
+            'valueBinding': ("feedRate"),
     'action': ("computeGCode")
-  },hashTypes:{'id': "STRING",'placeholder': "STRING",'numericValueBinding': "STRING",'action': "STRING"},hashContexts:{'id': depth0,'placeholder': depth0,'numericValueBinding': depth0,'action': depth0},contexts:[depth0],types:["ID"],data:data})));
+        },
+        hashTypes: {
+            'type': "STRING",
+            'id': "STRING",
+            'placeholder': "STRING",
+            'valueBinding': "STRING",
+            'action': "STRING"
+        },
+        hashContexts: {'type': depth0, 'id': depth0, 'placeholder': depth0, 'valueBinding': depth0, 'action': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n                </div>\n            </div>\n        </div>\n    </div>\n</div>\n<div id=\"drawing\">\n    ");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "TextApplication.OperationView", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data})));
   data.buffer.push("\n</div>\n");

@@ -117,6 +117,21 @@ require(['cnc/cam/cam', 'cnc/cam/text', 'cnc/cam/pocket', 'cnc/ui/views', 'cnc/u
             TextApplication.NumberField = views.NumberField;
             $.extend(TextApplication, pocketView);
 
+            Ember.Handlebars.registerHelper('number-input', function (options) {
+                Ember.assert('You can only pass attributes to the `input` helper, not arguments', arguments.length < 2);
+
+                var hash = options.hash,
+                        inputType = hash.type,
+                        onEvent = hash.on;
+
+                if (inputType === 'number') {
+                    hash.onEvent = onEvent || 'enter';
+                    return Ember.Handlebars.helpers.view.call(this, TextApplication.NumberField, options);
+                } else {
+                    return Ember.Handlebars.helpers.input.call(this, options);
+                }
+            });
+
             TextApplication.TextView = Ember.View.extend({
                 classNames: ['global'],
                 template: textTemplate

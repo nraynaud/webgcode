@@ -15,9 +15,25 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
         });
         window.Visucam = Ember.Application.create({});
         Visucam.NumberField = views.NumberField;
+
         $.extend(Visucam, models);
         $.extend(Visucam, appViews);
         $.extend(Visucam, controller);
+
+        Ember.Handlebars.registerHelper('number-input', function (options) {
+            Ember.assert('You can only pass attributes to the `input` helper, not arguments', arguments.length < 2);
+
+            var hash = options.hash,
+                inputType = hash.type,
+                onEvent = hash.on;
+
+            if (inputType === 'number') {
+                hash.onEvent = onEvent || 'enter';
+                return Ember.Handlebars.helpers.view.call(this, views.NumberField, options);
+            } else {
+                return Ember.Handlebars.helpers.input.call(this, options);
+            }
+        });
 
         var IN_CHROME_APP = window['chrome'] && window['chrome']['permissions'];
 

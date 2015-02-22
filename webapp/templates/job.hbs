@@ -18,11 +18,11 @@
         </tr>
         <tr>
             <th>Safety Z:</th>
-            <td>{{view Visucam.NumberField numericValue=safetyZ}}</td>
+            <td>{{number-input type="number" value=safetyZ}}</td>
         </tr>
         <tr>
             <th title="in mm">Tool Diameter:</th>
-            <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=toolDiameter min="0.001" step="0.001"}}
+            <td class="input-group input-group-sm">{{number-input type="number" value=toolDiameter min="0.001" step="0.001"}}
                 <span class="input-group-addon">mm</span></td>
         </tr>
         <tr class="speedComputerForm speedComputerFormFirst">
@@ -31,21 +31,21 @@
         {{#if computeSpeedFeed}}
             <tr class="speedComputerForm">
                 <th>Tool Flutes:</th>
-                <td>{{view Visucam.NumberField numericValue=toolFlutes min=1 step=1}}</td>
+                <td>{{number-input type="number" value=toolFlutes min=1 step=1}}</td>
             </tr>
             <tr class="speedComputerForm">
                 <th title="in m/min">Surface Speed:</th>
-                <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=surfaceSpeed min=1 max=1000}}
+                <td class="input-group input-group-sm">{{number-input type="number" value=surfaceSpeed min=1 max=1000}}
                     <span class="input-group-addon">m/min</span></td>
             </tr>
             <tr class="speedComputerForm">
                 <th title="in mm">Chip Load:</th>
-                <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=chipLoad min="0.001" step="0.001"}}
+                <td class="input-group input-group-sm">{{number-input type="number" value=chipLoad min="0.001" step="0.001"}}
                     <span class="input-group-addon">mm</span></td>
             </tr>
             <tr class="speedComputerForm">
                 <th title="in RPM">Speed:</th>
-                <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=speed min=1 step=10}}
+                <td class="input-group input-group-sm">{{number-input type="number" value=speed min=1 step=10}}
                     <span class="input-group-addon">rpm</span></td>
             </tr>
             <tr class="speedComputerForm speedComputerFormLast">
@@ -55,7 +55,7 @@
         {{else}}
             <tr>
                 <th title="in mm/min">Feedrate:</th>
-                <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=userFeedrate min=10 max=3000 step=10}}
+                <td class="input-group input-group-sm">{{number-input type="number" value=userFeedrate min=10 max=3000 step=10}}
                     <span class="input-group-addon">mm/min</span></td>
             </tr>
         {{/if}}

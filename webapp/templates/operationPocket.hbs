@@ -1,15 +1,15 @@
 <tr>
     <th title="in mm">Bottom Z:</th>
-    <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=pocket_depth}} <span
+    <td class="input-group input-group-sm">{{number-input type="number" value=pocket_depth}} <span
             class="input-group-addon">mm</span></td>
 </tr>
 <tr>
     <th title="Engagement in %">Radial Engagement:</th>
-    <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=pocket_engagement min="0" increment="1" max="100"}}
+    <td class="input-group input-group-sm">{{number-input type="number" value=pocket_engagement min="0" increment="1" max="100"}}
         <span class="input-group-addon">%</span></td>
 </tr>
 <tr>
     <th title="lateral in mm">Leave Stock:</th>
-    <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=pocket_leaveStock min="0"}}
+    <td class="input-group input-group-sm">{{number-input type="number" value=pocket_leaveStock min="0"}}
         <span class="input-group-addon">mm</span></td>
 </tr>

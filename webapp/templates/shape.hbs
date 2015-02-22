@@ -7,25 +7,47 @@
         </tr>
         {{#if isManual}}
             <tr>
-                <th>Width:</th>
-                <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=width}} <span
-                        class="input-group-addon">mm</span></td>
+                <th>Shape:</th>
+                <td class="input-group input-group-sm">{{view Ember.Select value=shape content=shapeTypes}}</td>
             </tr>
-            <tr>
-                <th>Height:</th>
-                <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=height}} <span
-                        class="input-group-addon">mm</span></td>
-            </tr>
-            <tr>
-                <th>X Offset:</th>
-                <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=offsetX}} <span
-                        class="input-group-addon">mm</span></td>
-            </tr>
-            <tr>
-                <th>Y Offset:</th>
-                <td class="input-group input-group-sm">{{view Visucam.NumberField numericValue=offsetY}} <span
-                        class="input-group-addon">mm</span></td>
-            </tr>
+            {{#if isRectangle}}
+                <tr>
+                    <th>Width:</th>
+                    <td class="input-group input-group-sm">{{number-input type="number" value=width}} <span
+                            class="input-group-addon">mm</span></td>
+                </tr>
+                <tr>
+                    <th>Height:</th>
+                    <td class="input-group input-group-sm">{{number-input type="number" value=height}} <span
+                            class="input-group-addon">mm</span></td>
+                </tr>
+                <tr>
+                    <th>X Offset:</th>
+                    <td class="input-group input-group-sm">{{number-input type="number" value=offsetX}} <span
+                            class="input-group-addon">mm</span></td>
+                </tr>
+                <tr>
+                    <th>Y Offset:</th>
+                    <td class="input-group input-group-sm">{{number-input type="number" value=offsetY}} <span
+                            class="input-group-addon">mm</span></td>
+                </tr>
+            {{else}}
+                <tr>
+                    <th>Radius:</th>
+                    <td class="input-group input-group-sm">{{number-input type="number" value=radius}} <span
+                            class="input-group-addon">mm</span></td>
+                </tr>
+                <tr>
+                    <th>X:</th>
+                    <td class="input-group input-group-sm">{{number-input type="number" value=x}} <span
+                            class="input-group-addon">mm</span></td>
+                </tr>
+                <tr>
+                    <th>Y:</th>
+                    <td class="input-group input-group-sm">{{number-input type="number" value=y}} <span
+                            class="input-group-addon">mm</span></td>
+                </tr>
+            {{/if}}
         {{/if}}
         </tbody>
     </table>
