@@ -91,12 +91,11 @@ function program1(depth0,data) {
   data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"in all directions\">Leave Stock:</th>\n    <td class=\"input-group input-group-sm\">");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
-            'value': ("3d_leaveStock"),
+            'numericValue': ("3d_leaveStock"),
     'min': ("0")
         },
-        hashTypes: {'type': "STRING", 'value': "ID", 'min': "STRING"},
-        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0},
+        hashTypes: {'numericValue': "ID", 'min': "STRING"},
+        hashContexts: {'numericValue': depth0, 'min': depth0},
         contexts: [],
         types: [],
         data: data
@@ -104,11 +103,10 @@ function program1(depth0,data) {
   data.buffer.push("\n        <span class=\"input-group-addon\" id=\"percent3\">mm</span></td>\n</tr>\n<tr>\n    <th>Min Z:</th>\n    <td class=\"input-group input-group-sm\">");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
-            'value': ("3d_minZ")
+            'numericValue': ("3d_minZ")
         },
-        hashTypes: {'type': "STRING", 'value': "ID"},
-        hashContexts: {'type': depth0, 'value': depth0},
+        hashTypes: {'numericValue': "ID"},
+        hashContexts: {'numericValue': depth0},
         contexts: [],
         types: [],
         data: data
@@ -116,12 +114,11 @@ function program1(depth0,data) {
   data.buffer.push("\n        <span class=\"input-group-addon\" id=\"percent3\">mm</span></td>\n</tr>\n<tr>\n    <th title=\"Engagement in %\">Diametral Engagement:</th>\n    <td class=\"input-group input-group-sm\">");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
-            'value': ("3d_diametralEngagement"),
+            'numericValue': ("3d_diametralEngagement"),
     'aria-describedby': ("percent3")
         },
-        hashTypes: {'type': "STRING", 'value': "ID", 'aria-describedby': "STRING"},
-        hashContexts: {'type': depth0, 'value': depth0, 'aria-describedby': depth0},
+        hashTypes: {'numericValue': "ID", 'aria-describedby': "STRING"},
+        hashContexts: {'numericValue': depth0, 'aria-describedby': depth0},
         contexts: [],
         types: [],
         data: data
@@ -129,14 +126,13 @@ function program1(depth0,data) {
   data.buffer.push("\n        <span class=\"input-group-addon\" id=\"percent3\">%</span></td>\n</tr>\n<tr>\n    <th title=\"in degrees\">Path Orientation:</th>\n    <td class=\"input-group input-group-sm\">");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
-            'value': ("3d_pathOrientation"),
+            'numericValue': ("3d_pathOrientation"),
     'min': (-90),
     'max': (90),
     'increment': (1)
         },
-        hashTypes: {'type': "STRING", 'value': "ID", 'min': "INTEGER", 'max': "INTEGER", 'increment': "INTEGER"},
-        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0, 'max': depth0, 'increment': depth0},
+        hashTypes: {'numericValue': "ID", 'min': "INTEGER", 'max': "INTEGER", 'increment': "INTEGER"},
+        hashContexts: {'numericValue': depth0, 'min': depth0, 'max': depth0, 'increment': depth0},
         contexts: [],
         types: [],
         data: data
@@ -144,11 +140,10 @@ function program1(depth0,data) {
   data.buffer.push("\n        <span class=\"input-group-addon\" id=\"degrees\">°</span></td>\n</tr>\n<tr>\n    <th title=\"to skip the beginning of the toolpath\">Start:</th>\n    <td class=\"input-group input-group-sm\">");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
-            'value': ("3d_startPercent")
+            'numericValue': ("3d_startPercent")
         },
-        hashTypes: {'type': "STRING", 'value': "ID"},
-        hashContexts: {'type': depth0, 'value': depth0},
+        hashTypes: {'numericValue': "ID"},
+        hashContexts: {'numericValue': depth0},
         contexts: [],
         types: [],
         data: data
@@ -156,11 +151,10 @@ function program1(depth0,data) {
   data.buffer.push("\n        <span class=\"input-group-addon\" id=\"percent1\">%</span></td>\n</tr>\n<tr>\n    <th title=\"to skip the end of the toolpath\">Stop:</th>\n    <td class=\"input-group input-group-sm\">");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
-            'value': ("3d_stopPercent")
+            'numericValue': ("3d_stopPercent")
         },
-        hashTypes: {'type': "STRING", 'value': "ID"},
-        hashContexts: {'type': depth0, 'value': depth0},
+        hashTypes: {'numericValue': "ID"},
+        hashContexts: {'numericValue': depth0},
         contexts: [],
         types: [],
         data: data
@@ -457,12 +451,19 @@ function program1(depth0,data) {
   var buffer = '', stack1;
   data.buffer.push("\n        <h2>Jobs\n            <button title=\"create new job\" class=\"btn btn-default\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "createJob", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
-  data.buffer.push(">+</button>\n        </h2>\n        <div class=\"list-group\" style=\"display:inline-block;\">\n            ");
+    data.buffer.push(">+</button>\n            <button class=\"btn btn-default\" ");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "createExample", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["STRING"],
+        data: data
+    })));
+    data.buffer.push(">Create Example</button>\n        </h2>\n        <div class=\"list-group\" style=\"display:inline-block;\">\n            ");
   stack1 = helpers.each.call(depth0, "model", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(5, program5, data),fn:self.program(2, program2, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n        </div>\n        <br>\n        <button class=\"btn btn-default\" ");
-  data.buffer.push(escapeExpression(helpers.action.call(depth0, "createExample", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
-  data.buffer.push(">Create Example</button>\n    ");
+    data.buffer.push("\n        </div>\n    ");
   return buffer;
   }
 function program2(depth0,data) {
@@ -505,7 +506,7 @@ function program7(depth0,data) {
   data.buffer.push("\n        Welcome, you need to log in before anything else.\n    ");
   }
 
-  data.buffer.push("<div>\n    ");
+    data.buffer.push("<div style=\"display: flex;flex-direction: column;align-items:flex-start;overflow-y: scroll\">\n    ");
     stack1 = helpers['if'].call(depth0, "firebase.isAuthenticated", {
         hash: {},
         hashTypes: {},
@@ -532,13 +533,12 @@ function program1(depth0,data) {
   data.buffer.push("\n            <tr class=\"speedComputerForm\">\n                <th>Tool Flutes:</th>\n                <td>");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
-            'value': ("toolFlutes"),
+            'numericValue': ("toolFlutes"),
     'min': (1),
     'step': (1)
         },
-        hashTypes: {'type': "STRING", 'value': "ID", 'min': "INTEGER", 'step': "INTEGER"},
-        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0, 'step': depth0},
+        hashTypes: {'numericValue': "ID", 'min': "INTEGER", 'step': "INTEGER"},
+        hashContexts: {'numericValue': depth0, 'min': depth0, 'step': depth0},
         contexts: [],
         types: [],
         data: data
@@ -546,13 +546,12 @@ function program1(depth0,data) {
   data.buffer.push("</td>\n            </tr>\n            <tr class=\"speedComputerForm\">\n                <th title=\"in m/min\">Surface Speed:</th>\n                <td class=\"input-group input-group-sm\">");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
-            'value': ("surfaceSpeed"),
+            'numericValue': ("surfaceSpeed"),
     'min': (1),
     'max': (1000)
         },
-        hashTypes: {'type': "STRING", 'value': "ID", 'min': "INTEGER", 'max': "INTEGER"},
-        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0, 'max': depth0},
+        hashTypes: {'numericValue': "ID", 'min': "INTEGER", 'max': "INTEGER"},
+        hashContexts: {'numericValue': depth0, 'min': depth0, 'max': depth0},
         contexts: [],
         types: [],
         data: data
@@ -560,13 +559,12 @@ function program1(depth0,data) {
   data.buffer.push("\n                    <span class=\"input-group-addon\">m/min</span></td>\n            </tr>\n            <tr class=\"speedComputerForm\">\n                <th title=\"in mm\">Chip Load:</th>\n                <td class=\"input-group input-group-sm\">");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
-            'value': ("chipLoad"),
+            'numericValue': ("chipLoad"),
     'min': ("0.001"),
     'step': ("0.001")
         },
-        hashTypes: {'type': "STRING", 'value': "ID", 'min': "STRING", 'step': "STRING"},
-        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0, 'step': depth0},
+        hashTypes: {'numericValue': "ID", 'min': "STRING", 'step': "STRING"},
+        hashContexts: {'numericValue': depth0, 'min': depth0, 'step': depth0},
         contexts: [],
         types: [],
         data: data
@@ -574,13 +572,12 @@ function program1(depth0,data) {
   data.buffer.push("\n                    <span class=\"input-group-addon\">mm</span></td>\n            </tr>\n            <tr class=\"speedComputerForm\">\n                <th title=\"in RPM\">Speed:</th>\n                <td class=\"input-group input-group-sm\">");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
-            'value': ("speed"),
+            'numericValue': ("speed"),
     'min': (1),
     'step': (10)
         },
-        hashTypes: {'type': "STRING", 'value': "ID", 'min': "INTEGER", 'step': "INTEGER"},
-        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0, 'step': depth0},
+        hashTypes: {'numericValue': "ID", 'min': "INTEGER", 'step': "INTEGER"},
+        hashContexts: {'numericValue': depth0, 'min': depth0, 'step': depth0},
         contexts: [],
         types: [],
         data: data
@@ -598,14 +595,13 @@ function program3(depth0,data) {
   data.buffer.push("\n            <tr>\n                <th title=\"in mm/min\">Feedrate:</th>\n                <td class=\"input-group input-group-sm\">");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
-            'value': ("userFeedrate"),
+            'numericValue': ("userFeedrate"),
     'min': (10),
     'max': (3000),
     'step': (10)
         },
-        hashTypes: {'type': "STRING", 'value': "ID", 'min': "INTEGER", 'max': "INTEGER", 'step': "INTEGER"},
-        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0, 'max': depth0, 'step': depth0},
+        hashTypes: {'numericValue': "ID", 'min': "INTEGER", 'max': "INTEGER", 'step': "INTEGER"},
+        hashContexts: {'numericValue': depth0, 'min': depth0, 'max': depth0, 'step': depth0},
         contexts: [],
         types: [],
         data: data
@@ -726,11 +722,10 @@ function program11(depth0,data) {
   data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th>Safety Z:</th>\n            <td>");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
-            'value': ("safetyZ")
+            'numericValue': ("safetyZ")
         },
-        hashTypes: {'type': "STRING", 'value': "ID"},
-        hashContexts: {'type': depth0, 'value': depth0},
+        hashTypes: {'numericValue': "ID"},
+        hashContexts: {'numericValue': depth0},
         contexts: [],
         types: [],
         data: data
@@ -738,13 +733,12 @@ function program11(depth0,data) {
   data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th title=\"in mm\">Tool Diameter:</th>\n            <td class=\"input-group input-group-sm\">");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
-            'value': ("toolDiameter"),
+            'numericValue': ("toolDiameter"),
     'min': ("0.001"),
     'step': ("0.001")
         },
-        hashTypes: {'type': "STRING", 'value': "ID", 'min': "STRING", 'step': "STRING"},
-        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0, 'step': depth0},
+        hashTypes: {'numericValue': "ID", 'min': "STRING", 'step': "STRING"},
+        hashContexts: {'numericValue': depth0, 'min': depth0, 'step': depth0},
         contexts: [],
         types: [],
         data: data
@@ -869,11 +863,10 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   data.buffer.push("<tr>\n    <th title=\"in mm\">Bottom Z:</th>\n    <td class=\"input-group input-group-sm\">");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
-            'value': ("pocket_depth")
+            'numericValue': ("pocket_depth")
         },
-        hashTypes: {'type': "STRING", 'value': "ID"},
-        hashContexts: {'type': depth0, 'value': depth0},
+        hashTypes: {'numericValue': "ID"},
+        hashContexts: {'numericValue': depth0},
         contexts: [],
         types: [],
         data: data
@@ -881,14 +874,13 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th title=\"Engagement in %\">Radial Engagement:</th>\n    <td class=\"input-group input-group-sm\">");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
-            'value': ("pocket_engagement"),
+            'numericValue': ("pocket_engagement"),
     'min': ("0"),
     'increment': ("1"),
     'max': ("100")
         },
-        hashTypes: {'type': "STRING", 'value': "ID", 'min': "STRING", 'increment': "STRING", 'max': "STRING"},
-        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0, 'increment': depth0, 'max': depth0},
+        hashTypes: {'numericValue': "ID", 'min': "STRING", 'increment': "STRING", 'max': "STRING"},
+        hashContexts: {'numericValue': depth0, 'min': depth0, 'increment': depth0, 'max': depth0},
         contexts: [],
         types: [],
         data: data
@@ -896,12 +888,11 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   data.buffer.push("\n        <span class=\"input-group-addon\">%</span></td>\n</tr>\n<tr>\n    <th title=\"lateral in mm\">Leave Stock:</th>\n    <td class=\"input-group input-group-sm\">");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
-            'value': ("pocket_leaveStock"),
+            'numericValue': ("pocket_leaveStock"),
     'min': ("0")
         },
-        hashTypes: {'type': "STRING", 'value': "ID", 'min': "STRING"},
-        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0},
+        hashTypes: {'numericValue': "ID", 'min': "STRING"},
+        hashContexts: {'numericValue': depth0, 'min': depth0},
         contexts: [],
         types: [],
         data: data
@@ -929,12 +920,11 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"How far the tool should stay away from the line in X-Y plane\">Leave Stock:</th>\n    <td class=\"input-group input-group-sm\">");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
-            'value': ("contour_leaveStock"),
+            'numericValue': ("contour_leaveStock"),
     'min': ("0")
         },
-        hashTypes: {'type': "STRING", 'value': "ID", 'min': "STRING"},
-        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0},
+        hashTypes: {'numericValue': "ID", 'min': "STRING"},
+        hashContexts: {'numericValue': depth0, 'min': depth0},
         contexts: [],
         types: [],
         data: data
@@ -942,11 +932,10 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Start Z:</th>\n    <td class=\"input-group input-group-sm\">");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
-            'value': ("ramping_startZ")
+            'numericValue': ("ramping_startZ")
         },
-        hashTypes: {'type': "STRING", 'value': "ID"},
-        hashContexts: {'type': depth0, 'value': depth0},
+        hashTypes: {'numericValue': "ID"},
+        hashContexts: {'numericValue': depth0},
         contexts: [],
         types: [],
         data: data
@@ -954,11 +943,10 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Stop Z:</th>\n    <td class=\"input-group input-group-sm\">");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
-            'value': ("ramping_stopZ")
+            'numericValue': ("ramping_stopZ")
         },
-        hashTypes: {'type': "STRING", 'value': "ID"},
-        hashContexts: {'type': depth0, 'value': depth0},
+        hashTypes: {'numericValue': "ID"},
+        hashContexts: {'numericValue': depth0},
         contexts: [],
         types: [],
         data: data
@@ -966,13 +954,12 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th># of turns:</th>\n    <td class=\"input-group input-group-sm\">");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
-            'value': ("ramping_turns"),
+            'numericValue': ("ramping_turns"),
     'min': ("1"),
     'step': ("1")
         },
-        hashTypes: {'type': "STRING", 'value': "ID", 'min': "STRING", 'step': "STRING"},
-        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0, 'step': depth0},
+        hashTypes: {'numericValue': "ID", 'min': "STRING", 'step': "STRING"},
+        hashContexts: {'numericValue': depth0, 'min': depth0, 'step': depth0},
         contexts: [],
         types: [],
         data: data
@@ -1025,11 +1012,10 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
         data.buffer.push("\n                <tr>\n                    <th>Width:</th>\n                    <td class=\"input-group input-group-sm\">");
         data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
             hash: {
-                'type': ("number"),
-                'value': ("width")
+                'numericValue': ("width")
             },
-            hashTypes: {'type': "STRING", 'value': "ID"},
-            hashContexts: {'type': depth0, 'value': depth0},
+            hashTypes: {'numericValue': "ID"},
+            hashContexts: {'numericValue': depth0},
             contexts: [],
             types: [],
             data: data
@@ -1037,11 +1023,10 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
         data.buffer.push(" <span\n                            class=\"input-group-addon\">mm</span></td>\n                </tr>\n                <tr>\n                    <th>Height:</th>\n                    <td class=\"input-group input-group-sm\">");
         data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
             hash: {
-                'type': ("number"),
-                'value': ("height")
+                'numericValue': ("height")
             },
-            hashTypes: {'type': "STRING", 'value': "ID"},
-            hashContexts: {'type': depth0, 'value': depth0},
+            hashTypes: {'numericValue': "ID"},
+            hashContexts: {'numericValue': depth0},
             contexts: [],
             types: [],
             data: data
@@ -1049,11 +1034,10 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
         data.buffer.push(" <span\n                            class=\"input-group-addon\">mm</span></td>\n                </tr>\n                <tr>\n                    <th>X Offset:</th>\n                    <td class=\"input-group input-group-sm\">");
         data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
             hash: {
-                'type': ("number"),
-                'value': ("offsetX")
+                'numericValue': ("offsetX")
             },
-            hashTypes: {'type': "STRING", 'value': "ID"},
-            hashContexts: {'type': depth0, 'value': depth0},
+            hashTypes: {'numericValue': "ID"},
+            hashContexts: {'numericValue': depth0},
             contexts: [],
             types: [],
             data: data
@@ -1061,11 +1045,10 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
         data.buffer.push(" <span\n                            class=\"input-group-addon\">mm</span></td>\n                </tr>\n                <tr>\n                    <th>Y Offset:</th>\n                    <td class=\"input-group input-group-sm\">");
         data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
             hash: {
-                'type': ("number"),
-                'value': ("offsetY")
+                'numericValue': ("offsetY")
             },
-            hashTypes: {'type': "STRING", 'value': "ID"},
-            hashContexts: {'type': depth0, 'value': depth0},
+            hashTypes: {'numericValue': "ID"},
+            hashContexts: {'numericValue': depth0},
             contexts: [],
             types: [],
             data: data
@@ -1080,11 +1063,10 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
         data.buffer.push("\n                <tr>\n                    <th>Radius:</th>\n                    <td class=\"input-group input-group-sm\">");
         data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
             hash: {
-                'type': ("number"),
-                'value': ("radius")
+                'numericValue': ("radius")
             },
-            hashTypes: {'type': "STRING", 'value': "ID"},
-            hashContexts: {'type': depth0, 'value': depth0},
+            hashTypes: {'numericValue': "ID"},
+            hashContexts: {'numericValue': depth0},
             contexts: [],
             types: [],
             data: data
@@ -1092,11 +1074,10 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
         data.buffer.push(" <span\n                            class=\"input-group-addon\">mm</span></td>\n                </tr>\n                <tr>\n                    <th>X:</th>\n                    <td class=\"input-group input-group-sm\">");
         data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
             hash: {
-                'type': ("number"),
-                'value': ("x")
+                'numericValue': ("x")
             },
-            hashTypes: {'type': "STRING", 'value': "ID"},
-            hashContexts: {'type': depth0, 'value': depth0},
+            hashTypes: {'numericValue': "ID"},
+            hashContexts: {'numericValue': depth0},
             contexts: [],
             types: [],
             data: data
@@ -1104,11 +1085,10 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
         data.buffer.push(" <span\n                            class=\"input-group-addon\">mm</span></td>\n                </tr>\n                <tr>\n                    <th>Y:</th>\n                    <td class=\"input-group input-group-sm\">");
         data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
             hash: {
-                'type': ("number"),
-                'value': ("y")
+                'numericValue': ("y")
             },
-            hashTypes: {'type': "STRING", 'value': "ID"},
-            hashContexts: {'type': depth0, 'value': depth0},
+            hashTypes: {'numericValue': "ID"},
+            hashContexts: {'numericValue': depth0},
             contexts: [],
             types: [],
             data: data
@@ -1159,12 +1139,11 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"How far the tool should stay away from the line in X-Y plane\">Leave Stock:</th>\n    <td class=\"input-group input-group-sm\">");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
-            'value': ("contour_leaveStock"),
+            'numericValue': ("contour_leaveStock"),
     'min': ("0")
         },
-        hashTypes: {'type': "STRING", 'value': "ID", 'min': "STRING"},
-        hashContexts: {'type': depth0, 'value': depth0, 'min': depth0},
+        hashTypes: {'numericValue': "ID", 'min': "STRING"},
+        hashContexts: {'numericValue': depth0, 'min': depth0},
         contexts: [],
         types: [],
         data: data
@@ -1172,11 +1151,10 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Contour Z:</th>\n    <td class=\"input-group input-group-sm\">");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
-            'value': ("simple_contourZ")
+            'numericValue': ("simple_contourZ")
         },
-        hashTypes: {'type': "STRING", 'value': "ID"},
-        hashContexts: {'type': depth0, 'value': depth0},
+        hashTypes: {'numericValue': "ID"},
+        hashContexts: {'numericValue': depth0},
         contexts: [],
         types: [],
         data: data
@@ -1194,11 +1172,10 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   data.buffer.push("<tr>\n    <th>engraving Z:</th>\n    <td class=\"input-group input-group-sm\">");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
-            'value': ("engraving_Z")
+            'numericValue': ("engraving_Z")
         },
-        hashTypes: {'type': "STRING", 'value': "ID"},
-        hashContexts: {'type': depth0, 'value': depth0},
+        hashTypes: {'numericValue': "ID"},
+        hashContexts: {'numericValue': depth0},
         contexts: [],
         types: [],
         data: data
@@ -1244,29 +1221,14 @@ function program3(depth0,data) {
   data.buffer.push("\n        </div>\n    </div>\n    <div class=\"controlPanel\">\n        <h3>Font</h3>\n\n        <div class=\"controlPanelContent\">\n            <label for=\"fontSize\">Size:</label><br>\n            ");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
     'id': ("fontSize"),
     'placeholder': ("Font Size"),
-            'valueBinding': ("fontSize"),
+            'numericValue': ("fontSize"),
     'min': ("0.01"),
     'max': ("500")
         },
-        hashTypes: {
-            'type': "STRING",
-            'id': "STRING",
-            'placeholder': "STRING",
-            'valueBinding': "STRING",
-            'min': "STRING",
-            'max': "STRING"
-        },
-        hashContexts: {
-            'type': depth0,
-            'id': depth0,
-            'placeholder': depth0,
-            'valueBinding': depth0,
-            'min': depth0,
-            'max': depth0
-        },
+        hashTypes: {'id': "STRING", 'placeholder': "STRING", 'numericValue': "ID", 'min': "STRING", 'max': "STRING"},
+        hashContexts: {'id': depth0, 'placeholder': depth0, 'numericValue': depth0, 'min': depth0, 'max': depth0},
         contexts: [],
         types: [],
         data: data
@@ -1284,26 +1246,23 @@ function program3(depth0,data) {
   data.buffer.push("\n        </div>\n    </div>\n\n    <div class=\"controlPanel\">\n        <h3>Tool</h3>\n\n        <div class=\"controlPanelContent\">\n            <label for=\"toolDiameter\" title=\"in mm\">Tool Diameter:</label><br>\n            ");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
     'id': ("toolDiameter"),
     'placeholder': ("tool diameter"),
-            'valueBinding': ("toolDiameter"),
+            'numericValueBinding': ("toolDiameter"),
     'min': ("0"),
     'action': ("launchComputationImmediately")
         },
         hashTypes: {
-            'type': "STRING",
             'id': "STRING",
             'placeholder': "STRING",
-            'valueBinding': "STRING",
+            'numericValueBinding': "STRING",
             'min': "STRING",
             'action': "STRING"
         },
         hashContexts: {
-            'type': depth0,
             'id': depth0,
             'placeholder': depth0,
-            'valueBinding': depth0,
+            'numericValueBinding': depth0,
             'min': depth0,
             'action': depth0
         },
@@ -1314,30 +1273,27 @@ function program3(depth0,data) {
   data.buffer.push("\n            <br>\n            <label for=\"radialEngagement\" title=\"ratio ]0-1]\">Radial Engagement:</label><br>\n            ");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
     'id': ("radialEngagement"),
     'placeholder': ("radial engagement"),
-            'valueBinding': ("radialEngagementRatio"),
+            'numericValueBinding': ("radialEngagementRatio"),
     'min': ("0"),
     'max': ("1"),
     'step': ("0.05"),
     'action': ("launchComputationImmediately")
         },
         hashTypes: {
-            'type': "STRING",
             'id': "STRING",
             'placeholder': "STRING",
-            'valueBinding': "STRING",
+            'numericValueBinding': "STRING",
             'min': "STRING",
             'max': "STRING",
             'step': "STRING",
             'action': "STRING"
         },
         hashContexts: {
-            'type': depth0,
             'id': depth0,
             'placeholder': depth0,
-            'valueBinding': depth0,
+            'numericValueBinding': depth0,
             'min': depth0,
             'max': depth0,
             'step': depth0,
@@ -1350,20 +1306,13 @@ function program3(depth0,data) {
   data.buffer.push("\n            <br>\n\n            <div class=\"controlPanel\">\n                <h3>Pocket</h3>\n\n                <div class=\"controlPanelContent\">\n                    <label for=\"workZ\" title=\"in mm\">Work Z:</label><br>\n                    ");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
     'id': ("workZ"),
     'placeholder': ("workZ"),
-            'valueBinding': ("workZ"),
+            'numericValueBinding': ("workZ"),
     'action': ("computeGCode")
         },
-        hashTypes: {
-            'type': "STRING",
-            'id': "STRING",
-            'placeholder': "STRING",
-            'valueBinding': "STRING",
-            'action': "STRING"
-        },
-        hashContexts: {'type': depth0, 'id': depth0, 'placeholder': depth0, 'valueBinding': depth0, 'action': depth0},
+        hashTypes: {'id': "STRING", 'placeholder': "STRING", 'numericValueBinding': "STRING", 'action': "STRING"},
+        hashContexts: {'id': depth0, 'placeholder': depth0, 'numericValueBinding': depth0, 'action': depth0},
         contexts: [],
         types: [],
         data: data
@@ -1371,20 +1320,13 @@ function program3(depth0,data) {
   data.buffer.push("\n                    <br>\n                    <label for=\"travelZ\" title=\"in mm\">Travel Z:</label><br>\n                    ");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
     'id': ("travelZ"),
     'placeholder': ("travelZ"),
-            'valueBinding': ("travelZ"),
+            'numericValueBinding': ("travelZ"),
     'action': ("computeGCode")
         },
-        hashTypes: {
-            'type': "STRING",
-            'id': "STRING",
-            'placeholder': "STRING",
-            'valueBinding': "STRING",
-            'action': "STRING"
-        },
-        hashContexts: {'type': depth0, 'id': depth0, 'placeholder': depth0, 'valueBinding': depth0, 'action': depth0},
+        hashTypes: {'id': "STRING", 'placeholder': "STRING", 'numericValueBinding': "STRING", 'action': "STRING"},
+        hashContexts: {'id': depth0, 'placeholder': depth0, 'numericValueBinding': depth0, 'action': depth0},
         contexts: [],
         types: [],
         data: data
@@ -1392,20 +1334,13 @@ function program3(depth0,data) {
   data.buffer.push("\n                    <br>\n                    <label for=\"feedRate\" title=\"in mm/min\">Feed Rate:</label><br>\n                    ");
     data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
         hash: {
-            'type': ("number"),
     'id': ("feedRate"),
     'placeholder': ("feedRate"),
-            'valueBinding': ("feedRate"),
+            'numericValueBinding': ("feedRate"),
     'action': ("computeGCode")
         },
-        hashTypes: {
-            'type': "STRING",
-            'id': "STRING",
-            'placeholder': "STRING",
-            'valueBinding': "STRING",
-            'action': "STRING"
-        },
-        hashContexts: {'type': depth0, 'id': depth0, 'placeholder': depth0, 'valueBinding': depth0, 'action': depth0},
+        hashTypes: {'id': "STRING", 'placeholder': "STRING", 'numericValueBinding': "STRING", 'action': "STRING"},
+        hashContexts: {'id': depth0, 'placeholder': depth0, 'numericValueBinding': depth0, 'action': depth0},
         contexts: [],
         types: [],
         data: data

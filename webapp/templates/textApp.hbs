@@ -11,7 +11,7 @@
 
         <div class="controlPanelContent">
             <label for="fontSize">Size:</label><br>
-            {{number-input type="number" id="fontSize" placeholder="Font Size" valueBinding="fontSize" min="0.01" max="500"}}
+            {{number-input id="fontSize" placeholder="Font Size" numericValue=fontSize min="0.01" max="500"}}
             <br>
             {{view Ember.Select content=controllers.fonts value=fontName optionLabelPath="content.family" optionValuePath="content.family"}}
             <br>
@@ -28,12 +28,12 @@
 
         <div class="controlPanelContent">
             <label for="toolDiameter" title="in mm">Tool Diameter:</label><br>
-            {{number-input type="number" id="toolDiameter" placeholder="tool diameter"
-            valueBinding="toolDiameter" min="0" action="launchComputationImmediately"}}
+            {{number-input id="toolDiameter" placeholder="tool diameter"
+            numericValueBinding="toolDiameter" min="0" action="launchComputationImmediately"}}
             <br>
             <label for="radialEngagement" title="ratio ]0-1]">Radial Engagement:</label><br>
-            {{number-input type="number" id="radialEngagement" placeholder="radial engagement"
-            valueBinding="radialEngagementRatio" min="0" max="1" step="0.05" action="launchComputationImmediately"}}
+            {{number-input id="radialEngagement" placeholder="radial engagement"
+            numericValueBinding="radialEngagementRatio" min="0" max="1" step="0.05" action="launchComputationImmediately"}}
             <br>
 
             <div class="controlPanel">
@@ -41,16 +41,16 @@
 
                 <div class="controlPanelContent">
                     <label for="workZ" title="in mm">Work Z:</label><br>
-                    {{number-input type="number" id="workZ" placeholder="workZ"
-                    valueBinding="workZ" action="computeGCode"}}
+                    {{number-input id="workZ" placeholder="workZ"
+                    numericValueBinding="workZ" action="computeGCode"}}
                     <br>
                     <label for="travelZ" title="in mm">Travel Z:</label><br>
-                    {{number-input type="number" id="travelZ" placeholder="travelZ"
-                    valueBinding="travelZ" action="computeGCode"}}
+                    {{number-input id="travelZ" placeholder="travelZ"
+                    numericValueBinding="travelZ" action="computeGCode"}}
                     <br>
                     <label for="feedRate" title="in mm/min">Feed Rate:</label><br>
-                    {{number-input type="number" id="feedRate" placeholder="feedRate"
-                    valueBinding="feedRate" action="computeGCode"}}
+                    {{number-input id="feedRate" placeholder="feedRate"
+                    numericValueBinding="feedRate" action="computeGCode"}}
                 </div>
             </div>
         </div>
