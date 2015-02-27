@@ -1593,5 +1593,3 @@
         this['RSVP'] = rsvp$umd$$RSVP;
     }
 }).call(this);
-
-//# sourceMappingURL=rsvp.js.map
