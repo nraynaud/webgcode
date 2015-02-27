@@ -134,10 +134,10 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
             label: '3D linear milling',
             specialTemplate: '3DMilling',
             properties: {
-                '3d_leaveStock': attr('number', {defaultValue: 0.2}),
+                '3d_leaveStock': attr('number', {defaultValue: 0.5}),
                 '3d_minZ': attr('number', {defaultValue: -1000}),
                 '3d_toolType': attr('string', {defaultValue: 'cylinder'}),
-                '3d_diametralEngagement': attr('number', {defaultValue: 90}),
+                '3d_diametralEngagement': attr('number', {defaultValue: 40}),
                 '3d_pathOrientation': attr('string', {defaultValue: 0}),
                 '3d_startPercent': attr('number', {defaultValue: 0}),
                 '3d_stopPercent': attr('number', {defaultValue: 100}),
