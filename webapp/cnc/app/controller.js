@@ -185,9 +185,14 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble'],
         });
 
         var ShapeController = Ember.ObjectController.extend({
+            shapeTypes: ['rectangle'],
+            shape: 'rectangle',
             isManual: function () {
                 return this.get('type') == 'manual';
             }.property('type'),
+            isRectangle: function () {
+                return true;
+            },
             rectangleChanged: function () {
                 var w = this.get('width');
                 var h = this.get('height');
