@@ -1,6 +1,7 @@
 "use strict";
 
-define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', 'cnc/cam/toolpath', 'cnc/cam/3D/3Dcomputer', 'require', 'libs/pako.min', 'base64'],
+define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', 'cnc/cam/toolpath', 'cnc/cam/3D/3Dcomputer',
+        'require', 'libs/pako.min', 'base64'],
     function (Ember, DS, cam, util, Operations, tp, Computer, require, pako, base64) {
         var attr = DS.attr;
 
@@ -12,11 +13,41 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 return deserialized;
             }
         });
+        var ManualShapeSerializer = DS.JSONSerializer.extend({
+            serialize: function (snapshot, options) {
+                var json = this._super.apply(this, arguments);
+                json.id = snapshot.id;
+                return json;
+            }
+        });
+        var ManualShape = DS.Model.extend({
+            type: attr('string', {defaultValue: 'rectangle'}),
+            width: attr('number', {defaultValue: 10}),
+            height: attr('number', {defaultValue: 15}),
+            x: attr('number', {defaultValue: 0}),
+            y: attr('number', {defaultValue: 0}),
+            radius: attr('number', {defaultValue: 0}),
+            svgRepresentation: function () {
+                if (this.get('type') == 'rectangle') {
+                    var w = this.get('width');
+                    var h = this.get('height');
+                    var offsetX = this.get('x');
+                    var offsetY = this.get('y');
+                    return 'M' + offsetX + ',' + offsetY + 'L' + offsetX + ',' + (offsetY + h) + 'L' + (offsetX + w)
+                        + ',' + (offsetY + h) + 'L' + (offsetX + w) + ',' + offsetY + 'Z';
+                } else if (this.get('type') == 'circle') {
+                    var radius = this.get('radius');
+                    var x = this.get('x');
+                    var y = this.get('y');
+                    return cam.geom.createCircle(x, y, radius);
+                }
+            }.property('type', 'width', 'height', 'x', 'y', 'radius')
+        });
 
         var Shape = DS.Model.extend({
             name: attr('string', {defaultValue: 'New Shape'}),
             type: attr('string', {defaultValue: 'imported'}),
-            manualDefinition: attr('string'),
+            manualDefinition: DS.belongsTo('manualShape', {embedded: true}),
             definition: attr('string'),
             encodedStlModel: attr('string'),
             polyline: function () {
@@ -35,17 +66,9 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 }
             }.property('encodedStlModel'),
             manualDefinitionChanged: function () {
-                if (this.get('type') == 'manual') {
-                    var defObject = JSON.parse(this.get('manualDefinition'));
-                    if (defObject && defObject.type == 'rectangle') {
-                        var w = defObject.width;
-                        var h = defObject.height;
-                        var offsetX = defObject.offsetX;
-                        var offsetY = defObject.offsetY;
-                        this.set('definition', 'M' + offsetX + ',' + offsetY + 'L' + offsetX + ',' + (offsetY + h) + 'L' + (offsetX + w) + ',' + (offsetY + h) + 'L' + (offsetX + w) + ',' + offsetY + 'Z');
-                    }
-                }
-            }.observes('manualDefinition')
+                if (this.get('type') == 'manual')
+                    this.set('definition', this.get('manualDefinition.svgRepresentation'));
+            }.observes('manualDefinition', 'manualDefinition.svgRepresentation').on('init')
         });
 
         var operationDefinition = {
@@ -123,7 +146,8 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 var stopRatio = this.get('3d_stopPercent') / 100;
                 var zigzag = this.get('3d_zigZag');
                 var computer = new Computer.ToolPathComputer();
-                var task = computer.computeHeightField(model, stepover, type, toolDiameter / 2, leaveStock, orientation, startRatio, stopRatio);
+                var task = computer.computeHeightField(model, stepover, type, toolDiameter / 2, leaveStock, orientation,
+                    startRatio, stopRatio);
                 this.set('task', task);
                 task.addObserver('isDone', function () {
                     _this.set('task', null);
@@ -247,8 +271,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                         _this.set('jobSummary', summary);
                     } else
                         summary.set('name', _this.get('name'));
-                    summary.save();
-                    _this.save();
+                    return Ember.RSVP.all([summary.save(), _this.save()]);
                 });
             },
             updateSpeed: function () {
@@ -318,7 +341,8 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             JobSummary: JobSummary,
             Operation: Operation,
             Shape: Shape,
-            PointTransform: PointTransform
+            ManualShape: ManualShape,
+            PointTransform: PointTransform,
+            ManualShapeSerializer: ManualShapeSerializer
         }
-    })
-;
+    });

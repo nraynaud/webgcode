@@ -150,16 +150,19 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble'],
                     this.transitionToRoute('operation', this.get('model').createOperation({}));
                 },
                 createShape: function () {
-                    this.transitionToRoute('shape', this.get('model').createShape(null, 'New Shape', {
-                        'type': 'manual',
-                        manualDefinition: JSON.stringify({
-                            type: 'rectangle',
-                            width: 15,
-                            height: 20,
-                            offsetX: 0,
-                            offsetY: 0
-                        })
-                    }));
+                    var manualDefinition = this.store.createRecord('manualShape', {
+                        type: 'rectangle',
+                        width: 15,
+                        height: 20,
+                        x: 0,
+                        y: 0,
+                        radius: 5
+                    });
+                    var shape = this.get('model').createShape(null, 'New Shape', {
+                        'type': 'manual'
+                    });
+                    shape.set('manualDefinition', manualDefinition);
+                    this.transitionToRoute('shape', shape);
                 },
                 'delete': function () {
                     var _this = this;
@@ -185,41 +188,13 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble'],
         });
 
         var ShapeController = Ember.ObjectController.extend({
-            shapeTypes: ['rectangle'],
-            shape: 'rectangle',
+            shapeTypes: ['rectangle', 'circle'],
             isManual: function () {
                 return this.get('type') == 'manual';
             }.property('type'),
             isRectangle: function () {
-                return true;
-            },
-            rectangleChanged: function () {
-                var w = this.get('width');
-                var h = this.get('height');
-                if (w != null && h != null) {
-                    var offsetX = this.get('offsetX');
-                    offsetX = offsetX == null ? 0 : offsetX;
-                    var offsetY = this.get('offsetY');
-                    offsetY = offsetY == null ? 0 : offsetY;
-                    var json = JSON.stringify({
-                        type: 'rectangle',
-                        width: w,
-                        height: h,
-                        offsetX: offsetX,
-                        offsetY: offsetY
-                    });
-                    this.set('model.manualDefinition', json);
-                }
-            }.observes('width', 'height', 'offsetX', 'offsetY'),
-            modelChanged: function () {
-                if (this.get('model.type') == 'manual' && this.get('model.manualDefinition')) {
-                    var json = JSON.parse(this.get('model.manualDefinition'));
-                    this.set('width', json.width);
-                    this.set('height', json.height);
-                    this.set('offsetX', json.offsetX);
-                    this.set('offsetY', json.offsetY);
-                }
-            }.observes('model')
+                return this.get('isManual') && this.get('manualDefinition.type') == 'rectangle';
+            }.property('isManual', 'manualDefinition.type')
         });
 
         var OperationController = Ember.ObjectController.extend({

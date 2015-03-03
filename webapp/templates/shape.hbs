@@ -8,43 +8,43 @@
         {{#if isManual}}
             <tr>
                 <th>Shape:</th>
-                <td class="input-group input-group-sm">{{view Ember.Select value=shape content=shapeTypes}}</td>
+                <td class="input-group input-group-sm">{{view Ember.Select value=manualDefinition.type content=shapeTypes}}</td>
             </tr>
             {{#if isRectangle}}
                 <tr>
                     <th>Width:</th>
-                    <td class="input-group input-group-sm">{{number-input numericValue=width}} <span
+                    <td class="input-group input-group-sm">{{number-input numericValue=manualDefinition.width}} <span
                             class="input-group-addon">mm</span></td>
                 </tr>
                 <tr>
                     <th>Height:</th>
-                    <td class="input-group input-group-sm">{{number-input numericValue=height}} <span
+                    <td class="input-group input-group-sm">{{number-input numericValue=manualDefinition.height}} <span
                             class="input-group-addon">mm</span></td>
                 </tr>
                 <tr>
                     <th>X Offset:</th>
-                    <td class="input-group input-group-sm">{{number-input numericValue=offsetX}} <span
+                    <td class="input-group input-group-sm">{{number-input numericValue=manualDefinition.x}} <span
                             class="input-group-addon">mm</span></td>
                 </tr>
                 <tr>
                     <th>Y Offset:</th>
-                    <td class="input-group input-group-sm">{{number-input numericValue=offsetY}} <span
+                    <td class="input-group input-group-sm">{{number-input numericValue=manualDefinition.y}} <span
                             class="input-group-addon">mm</span></td>
                 </tr>
             {{else}}
                 <tr>
                     <th>Radius:</th>
-                    <td class="input-group input-group-sm">{{number-input numericValue=radius}} <span
+                    <td class="input-group input-group-sm">{{number-input numericValue=manualDefinition.radius}} <span
                             class="input-group-addon">mm</span></td>
                 </tr>
                 <tr>
                     <th>X:</th>
-                    <td class="input-group input-group-sm">{{number-input numericValue=x}} <span
+                    <td class="input-group input-group-sm">{{number-input numericValue=manualDefinition.x}} <span
                             class="input-group-addon">mm</span></td>
                 </tr>
                 <tr>
                     <th>Y:</th>
-                    <td class="input-group input-group-sm">{{number-input numericValue=y}} <span
+                    <td class="input-group input-group-sm">{{number-input numericValue=manualDefinition.y}} <span
                             class="input-group-addon">mm</span></td>
                 </tr>
             {{/if}}

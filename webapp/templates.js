@@ -979,7 +979,7 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
         data.buffer.push("\n            <tr>\n                <th>Shape:</th>\n                <td class=\"input-group input-group-sm\">");
         data.buffer.push(escapeExpression(helpers.view.call(depth0, "Ember.Select", {
             hash: {
-                'value': ("shape"),
+                'value': ("manualDefinition.type"),
                 'content': ("shapeTypes")
             },
             hashTypes: {'value': "ID", 'content': "ID"},
@@ -1012,7 +1012,7 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
         data.buffer.push("\n                <tr>\n                    <th>Width:</th>\n                    <td class=\"input-group input-group-sm\">");
         data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
             hash: {
-                'numericValue': ("width")
+                'numericValue': ("manualDefinition.width")
             },
             hashTypes: {'numericValue': "ID"},
             hashContexts: {'numericValue': depth0},
@@ -1023,7 +1023,7 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
         data.buffer.push(" <span\n                            class=\"input-group-addon\">mm</span></td>\n                </tr>\n                <tr>\n                    <th>Height:</th>\n                    <td class=\"input-group input-group-sm\">");
         data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
             hash: {
-                'numericValue': ("height")
+                'numericValue': ("manualDefinition.height")
             },
             hashTypes: {'numericValue': "ID"},
             hashContexts: {'numericValue': depth0},
@@ -1034,7 +1034,7 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
         data.buffer.push(" <span\n                            class=\"input-group-addon\">mm</span></td>\n                </tr>\n                <tr>\n                    <th>X Offset:</th>\n                    <td class=\"input-group input-group-sm\">");
         data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
             hash: {
-                'numericValue': ("offsetX")
+                'numericValue': ("manualDefinition.x")
             },
             hashTypes: {'numericValue': "ID"},
             hashContexts: {'numericValue': depth0},
@@ -1045,7 +1045,7 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
         data.buffer.push(" <span\n                            class=\"input-group-addon\">mm</span></td>\n                </tr>\n                <tr>\n                    <th>Y Offset:</th>\n                    <td class=\"input-group input-group-sm\">");
         data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
             hash: {
-                'numericValue': ("offsetY")
+                'numericValue': ("manualDefinition.y")
             },
             hashTypes: {'numericValue': "ID"},
             hashContexts: {'numericValue': depth0},
@@ -1063,7 +1063,7 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
         data.buffer.push("\n                <tr>\n                    <th>Radius:</th>\n                    <td class=\"input-group input-group-sm\">");
         data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
             hash: {
-                'numericValue': ("radius")
+                'numericValue': ("manualDefinition.radius")
             },
             hashTypes: {'numericValue': "ID"},
             hashContexts: {'numericValue': depth0},
@@ -1074,7 +1074,7 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
         data.buffer.push(" <span\n                            class=\"input-group-addon\">mm</span></td>\n                </tr>\n                <tr>\n                    <th>X:</th>\n                    <td class=\"input-group input-group-sm\">");
         data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
             hash: {
-                'numericValue': ("x")
+                'numericValue': ("manualDefinition.x")
             },
             hashTypes: {'numericValue': "ID"},
             hashContexts: {'numericValue': depth0},
@@ -1085,7 +1085,7 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
         data.buffer.push(" <span\n                            class=\"input-group-addon\">mm</span></td>\n                </tr>\n                <tr>\n                    <th>Y:</th>\n                    <td class=\"input-group input-group-sm\">");
         data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
             hash: {
-                'numericValue': ("y")
+                'numericValue': ("manualDefinition.y")
             },
             hashTypes: {'numericValue': "ID"},
             hashContexts: {'numericValue': depth0},

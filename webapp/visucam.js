@@ -137,7 +137,10 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
         Visucam.JobRoute = Ember.Route.extend({
             model: function (params) {
                 var _this = this;
-                return this.store.find('job', params.job_id).then(null, function () {
+                return this.store.find('job', params.job_id).then(null, function (error) {
+                    console.log('error', error);
+                    if (error && error.stack)
+                        console.log(error.stack);
                     _this.transitionTo('index');
                 });
             },
