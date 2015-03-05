@@ -156,7 +156,7 @@ __attribute__ ((used)) void TIM3_IRQHandler(void) {
     }
 }
 
-__attribute__ ((noreturn)) int main(void) {
+__attribute__ ((noreturn)) void main(void) {
     //enable FPU
     SCB->CPACR |= 0b000000000111100000000000000000000UL;
 
