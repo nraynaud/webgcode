@@ -252,6 +252,14 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 this.set('transitionTravels', travelBits);
             },
             createOperation: function (params) {
+                if (params == null) {
+                    var lastOp = this.get('operations.lastObject');
+                    if (lastOp) {
+                        params = lastOp.toJSON();
+                        params.job = this;
+                        params.outline = lastOp.get('outline');
+                    }
+                }
                 var operation = this.store.createRecord('operation', params);
                 operation.set('job', this);
                 this.get('operations').pushObject(operation);
