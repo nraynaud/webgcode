@@ -218,6 +218,17 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble'],
             specialTemplate: function () {
                 return Operations[this.get('type')].specialTemplate;
             }.property('type'),
+            stlShapes: Ember.computed.filter('job.shapes', function (shape) {
+                return shape.get('stlModel') != null;
+            }),
+            NonStlShapes: Ember.computed.filter('job.shapes', function (shape) {
+                return shape.get('stlModel') == null;
+            }),
+            suitableShapes: function () {
+                if (this.get('type') == '3DlinearOperation')
+                    return this.get('stlShapes');
+                return this.get('NonStlShapes');
+            }.property('stlShapes', 'NonStlShapes', 'type'),
             operationDescriptors: function () {
                 return Object.keys(Operations).map(function (key) {
                     return $.extend({class: key}, Operations[key]);
