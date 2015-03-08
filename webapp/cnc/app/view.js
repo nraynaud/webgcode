@@ -181,9 +181,9 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE'],
                 this.get('controller.shapes').forEach(function (shape) {
                     var polyline = shape.get('polyline');
                     outlinesDisplay.addPolyLines(polyline);
-                    var stlModel = shape.get('stlModel');
-                    if (stlModel)
-                        outlinesDisplay.node.add(_this.get('nativeComponent').loadSTL(stlModel));
+                    var meshGeometry = shape.get('meshGeometry');
+                    if (meshGeometry)
+                        outlinesDisplay.node.add(_this.get('nativeComponent').loadSTL(meshGeometry));
                 });
                 this.get('nativeComponent').zoomExtent();
             }.observes('controller.shapes.@each.polyline', 'controller.shapes.@each.stlModel'),

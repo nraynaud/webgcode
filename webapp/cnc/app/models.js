@@ -1,8 +1,8 @@
 "use strict";
 
 define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', 'cnc/cam/toolpath', 'cnc/cam/3D/3Dcomputer',
-        'require', 'libs/pako.min', 'base64'],
-    function (Ember, DS, cam, util, Operations, tp, Computer, require, pako, base64) {
+        'require', 'libs/pako.min', 'base64', 'THREE', 'libs/threejs/STLLoader'],
+    function (Ember, DS, cam, util, Operations, tp, Computer, require, pako, base64, THREE, STLLoader) {
         var attr = DS.attr;
 
         var PointTransform = DS.Transform.extend({
@@ -68,7 +68,16 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             manualDefinitionChanged: function () {
                 if (this.get('type') == 'manual')
                     this.set('definition', this.get('manualDefinition.svgRepresentation'));
-            }.observes('manualDefinition', 'manualDefinition.svgRepresentation').on('init')
+            }.observes('manualDefinition', 'manualDefinition.svgRepresentation').on('init'),
+            meshGeometry: function () {
+                var stlModel = this.get('stlModel');
+                if (stlModel == null)
+                    return null;
+                var geometry = new STLLoader().parse(stlModel);
+                if (geometry.type != 'BufferGeometry')
+                    geometry = new THREE.BufferGeometry().fromGeometry(geometry);
+                return geometry;
+            }.property('stlModel')
         });
 
         var operationDefinition = {
@@ -136,7 +145,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             },
             compute3D: function (safetyZ, toolDiameter) {
                 var _this = this;
-                var model = this.get('outline.stlModel');
+                var model = this.get('outline.meshGeometry');
                 var leaveStock = this.get('3d_leaveStock');
                 var minZ = this.get('3d_minZ');
                 var type = this.get('3d_toolType');

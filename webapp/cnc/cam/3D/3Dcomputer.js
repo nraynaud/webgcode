@@ -1,9 +1,9 @@
 "use strict";
-define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/minkowskiPass',
+define(['RSVP', 'THREE', 'Piecon', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/minkowskiPass',
         'cnc/cam/3D/toolProfile', 'libs/threejs/postprocessing/ShaderPass', 'libs/threejs/postprocessing/CopyShader',
         'cnc/cam/toolpath', 'cnc/app/task', 'require'
     ],
-    function (RSVP, THREE, Piecon, STLLoader, ModelProjector, MinkowskiPass, toolProfile, ShaderPass, CopyShader, tp,
+    function (RSVP, THREE, Piecon, ModelProjector, MinkowskiPass, toolProfile, ShaderPass, CopyShader, tp,
               Task, require) {
         RSVP.on('error', function (reason) {
             console.assert(false, reason);
@@ -15,16 +15,13 @@ define(['RSVP', 'THREE', 'Piecon', 'libs/threejs/STLLoader', 'cnc/cam/3D/modelPr
         }
 
         ToolPathComputer.prototype = {
-            computeHeightField: function (stlData, stepover, toolType, toolRadius, leaveStock, angle, startRatio, stopRatio, renderer, displayResult) {
+            computeHeightField: function (geometry, stepover, toolType, toolRadius, leaveStock, angle, startRatio, stopRatio, renderer, displayResult) {
                 var _this = this;
 
                 function work(task, resolve, reject) {
                     console.log('preparation');
                     if (angle == null)
                         angle = 0;
-                    var geometry = new STLLoader().parse(stlData);
-                    if (geometry.type != 'BufferGeometry')
-                        geometry = new THREE.BufferGeometry().fromGeometry(geometry);
                     var modelStage = new ModelProjector();
                     modelStage.setGeometry(geometry);
                     modelStage.setAngle(angle);

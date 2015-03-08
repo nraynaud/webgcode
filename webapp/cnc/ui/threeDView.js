@@ -1,6 +1,6 @@
 "use strict";
-define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cubeManipulator', 'libs/threejs/STLLoader'],
-    function (THREE, TWEEN, util, OrbitControls, cubeManipulator, STLLoader) {
+define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cubeManipulator'],
+    function (THREE, TWEEN, util, OrbitControls, cubeManipulator) {
 
         function webglSupported() {
             try {
@@ -94,7 +94,7 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             if (webglSupported())
                 this.renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
             else
-                this.renderer = new THREE.CanvasRenderer({ alpha: true});
+                this.renderer = new THREE.CanvasRenderer({alpha: true});
             this.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 20000);
             this.scene = new THREE.Scene();
             this.overlayScene = new THREE.Scene();
@@ -121,7 +121,7 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             this.controls.staticMoving = true;
             this.controls.dynamicDampingFactor = 0.3;
             this.controls.minDistance = 3;
-            this.controls.keys = [ 65, 83, 68 ];
+            this.controls.keys = [65, 83, 68];
             this.controls.addEventListener('change', function () {
                 _this.reRender();
             });
@@ -130,7 +130,7 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                 var grid = new THREE.GridHelper(size, step);
                 grid.applyMatrix(new THREE.Matrix4().makeRotationX(Math.PI / 2));
                 grid.setColors(0xFF7F2A, 0xFF7F2A);
-                return  grid;
+                return grid;
             }
 
             this.scene.add(createGrid());
@@ -165,9 +165,23 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             this.overlayScene.add(axes);
             this.drawing = new THREE.Object3D();
             this.tool = new THREE.Object3D();
-            var toolbit = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 10, 20, 2, false), new THREE.MeshPhongMaterial({emissive: 0xEF0000, specular: 0x0F0000, shininess: 204, color: 0xF0F0F0, opacity: 0.5, transparent: true}));
+            var toolbit = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 10, 20, 2, false), new THREE.MeshPhongMaterial({
+                emissive: 0xEF0000,
+                specular: 0x0F0000,
+                shininess: 204,
+                color: 0xF0F0F0,
+                opacity: 0.5,
+                transparent: true
+            }));
             toolbit.translateY(5);
-            var spindle = new THREE.Mesh(new THREE.CylinderGeometry(4, 4, 15, 25, 2, false), new THREE.MeshPhongMaterial({emissive: 0xEFEFEF, specular: 0x0F0F0F, shininess: 204, color: 0xF0F0F0, opacity: 0.5, transparent: true}));
+            var spindle = new THREE.Mesh(new THREE.CylinderGeometry(4, 4, 15, 25, 2, false), new THREE.MeshPhongMaterial({
+                emissive: 0xEFEFEF,
+                specular: 0x0F0F0F,
+                shininess: 204,
+                color: 0xF0F0F0,
+                opacity: 0.5,
+                transparent: true
+            }));
             spindle.translateY(17.5);
             this.tool.applyMatrix(new THREE.Matrix4().makeRotationX(Math.PI / 2));
             this.tool.add(toolbit);
@@ -185,8 +199,10 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             this.normalMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFFFFFF});
             this.rapidMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFF0000});
             this.outlineMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFFFF00});
-            this.highlightMaterial = new THREE.LineBasicMaterial({depthWrite: false, overdraw: true, linewidth: 6,
-                color: 0xFF00FF, opacity: 0.5, transparent: true});
+            this.highlightMaterial = new THREE.LineBasicMaterial({
+                depthWrite: false, overdraw: true, linewidth: 6,
+                color: 0xFF00FF, opacity: 0.5, transparent: true
+            });
             //needed because requestAnimationFrame can't pass a "this".
             this.requestAnimationFrameCallback = this.actuallyRender.bind(this);
             $container.prepend(cubeManipulator(this));
@@ -197,12 +213,13 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
         }
 
         ThreeDView.prototype = {
-            loadSTL: function (data) {
-                var loader = new STLLoader();
-                var res = loader.parse(data);
-                res.computeFaceNormals();
-                res.computeVertexNormals();
-                return new THREE.Mesh(res, new THREE.MeshLambertMaterial({color: 0xFEEFFE, shading: THREE.SmoothShading}));
+            loadSTL: function (meshGeometry) {
+                meshGeometry.computeFaceNormals();
+                meshGeometry.computeVertexNormals();
+                return new THREE.Mesh(meshGeometry, new THREE.MeshLambertMaterial({
+                    color: 0xFEEFFE,
+                    shading: THREE.SmoothShading
+                }));
             },
             addToolpathFragment: function (fragment) {
                 this[fragment.speedTag == 'rapid' ? 'rapidToolpathNode' : 'normalToolpathNode'].addCollated(fragment.vertices);
