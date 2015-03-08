@@ -147,7 +147,7 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble'],
                     this.get('model').saveAll();
                 },
                 createOperation: function () {
-                    this.transitionToRoute('operation', this.get('model').createOperation({}));
+                    this.transitionToRoute('operation', this.get('model').createOperation());
                 },
                 createShape: function () {
                     var manualDefinition = this.store.createRecord('manualShape', {
