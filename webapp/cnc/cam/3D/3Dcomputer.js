@@ -23,7 +23,7 @@ define(['RSVP', 'THREE', 'Piecon', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/mink
                     if (angle == null)
                         angle = 0;
                     var modelStage = new ModelProjector();
-                    modelStage.setGeometry(geometry);
+                    modelStage.setGeometry(geometry.clone());
                     modelStage.setAngle(angle);
                     if (!renderer)
                         renderer = new THREE.WebGLRenderer({
