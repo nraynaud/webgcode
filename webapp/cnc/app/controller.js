@@ -229,6 +229,11 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble'],
                     return this.get('stlShapes');
                 return this.get('NonStlShapes');
             }.property('stlShapes', 'NonStlShapes', 'type'),
+            typeChanged: function () {
+                var suitableShapes = this.get('suitableShapes');
+                if (!suitableShapes.contains(this.get('outline')))
+                    this.set('outline', suitableShapes.get('firstObject'));
+            }.observes('suitableShapes'),
             operationDescriptors: function () {
                 return Object.keys(Operations).map(function (key) {
                     return $.extend({class: key}, Operations[key]);
