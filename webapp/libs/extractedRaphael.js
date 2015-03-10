@@ -364,8 +364,13 @@ R = (function () {
                 k = (large_arc_flag == sweep_flag ? -1 : 1) * Math.sqrt(Math.abs((rx2 * ry2 - rx2 * y * y - ry2 * x * x) / (rx2 * y * y + ry2 * x * x))),
                 cx = k * rx * y / ry + (x1 + x2) / 2,
                 cy = k * -ry * x / rx + (y1 + y2) / 2,
-                f1 = Math.asin((y1 - cy) / ry),
-                f2 = Math.asin((y2 - cy) / ry);
+            //nraynaud: armor against >1 sin.
+                sin1 = (y1 - cy) / ry,
+                sin2 = (y2 - cy) / ry,
+                sin1Sign = sin1 >= 0 ? 1 : -1,
+                sign2Sign = sin2 >= 0 ? 1 : -1,
+                f1 = Math.abs(sin1) > 1 ? sin1Sign * Math.PI / 2 : Math.asin(sin1),
+                f2 = Math.abs(sin2) > 1 ? sign2Sign * Math.PI / 2 : Math.asin(sin2);
             f1 = x1 < cx ? Math.PI - f1 : f1;
             f2 = x2 < cx ? Math.PI - f2 : f2;
             f1 < 0 && (f1 = Math.PI * 2 + f1);
