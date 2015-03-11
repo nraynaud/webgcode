@@ -39,12 +39,10 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     var h = this.get('height');
                     return 'M' + x + ',' + y + 'L' + x + ',' + (y + h) + 'L' + (x + w)
                         + ',' + (y + h) + 'L' + (x + w) + ',' + y + 'Z';
-                } else if (this.get('type') == 'circle') {
-                    var radius = this.get('radius');
-                    return cam.geom.createCircle(x, y, radius);
-                } else if (this.get('type') == 'text') {
+                } else if (this.get('type') == 'circle')
+                    return cam.geom.createCircle(x, y, this.get('radius'));
+                else if (this.get('type') == 'text')
                     return Text.getTextFromFile(this.get('fontFile'), this.get('text'), this.get('fontSize'), x, y);
-                }
             }.property('type', 'width', 'height', 'x', 'y', 'radius', 'text', 'fontSize', 'fontName', 'fontFile')
         });
 

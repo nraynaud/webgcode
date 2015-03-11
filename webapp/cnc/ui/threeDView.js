@@ -25,8 +25,11 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             clear: function () {
                 this.bufferedGeometry = null;
                 var node = this.node;
-                while (node.children.length)
-                    node.remove(node.children[0]);
+                while (node.children.length) {
+                    var child = node.children[0];
+                    child.geometry.dispose();
+                    node.remove(child);
+                }
             },
             addPolyLines: function (polylines) {
                 for (var i = 0; i < polylines.length; i++) {
