@@ -23,15 +23,21 @@ define(['RSVP', 'cnc/cam/cam', 'clipper', 'libs/opentype'], function (RSVP, cam,
             });
     }
 
-    function getTextFromData(fontData, fontVariant, text, fontSize) {
+    function getTextFromData(fontData, fontVariant, text, fontSize, x, y) {
         if (fontVariant == null)
             fontVariant = 'regular';
-        return getFont(fontData.files[fontVariant]).then(function (font) {
+        x = x == null ? 0 : x;
+        y = y == null ? 0 : y;
+        return getTextFromFile(fontData.files[fontVariant], text, fontSize, x, y);
+    }
+
+    function getTextFromFile(file, text, fontSize, offsetX, offsetY) {
+        return getFont(file).then(function (font) {
             var path = font.getPath(text, 0, 0, fontSize);
             var res = '';
 
             function xy(x, y) {
-                return x + ',' + -y;
+                return (offsetX + x) + ',' + (offsetY - y);
             }
 
             for (var i = 0; i < path.commands.length; i++) {
@@ -63,6 +69,8 @@ define(['RSVP', 'cnc/cam/cam', 'clipper', 'libs/opentype'], function (RSVP, cam,
         })
     }
 
-    return {getText: getText, getFontList: getFontList, searchFontInList: searchFontInList,
-        getTextFromData: getTextFromData};
+    return {
+        getText: getText, getFontList: getFontList, searchFontInList: searchFontInList,
+        getTextFromData: getTextFromData, getTextFromFile: getTextFromFile
+    };
 });

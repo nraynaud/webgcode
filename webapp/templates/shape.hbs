@@ -32,21 +32,51 @@
                             class="input-group-addon">mm</span></td>
                 </tr>
             {{else}}
-                <tr>
-                    <th>Radius:</th>
-                    <td class="input-group input-group-sm">{{number-input numericValue=manualDefinition.radius}} <span
-                            class="input-group-addon">mm</span></td>
-                </tr>
-                <tr>
-                    <th>X:</th>
-                    <td class="input-group input-group-sm">{{number-input numericValue=manualDefinition.x}} <span
-                            class="input-group-addon">mm</span></td>
-                </tr>
-                <tr>
-                    <th>Y:</th>
-                    <td class="input-group input-group-sm">{{number-input numericValue=manualDefinition.y}} <span
-                            class="input-group-addon">mm</span></td>
-                </tr>
+                {{#if isCircle}}
+                    <tr>
+                        <th>Radius:</th>
+                        <td class="input-group input-group-sm">{{number-input numericValue=manualDefinition.radius}}
+                            <span class="input-group-addon">mm</span></td>
+                    </tr>
+                    <tr>
+                        <th>X:</th>
+                        <td class="input-group input-group-sm">{{number-input numericValue=manualDefinition.x}} <span
+                                class="input-group-addon">mm</span></td>
+                    </tr>
+                    <tr>
+                        <th>Y:</th>
+                        <td class="input-group input-group-sm">{{number-input numericValue=manualDefinition.y}} <span
+                                class="input-group-addon">mm</span></td>
+                    </tr>
+                {{else}}
+                    {{#if isText}}
+                        <tr>
+                            <th>Text:</th>
+                            <td class="input-group input-group-sm">{{input value=manualDefinition.text}}</td>
+                        </tr>
+                        <tr>
+                            <th>X:</th>
+                            <td class="input-group input-group-sm">{{number-input numericValue=manualDefinition.x}}
+                                <span class="input-group-addon">mm</span></td>
+                        </tr>
+                        <tr>
+                            <th>Y:</th>
+                            <td class="input-group input-group-sm">{{number-input numericValue=manualDefinition.y}}
+                                <span class="input-group-addon">mm</span></td>
+                        </tr>
+                        <tr>
+                            <th>Font:</th>
+                            <td class="input-group input-group-sm">{{view Ember.Select content=fonts
+                            value=manualDefinition.fontName optionLabelPath="content.family" optionValuePath="content.family"}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Size:</th>
+                            <td class="input-group input-group-sm">{{number-input numericValue=manualDefinition.fontSize}}
+                                <span class="input-group-addon">mm</span></td>
+                        </tr>
+                    {{/if}}
+                {{/if}}
             {{/if}}
         {{/if}}
         </tbody>

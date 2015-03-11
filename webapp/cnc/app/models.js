@@ -1,8 +1,8 @@
 "use strict";
 
 define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', 'cnc/cam/toolpath', 'cnc/cam/3D/3Dcomputer',
-        'require', 'libs/pako.min', 'base64', 'THREE', 'libs/threejs/STLLoader'],
-    function (Ember, DS, cam, util, Operations, tp, Computer, require, pako, base64, THREE, STLLoader) {
+        'require', 'libs/pako.min', 'base64', 'THREE', 'libs/threejs/STLLoader', 'cnc/cam/text'],
+    function (Ember, DS, cam, util, Operations, tp, Computer, require, pako, base64, THREE, STLLoader, Text) {
         var attr = DS.attr;
 
         var PointTransform = DS.Transform.extend({
@@ -27,21 +27,25 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             x: attr('number', {defaultValue: 0}),
             y: attr('number', {defaultValue: 0}),
             radius: attr('number', {defaultValue: 0}),
+            text: attr('string', {defaultValue: 'text'}),
+            fontSize: attr('number', {defaultValue: 30}),
+            fontName: attr('string', {defaultValue: 'Seymour One'}),
+            fontFile: attr('string', {defaultValue: 'http://fonts.gstatic.com/s/seymourone/v4/HrdG2AEG_870Xb7xBVv6C6CWcynf_cDxXwCLxiixG1c.ttf'}),
             svgRepresentation: function () {
+                var x = this.get('x');
+                var y = this.get('y');
                 if (this.get('type') == 'rectangle') {
                     var w = this.get('width');
                     var h = this.get('height');
-                    var offsetX = this.get('x');
-                    var offsetY = this.get('y');
-                    return 'M' + offsetX + ',' + offsetY + 'L' + offsetX + ',' + (offsetY + h) + 'L' + (offsetX + w)
-                        + ',' + (offsetY + h) + 'L' + (offsetX + w) + ',' + offsetY + 'Z';
+                    return 'M' + x + ',' + y + 'L' + x + ',' + (y + h) + 'L' + (x + w)
+                        + ',' + (y + h) + 'L' + (x + w) + ',' + y + 'Z';
                 } else if (this.get('type') == 'circle') {
                     var radius = this.get('radius');
-                    var x = this.get('x');
-                    var y = this.get('y');
                     return cam.geom.createCircle(x, y, radius);
+                } else if (this.get('type') == 'text') {
+                    return Text.getTextFromFile(this.get('fontFile'), this.get('text'), this.get('fontSize'), x, y);
                 }
-            }.property('type', 'width', 'height', 'x', 'y', 'radius')
+            }.property('type', 'width', 'height', 'x', 'y', 'radius', 'text', 'fontSize', 'fontName', 'fontFile')
         });
 
         var Shape = DS.Model.extend({
@@ -66,8 +70,12 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 }
             }.property('encodedStlModel'),
             manualDefinitionChanged: function () {
+                var _this = this;
                 if (this.get('type') == 'manual')
-                    this.set('definition', this.get('manualDefinition.svgRepresentation'));
+                    Ember.RSVP.resolve(this.get('manualDefinition.svgRepresentation'))
+                        .then(function (result) {
+                            _this.set('definition', result);
+                        });
             }.observes('manualDefinition', 'manualDefinition.svgRepresentation').on('init'),
             meshGeometry: function () {
                 var stlModel = this.get('stlModel');

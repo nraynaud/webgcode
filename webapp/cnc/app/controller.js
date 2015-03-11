@@ -1,7 +1,7 @@
 "use strict";
 
-define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble'],
-    function (Ember, Operations, util, Wabble) {
+define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/text'],
+    function (Ember, Operations, util, Wabble, text) {
         var wabble = new Wabble(13, 15, 1, 1, 5, 8, 3);
         var LoginController = Ember.ObjectController.extend({
             actions: {
@@ -188,13 +188,31 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble'],
         });
 
         var ShapeController = Ember.ObjectController.extend({
-            shapeTypes: ['rectangle', 'circle'],
+            init: function () {
+                var _this = this;
+                text.getFontList().then(function (list) {
+                    _this.set('fonts', list);
+                });
+            },
+            shapeTypes: ['rectangle', 'circle', 'text'],
             isManual: function () {
                 return this.get('type') == 'manual';
             }.property('type'),
             isRectangle: function () {
                 return this.get('isManual') && this.get('manualDefinition.type') == 'rectangle';
-            }.property('isManual', 'manualDefinition.type')
+            }.property('isManual', 'manualDefinition.type'),
+            isCircle: function () {
+                return this.get('isManual') && this.get('manualDefinition.type') == 'circle';
+            }.property('isManual', 'manualDefinition.type'),
+            isText: function () {
+                return this.get('isManual') && this.get('manualDefinition.type') == 'text';
+            }.property('isManual', 'manualDefinition.type'),
+            fonts: null,
+            fontChanged: function () {
+                console.log(this.get('manualDefinition.fontName'));
+                if (this.get('fonts'))
+                    this.set('model.manualDefinition.fontFile', text.searchFontInList(this.get('fonts'), this.get('manualDefinition.fontName')).files['regular']);
+            }.observes('manualDefinition.fontName')
         });
 
         var OperationController = Ember.ObjectController.extend({
