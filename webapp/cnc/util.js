@@ -122,6 +122,34 @@ define(function () {
         return result.slice(0, 2).join('');
     }
 
+    function Range() {
+        this.min = +Infinity;
+        this.max = -Infinity;
+    }
+
+    Range.prototype = {
+        push: function (number) {
+            this.min = Math.min(this.min, number);
+            this.max = Math.max(this.max, number);
+        },
+        get range() {
+            return this.max - this.min;
+        }
+    };
+
+    function BoundingBox() {
+        this.x = new Range();
+        this.y = new Range();
+        this.z = new Range();
+    }
+
+    BoundingBox.prototype = {
+        pushPoint: function (p) {
+            this.x.push(p.x);
+            this.y.push(p.y);
+            this.z.push(p.z);
+        }
+    };
     return {
         Point: Point,
         toggleClass: toggleClass,
@@ -150,6 +178,7 @@ define(function () {
             return res;
         },
         createSimulationAccumulator: createSimulationAccumulator,
-        humanizeDuration: humanizeDuration
+        humanizeDuration: humanizeDuration,
+        BoundingBox: BoundingBox
     };
 });

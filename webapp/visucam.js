@@ -24,6 +24,10 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
             Ember.assert('You can only pass attributes to the `input` helper, not arguments', arguments.length < 2);
             return Ember.Handlebars.helpers.view.call(this, views.NumberField, options);
         });
+        Ember.Handlebars.helper('number', function (value, options) {
+            var escaped = Handlebars.Utils.escapeExpression(value.toPrecision(3));
+            return new Ember.Handlebars.SafeString(escaped);
+        });
 
         var IN_CHROME_APP = window['chrome'] && window['chrome']['permissions'];
 

@@ -58,6 +58,31 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             clipperPolyline: function () {
                 return cam.pathDefToClipper(this.get('definition'));
             }.property('definition'),
+            boundingBox: function () {
+                console.log('boundingBox');
+                var box = new util.BoundingBox();
+                var mesh = this.get('meshGeometry');
+                if (mesh) {
+                    console.log('mesh');
+                    mesh.computeBoundingBox();
+                    console.log('mesh', mesh.boundingBox);
+                    box.pushPoint(mesh.boundingBox.min);
+                    box.pushPoint(mesh.boundingBox.max);
+                    return box
+                }
+                var polygons = this.get('polyline');
+                if (polygons) {
+                    console.log('polygons');
+                    var box = new util.BoundingBox();
+                    polygons.forEach(function (polygon) {
+                        polygon.forEach(function (point) {
+                            box.pushPoint(point);
+                        });
+                    });
+                    return box;
+                }
+
+            }.property('polyline', 'meshGeometry'),
             stlModel: function (key, value) {
                 if (arguments.length > 1) {
                     this.set('encodedStlModel', base64.toBase64(pako.deflate(value, {to: 'string', level: 6})));

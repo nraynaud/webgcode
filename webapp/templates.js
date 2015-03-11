@@ -830,7 +830,88 @@ function program8(depth0,data) {
   data.buffer.push("</td>\n        </tr>\n        ");
   stack1 = helpers['if'].call(depth0, "isManual", {hash:{},hashTypes:{},hashContexts:{},inverse:self.noop,fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n        </tbody>\n    </table>\n\n</div>");
+    data.buffer.push("\n        <tr>\n            <th>Bounds:</th>\n            <td>\n                <table>\n                    <tbody>\n                    <tr>\n                        <th>X</th>\n                        <td>");
+    data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number), options = {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    }, helper ? helper.call(depth0, "boundingBox.x.min", options) : helperMissing.call(depth0, "number", "boundingBox.x.min", options))));
+    data.buffer.push("</td>\n                        <td>→</td>\n                        <td>");
+    data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number), options = {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    }, helper ? helper.call(depth0, "boundingBox.x.max", options) : helperMissing.call(depth0, "number", "boundingBox.x.max", options))));
+    data.buffer.push("</td>\n                        <td>[");
+    data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number), options = {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    }, helper ? helper.call(depth0, "boundingBox.x.range", options) : helperMissing.call(depth0, "number", "boundingBox.x.range", options))));
+    data.buffer.push("]</td>\n                    </tr>\n                    <tr>\n                        <th>Y</th>\n                        <td>");
+    data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number), options = {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    }, helper ? helper.call(depth0, "boundingBox.y.min", options) : helperMissing.call(depth0, "number", "boundingBox.y.min", options))));
+    data.buffer.push("</td>\n                        <td>→</td>\n                        <td>");
+    data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number), options = {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    }, helper ? helper.call(depth0, "boundingBox.y.max", options) : helperMissing.call(depth0, "number", "boundingBox.y.max", options))));
+    data.buffer.push("</td>\n                        <td>[");
+    data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number), options = {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    }, helper ? helper.call(depth0, "boundingBox.y.range", options) : helperMissing.call(depth0, "number", "boundingBox.y.range", options))));
+    data.buffer.push("]</td>\n                    </tr>\n                    <tr>\n                        <th>Z</th>\n                        <td>");
+    data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number), options = {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    }, helper ? helper.call(depth0, "boundingBox.z.min", options) : helperMissing.call(depth0, "number", "boundingBox.z.min", options))));
+    data.buffer.push("</td>\n                        <td>→</td>\n                        <td>");
+    data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number), options = {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    }, helper ? helper.call(depth0, "boundingBox.z.max", options) : helperMissing.call(depth0, "number", "boundingBox.z.max", options))));
+    data.buffer.push("</td>\n                        <td>[");
+    data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number), options = {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    }, helper ? helper.call(depth0, "boundingBox.z.range", options) : helperMissing.call(depth0, "number", "boundingBox.z.range", options))));
+    data.buffer.push("]</td>\n                    </tr>\n                    </tbody>\n                </table>\n            </td>\n        </tr>\n        </tbody>\n    </table>\n\n</div>");
   return buffer;
   
 });

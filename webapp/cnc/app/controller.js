@@ -209,8 +209,7 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
             }.property('isManual', 'manualDefinition.type'),
             fonts: null,
             fontChanged: function () {
-                console.log(this.get('manualDefinition.fontName'));
-                if (this.get('fonts'))
+                if (this.get('isText') && this.get('fonts'))
                     this.set('model.manualDefinition.fontFile', text.searchFontInList(this.get('fonts'), this.get('manualDefinition.fontName')).files['regular']);
             }.observes('manualDefinition.fontName')
         });
