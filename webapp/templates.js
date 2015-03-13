@@ -848,7 +848,7 @@ function program8(depth0,data) {
         types: ["ID"],
         data: data
     }, helper ? helper.call(depth0, "boundingBox.x.max", options) : helperMissing.call(depth0, "number", "boundingBox.x.max", options))));
-    data.buffer.push("</td>\n                        <td>[");
+    data.buffer.push("</td>\n                        <td title=\"span\">[");
     data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number), options = {
         hash: {},
         hashTypes: {},
@@ -875,7 +875,7 @@ function program8(depth0,data) {
         types: ["ID"],
         data: data
     }, helper ? helper.call(depth0, "boundingBox.y.max", options) : helperMissing.call(depth0, "number", "boundingBox.y.max", options))));
-    data.buffer.push("</td>\n                        <td>[");
+    data.buffer.push("</td>\n                        <td title=\"span\">[");
     data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number), options = {
         hash: {},
         hashTypes: {},
@@ -902,7 +902,7 @@ function program8(depth0,data) {
         types: ["ID"],
         data: data
     }, helper ? helper.call(depth0, "boundingBox.z.max", options) : helperMissing.call(depth0, "number", "boundingBox.z.max", options))));
-    data.buffer.push("</td>\n                        <td>[");
+    data.buffer.push("</td>\n                        <td title=\"span\">[");
     data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number), options = {
         hash: {},
         hashTypes: {},
