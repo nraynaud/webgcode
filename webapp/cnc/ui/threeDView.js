@@ -58,7 +58,7 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                 var pointsAdded = vertices.length / 3;
 
                 if (pointsAdded > maxPoints) {
-                    for (var i = 0; i < vertices.length; i += maxPoints * 3) {
+                    for (var i = 0; i < vertices.length; i += (maxPoints - 1) * 3) {
                         var group = vertices.subarray(i, i + maxPoints * 3);
                         this.addCollated(group);
                     }
