@@ -53,21 +53,26 @@ static const struct {
         .z = 0};
 
 static step_t nextProgramStep() {
+    checkProgramEnd();
+    if (fillLevel() < 3)
+        return (step_t) {.duration = 0,
+                .axes = {
+                        .xStep = 0,
+                        .yStep = 0,
+                        .zStep = 0}};
     uint16_t nextDuration = 0;
     nextDuration |= readBuffer();
     nextDuration |= readBuffer() << 8;
-    uint8_t binAxes = readBuffer();
+    uint8_t binAxes = (uint8_t) readBuffer();
     return (step_t) {
             .duration = nextDuration,
             .axes = {
-                    .xStep = (binAxes & 0b000001) != 0,
-                    .xDirection = (binAxes & 0b000010) != 0,
-                    .yStep = (binAxes & 0b000100) != 0,
-                    .yDirection = (binAxes & 0b001000) != 0,
-                    .zStep = (binAxes & 0b010000) != 0,
-                    .zDirection = (binAxes & 0b100000) != 0,
-            }
-    };
+                    .xStep = (uint8_t) ((binAxes & 0b000001) != 0),
+                    .yStep = (uint8_t) ((binAxes & 0b000100) != 0),
+                    .zStep = (uint8_t) ((binAxes & 0b010000) != 0),
+                    .xDirection = (uint8_t) ((binAxes & 0b000010) != 0),
+                    .yDirection = (uint8_t) ((binAxes & 0b001000) != 0),
+                    .zDirection = (uint8_t) ((binAxes & 0b100000) != 0)}};
 }
 
 static int xor(int a, int b) {

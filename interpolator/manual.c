@@ -80,10 +80,11 @@ static uint16_t deadlineForDate(float32_t speed, uint64_t date) {
 
 static step_t nextStep(vec3f_t speed, uint64_t date) {
     step_t result = {
+            .duration = 0,
             .axes = {
-                    .xDirection = speed.x > 0,
-                    .yDirection = speed.y > 0,
-                    .zDirection = speed.z > 0}};
+                    .xDirection = (uint8_t) (speed.x > 0),
+                    .yDirection = (uint8_t) (speed.y > 0),
+                    .zDirection = (uint8_t) (speed.z > 0)}};
     if (speed.x != 0) {
         result.duration = deadlineForDate(speed.x, date);
         result.axes.xStep = 1;
@@ -227,7 +228,7 @@ void periodicUICallback(void) {
     if (cncMemory.tick % SYSTICK_UI_DEBOUNCE_SCALING_FACTOR == 0) {
         uint8_t rawValue = GPIO_ReadInputDataBit(uiPinout.gpio, uiPinout.manualButton);
         if (rawValue == lastRawValue) {
-            if (stableValueTicks < UI_DEBOUNCE_MAX_CHECKS )
+            if (stableValueTicks < UI_DEBOUNCE_MAX_CHECKS)
                 stableValueTicks++;
             else {
                 if (rawValue && !previousDebouncedValue)
