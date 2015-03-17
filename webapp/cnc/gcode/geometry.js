@@ -1,78 +1,33 @@
 "use strict";
-define(['cnc/util'], function (util) {
+define([], function () {
     function differentiator(stepCollector) {
         var previousPoint = null;
-        return function (point) {
+        return function (point, ratio) {
             if (previousPoint) {
-                point.dx = point.x - previousPoint.x;
-                point.dy = point.y - previousPoint.y;
-                point.dz = point.z - previousPoint.z;
-                if (point.dx != 0 || point.dy != 0 || point.dz != 0)
-                    stepCollector(point);
+                var dx = point.x - previousPoint.x;
+                var dy = point.y - previousPoint.y;
+                var dz = point.z - previousPoint.z;
+                if (dx != 0 || dy != 0 || dz != 0)
+                    stepCollector(dx, dy, dz, ratio);
             }
             previousPoint = point;
         };
     }
 
-    function unaryOp(input, op) {
-        var result = {};
-        $.each(util.AXES, function (_, coord) {
-            result[coord] = op(input[coord]);
-        });
-        return result;
-    }
-
     function rasterizeLine(line, stepSize, stepCollector) {
-        function findBiggestAxis(dv) {
-            var max = -Infinity;
-            var biggestAxis;
-            $.each(util.AXES, function (_, axis) {
-                var l = Math.abs(dv[axis]);
-                if (l > max) {
-                    max = l;
-                    biggestAxis = axis;
-                }
-            });
-            return biggestAxis;
-        }
-
-        function putOnGrid(val) {
-            return Math.round(val / stepSize);
-        }
-
-        var fromStep = unaryOp(line.from, putOnGrid);
-        var toStep = unaryOp(line.to, putOnGrid);
-
-        function binaryOp(i1, i2, op) {
-            var result = {};
-            $.each(util.AXES, function (_, coord) {
-                result[coord] = op(i1[coord], i2[coord]);
-            });
-            return result;
-        }
-
-        var dv = binaryOp(toStep, fromStep, function (i1, i2) {
-            return i1 - i2;
-        });
+        var fromStep = line.from.scale(1 / stepSize).round();
+        var toStep = line.to.scale(1 / stepSize).round();
+        var dv = toStep.sub(fromStep);
         line.dv = dv;
-        var a = findBiggestAxis(dv);
-        var steps = Math.abs(toStep[a] - fromStep[a]);
+        var steps = Math.max(Math.abs(dv.x), Math.abs(dv.y), Math.abs(dv.z));
         var filter = differentiator(stepCollector);
         for (var i = 0; i <= steps; i++) {
             var ratio = i / steps;
-            var point = binaryOp(fromStep, toStep, function (from, to) {
-                return Math.round((from * (steps - i) + to * i) / steps);
-            });
-            point.l = ratio;
-            filter(point);
+            filter(fromStep.lerp(toStep, ratio).round(), ratio);
         }
     }
 
     function rasterizeArc(arc, stepSize, stepCollector, pointAtRatio) {
-        function clampToGrid(val) {
-            return Math.round(val / stepSize);
-        }
-
         var arcSteps = Math.ceil(arc.radius * Math.abs(arc.angularDistance) / stepSize);
         var startPoint = pointAtRatio(0);
         var endPoint = pointAtRatio(1);
@@ -81,10 +36,7 @@ define(['cnc/util'], function (util) {
         var filter = differentiator(stepCollector);
         for (var i = 0; i <= steps; i++) {
             var ratio = i / steps;
-            var point = pointAtRatio(ratio);
-            point = unaryOp(point, clampToGrid);
-            point.l = ratio;
-            filter(point);
+            filter(pointAtRatio(ratio).scale(1 / stepSize).round(), ratio);
         }
     }
 

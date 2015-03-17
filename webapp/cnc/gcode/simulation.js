@@ -262,11 +262,11 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
             planSpeed(group);
             $.each(group, function (_, segment) {
 
-                function planningStepCollector(point) {
+                function planningStepCollector(dx, dy, dz, ratio) {
                     //go slower if we are stepping in diagonals
-                    var speedFactor = speedFactors[!!point.dx + !!point.dy + !!point.dz];
-                    point.time = Math.ceil(Math.min(0.1, speedFactor * stepSize / dataForRatio(segment, point.l).speed) * timebase);
-                    stepCollector(point);
+                    var speedFactor = speedFactors[!!dx + !!dy + !!dz];
+                    var time = Math.ceil(Math.min(0.1, speedFactor * stepSize / dataForRatio(segment, ratio).speed) * timebase);
+                    stepCollector(dx, dy, dz, time);
                 }
 
                 COMPONENT_TYPES[segment.type].rasterize(segment, stepSize, planningStepCollector);

@@ -10,7 +10,7 @@ var $ = {
             target = arguments[0] || {},
             length = arguments.length;
         for (var i = 0; i < length; i++)
-            if ((options = arguments[ i ]) != null)
+            if ((options = arguments[i]) != null)
                 for (name in options) {
                     src = target[name];
                     copy = options[name];
@@ -40,9 +40,11 @@ var tasks = {
             });
             operations[event.data.params.type].
                 computeToolpath(event.data.params).then(function (toolpath) {
-                    self.postMessage({toolpath: toolpath.map(function (p) {
-                        return p.toJSON()
-                    })});
+                    self.postMessage({
+                        toolpath: toolpath.map(function (p) {
+                            return p.toJSON()
+                        })
+                    });
                 }).finally(function () {
                     close();
                 });
@@ -50,25 +52,39 @@ var tasks = {
     },
     acceptProgram: function (event) {
         require(['cnc/gcode/parser', 'cnc/gcode/simulation', 'cnc/util.js'], function (parser, simulation, util) {
-            function handleFragment(program) {
-                var programLength = program.length * 3;
-                var formattedData = new ArrayBuffer(programLength + 4);
-                new DataView(formattedData).setUint32(0, programLength, true);
-                var view = new DataView(formattedData, 4);
+            function createProgramEncoder(maximumInstructionsCount) {
+                var buffer = new ArrayBuffer(maximumInstructionsCount * 3 + 4);
+                return {
+                    buffer: buffer,
+                    view: new DataView(buffer),
+                    instructionsCount: 0,
+                    maximumInstructionsCount: maximumInstructionsCount,
+                    isFull: function () {
+                        return this.instructionsCount == this.maximumInstructionsCount;
+                    },
+                    isNotEmpty: function () {
+                        return this.instructionsCount != 0;
+                    },
+                    pushInstruction: function (dx, dy, dz, time) {
+                        function bin(axis) {
+                            var direction = axis >= 0 ? '1' : '0';
+                            var enableStep = axis ? '1' : '0';
+                            return direction + enableStep;
+                        }
 
-                function bin(axis) {
-                    var xs = axis ? '1' : '0';
-                    var xd = axis >= 0 ? '1' : '0';
-                    return '' + xd + xs;
-                }
-
-                for (var i = 0; i < program.length; i++) {
-                    var point = program[i];
-                    view.setUint16(i * 3, point.time, true);
-                    var word = '00' + bin(point.dz) + bin(point.dy) + bin(point.dx);
-                    view.setUint8(i * 3 + 2, parseInt(word, 2), true);
-                }
-                self.postMessage(formattedData, [formattedData]);
+                        this.view.setUint16(this.instructionsCount * 3 + 4, time, true);
+                        var word = '00' + bin(dz) + bin(dy) + bin(dx);
+                        this.view.setUint8(this.instructionsCount * 3 + 6, parseInt(word, 2));
+                        ++this.instructionsCount;
+                    },
+                    popEncodedProgram: function () {
+                        // We send the *size in byte* of the program, not the instructions count
+                        this.view.setUint32(0, this.instructionsCount * 3, true);
+                        var encodedProgram = this.buffer.slice(0, this.instructionsCount * 3 + 4);
+                        this.instructionsCount = 0;
+                        return encodedProgram;
+                    }
+                };
             }
 
             var toolPath = [];
@@ -95,7 +111,8 @@ var tasks = {
                                     from: position,
                                     to: point,
                                     speedTag: speedTag,
-                                    feedRate: speedTag == 'rapid' ? travelFeedrate : feedrate});
+                                    feedRate: speedTag == 'rapid' ? travelFeedrate : feedrate
+                                });
                             position = point;
                         }
 
@@ -111,15 +128,19 @@ var tasks = {
                 };
                 toolPath = typeConverter[event.data.type](event.data);
 
-                var program = [];
-                simulation.planProgram(toolPath, params.maxAcceleration, 1 / params.stepsPerMillimeter, params.clockFrequency, function stepCollector(point) {
-                    program.push(point);
-                    if (program.length >= 30000) {
-                        handleFragment(program);
-                        program = [];
-                    }
-                });
-                handleFragment(program);
+                var programEncoder = createProgramEncoder(30000);
+                simulation.planProgram(toolPath, params.maxAcceleration, 1 / params.stepsPerMillimeter, params.clockFrequency,
+                    function stepCollector(dx, dy, dz, time) {
+                        programEncoder.pushInstruction(dx, dy, dz, time);
+                        if (programEncoder.isFull()) {
+                            var encodedProgram = programEncoder.popEncodedProgram();
+                            self.postMessage(encodedProgram, [encodedProgram]);
+                        }
+                    });
+                if (programEncoder.isNotEmpty()) {
+                    var encodedProgram = programEncoder.popEncodedProgram();
+                    self.postMessage(encodedProgram, [encodedProgram]);
+                }
                 if (!event.data['hasMore']) {
                     self.postMessage(null);
                     myPort.close();

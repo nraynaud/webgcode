@@ -19,6 +19,9 @@ define(function () {
         scale: function (val) {
             return new Point(this.x * val, this.y * val, this.z * val);
         },
+        round: function () {
+            return new Point(Math.round(this.x), Math.round(this.y), Math.round(this.z));
+        },
         sqDistance: function (p) {
             var dx = this.x - p.x;
             var dy = this.y - p.y;
