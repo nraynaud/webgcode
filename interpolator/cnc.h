@@ -72,9 +72,7 @@ extern void executeNextStep();
 
 extern void initUSB();
 
-extern uint16_t fillLevel();
-
-extern int32_t readBuffer();
+extern int32_t readBufferArray(uint32_t count, uint8_t *array);
 
 extern void checkProgramEnd();
 

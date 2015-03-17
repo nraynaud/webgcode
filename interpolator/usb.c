@@ -205,18 +205,18 @@ uint16_t fillLevel() {
     return (uint16_t) (circularBuffer.writeCount - circularBuffer.readCount);
 }
 
-int32_t readBuffer2();
+
+int32_t readBufferArray2(uint32_t count, uint8_t *array);
 
 void startProgram() {
-    if (fillLevel() >= 4) {
-        cncMemory.state = RUNNING_PROGRAM;
+    uint8_t array[4];
+    uint32_t savedState = cncMemory.state;
+    cncMemory.state = RUNNING_PROGRAM;
+    if (readBufferArray2(sizeof(array) / sizeof(*array), array)) {
         sendEvent(PROGRAM_START);
-        circularBuffer.programLength = 0;
-        circularBuffer.programLength |= (uint32_t) readBuffer2();
-        circularBuffer.programLength |= (uint32_t) readBuffer2() << 8;
-        circularBuffer.programLength |= (uint32_t) readBuffer2() << 16;
-        circularBuffer.programLength |= (uint32_t) readBuffer2() << 24;
-    }
+        circularBuffer.programLength = array[3] << 24 | array[2] << 16 | array[1] << 8 | array[0];
+    } else
+        cncMemory.state = savedState;
 }
 
 void flushBuffer() {
@@ -254,25 +254,25 @@ static uint8_t cncDataOut(void *pdev, uint8_t epnum) {
     return USBD_OK;
 }
 
-int32_t readBuffer2() {
+int32_t readBufferArray2(uint32_t count, uint8_t *array) {
     flushBuffer();
-    if (fillLevel() == 0) {
+    if (fillLevel() < count) {
         STM_EVAL_LEDOn(LED5);
-        return -1;
+        return 0;
     }
     STM_EVAL_LEDOff(LED5);
-    uint8_t val = circularBuffer.buffer[circularBuffer.readCount % CIRCULAR_BUFFER_SIZE];
-    circularBuffer.readCount++;
-    return val;
+    for (int i = 0; i < count; i++) {
+        array[i] = circularBuffer.buffer[circularBuffer.readCount % CIRCULAR_BUFFER_SIZE];
+        circularBuffer.readCount++;
+    }
+    return 1;
 }
 
-
-int32_t readBuffer() {
-    int32_t val = readBuffer2();
-    if (val == -1)
-        return -1;
-    circularBuffer.programLength--;
-    return val;
+int32_t readBufferArray(uint32_t count, uint8_t *array) {
+    if (!readBufferArray2(count, array))
+        return 0;
+    circularBuffer.programLength -= count;
+    return 1;
 }
 
 void checkProgramEnd() {
