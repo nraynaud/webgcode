@@ -108,16 +108,12 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
                         var toolPath = _this.get('model').computeCompactToolPath();
                         console.log(parameters);
                         console.time('postMessage');
-                        var chunkSize = 100000;
-                        for (var i = 0, j = toolPath.length; i < j; i += chunkSize) {
-                            var chunk = toolPath.slice(i, i + chunkSize);
-                            event.ports[0].postMessage({
-                                type: 'compactToolPath',
-                                parameters: parameters,
-                                toolPath: chunk,
-                                hasMore: i + chunkSize < toolPath.length
-                            });
-                        }
+                        event.ports[0].postMessage({
+                            type: 'compactToolPath',
+                            parameters: parameters,
+                            toolPath: toolPath,
+                            hasMore: false
+                        });
                         console.timeEnd('postMessage');
                     }
                     if (event.data['type'] == 'toolPosition') {

@@ -19,6 +19,7 @@ define(['RSVP'], function (RSVP) {
         getCodeChannel: function (deferred) {
             this.worker = new Worker("worker.js");
             var workQueue = [];
+            var sentToUSBProgramsCount = 0;
             var running = false;
             var _this = this;
 
@@ -46,10 +47,20 @@ define(['RSVP'], function (RSVP) {
             }
 
             function sendSpeed(formattedData) {
+                sentToUSBProgramsCount++;
+                if (_this.worker != null)
+                    _this.worker.outputPort.postMessage({
+                        operation: 'updateSentToUSBProgramsCount',
+                        count: sentToUSBProgramsCount
+                    });
                 return _this.connection.bulkTransfer({direction: 'out', endpoint: ENDPOINT, data: formattedData});
             }
 
-            this.worker.onmessage = function (event) {
+            var inputChannel = new MessageChannel();
+            var outputChannel = new MessageChannel();
+            this.worker.postMessage({operation: 'acceptProgram'}, [inputChannel.port1, outputChannel.port1]);
+            this.worker.outputPort = outputChannel.port2;
+            this.worker.outputPort.onmessage = function (event) {
                 var work = event.data;
                 if (work != null)
                     workQueue.push(work);
@@ -58,9 +69,7 @@ define(['RSVP'], function (RSVP) {
                 if (!running)
                     loop();
             };
-            var channel = new MessageChannel();
-            this.worker.postMessage({operation: 'acceptProgram'}, [channel.port1]);
-            return channel.port2;
+            return inputChannel.port2;
         },
         executeProgram: function (programMessage) {
             var deferred = RSVP.defer();

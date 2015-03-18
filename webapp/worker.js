@@ -52,12 +52,84 @@ var tasks = {
     },
     acceptProgram: function (event) {
         require(['cnc/gcode/parser', 'cnc/gcode/simulation', 'cnc/util.js'], function (parser, simulation, util) {
+            var MAX_QUEUED_PROGRAMS = 10;
+            var TOOLPATH_CHUNK_SIZE = 100000;
+            var MAX_PROGRAM_SIZE = 30000;
+            var sentToRunnerProgramsCount = 0;
+            var sentToUSBProgramsCount = 0;
+            var programEncoder = createProgramEncoder(MAX_PROGRAM_SIZE);
+            var pendingEvents = [];
+            var pendingToolPathChunks = [];
+            var inputPort = event.ports[0];
+            var outputPort = event.ports[1];
+
+            inputPort.onmessage = function (deferredEvent) {
+                pendingEvents.push(deferredEvent);
+
+                while (pendingEvents.length > 0 && sentToRunnerProgramsCount - sentToUSBProgramsCount < MAX_QUEUED_PROGRAMS) {
+                    var event = pendingEvents.shift();
+                    var typeConverter = {
+                        gcode: function (data) {
+                            var params = data.parameters;
+                            return parser.evaluate(data.program, params.maxFeedrate, params.maxFeedrate, params.position);
+                        },
+                        toolPath: function (data) {
+                            return data.toolPath;
+                        },
+                        compactToolPath: function (data) {
+                            var fragments = data.toolPath;
+                            var travelBits = [];
+                            var position;
+                            var travelFeedrate = data.parameters.maxFeedrate;
+
+                            function travelTo(point, speedTag, feedrate) {
+                                if (position)
+                                    travelBits.push({
+                                        type: 'line',
+                                        from: position,
+                                        to: point,
+                                        speedTag: speedTag,
+                                        feedRate: speedTag == 'rapid' ? travelFeedrate : feedrate
+                                    });
+                                position = point;
+                            }
+
+                            for (var i = 0; i < fragments.length; i++) {
+                                var fragment = fragments[i];
+                                for (var j = 0; j < fragment.path.length; j += 3) {
+                                    var point = new util.Point(fragment.path[j], fragment.path[j + 1], fragment.path[j + 2]);
+                                    travelTo(point, fragment.speedTag, fragment.feedRate);
+                                }
+                            }
+                            return travelBits;
+                        }
+                    };
+                    var toolPath = typeConverter[event.data.type](event.data);
+                    for (var i = 0, j = toolPath.length; i < j; i += TOOLPATH_CHUNK_SIZE) {
+                        var chunk = toolPath.slice(i, i + TOOLPATH_CHUNK_SIZE);
+                        chunk.parameters = event.data.parameters;
+                        pendingToolPathChunks.push(chunk);
+                    }
+                    if (!event.data['hasMore'])
+                        pendingToolPathChunks[pendingToolPathChunks.length - 1].isLast = true;
+                }
+
+                consumePendingToolPathsChunks();
+            };
+
+            outputPort.onmessage = function (event) {
+                sentToUSBProgramsCount = event.data.count;
+                consumePendingToolPathsChunks();
+            };
+
+
             function createProgramEncoder(maximumInstructionsCount) {
                 var buffer = new ArrayBuffer(maximumInstructionsCount * 3 + 4);
                 return {
                     buffer: buffer,
                     view: new DataView(buffer),
                     instructionsCount: 0,
+                    flushCount: 0,
                     maximumInstructionsCount: maximumInstructionsCount,
                     isFull: function () {
                         return this.instructionsCount == this.maximumInstructionsCount;
@@ -87,65 +159,30 @@ var tasks = {
                 };
             }
 
-            var toolPath = [];
-            var myPort = event.ports[0];
-            myPort.onmessage = function (event) {
-                var params = event.data.parameters;
-                var typeConverter = {
-                    gcode: function (data) {
-                        return parser.evaluate(data.program, params.maxFeedrate, params.maxFeedrate, params.position);
-                    },
-                    toolPath: function (data) {
-                        return data.toolPath;
-                    },
-                    compactToolPath: function (data) {
-                        var fragments = data.toolPath;
-                        var travelBits = [];
-                        var position;
-                        var travelFeedrate = params.maxFeedrate;
-
-                        function travelTo(point, speedTag, feedrate) {
-                            if (position)
-                                travelBits.push({
-                                    type: 'line',
-                                    from: position,
-                                    to: point,
-                                    speedTag: speedTag,
-                                    feedRate: speedTag == 'rapid' ? travelFeedrate : feedrate
-                                });
-                            position = point;
-                        }
-
-                        for (var i = 0; i < fragments.length; i++) {
-                            var fragment = fragments[i];
-                            for (var j = 0; j < fragment.path.length; j += 3) {
-                                var point = new util.Point(fragment.path[j], fragment.path[j + 1], fragment.path[j + 2]);
-                                travelTo(point, fragment.speedTag, fragment.feedRate);
+            function consumePendingToolPathsChunks() {
+                while (pendingToolPathChunks.length > 0 && sentToRunnerProgramsCount - sentToUSBProgramsCount < MAX_QUEUED_PROGRAMS) {
+                    var toolPathChunk = pendingToolPathChunks.shift();
+                    var params = toolPathChunk.parameters;
+                    simulation.planProgram(toolPathChunk, params.maxAcceleration, 1 / params.stepsPerMillimeter, params.clockFrequency,
+                        function stepCollector(dx, dy, dz, time) {
+                            programEncoder.pushInstruction(dx, dy, dz, time);
+                            if (programEncoder.isFull()) {
+                                outputPort.postMessage(programEncoder.popEncodedProgram());
+                                sentToRunnerProgramsCount++;
                             }
-                        }
-                        return travelBits;
-                    }
-                };
-                toolPath = typeConverter[event.data.type](event.data);
+                        });
 
-                var programEncoder = createProgramEncoder(30000);
-                simulation.planProgram(toolPath, params.maxAcceleration, 1 / params.stepsPerMillimeter, params.clockFrequency,
-                    function stepCollector(dx, dy, dz, time) {
-                        programEncoder.pushInstruction(dx, dy, dz, time);
-                        if (programEncoder.isFull()) {
-                            var encodedProgram = programEncoder.popEncodedProgram();
-                            self.postMessage(encodedProgram, [encodedProgram]);
+                    if (toolPathChunk.isLast) {
+                        if (programEncoder.isNotEmpty()) {
+                            outputPort.postMessage(programEncoder.popEncodedProgram());
+                            sentToRunnerProgramsCount++;
                         }
-                    });
-                if (programEncoder.isNotEmpty()) {
-                    var encodedProgram = programEncoder.popEncodedProgram();
-                    self.postMessage(encodedProgram, [encodedProgram]);
+                        outputPort.postMessage(null);
+                        outputPort.close();
+                        inputPort.close();
+                    }
                 }
-                if (!event.data['hasMore']) {
-                    self.postMessage(null);
-                    myPort.close();
-                }
-            };
+            }
         });
     },
     simulateGCode: function (event) {
