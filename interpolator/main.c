@@ -54,18 +54,16 @@ static const struct {
 
 static step_t nextProgramStep() {
     checkProgramEnd();
-    if (fillLevel() < 3)
+    uint8_t bytes[3];
+    if (!readBufferArray(sizeof(bytes) / sizeof(*bytes), bytes))
         return (step_t) {.duration = 0,
                 .axes = {
                         .xStep = 0,
                         .yStep = 0,
                         .zStep = 0}};
-    uint16_t nextDuration = 0;
-    nextDuration |= readBuffer();
-    nextDuration |= readBuffer() << 8;
-    uint8_t binAxes = (uint8_t) readBuffer();
+    uint8_t binAxes = bytes[2];
     return (step_t) {
-            .duration = nextDuration,
+            .duration = bytes[1] << 8 | bytes[0],
             .axes = {
                     .xStep = (uint8_t) ((binAxes & 0b000001) != 0),
                     .yStep = (uint8_t) ((binAxes & 0b000100) != 0),
