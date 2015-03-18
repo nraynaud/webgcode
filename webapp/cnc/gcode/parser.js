@@ -149,7 +149,7 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
     }
 
     function detectAxisMove(line, unitMode) {
-        var result = {};
+        var result = new util.Point(0, 0, 0);
         $.each(util.AXES, function (_, axis) {
             var parsed = line[axis];
             if (parsed !== undefined && parsed.length)
@@ -250,17 +250,14 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
             pathListener = function () {
             };
         if (initialPosition == null) {
-            initialPosition = {};
-            $.each(util.AXES, function (_, axis) {
-                initialPosition[axis] = 0;
-            });
+            initialPosition = new util.Point(0, 0, 0);
         }
         var origins = [];
         for (var i = 0; i < 10; i++)
             origins.push(new util.Point(0, 0, 0));
         var path = [];
         var machineState = {
-            position: {},
+            position: new util.Point(0, 0, 0),
             distanceMode: absoluteDistance,
             motionMode: moveTraverseRate,
             unitMode: mmConverter,
