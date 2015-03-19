@@ -34,7 +34,7 @@ static const struct {
 };
 
 volatile cnc_memory_t cncMemory = {
-        .position = {.x = 0, .y = 0, .z = 0},
+        .position = {.x = 0, .y = 0, .z = 0, .speed = 0},
         .parameters = {
                 .stepsPerMillimeter = 640,
                 .maxSpeed = 3000,
@@ -78,8 +78,9 @@ static int xor(int a, int b) {
 }
 
 static void executeStep(step_t step) {
-    float32_t sqrt2 = sqrtf(2);
-    float32_t sqrt3 = sqrtf(3);
+    //diagonal steps are longer than straight ones
+    static float32_t stepFactors[] = {0, 1, 1.414213562f, 1.732050808f};
+    float32_t minDuration = cncMemory.parameters.clockFrequency / (cncMemory.parameters.maxSpeed * cncMemory.parameters.stepsPerMillimeter / 60);
     GPIO_ResetBits(motorsPinout.gpio, motorsPinout.xDirection | motorsPinout.xStep
             | motorsPinout.yDirection | motorsPinout.yStep
             | motorsPinout.zDirection | motorsPinout.zStep);
@@ -96,13 +97,11 @@ static void executeStep(step_t step) {
         GPIO_SetBits(motorsPinout.gpio, directions);
         uint32_t duration = step.duration;
         int32_t axesCount = step.axes.xStep + step.axes.yStep + step.axes.zStep;
-        float32_t stepFactor = axesCount == 2 ? sqrt2 : (axesCount == 3 ? sqrt3 : 1);
-        duration *= stepFactor;
-        if (duration < 2)
-            duration = 2;
-        if (duration > 65535)
-            duration = 65535;
-        cncMemory.position.speed = (int32_t) (step.duration);
+        float32_t stepFactor = stepFactors[axesCount];
+        uint32_t correctedMinDuration = (uint32_t) ceilf(minDuration * stepFactor);
+        correctedMinDuration = correctedMinDuration < 2 ? 2 : correctedMinDuration;
+        duration = duration < correctedMinDuration ? correctedMinDuration : duration;
+        cncMemory.position.speed = (int32_t) (stepFactor == 0 ? 0 : duration / stepFactor);
         TIM3->ARR = duration;
         TIM3->CNT = 0;
         TIM_SelectOnePulseMode(TIM3, TIM_OPMode_Single);
