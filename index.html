@@ -209,11 +209,8 @@ G17 (back to X-Y plane)
                         this.set('computing', true);
                         _this.set('lineSegmentMap', []);
                         this.get('simulatedPath').clear();
-                        gcodeSimulation.parseInWorker(this.get('code'), {
-                                    x: 0,
-                                    y: 0,
-                                    z: 0
-                                }, Ember.run.bind(_this, handleResult),
+                        gcodeSimulation.parseInWorker(this.get('code'), new util.Point(0, 0, 0),
+                                Ember.run.bind(_this, handleResult),
                                 Ember.run.bind(_this, function (fragment) {
                                     _this.get('fragmentFile').pushObject(fragment);
                                     Ember.run.throttle(_this, _this.flushFragmentFile, 500);

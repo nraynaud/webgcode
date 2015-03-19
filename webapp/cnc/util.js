@@ -23,6 +23,8 @@ define(function () {
             return new Point(Math.round(this.x), Math.round(this.y), Math.round(this.z));
         },
         sqDistance: function (p) {
+            if (p == null)
+                p = new Point(0, 0, 0);
             var dx = this.x - p.x;
             var dy = this.y - p.y;
             var dz = this.z - p.z;
@@ -148,9 +150,18 @@ define(function () {
 
     BoundingBox.prototype = {
         pushPoint: function (p) {
-            this.x.push(p.x);
-            this.y.push(p.y);
-            this.z.push(p.z);
+            this.pushCoordinates(p.x, p.y, p.z);
+        },
+        pushCoordinates: function (x, y, z) {
+            this.x.push(x);
+            this.y.push(y);
+            this.z.push(z);
+        },
+        minPoint: function () {
+            return new Point(this.x.min, this.y.min, this.z.min);
+        },
+        maxPoint: function () {
+            return new Point(this.x.max, this.y.max, this.z.max);
         }
     };
     return {

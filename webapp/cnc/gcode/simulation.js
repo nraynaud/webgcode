@@ -18,11 +18,8 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
                 return {speed: line.feedRate / 60, acceleration: acceleration};
             },
             entryDirection: function (line) {
-                var dx = line.to.x - line.from.x;
-                var dy = line.to.y - line.from.y;
-                var dz = line.to.z - line.from.z;
-                var len = util.length(dx, dy, dz);
-                return new util.Point(dx, dy, dz).scale(1 / len);
+                var dp = line.to.sub(line.from);
+                return dp.scale(1 / dp.distance());
             },
             exitDirection: function (line) {
                 return COMPONENT_TYPES.line.entryDirection(line);
@@ -41,10 +38,8 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
         arc: {
             length: function (arc) {
                 var lastCoord = arc.plane.lastCoord;
-                var lastCoordDistance = arc.to[lastCoord] - arc.from[lastCoord];
-                var radius = arc.radius;
-                var planarArcLength = arc.angularDistance * radius;
-                return util.length(planarArcLength, lastCoordDistance);
+                var planarArcLength = arc.angularDistance * arc.radius;
+                return util.length(planarArcLength, arc.to[lastCoord] - arc.from[lastCoord]);
             },
             speed: function (arc, acceleration) {
                 return arcClampedSpeed(arc.radius, arc.feedRate / 60, acceleration);
@@ -55,22 +50,22 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
             exitDirection: function (arc) {
                 return getArcSpeedDirection(arc, arc.angularDistance);
             },
-            pointAtRatio: function (arc, ratio, asObject) {
+            pointAtRatio: function (arc, ratio) {
                 var lastCoord = arc.plane.lastCoord;
                 var radius = arc.radius;
                 var angle = arc.fromAngle + arc.angularDistance * ratio;
-                var newPoint = {};
+                var newPoint = new util.Point();
                 newPoint[arc.plane.firstCoord] = arc.center.first + radius * Math.cos(angle);
                 newPoint[arc.plane.secondCoord] = arc.center.second + radius * Math.sin(angle);
                 newPoint[lastCoord] = (arc.from[lastCoord] * (1 - ratio) + arc.to[lastCoord] * ratio);
-                return asObject ? newPoint : [newPoint.x, newPoint.y, newPoint.z];
+                return newPoint;
             },
             simulationSteps: function (arc) {
                 return Math.round(Math.abs(arc.angularDistance) / (2 * Math.PI) * 50);
             },
             rasterize: function (arc, stepSize, stepCollector) {
                 geometry.rasterizeArc(arc, stepSize, stepCollector, function (ratio) {
-                    return COMPONENT_TYPES.arc.pointAtRatio(arc, ratio, true);
+                    return COMPONENT_TYPES.arc.pointAtRatio(arc, ratio);
                 })
             }
         }
@@ -143,13 +138,33 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
             var hasAcceleration = endAccelerationPoint > 0 && endAccelerationPoint <= segment.length;
             var hasDeceleration = startDecelerationPoint >= 0 && startDecelerationPoint < segment.length;
             if (hasAcceleration)
-                segment.fragments.push({type: 'acceleration', segment: segment, fromSqSpeed: previousSquaredSpeed, toSqSpeed: maxSquaredSpeed, startX: 0, stopX: endAccelerationPoint});
+                segment.fragments.push({
+                    type: 'acceleration',
+                    segment: segment,
+                    fromSqSpeed: previousSquaredSpeed,
+                    toSqSpeed: maxSquaredSpeed,
+                    startX: 0,
+                    stopX: endAccelerationPoint
+                });
             var constantSpeedStart = hasAcceleration ? endAccelerationPoint : 0;
             var constantSpeedStop = hasDeceleration ? startDecelerationPoint : segment.length;
             if (constantSpeedStart != constantSpeedStop)
-                segment.fragments.push({type: 'constant', segment: segment, squaredSpeed: maxSquaredSpeed, startX: constantSpeedStart, stopX: constantSpeedStop});
+                segment.fragments.push({
+                    type: 'constant',
+                    segment: segment,
+                    squaredSpeed: maxSquaredSpeed,
+                    startX: constantSpeedStart,
+                    stopX: constantSpeedStop
+                });
             if (hasDeceleration)
-                segment.fragments.push({type: 'deceleration', segment: segment, fromSqSpeed: maxSquaredSpeed, toSqSpeed: nextSquaredSpeed, startX: startDecelerationPoint, stopX: segment.length});
+                segment.fragments.push({
+                    type: 'deceleration',
+                    segment: segment,
+                    fromSqSpeed: maxSquaredSpeed,
+                    toSqSpeed: nextSquaredSpeed,
+                    startX: startDecelerationPoint,
+                    stopX: segment.length
+                });
             segment.duration = 0;
             $.each(segment.fragments, function (_, fragment) {
                 fragment.length = fragment.stopX - fragment.startX;
@@ -162,14 +177,18 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
     var FRAGMENT_EQUATIONS = (function () {
         function accelerateFragment(fragment, ratio, acceleration) {
             var x2 = 2 * (fragment.segment.acceleration.length + fragment.length * ratio);
-            return {speed: Math.sqrt(acceleration * x2),
-                time: Math.sqrt(x2 / acceleration) - Math.sqrt(fragment.fromSqSpeed) / acceleration};
+            return {
+                speed: Math.sqrt(acceleration * x2),
+                time: Math.sqrt(x2 / acceleration) - Math.sqrt(fragment.fromSqSpeed) / acceleration
+            };
         }
 
         function decelerateFragment(fragment, ratio, acceleration) {
             var x2 = 2 * (fragment.segment.deceleration.length + fragment.length * (1 - ratio));
-            return {speed: Math.sqrt(acceleration * x2),
-                time: Math.sqrt(fragment.toSqSpeed) / acceleration + fragment.duration - Math.sqrt(x2 / acceleration)};
+            return {
+                speed: Math.sqrt(acceleration * x2),
+                time: Math.sqrt(fragment.toSqSpeed) / acceleration + fragment.duration - Math.sqrt(x2 / acceleration)
+            };
         }
 
         function runFragment(fragment, ratio) {
@@ -276,22 +295,16 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
 
     function collectToolpathInfo(toolpath) {
         var totalTime = 0;
-        var xmin = +Infinity, ymin = +Infinity, zmin = +Infinity;
-        var xmax = -Infinity, ymax = -Infinity, zmax = -Infinity;
+        var bBox = new util.BoundingBox();
 
         function pushPointXYZ(x, y, z, t) {
             totalTime = Math.max(t, totalTime);
-            xmin = Math.min(x, xmin);
-            ymin = Math.min(y, ymin);
-            zmin = Math.min(z, zmin);
-            xmax = Math.max(x, xmax);
-            ymax = Math.max(y, ymax);
-            zmax = Math.max(z, zmax);
+            bBox.pushCoordinates(x, y, z);
         }
 
         if (toolpath.length)
             simulate2(toolpath, pushPointXYZ);
-        return {totalTime: totalTime, min: new util.Point(xmin, ymin, zmin), max: new util.Point(xmax, ymax, zmax)};
+        return {totalTime: totalTime, min: bBox.minPoint(), max: bBox.maxPoint()};
     }
 
     return {

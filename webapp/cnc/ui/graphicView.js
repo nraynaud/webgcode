@@ -12,24 +12,31 @@ define(['Ember', 'cnc/ui/threeDView', 'cnc/ui/twoDView', 'cnc/cam/cam'], functio
     var EmberThreeDView = Ember.View.extend({
         classNames: ['ThreeDView'],
         didInsertElement: function () {
+            var _this = this;
             var threeDView = new threeD.ThreeDView(this.$());
             this.set('nativeComponent', threeDView);
             this.set('highlightDisplay', threeDView.createOverlayNode(threeDView.highlightMaterial));
             this.highlightChanged();
-            this.get('controller.simulatedPath').addArrayObserver({
+            var simulatedPath = this.get('controller.simulatedPath');
+            this.addFragments(simulatedPath, 0, simulatedPath.length);
+            simulatedPath.addArrayObserver({
                 arrayWillChange: function (observedObj, start, removeCount, addCount) {
                     if (removeCount == observedObj.length)
                         threeDView.clearView();
                 },
                 arrayDidChange: function (observedObj, start, removeCount, addCount) {
-                    for (var i = 0; i < addCount; i++) {
-                        var fragment = observedObj[start + i];
-                        threeDView[fragment.speedTag == 'rapid' ? 'rapidToolpathNode' : 'normalToolpathNode']
-                            .addCollated(fragment.vertices);
-                    }
-                    threeDView.reRender();
+                    _this.addFragments(observedObj, start, addCount);
                 }
             });
+        },
+        addFragments: function (source, start, addCount) {
+            for (var i = 0; i < addCount; i++) {
+                var fragment = source[start + i];
+                this.get('nativeComponent')[fragment.speedTag == 'rapid' ? 'rapidToolpathNode' : 'normalToolpathNode']
+                    .addCollated(fragment.vertices);
+            }
+            if (addCount)
+                this.get('nativeComponent').reRender();
         },
         simulatedPathChanged: function () {
             if (!this.get('controller.computing'))
@@ -58,15 +65,14 @@ define(['Ember', 'cnc/ui/threeDView', 'cnc/ui/twoDView', 'cnc/cam/cam'], functio
             var toolpath = view.paper.group();
             var decorations = view.paper.group();
             var _this = this;
+            _this.addFragments(this.get('controller.simulatedPath'), toolpath, 0, this.get('controller.simulatedPath').length);
             this.get('controller.simulatedPath').addArrayObserver({
                 arrayWillChange: function (observedObj, start, removeCount, addCount) {
                     for (var i = removeCount - 1; i >= 0; i--)
                         toolpath.get([start + i]).remove();
                 },
                 arrayDidChange: function (observedObj, start, removeCount, addCount) {
-                    for (var i = 0; i < addCount; i++)
-                        toolpath.add(_this.createFragment(toolpath, observedObj[start + i]), start + i);
-                    view.zoomExtent();
+                    _this.addFragments(observedObj, toolpath, start, addCount);
                 }
             });
             this.get('controller.decorations').addArrayObserver({
@@ -80,9 +86,19 @@ define(['Ember', 'cnc/ui/threeDView', 'cnc/ui/twoDView', 'cnc/cam/cam'], functio
                 }
             });
         },
+        addFragments: function (source, target, start, addCount) {
+            for (var i = 0; i < addCount; i++)
+                target.add(this.createFragment(target, source[start + i]), start + i);
+            if (addCount)
+                this.get('nativeComponent').zoomExtent();
+        },
         createDecoration: function (parent, decorationDescription) {
             var color = decorationDescription.color;
-            return parent.path(decorationDescription.definition, true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: color == null ? 'yellow' : color})
+            return parent.path(decorationDescription.definition, true).attr({
+                'vector-effect': 'non-scaling-stroke',
+                fill: 'none',
+                stroke: color == null ? 'yellow' : color
+            })
         },
         createFragment: function (parent, fragment) {
             var polyline = [];
