@@ -18,7 +18,7 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
                 var key = match[1].toLowerCase();
                 var value = parseFloat(match[2]);
                 if (res[key] == null)
-                    res[key] = [ value];
+                    res[key] = [value];
                 else
                     res[key].push(value);
             }
@@ -149,7 +149,7 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
     }
 
     function detectAxisMove(line, unitMode) {
-        var result = new util.Point(0, 0, 0);
+        var result = {};
         $.each(util.AXES, function (_, axis) {
             var parsed = line[axis];
             if (parsed !== undefined && parsed.length)
@@ -162,14 +162,20 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
         return $.extend({}, old);
     }
 
+    function createPoint(obj) {
+        return new util.Point(obj.x, obj.y, obj.z);
+    }
+
     function addPathComponent(point, machineState, speed, speedTag) {
         var hadMovement = false;
         $.each(util.AXES, function (_, axis) {
             hadMovement = hadMovement || Math.abs(point[axis] - machineState.position[axis]) > 0.00001;
         });
         if (hadMovement) {
-            machineState.addPathFragment({type: 'line', from: cloneObject(machineState.position), to: cloneObject(point),
-                feedRate: speed, lineNo: machineState.lineNo, speedTag: speedTag});
+            machineState.addPathFragment({
+                type: 'line', from: createPoint(machineState.position), to: createPoint(point),
+                feedRate: speed, lineNo: machineState.lineNo, speedTag: speedTag
+            });
             machineState.position = point;
         }
     }
@@ -232,8 +238,8 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
         var angularStart = Math.atan2(-toCenterY, -toCenterX);
         machineState.addPathFragment({
             type: 'arc',
-            from: currentPosition,
-            to: targetPos,
+            from: createPoint(currentPosition),
+            to: createPoint(targetPos),
             plane: plane,
             center: {first: centerX, second: centerY},
             fromAngle: angularStart,
@@ -241,7 +247,8 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
             radius: radius,
             feedRate: machineState.feedRate,
             lineNo: machineState.lineNo,
-            speedTag: 'normal'});
+            speedTag: 'normal'
+        });
         machineState.position = targetPos;
     }
 
@@ -442,7 +449,8 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
         var wholeLine = jp.action(jp.wsequence(line, jp.expect(jp.end)), function (ast) {
             return ast[0];
         });
-        return {decimal: decimal, expression: expression, affectation: affectation, line: line, memory: memory,
+        return {
+            decimal: decimal, expression: expression, affectation: affectation, line: line, memory: memory,
             clearMemory: function () {
                 for (var key in memory)
                     if (memory.hasOwnProperty(key))
@@ -453,7 +461,8 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
                     return quick;
                 //go uppercase for this parser
                 return wholeLine(jp.ps(str.toUpperCase())).ast;
-            }};
+            }
+        };
     }
 
     function cleanLineUp(originalLine) {
@@ -483,9 +492,17 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
                         nonModal = nonModal2;
                         nonModal(parsed, machineState);
                     } else
-                        errorCollector.push({lineNo: lineNo, message: 'More than one non-modal on same line G' + gCode + ', skipping', line: originalLine});
+                        errorCollector.push({
+                            lineNo: lineNo,
+                            message: 'More than one non-modal on same line G' + gCode + ', skipping',
+                            line: originalLine
+                        });
                 } else
-                    errorCollector.push({lineNo: lineNo, message: 'Did not understand G' + codeNum + ', skipping', line: originalLine});
+                    errorCollector.push({
+                        lineNo: lineNo,
+                        message: 'Did not understand G' + codeNum + ', skipping',
+                        line: originalLine
+                    });
             }
         }
         if (nonModal == null)
@@ -518,7 +535,11 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
                 try {
                     handleLineAst(parsed, machineState, maxFeedRate, originalLine, lineNo, errorCollector);
                 } catch (error) {
-                    errorCollector.push({lineNo: lineNo, message: error.name + ': ' + error.message, line: originalLine});
+                    errorCollector.push({
+                        lineNo: lineNo,
+                        message: error.name + ': ' + error.message,
+                        line: originalLine
+                    });
                 }
         }
         return machineState.path;
@@ -526,5 +547,6 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
 
     return {
         evaluate: evaluate,
-        createParser: createParser};
+        createParser: createParser
+    };
 });
