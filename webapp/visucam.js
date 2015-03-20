@@ -40,29 +40,27 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
                 this.updateAuth();
             },
             updateAuth: function () {
+                var _this = this;
                 var auth = this.get('firebase').getAuth();
                 this.set('auth', auth);
-                if (auth && auth.provider != 'anonymous')
-                    this.get('storageRoot').update({displayName: this.get('username')});
+                if (!auth)
+                    return;
+                if (IN_CHROME_APP)
+                    chrome.storage.local.set({'firebaseToken': auth['token']});
+                var displayName = this.get('auth.twitter.displayName') || this.get('auth.github.displayName') || this.get('auth.facebook.displayName');
+                if (displayName) {
+                    this.get('storageRoot').update({displayName: displayName});
+                    this.set('username', displayName);
+                } else
+                    this.get('storageRoot').child('displayName').on('value', Ember.run.bind(this, function (dataSnapshot) {
+                        _this.set('username', dataSnapshot.val());
+                    }));
             },
             auth: null,
             firebase: null,
             isAuthenticated: function () {
                 return this.get('auth') != null;
             }.property('auth'),
-            username: function () {
-                if (this.get('isAuthenticated'))
-                    switch (this.get('auth.provider')) {
-                        case 'twitter' :
-                            return this.get('auth.twitter.displayName');
-                        case 'github' :
-                            return this.get('auth.github.displayName');
-                        case 'facebook' :
-                            return this.get('auth.facebook.displayName');
-                        case 'anonymous' :
-                            return 'anonymous';
-                    }
-            }.property('isAuthenticated', 'auth'),
             storageRoot: function () {
                 var firebase = this.get('firebase');
                 if (this.get('isAuthenticated'))
@@ -121,6 +119,16 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
                     if (reason.stack)
                         console.log(reason.stack);
                     this.transitionTo('index');
+                },
+                didTransition: function () {
+                    var _this = this;
+                    var firebase = _this.get('firebase.firebase');
+                    if (firebase.getAuth() == null && IN_CHROME_APP)
+                        chrome.storage.local.get('firebaseToken', function (result) {
+                            var sessionId = result['firebaseToken'];
+                            if (sessionId)
+                                firebase.authWithCustomToken(sessionId, _this.get('afterAuth'));
+                        });
                 }
             },
             afterAuth: Ember.run.bind(this, function (error, authData) {
