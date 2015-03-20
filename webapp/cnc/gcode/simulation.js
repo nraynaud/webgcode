@@ -1,10 +1,6 @@
 "use strict";
 define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
 
-    function scaledLine(axis, line, ratio) {
-        return line.from[axis] + ratio * (line.to[axis] - line.from[axis]);
-    }
-
     var COMPONENT_TYPES = {
         line: {
             length: function (line) {
@@ -23,12 +19,6 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
             },
             exitDirection: function (line) {
                 return COMPONENT_TYPES.line.entryDirection(line);
-            },
-            pointAtRatio: function (line, ratio) {
-                var x = scaledLine('x', line, ratio);
-                var y = scaledLine('y', line, ratio);
-                var z = scaledLine('z', line, ratio);
-                return new util.Point(x, y, z);
             },
             simulationSteps: function () {
                 return 40;
@@ -280,11 +270,10 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
         $.each(groups, function (_, group) {
             planSpeed(group);
             $.each(group, function (_, segment) {
-
                 function planningStepCollector(dx, dy, dz, ratio) {
                     //go slower if we are stepping in diagonals
                     var speedFactor = speedFactors[!!dx + !!dy + !!dz];
-                    var time = Math.ceil(Math.min(0.1, speedFactor * stepSize / dataForRatio(segment, ratio).speed) * timebase);
+                    var time = Math.ceil(timebase * speedFactor * stepSize / dataForRatio(segment, ratio).speed);
                     stepCollector(dx, dy, dz, time);
                 }
 
