@@ -123,90 +123,97 @@
             background-color: blue;
         }
 
-        .estop {
+        .estopframe {
             width: 100px;
             height: 61px;
-            background: orangered;
             position: relative;
-            color: black;
+            color: white;
+            background: #eee;
             font-size: large;
             font-weight: bold;
             padding-top: 43px;
             text-align: center;
             line-height: 20px;
-            -webkit-animation-name: blinker;
-            -webkit-animation-duration: 3s;
-            -webkit-animation-timing-function: ease-in-out;
-            -webkit-animation-iteration-count: infinite;
-
-            -moz-animation-name: blinker;
-            -moz-animation-duration: 3s;
-            -moz-animation-timing-function: ease-in-out;
-            -moz-animation-iteration-count: infinite;
-
-            animation-name: blinker;
-            animation-duration: 3s;
-            animation-timing-function: ease-in-out;
-            animation-iteration-count: infinite;
         }
 
-        .estop:before {
+        .estopframe:before {
             content: "";
             position: absolute;
             top: 0;
             left: 0;
-            border-bottom: 29px solid orangered;
+            border-bottom: 29px solid #eee;
             border-left: 29px solid white;
             border-right: 29px solid white;
             width: 42px;
             height: 0;
         }
 
-        .estop:after {
+        .estopframe:after {
             content: "";
             position: absolute;
             bottom: 0;
             left: 0;
-            border-top: 29px solid orangered;
+            border-top: 29px solid #eee;
             border-left: 29px solid white;
             border-right: 29px solid white;
             width: 42px;
             height: 0;
         }
 
+        .estopframe.estop {
+            background: orangered;
+            color: black;
+            -webkit-animation-name: blinker;
+            -webkit-animation-duration: 1s;
+            -webkit-animation-timing-function: ease-in-out;
+            -webkit-animation-iteration-count: infinite;
+            -webkit-animation-direction: alternate;
+
+            -moz-animation-name: blinker;
+            -moz-animation-duration: 1s;
+            -moz-animation-timing-function: ease-in-out;
+            -moz-animation-iteration-count: infinite;
+            -moz-animation-direction: alternate;
+
+            animation-name: blinker;
+            animation-duration: 1s;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+            animation-direction: alternate;
+        }
+
+        .estopframe.estop:before {
+            border-bottom-color: orangered;
+        }
+
+        .estopframe.estop:after {
+            border-top-color: orangered;
+        }
+
         @keyframes blinker {
             0% {
-                opacity: 1.0;
-            }
-            50% {
-                opacity: 0.0;
+                color: black;
             }
             100% {
-                opacity: 1.0;
+                color: white;
             }
         }
 
         @-moz-keyframes blinker {
             0% {
-                opacity: 1.0;
-            }
-            50% {
-                opacity: 0.0;
+                color: black;
             }
             100% {
-                opacity: 1.0;
+                color: white;
             }
         }
 
         @-webkit-keyframes blinker {
             0% {
-                opacity: 1.0;
-            }
-            50% {
-                opacity: 0.0;
+                color: black;
             }
             100% {
-                opacity: 1.0;
+                color: white;
             }
         }
 

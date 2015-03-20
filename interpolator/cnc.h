@@ -28,7 +28,7 @@ typedef struct {
 typedef struct {
     position_t position;
     parameters_t parameters;
-    uint32_t state;
+    uint16_t state;
     int32_t lastEvent[4];
     step_t currentStep;
     uint8_t running;

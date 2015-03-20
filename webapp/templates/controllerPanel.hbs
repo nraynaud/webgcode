@@ -14,9 +14,7 @@
     {{/if}}
 
     <div class="control">
-        {{#if estop}}
-            <div class="estop" title="The emergency stop button is pushed">E-STOP</div>
-        {{/if}}
+        <div {{bind-attr class=":estopframe estop"}}>E-STOP</div>
         <div class="position">
             <table>
                 <colgroup>
