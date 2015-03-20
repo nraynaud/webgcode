@@ -80,10 +80,10 @@ static int xor(int a, int b) {
 static void executeStep(step_t step) {
     //diagonal steps are longer than straight ones
     static float32_t stepFactors[] = {0, 1, 1.414213562f, 1.732050808f};
-    float32_t minDuration = cncMemory.parameters.clockFrequency / (cncMemory.parameters.maxSpeed * cncMemory.parameters.stepsPerMillimeter / 60);
+    float32_t minDuration = cncMemory.parameters.clockFrequency /
+            (cncMemory.parameters.maxSpeed * cncMemory.parameters.stepsPerMillimeter / 60);
     GPIO_ResetBits(motorsPinout.gpio, motorsPinout.xDirection | motorsPinout.xStep
-            | motorsPinout.yDirection | motorsPinout.yStep
-            | motorsPinout.zDirection | motorsPinout.zStep);
+            | motorsPinout.yDirection | motorsPinout.yStep | motorsPinout.zDirection | motorsPinout.zStep);
     cncMemory.currentStep = step;
     if (step.duration) {
         STM_EVAL_LEDOn(LED6);
@@ -100,6 +100,7 @@ static void executeStep(step_t step) {
         float32_t stepFactor = stepFactors[axesCount];
         uint32_t correctedMinDuration = (uint32_t) ceilf(minDuration * stepFactor);
         correctedMinDuration = correctedMinDuration < 2 ? 2 : correctedMinDuration;
+        //clamp speed according to max allowed speed
         duration = duration < correctedMinDuration ? correctedMinDuration : duration;
         cncMemory.position.speed = (int32_t) (stepFactor == 0 ? 0 : duration / stepFactor);
         TIM3->ARR = duration;
@@ -116,7 +117,7 @@ static void executeStep(step_t step) {
 }
 
 void executeNextStep() {
-    if (GPIO_ReadInputDataBit(eStopPinout.gpio, eStopPinout.eStopButton)) {
+    if (!isEmergencyStopped()) {
         cncMemory.running = 1;
         if (cncMemory.state == MANUAL_CONTROL)
             executeStep(nextManualStep());
@@ -141,21 +142,27 @@ void updatePosition(step_t step) {
 __attribute__ ((used)) void TIM3_IRQHandler(void) {
     if (TIM_GetITStatus(TIM3, TIM_IT_CC1) != RESET) {
         TIM_ClearITPendingBit(TIM3, TIM_IT_CC1);
-        uint16_t steps = 0;
-        if (cncMemory.currentStep.axes.xStep)
-            steps |= motorsPinout.xStep;
-        if (cncMemory.currentStep.axes.yStep)
-            steps |= motorsPinout.yStep;
-        if (cncMemory.currentStep.axes.zStep)
-            steps |= motorsPinout.zStep;
-        GPIO_SetBits(motorsPinout.gpio, steps);
-        updatePosition(cncMemory.currentStep);
+        if (cncMemory.currentStep.duration) {
+            uint16_t steps = 0;
+            if (cncMemory.currentStep.axes.xStep)
+                steps |= motorsPinout.xStep;
+            if (cncMemory.currentStep.axes.yStep)
+                steps |= motorsPinout.yStep;
+            if (cncMemory.currentStep.axes.zStep)
+                steps |= motorsPinout.zStep;
+            GPIO_SetBits(motorsPinout.gpio, steps);
+            updatePosition(cncMemory.currentStep);
+        }
     }
     if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET) {
         TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
         STM_EVAL_LEDOff(LED6);
         executeNextStep();
     }
+}
+
+uint32_t isEmergencyStopped() {
+    return (uint32_t) !GPIO_ReadInputDataBit(eStopPinout.gpio, eStopPinout.eStopButton);
 }
 
 __attribute__ ((noreturn)) void main(void) {

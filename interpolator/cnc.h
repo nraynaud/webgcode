@@ -70,6 +70,8 @@ extern volatile cnc_memory_t cncMemory;
 
 extern void executeNextStep();
 
+extern uint32_t isEmergencyStopped();
+
 extern void initUSB();
 
 extern int32_t readBufferArray(uint32_t count, uint8_t *array);

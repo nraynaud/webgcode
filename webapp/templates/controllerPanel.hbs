@@ -12,7 +12,11 @@
     {{else}}
         <button id='connect' {{action "connect"}}>Connect</button>
     {{/if}}
+
     <div class="control">
+        {{#if estop}}
+            <div class="estop" title="The emergency stop button is pushed">E-STOP</div>
+        {{/if}}
         <div class="position">
             <table>
                 <colgroup>

@@ -1,7 +1,9 @@
 "use strict";
-define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/runner', 'cnc/util' ], function (RSVP, $, Ember, Connection, Runner, util) {
-    var CONTROL_COMMANDS = {REQUEST_POSITION: 0, REQUEST_PARAMETERS: 1, REQUEST_STATE: 2, REQUEST_TOGGLE_MANUAL_STATE: 3,
-        REQUEST_DEFINE_AXIS_POSITION: 4};
+define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/runner', 'cnc/util'], function (RSVP, $, Ember, Connection, Runner, util) {
+    var CONTROL_COMMANDS = {
+        REQUEST_POSITION: 0, REQUEST_PARAMETERS: 1, REQUEST_STATE: 2, REQUEST_TOGGLE_MANUAL_STATE: 3,
+        REQUEST_DEFINE_AXIS_POSITION: 4
+    };
     var EVENTS = {PROGRAM_END: 1, PROGRAM_START: 2, MOVED: 3, ENTER_MANUAL_MODE: 4, EXIT_MANUAL_MODE: 5};
     var STATES = {READY: 0, RUNNING_PROGRAM: 1, MANUAL_CONTROL: 2};
     var Axis = Ember.Object.extend({
@@ -47,7 +49,7 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
         askForConfiguration: function () {
             var _this = this;
             return _this.get('connection')
-                .controlTransfer({request: CONTROL_COMMANDS.REQUEST_PARAMETERS, length: 16 })
+                .controlTransfer({request: CONTROL_COMMANDS.REQUEST_PARAMETERS, length: 16})
                 .then(function (data) {
                     console.log('received configuration');
                     var params = new Int32Array(data);
@@ -88,11 +90,20 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
             var values = {X: 0, Y: 0, Z: 0};
             values[axis] = valueInmm * this.get('stepsPerMillimeter');
             var encodedAxis = parseInt({X: '001', Y: '010', Z: '100'}[axis], 2);
-            var data = new Int32Array([values.X, values.Y , values.Z]).buffer;
-            return this.get('connection').controlTransfer({direction: 'out', request: CONTROL_COMMANDS.REQUEST_DEFINE_AXIS_POSITION, value: encodedAxis, data: data});
+            var data = new Int32Array([values.X, values.Y, values.Z]).buffer;
+            return this.get('connection').controlTransfer({
+                direction: 'out',
+                request: CONTROL_COMMANDS.REQUEST_DEFINE_AXIS_POSITION,
+                value: encodedAxis,
+                data: data
+            });
         },
         setManualMode: function () {
-            this.get('connection').controlTransfer({direction: 'out', request: CONTROL_COMMANDS.REQUEST_TOGGLE_MANUAL_STATE, data: new ArrayBuffer(0)});
+            this.get('connection').controlTransfer({
+                direction: 'out',
+                request: CONTROL_COMMANDS.REQUEST_TOGGLE_MANUAL_STATE,
+                data: new ArrayBuffer(0)
+            });
         },
         decodeAxesPosition: function (data) {
             var buffer = new Int32Array(data);
@@ -101,11 +112,16 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
             this.get('axes')[2].set('position', buffer[2] / this.get('stepsPerMillimeter'));
             var feedrate = buffer[3] == 0 ? 0 : 60 * this.get('clockFrequency') / this.get('stepsPerMillimeter') / buffer[3];
             this.set('feedRate', feedrate);
-            $('#webView')[0].contentWindow.postMessage({type: 'toolPosition', position: this.getParameters().position}, '*');
+            $('#webView')[0].contentWindow.postMessage({
+                type: 'toolPosition',
+                position: this.getParameters().position
+            }, '*');
         },
         decodeState: function (data) {
-            var state = new DataView(data).getUint32(0, true);
+            var dataView = new DataView(data);
+            var state = dataView.getUint16(0, true);
             this.set('currentState', state);
+            this.set('estop', !!dataView.getUint16(2, true));
         },
         getParameters: function () {
             var keys = ['stepsPerMillimeter', 'maxFeedrate', 'maxAcceleration', 'clockFrequency'];

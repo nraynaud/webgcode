@@ -138,8 +138,7 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                             USBD_CtlSendData(pdev, (uint8_t *) &cncMemory.parameters, (uint16_t) sizeof(cncMemory.parameters));
                             return USBD_OK;
                         case REQUEST_STATE:
-                            //won't transmit if size <=4
-                            state = cncMemory.state;
+                            state = isEmergencyStopped() << 16 | cncMemory.state;
                             USBD_CtlSendData(pdev, (uint8_t *) &state, (uint16_t) sizeof(state));
                             return USBD_OK;
                         default:

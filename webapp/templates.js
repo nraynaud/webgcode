@@ -234,6 +234,12 @@ function program8(depth0,data) {
 
 function program10(depth0,data) {
   
+  
+  data.buffer.push("\n            <div class=\"estop\" title=\"The emergency stop button is pushed\">E-STOP</div>\n        ");
+  }
+
+function program12(depth0,data) {
+  
   var buffer = '', stack1;
   data.buffer.push("\n                    <tr ");
   data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
@@ -247,12 +253,12 @@ function program10(depth0,data) {
   stack1 = helpers._triageMustache.call(depth0, "name", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push(":</th>\n                        <td class=\"posAxis\">\n                            ");
-  stack1 = helpers['if'].call(depth0, "isEditing", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(13, program13, data),fn:self.program(11, program11, data),contexts:[depth0],types:["ID"],data:data});
+  stack1 = helpers['if'].call(depth0, "isEditing", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(15, program15, data),fn:self.program(13, program13, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n                        </td>\n                    </tr>\n                ");
   return buffer;
   }
-function program11(depth0,data) {
+function program13(depth0,data) {
   
   var buffer = '', helper, options;
   data.buffer.push("\n                                ");
@@ -266,7 +272,7 @@ function program11(depth0,data) {
   return buffer;
   }
 
-function program13(depth0,data) {
+function program15(depth0,data) {
   
   var buffer = '', stack1;
   data.buffer.push("\n                                <span class=\"pos\">");
@@ -276,7 +282,7 @@ function program13(depth0,data) {
   return buffer;
   }
 
-function program15(depth0,data) {
+function program17(depth0,data) {
   
   
   data.buffer.push("\n                    <div id=\"loader\">&nbsp;</div>\n                ");
@@ -289,10 +295,13 @@ function program15(depth0,data) {
   data.buffer.push(">\n    ");
   stack1 = helpers['if'].call(depth0, "connection.opened", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(8, program8, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n    <div class=\"control\">\n        <div class=\"position\">\n            <table>\n                <colgroup>\n                    <col>\n                    <col>\n                </colgroup>\n                <tbody>\n                ");
+  data.buffer.push("\n\n    <div class=\"control\">\n        ");
+  stack1 = helpers['if'].call(depth0, "estop", {hash:{},hashTypes:{},hashContexts:{},inverse:self.noop,fn:self.program(10, program10, data),contexts:[depth0],types:["ID"],data:data});
+  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+  data.buffer.push("\n        <div class=\"position\">\n            <table>\n                <colgroup>\n                    <col>\n                    <col>\n                </colgroup>\n                <tbody>\n                ");
   stack1 = helpers.each.call(depth0, "axes", {hash:{
     'itemController': ("axis")
-  },hashTypes:{'itemController': "STRING"},hashContexts:{'itemController': depth0},inverse:self.noop,fn:self.program(10, program10, data),contexts:[depth0],types:["ID"],data:data});
+  },hashTypes:{'itemController': "STRING"},hashContexts:{'itemController': depth0},inverse:self.noop,fn:self.program(12, program12, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n                </tbody>\n            </table>\n        </div>\n        <div class=\"controlButtons\">\n            <div class=\"xyBlock\">\n                <button class=\"axisButton\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "move", "Y+", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0,depth0],types:["STRING","STRING"],data:data})));
@@ -335,7 +344,7 @@ function program15(depth0,data) {
   stack1 = helpers._triageMustache.call(depth0, "displayableState", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("</span></td>\n                </tr>\n            </table>\n            <div class=\"units\">\n                ");
-  stack1 = helpers['if'].call(depth0, "isBusy", {hash:{},hashTypes:{},hashContexts:{},inverse:self.noop,fn:self.program(15, program15, data),contexts:[depth0],types:["ID"],data:data});
+  stack1 = helpers['if'].call(depth0, "isBusy", {hash:{},hashTypes:{},hashContexts:{},inverse:self.noop,fn:self.program(17, program17, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("<span\n                    title=\"ISO units, there is no way to change it.\">mm</span>\n            </div>\n        </div>\n    </div>\n</div>\n<div class=\"camPanel\">\n    <iframe id=\"webView\" src=\"visucamTest.html\"></iframe>\n</div>");
   return buffer;
@@ -830,88 +839,25 @@ function program8(depth0,data) {
   data.buffer.push("</td>\n        </tr>\n        ");
   stack1 = helpers['if'].call(depth0, "isManual", {hash:{},hashTypes:{},hashContexts:{},inverse:self.noop,fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-    data.buffer.push("\n        <tr>\n            <th>Bounds:</th>\n            <td>\n                <table>\n                    <tbody>\n                    <tr>\n                        <th>X:</th>\n                        <td>");
-    data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number), options = {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    }, helper ? helper.call(depth0, "boundingBox.x.min", options) : helperMissing.call(depth0, "number", "boundingBox.x.min", options))));
-    data.buffer.push("</td>\n                        <td>→</td>\n                        <td>");
-    data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number), options = {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    }, helper ? helper.call(depth0, "boundingBox.x.max", options) : helperMissing.call(depth0, "number", "boundingBox.x.max", options))));
-    data.buffer.push("</td>\n                        <td title=\"span\">[");
-    data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number), options = {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    }, helper ? helper.call(depth0, "boundingBox.x.range", options) : helperMissing.call(depth0, "number", "boundingBox.x.range", options))));
-    data.buffer.push("]</td>\n                    </tr>\n                    <tr>\n                        <th>Y:</th>\n                        <td>");
-    data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number), options = {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    }, helper ? helper.call(depth0, "boundingBox.y.min", options) : helperMissing.call(depth0, "number", "boundingBox.y.min", options))));
-    data.buffer.push("</td>\n                        <td>→</td>\n                        <td>");
-    data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number), options = {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    }, helper ? helper.call(depth0, "boundingBox.y.max", options) : helperMissing.call(depth0, "number", "boundingBox.y.max", options))));
-    data.buffer.push("</td>\n                        <td title=\"span\">[");
-    data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number), options = {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    }, helper ? helper.call(depth0, "boundingBox.y.range", options) : helperMissing.call(depth0, "number", "boundingBox.y.range", options))));
-    data.buffer.push("]</td>\n                    </tr>\n                    <tr>\n                        <th>Z:</th>\n                        <td>");
-    data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number), options = {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    }, helper ? helper.call(depth0, "boundingBox.z.min", options) : helperMissing.call(depth0, "number", "boundingBox.z.min", options))));
-    data.buffer.push("</td>\n                        <td>→</td>\n                        <td>");
-    data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number), options = {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    }, helper ? helper.call(depth0, "boundingBox.z.max", options) : helperMissing.call(depth0, "number", "boundingBox.z.max", options))));
-    data.buffer.push("</td>\n                        <td title=\"span\">[");
-    data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number), options = {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    }, helper ? helper.call(depth0, "boundingBox.z.range", options) : helperMissing.call(depth0, "number", "boundingBox.z.range", options))));
-    data.buffer.push("]</td>\n                    </tr>\n                    </tbody>\n                </table>\n            </td>\n        </tr>\n        </tbody>\n    </table>\n\n</div>");
+  data.buffer.push("\n        <tr>\n            <th>Bounds:</th>\n            <td>\n                <table>\n                    <tbody>\n                    <tr>\n                        <th>X:</th>\n                        <td>");
+  data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number),options={hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data},helper ? helper.call(depth0, "boundingBox.x.min", options) : helperMissing.call(depth0, "number", "boundingBox.x.min", options))));
+  data.buffer.push("</td>\n                        <td>→</td>\n                        <td>");
+  data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number),options={hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data},helper ? helper.call(depth0, "boundingBox.x.max", options) : helperMissing.call(depth0, "number", "boundingBox.x.max", options))));
+  data.buffer.push("</td>\n                        <td title=\"span\">[");
+  data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number),options={hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data},helper ? helper.call(depth0, "boundingBox.x.range", options) : helperMissing.call(depth0, "number", "boundingBox.x.range", options))));
+  data.buffer.push("]</td>\n                    </tr>\n                    <tr>\n                        <th>Y:</th>\n                        <td>");
+  data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number),options={hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data},helper ? helper.call(depth0, "boundingBox.y.min", options) : helperMissing.call(depth0, "number", "boundingBox.y.min", options))));
+  data.buffer.push("</td>\n                        <td>→</td>\n                        <td>");
+  data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number),options={hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data},helper ? helper.call(depth0, "boundingBox.y.max", options) : helperMissing.call(depth0, "number", "boundingBox.y.max", options))));
+  data.buffer.push("</td>\n                        <td title=\"span\">[");
+  data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number),options={hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data},helper ? helper.call(depth0, "boundingBox.y.range", options) : helperMissing.call(depth0, "number", "boundingBox.y.range", options))));
+  data.buffer.push("]</td>\n                    </tr>\n                    <tr>\n                        <th>Z:</th>\n                        <td>");
+  data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number),options={hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data},helper ? helper.call(depth0, "boundingBox.z.min", options) : helperMissing.call(depth0, "number", "boundingBox.z.min", options))));
+  data.buffer.push("</td>\n                        <td>→</td>\n                        <td>");
+  data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number),options={hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data},helper ? helper.call(depth0, "boundingBox.z.max", options) : helperMissing.call(depth0, "number", "boundingBox.z.max", options))));
+  data.buffer.push("</td>\n                        <td title=\"span\">[");
+  data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number),options={hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data},helper ? helper.call(depth0, "boundingBox.z.range", options) : helperMissing.call(depth0, "number", "boundingBox.z.range", options))));
+  data.buffer.push("]</td>\n                    </tr>\n                    </tbody>\n                </table>\n            </td>\n        </tr>\n        </tbody>\n    </table>\n\n</div>");
   return buffer;
   
 });

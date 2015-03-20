@@ -122,6 +122,94 @@
         #header.connected {
             background-color: blue;
         }
+
+        .estop {
+            width: 100px;
+            height: 61px;
+            background: orangered;
+            position: relative;
+            color: black;
+            font-size: large;
+            font-weight: bold;
+            padding-top: 43px;
+            text-align: center;
+            line-height: 20px;
+            -webkit-animation-name: blinker;
+            -webkit-animation-duration: 3s;
+            -webkit-animation-timing-function: ease-in-out;
+            -webkit-animation-iteration-count: infinite;
+
+            -moz-animation-name: blinker;
+            -moz-animation-duration: 3s;
+            -moz-animation-timing-function: ease-in-out;
+            -moz-animation-iteration-count: infinite;
+
+            animation-name: blinker;
+            animation-duration: 3s;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
+        }
+
+        .estop:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            border-bottom: 29px solid orangered;
+            border-left: 29px solid white;
+            border-right: 29px solid white;
+            width: 42px;
+            height: 0;
+        }
+
+        .estop:after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            border-top: 29px solid orangered;
+            border-left: 29px solid white;
+            border-right: 29px solid white;
+            width: 42px;
+            height: 0;
+        }
+
+        @keyframes blinker {
+            0% {
+                opacity: 1.0;
+            }
+            50% {
+                opacity: 0.0;
+            }
+            100% {
+                opacity: 1.0;
+            }
+        }
+
+        @-moz-keyframes blinker {
+            0% {
+                opacity: 1.0;
+            }
+            50% {
+                opacity: 0.0;
+            }
+            100% {
+                opacity: 1.0;
+            }
+        }
+
+        @-webkit-keyframes blinker {
+            0% {
+                opacity: 1.0;
+            }
+            50% {
+                opacity: 0.0;
+            }
+            100% {
+                opacity: 1.0;
+            }
+        }
+
     </style>
     <link rel="shortcut icon" href="images/icon_fraise_48.png"/>
 </head>
