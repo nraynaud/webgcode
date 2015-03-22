@@ -125,6 +125,7 @@ var tasks = {
 
             function createProgramEncoder(maximumInstructionsCount) {
                 var HEADER_LENGTH = 8;
+                var programID = 1;
                 var buffer = new ArrayBuffer(maximumInstructionsCount * 3 + HEADER_LENGTH);
                 return {
                     buffer: buffer,
@@ -151,10 +152,13 @@ var tasks = {
                         ++this.instructionsCount;
                     },
                     popEncodedProgram: function () {
-                        // We send the *size in byte* of the program, not the instructions count
+                        console.log('encoding ', programID, new Date());
+                        // We send the *size in byte* of the program, header excluded, not the instructions count
                         this.view.setUint32(0, this.instructionsCount * 3, true);
+                        this.view.setUint32(4, programID, true);
                         var encodedProgram = this.buffer.slice(0, HEADER_LENGTH + this.instructionsCount * 3);
                         this.instructionsCount = 0;
+                        programID++;
                         return encodedProgram;
                     }
                 };

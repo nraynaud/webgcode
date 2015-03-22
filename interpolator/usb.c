@@ -88,8 +88,6 @@ static struct {
         .programID = 0
 };
 
-static volatile uint64_t state;
-
 typedef enum {
     CONTROL_READY = 0,
     CONTROL_WAITING_AXES_VALUES = 1
@@ -139,10 +137,16 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                         case REQUEST_PARAMETERS:
                             USBD_CtlSendData(pdev, (uint8_t *) &cncMemory.parameters, (uint16_t) sizeof(cncMemory.parameters));
                             return USBD_OK;
-                        case REQUEST_STATE:
-                            state = isEmergencyStopped() << 16 | cncMemory.state;
+                        case REQUEST_STATE: {
+                            //using a static, so that it doesn't get cleaned up before the driver reads it
+                            static volatile uint32_t state[2];
+                            state[0] = isEmergencyStopped() << 16 | cncMemory.state;
+                            state[1] = 0;
+                            if (cncMemory.state == RUNNING_PROGRAM || cncMemory.state == ABORTING_PROGRAM)
+                                state[1] = circularBuffer.programID;
                             USBD_CtlSendData(pdev, (uint8_t *) &state, (uint16_t) sizeof(state));
                             return USBD_OK;
+                        };
                         default:
                             USBD_CtlError(pdev, req);
                             break;
@@ -279,6 +283,7 @@ int32_t readBufferArray(uint32_t count, uint8_t *array) {
 
 void checkProgramEnd() {
     if (circularBuffer.programLength == 0) {
+        circularBuffer.programID = 0;
         cncMemory.state = READY;
         sendEvent(PROGRAM_END);
         if (fillLevel())

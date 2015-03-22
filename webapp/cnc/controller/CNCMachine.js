@@ -122,6 +122,7 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
             var state = dataView.getUint16(0, true);
             this.set('currentState', state);
             this.set('estop', !!dataView.getUint16(2, true));
+            this.set('programID', dataView.getUint32(4, true));
         },
         getParameters: function () {
             var keys = ['stepsPerMillimeter', 'maxFeedrate', 'maxAcceleration', 'clockFrequency'];
