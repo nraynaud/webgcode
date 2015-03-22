@@ -78,12 +78,14 @@ static struct {
     int signaled;
     int flushing;
     uint32_t programLength;
+    uint32_t programID;
 } circularBuffer = {
         .writeCount = 0,
         .readCount = 0,
         .signaled = 0,
         .flushing = 0,
-        .programLength = 0
+        .programLength = 0,
+        .programID = 0
 };
 
 static volatile uint64_t state;
@@ -208,12 +210,13 @@ uint16_t fillLevel() {
 int32_t readBufferArray2(uint32_t count, uint8_t *array);
 
 void startProgram() {
-    uint8_t array[4];
-    uint32_t savedState = cncMemory.state;
+    uint8_t array[8];
+    uint16_t savedState = cncMemory.state;
     cncMemory.state = RUNNING_PROGRAM;
     if (readBufferArray2(sizeof(array) / sizeof(*array), array)) {
         sendEvent(PROGRAM_START);
         circularBuffer.programLength = array[3] << 24 | array[2] << 16 | array[1] << 8 | array[0];
+        circularBuffer.programID = array[7] << 24 | array[6] << 16 | array[5] << 8 | array[4];
     } else
         cncMemory.state = savedState;
 }

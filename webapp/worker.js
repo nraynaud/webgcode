@@ -124,7 +124,8 @@ var tasks = {
 
 
             function createProgramEncoder(maximumInstructionsCount) {
-                var buffer = new ArrayBuffer(maximumInstructionsCount * 3 + 4);
+                var HEADER_LENGTH = 8;
+                var buffer = new ArrayBuffer(maximumInstructionsCount * 3 + HEADER_LENGTH);
                 return {
                     buffer: buffer,
                     view: new DataView(buffer),
@@ -144,15 +145,15 @@ var tasks = {
                             return direction + enableStep;
                         }
 
-                        this.view.setUint16(this.instructionsCount * 3 + 4, time, true);
+                        this.view.setUint16(HEADER_LENGTH + this.instructionsCount * 3, time, true);
                         var word = '00' + bin(dz) + bin(dy) + bin(dx);
-                        this.view.setUint8(this.instructionsCount * 3 + 6, parseInt(word, 2));
+                        this.view.setUint8(HEADER_LENGTH + this.instructionsCount * 3 + 2, parseInt(word, 2));
                         ++this.instructionsCount;
                     },
                     popEncodedProgram: function () {
                         // We send the *size in byte* of the program, not the instructions count
                         this.view.setUint32(0, this.instructionsCount * 3, true);
-                        var encodedProgram = this.buffer.slice(0, this.instructionsCount * 3 + 4);
+                        var encodedProgram = this.buffer.slice(0, HEADER_LENGTH + this.instructionsCount * 3);
                         this.instructionsCount = 0;
                         return encodedProgram;
                     }
