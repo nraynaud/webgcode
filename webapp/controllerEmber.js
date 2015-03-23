@@ -30,7 +30,10 @@ require(['Ember', 'templates', 'cnc/ui/views', 'cnc/controller/CNCMachine'], fun
                 this.get('model').abort();
             },
             sendProgram: function () {
-                this.get('model').transmitProgram();
+                console.time('program');
+                this.get('model').transmitProgram().finally(function () {
+                    console.timeEnd('program');
+                });
             }
         },
         increment: 10,

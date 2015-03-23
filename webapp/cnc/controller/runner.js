@@ -1,30 +1,26 @@
 "use strict";
 define(['RSVP'], function (RSVP) {
     var ENDPOINT = 1;
-    var SET_FEATURE = 0x03;
-    var CLEAR_FEATURE = 0x01;
-    var ENDPOINT_HALT = 0;
     var STALL_ERROR = 4;
 
     function Runner(connection) {
         this.connection = connection;
         this.worker = null;
+        this.aborted = false;
     }
 
     Runner.prototype = {
-        haltRestartEndPoint: function (setClear) {
-            return this.connection.controlTransfer({direction: 'out', recipient: 'endpoint', requestType: 'standard',
-                request: setClear, value: ENDPOINT_HALT, index: ENDPOINT, data: new ArrayBuffer(0)});
-        },
         getCodeChannel: function (deferred) {
+            this.aborted = false;
             this.worker = new Worker("worker.js");
+            this.loop = loop;
             var workQueue = [];
             var sentToUSBProgramsCount = 0;
             var running = false;
             var _this = this;
 
             function loop() {
-                if (workQueue.length) {
+                if (workQueue.length && !_this.aborted) {
                     running = true;
                     chrome.power.requestKeepAwake('system');
                     sendSpeed(workQueue.shift()).then(loop, function (errorCode) {
@@ -38,8 +34,10 @@ define(['RSVP'], function (RSVP) {
                 } else {
                     //starved or finished
                     running = false;
-                    if (_this.worker == null)
+                    if (_this.worker == null || _this.aborted)
                         sendSpeed(new ArrayBuffer(0)).finally(function () {//flush
+                            if (_this.aborted)
+                                _this.aborted.resolve();
                             deferred.resolve();
                             chrome.power.releaseKeepAwake();
                         });
@@ -83,12 +81,11 @@ define(['RSVP'], function (RSVP) {
             }
         },
         stop: function () {
-            var _this = this;
-            return _this.haltRestartEndPoint(SET_FEATURE)
-                .then(function () {
-                    _this.terminateWorker();
-                    return _this.haltRestartEndPoint(CLEAR_FEATURE);
-                });
+            var deferred = RSVP.defer();
+            this.aborted = deferred;
+            this.terminateWorker();
+            this.loop();
+            return deferred.promise;
         }
     };
     return Runner;

@@ -38,7 +38,9 @@ enum {
     REQUEST_PARAMETERS = 1,
     REQUEST_STATE = 2,
     REQUEST_TOGGLE_MANUAL_STATE = 3,
-    REQUEST_DEFINE_AXIS_POSITION = 4
+    REQUEST_DEFINE_AXIS_POSITION = 4,
+    REQUEST_ABORT = 5,
+    REQUEST_CLEAR_ABORT = 6
 };
 
 typedef enum {
@@ -169,29 +171,26 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                             USBD_CtlPrepareRx(pdev, (uint8_t *) controlEndpointState.positionBuffer, sizeof(controlEndpointState.positionBuffer));
                             USBD_CtlSendStatus(pdev);
                             return USBD_OK;
+                        case REQUEST_ABORT:
+                            cncMemory.state = ABORTING_PROGRAM;
+                            //connect the endpoint to the drain
+                            DCD_EP_PrepareRx(&usbDevice, BULK_ENDPOINT, buffer, BUFFER_SIZE);
+                            return USBD_OK;
+                        case REQUEST_CLEAR_ABORT:
+                            DCD_EP_PrepareRx(&usbDevice, BULK_ENDPOINT, buffer, BUFFER_SIZE);
+                            circularBuffer.programID = 0;
+                            circularBuffer.programLength = 0;
+                            circularBuffer.flushing = 0;
+                            circularBuffer.writeCount = 0;
+                            circularBuffer.readCount = 0;
+                            circularBuffer.signaled = 0;
+                            cncMemory.state = READY;
+                            sendEvent(PROGRAM_END);
+                            return USBD_OK;
                         default:
                             USBD_CtlError(pdev, req);
                             return USBD_FAIL;
                     }
-            }
-            break;
-        case STANDARD:
-            if (req->wIndex == BULK_ENDPOINT && req->wValue == USB_FEATURE_EP_HALT) {
-                //the stall/clear stall has been done by the lib.
-                if (req->bRequest == USB_REQ_SET_FEATURE) {
-                    circularBuffer.programLength = 0;
-                    circularBuffer.flushing = 0;
-                    circularBuffer.writeCount = 0;
-                    circularBuffer.readCount = 0;
-                    circularBuffer.signaled = 0;
-                    cncMemory.state = ABORTING_PROGRAM;
-                    DCD_EP_Flush(pdev, BULK_ENDPOINT_NUM);
-                } else if (req->bRequest == USB_REQ_CLEAR_FEATURE) {
-                    cncMemory.state = READY;
-                    sendEvent(PROGRAM_END);
-                    DCD_EP_Flush(pdev, BULK_ENDPOINT_NUM);
-                    DCD_EP_PrepareRx(&usbDevice, BULK_ENDPOINT, buffer, BUFFER_SIZE);
-                }
             }
             break;
         default:
@@ -214,6 +213,8 @@ uint16_t fillLevel() {
 int32_t readBufferArray2(uint32_t count, uint8_t *array);
 
 void startProgram() {
+    if (cncMemory.state != READY)
+        return;
     uint8_t array[8];
     uint16_t savedState = cncMemory.state;
     cncMemory.state = RUNNING_PROGRAM;
@@ -257,16 +258,17 @@ static uint8_t cncDataOut(void *pdev, uint8_t epnum) {
         circularBuffer.signaled = 1;
         flushBuffer();
     }
+    if (cncMemory.state == ABORTING_PROGRAM)
+        //just throw away the content
+        DCD_EP_PrepareRx(&usbDevice, BULK_ENDPOINT, buffer, BUFFER_SIZE);
     return USBD_OK;
 }
 
 int32_t readBufferArray2(uint32_t count, uint8_t *array) {
     flushBuffer();
     if (fillLevel() < count) {
-        STM_EVAL_LEDOn(LED5);
         return 0;
     }
-    STM_EVAL_LEDOff(LED5);
     for (int i = 0; i < count; i++) {
         array[i] = circularBuffer.buffer[circularBuffer.readCount % CIRCULAR_BUFFER_SIZE];
         circularBuffer.readCount++;

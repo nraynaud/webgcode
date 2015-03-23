@@ -43,7 +43,14 @@ define(['RSVP', 'jQuery', 'Ember'], function (RSVP, $, Ember) {
         currentDevice: null,
         usbObservers: {},
         DEVICE_INFO: DEVICE_INFO,
-        DEFAULT_TRANSFER_INFO: {requestType: 'vendor', recipient: 'interface', direction: 'in', value: 0, index: 0},
+        DEFAULT_TRANSFER_INFO: {
+            requestType: 'vendor',
+            recipient: 'interface',
+            direction: 'in',
+            value: 0,
+            index: 0,
+            data: new ArrayBuffer(0)
+        },
         claim: function (device) {
             return claimInterface(device, 0).then(function () {
                 return device;

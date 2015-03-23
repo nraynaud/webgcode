@@ -152,7 +152,6 @@ var tasks = {
                         ++this.instructionsCount;
                     },
                     popEncodedProgram: function () {
-                        console.log('encoding ', programID, new Date());
                         // We send the *size in byte* of the program, header excluded, not the instructions count
                         this.view.setUint32(0, this.instructionsCount * 3, true);
                         this.view.setUint32(4, programID, true);
