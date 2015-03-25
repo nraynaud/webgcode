@@ -296,6 +296,9 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
                             });
                     else
                         job.deleteShape(shape);
+                },
+                toggleHide: function () {
+                    this.set('visible', !this.get('visible'));
                 }
             },
             isCurrent: function () {

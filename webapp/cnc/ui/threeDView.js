@@ -15,13 +15,26 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             return new util.Point(v.x, v.y, v.z);
         }
 
-        function PolylineNode(node, material) {
+        function OutlineNode(node, material, view) {
             this.node = node;
             this.material = material;
             this.bufferedGeometry = null;
+            this.view = view;
         }
 
-        PolylineNode.prototype = {
+        OutlineNode.prototype = {
+            setVisibility: function (visible) {
+                this.node.traverse(function (node) {
+                    node.visible = visible;
+                });
+                this.view.reRender();
+            },
+            remove: function () {
+                var node = this.node;
+                for (var i = 0; i < node.children.length; i++)
+                    node.children[i].geometry.dispose();
+                node.parent.remove(node);
+            },
             clear: function () {
                 this.bufferedGeometry = null;
                 var node = this.node;
@@ -30,6 +43,14 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                     child.geometry.dispose();
                     node.remove(child);
                 }
+            },
+            addMesh: function (meshGeometry) {
+                meshGeometry.computeFaceNormals();
+                meshGeometry.computeVertexNormals();
+                this.node.add(new THREE.Mesh(meshGeometry, new THREE.MeshLambertMaterial({
+                    color: 0xFEEFFE,
+                    shading: THREE.SmoothShading
+                })));
             },
             addPolyLines: function (polylines) {
                 for (var i = 0; i < polylines.length; i++) {
@@ -216,14 +237,6 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
         }
 
         ThreeDView.prototype = {
-            loadSTL: function (meshGeometry) {
-                meshGeometry.computeFaceNormals();
-                meshGeometry.computeVertexNormals();
-                return new THREE.Mesh(meshGeometry, new THREE.MeshLambertMaterial({
-                    color: 0xFEEFFE,
-                    shading: THREE.SmoothShading
-                }));
-            },
             addToolpathFragment: function (fragment) {
                 this[fragment.speedTag == 'rapid' ? 'rapidToolpathNode' : 'normalToolpathNode'].addCollated(fragment.vertices);
             },
@@ -289,12 +302,12 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             createDrawingNode: function (material) {
                 var node = new THREE.Object3D();
                 this.drawing.add(node);
-                return new PolylineNode(node, material);
+                return new OutlineNode(node, material, this);
             },
             createOverlayNode: function (material) {
                 var node = new THREE.Object3D();
                 this.overlayScene.add(node);
-                return new PolylineNode(node, material);
+                return new OutlineNode(node, material, this);
             },
             reRender: function () {
                 if (!this.renderRequested) {

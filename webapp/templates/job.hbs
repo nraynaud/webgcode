@@ -68,10 +68,13 @@
     <h2>Shapes
         <button title="create new shape" class="btn btn-default" {{action "createShape"}}>+</button>
     </h2>
-    <ul class="list-group">
+    <ul class="list-group shapeList">
         {{#each shapes itemController="shapeListItem"}}
-            {{#link-to "shape" this classNames="list-group-item"}}{{name}}
-                <span class="delete badge" {{action "delete"}} title="Delete Shape"><i
+            {{#link-to "shape" this classNames="list-group-item"}} <span {{action "toggleHide"}}
+                    title="Toggle Visibility"><i
+                    class="fa fa-eye"></i></span>
+                <span {{bind-attr class="visible:shape-visible:shape-hidden"}}>{{name}}</span>
+                <span class="delete" {{action "delete"}} title="Delete Shape" style="float:right"><i
                         class="fa fa-times"></i></span>{{/link-to}}
         {{else}}
             No shape yet. Try dropping a SVG or STL file on the window.

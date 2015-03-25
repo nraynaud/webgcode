@@ -116,6 +116,26 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE'],
             return new Float32Array(res);
         }
 
+        var ShapeWrapper = Ember.Object.extend({
+            willDestroy: function () {
+                this._super();
+                this.get('outlineDisplay').remove();
+            },
+            copyShapeToOutline: function () {
+                var outlineDisplay = this.get('outlineDisplay');
+                var shape = this.get('shape');
+                outlineDisplay.clear();
+                outlineDisplay.addPolyLines(shape.get('polyline'));
+                var meshGeometry = shape.get('meshGeometry');
+                if (meshGeometry)
+                    outlineDisplay.addMesh(meshGeometry);
+                outlineDisplay.setVisibility(this.get('shape.visible'));
+            }.observes('shape.polyline', 'shape.meshGeometry').on('init'),
+            visibleChanged: function () {
+                this.get('outlineDisplay').setVisibility(this.get('shape.visible'));
+            }.observes('shape.visible')
+        });
+
         var ThreeDView = Ember.View.extend({
             classNames: ['ThreeDView'],
             didInsertElement: function () {
@@ -138,7 +158,31 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE'],
 
                 this.synchronizeCurrentOperation();
                 this.synchronizeJob();
-                this.synchronizeOutlines();
+                var outlinesViews = [];
+
+                function wrapShape(shape) {
+                    return ShapeWrapper.create({
+                        shape: shape,
+                        outlineDisplay: threeDView.createDrawingNode(threeDView.outlineMaterial)
+                    });
+                }
+
+                this.get('controller.shapes.content').addArrayObserver({
+                    arrayWillChange: function (observedObj, start, removeCount, addCount) {
+                        for (var i = start; i < start + removeCount; i++)
+                            outlinesViews[i].destroy();
+                        outlinesViews.replace(start, removeCount, []);
+                    },
+                    arrayDidChange: function (observedObj, start, removeCount, addCount) {
+                        var newItems = [];
+                        for (var i = start; i < start + addCount; i++)
+                            newItems.push(wrapShape(observedObj[i]));
+                        outlinesViews.replace(start, 0, newItems);
+                    }
+                });
+                this.get('controller.shapes').forEach(function (shape) {
+                    outlinesViews.push(wrapShape(shape));
+                });
                 this.synchronizeCurrentShape();
             },
             synchronizeCurrentOperation: function () {
@@ -174,19 +218,6 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE'],
                 }
                 threeDView.reRender();
             }.observes('controller.transitionTravels', 'controller.showTravel'),
-            synchronizeOutlines: function () {
-                var _this = this;
-                var outlinesDisplay = this.get('outlinesDisplay');
-                outlinesDisplay.clear();
-                this.get('controller.shapes').forEach(function (shape) {
-                    var polyline = shape.get('polyline');
-                    outlinesDisplay.addPolyLines(polyline);
-                    var meshGeometry = shape.get('meshGeometry');
-                    if (meshGeometry)
-                        outlinesDisplay.node.add(_this.get('nativeComponent').loadSTL(meshGeometry));
-                });
-                this.get('nativeComponent').zoomExtent();
-            }.observes('controller.shapes.@each.polyline', 'controller.shapes.@each.stlModel'),
             synchronizeToolPosition: function () {
                 var threeDView = this.get('nativeComponent');
                 var position = this.get('controller.toolPosition');

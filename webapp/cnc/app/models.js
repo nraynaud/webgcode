@@ -50,6 +50,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             name: attr('string', {defaultValue: 'New Shape'}),
             type: attr('string', {defaultValue: 'imported'}),
             manualDefinition: DS.belongsTo('manualShape', {embedded: true}),
+            visible: attr('boolean', {defaultValue: true}),
             definition: attr('string'),
             encodedStlModel: attr('string'),
             polyline: function () {
@@ -59,21 +60,16 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 return cam.pathDefToClipper(this.get('definition'));
             }.property('definition'),
             boundingBox: function () {
-                console.log('boundingBox');
                 var box = new util.BoundingBox();
                 var mesh = this.get('meshGeometry');
                 if (mesh) {
-                    console.log('mesh');
                     mesh.computeBoundingBox();
-                    console.log('mesh', mesh.boundingBox);
                     box.pushPoint(mesh.boundingBox.min);
                     box.pushPoint(mesh.boundingBox.max);
                     return box
                 }
                 var polygons = this.get('polyline');
                 if (polygons) {
-                    console.log('polygons');
-                    var box = new util.BoundingBox();
                     polygons.forEach(function (polygon) {
                         polygon.forEach(function (point) {
                             box.pushPoint(point);
@@ -243,8 +239,8 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             speed: attr('number', {defaultValue: 24000}),
             startPoint: attr('point', {defaultValue: new util.Point(0, 0, 10)}),
             jobSummary: DS.belongsTo('jobSummary', {inverse: 'job', async: true}),
-            shapes: DS.hasMany('shape', {embedded: true, async: true}),
-            operations: DS.hasMany('operation', {inverse: 'job', embedded: true, async: true}),
+            shapes: DS.hasMany('shape', {embedded: true}),
+            operations: DS.hasMany('operation', {inverse: 'job', embedded: true}),
             transitionTravels: [],
             deleteOperation: function (operation) {
                 this.get('operations').removeObject(operation);
