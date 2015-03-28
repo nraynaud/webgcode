@@ -159,7 +159,6 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                         }));
                     });
                     worker.onerror = Ember.run.bind(this, function (error) {
-                        _this.get('toolpathWorker').terminate();
                         _this.set('toolpathWorker', null);
                         console.log(error);
                     });
