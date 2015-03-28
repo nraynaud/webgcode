@@ -48,7 +48,6 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             addMesh: function (meshGeometry) {
                 meshGeometry.computeFaceNormals();
                 meshGeometry.computeVertexNormals();
-                console.log('addMesh', this.meshMaterial);
                 this.node.add(new THREE.Mesh(meshGeometry, this.meshMaterial));
             },
             addPolyLines: function (polylines) {
