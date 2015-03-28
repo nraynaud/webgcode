@@ -15,9 +15,10 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             return new util.Point(v.x, v.y, v.z);
         }
 
-        function OutlineNode(node, material, view) {
+        function OutlineNode(node, lineMaterial, meshMaterial, view) {
             this.node = node;
-            this.material = material;
+            this.lineMaterial = lineMaterial;
+            this.meshMaterial = meshMaterial;
             this.bufferedGeometry = null;
             this.view = view;
         }
@@ -47,10 +48,8 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             addMesh: function (meshGeometry) {
                 meshGeometry.computeFaceNormals();
                 meshGeometry.computeVertexNormals();
-                this.node.add(new THREE.Mesh(meshGeometry, new THREE.MeshLambertMaterial({
-                    color: 0xFEEFFE,
-                    shading: THREE.SmoothShading
-                })));
+                console.log('addMesh', this.meshMaterial);
+                this.node.add(new THREE.Mesh(meshGeometry, this.meshMaterial));
             },
             addPolyLines: function (polylines) {
                 for (var i = 0; i < polylines.length; i++) {
@@ -100,7 +99,7 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                     this.bufferedGeometry = new THREE.BufferGeometry();
                     this.bufferedGeometry.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
                     this.bufferedGeometry.addAttribute('index', new THREE.BufferAttribute(newIndices, 1));
-                    this.node.add(new THREE.Line(this.bufferedGeometry, this.material, THREE.LinePieces));
+                    this.node.add(new THREE.Line(this.bufferedGeometry, this.lineMaterial, THREE.LinePieces));
                 } else {
                     var attributes = this.bufferedGeometry.attributes;
                     attributes.position.array = typedArrayConcat(attributes.position.array, vertices, Float32Array);
@@ -220,6 +219,8 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             var directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
             directionalLight2.position.set(-1000, -1000, 1000);
             this.scene.add(directionalLight2);
+            this.overlayScene.add(directionalLight.clone());
+            this.overlayScene.add(directionalLight2.clone());
             this.normalMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFFFFFF});
             this.rapidMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFF0000});
             this.outlineMaterial = new THREE.LineBasicMaterial({linewidth: 1.5, color: 0xFFFF00});
@@ -299,15 +300,15 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                 if (reanimate)
                     this.reRender();
             },
-            createDrawingNode: function (material) {
+            createDrawingNode: function (lineMaterial, meshMaterial) {
                 var node = new THREE.Object3D();
                 this.drawing.add(node);
-                return new OutlineNode(node, material, this);
+                return new OutlineNode(node, lineMaterial, meshMaterial, this);
             },
-            createOverlayNode: function (material) {
+            createOverlayNode: function (lineMaterial, meshMaterial) {
                 var node = new THREE.Object3D();
                 this.overlayScene.add(node);
-                return new OutlineNode(node, material, this);
+                return new OutlineNode(node, lineMaterial, meshMaterial, this);
             },
             reRender: function () {
                 if (!this.renderRequested) {

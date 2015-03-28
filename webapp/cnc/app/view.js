@@ -140,7 +140,10 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE'],
             classNames: ['ThreeDView'],
             didInsertElement: function () {
                 var threeDView = new TreeDView.ThreeDView(this.$());
-                threeDView.normalToolpathNode.material = new THREE.LineBasicMaterial({linewidth: 1.2, color: 0x6688aa});
+                threeDView.normalToolpathNode.lineMaterial = new THREE.LineBasicMaterial({
+                    linewidth: 1.2,
+                    color: 0x6688aa
+                });
                 threeDView.rapidMaterial = new THREE.LineBasicMaterial({
                     linewidth: 1.2,
                     color: 0xdd4c2f,
@@ -152,9 +155,18 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE'],
                     color: 0xdd4c2f, opacity: 0.5, transparent: true
                 });
                 this.set('nativeComponent', threeDView);
-                this.set('travelDisplay', threeDView.createDrawingNode(threeDView.rapidMaterial));
-                this.set('outlinesDisplay', threeDView.createDrawingNode(threeDView.outlineMaterial));
-                this.set('highlightDisplay', threeDView.createOverlayNode(threeDView.highlightMaterial));
+                this.set('travelDisplay', threeDView.createDrawingNode(threeDView.rapidMaterial, new THREE.MeshLambertMaterial({
+                    color: 0xFEEFFE,
+                    shading: THREE.SmoothShading
+                })));
+                this.set('outlinesDisplay', threeDView.createDrawingNode(threeDView.outlineMaterial, new THREE.MeshLambertMaterial({
+                    color: 0xFEEFFE,
+                    shading: THREE.SmoothShading
+                })));
+                this.set('highlightDisplay', threeDView.createOverlayNode(threeDView.highlightMaterial, new THREE.MeshLambertMaterial({
+                    color: 0xdd4c2f, opacity: 0.5,
+                    shading: THREE.SmoothShading
+                })));
 
                 this.synchronizeCurrentOperation();
                 this.synchronizeJob();
@@ -163,7 +175,10 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE'],
                 function wrapShape(shape) {
                     return ShapeWrapper.create({
                         shape: shape,
-                        outlineDisplay: threeDView.createDrawingNode(threeDView.outlineMaterial)
+                        outlineDisplay: threeDView.createDrawingNode(threeDView.outlineMaterial, new THREE.MeshLambertMaterial({
+                            color: 0xFEEFFE,
+                            shading: THREE.SmoothShading
+                        }))
                     });
                 }
 
@@ -202,8 +217,14 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE'],
                 var highlightDisplay = this.get('highlightDisplay');
                 highlightDisplay.clear();
                 var shape = this.get('controller.currentShape');
-                if (shape && shape.get('polyline'))
-                    highlightDisplay.addPolyLines(shape.get('polyline'));
+                if (shape) {
+                    var polyline = shape.get('polyline');
+                    if (polyline)
+                        highlightDisplay.addPolyLines(polyline);
+                    var meshGeometry = shape.get('meshGeometry');
+                    if (meshGeometry)
+                        highlightDisplay.addMesh(meshGeometry.clone());
+                }
                 this.get('nativeComponent').reRender();
             }.observes('controller.currentShape', 'controller.currentShape.polyline'),
             synchronizeJob: function () {
