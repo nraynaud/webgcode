@@ -43,6 +43,10 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     return cam.geom.createCircle(x, y, this.get('radius'));
                 else if (this.get('type') == 'text')
                     return Text.getTextFromFile(this.get('fontFile'), this.get('text'), this.get('fontSize'), x, y);
+                else if (this.get('type') == 'point') {
+                    return 'M' + (x - 5) + ',' + y + 'L' + (x + 5) + ',' + y
+                        + 'M' + x + ',' + (y - 5) + 'L' + x + ',' + (y + 5);
+                }
             }.property('type', 'width', 'height', 'x', 'y', 'radius', 'text', 'fontSize', 'fontName', 'fontFile')
         });
 
@@ -133,14 +137,20 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             computeToolpathObeserved: function () {
                 if (this.get('outline.definition') && this.get('type') != '3DlinearOperation')
                     Ember.run.debounce(this, this.computeToolpath, 100);
-            }.observes('type', 'outline.polyline', 'job.toolDiameter', 'job.safetyZ').on('init'),
+            }.observes('type', 'outline.polyline', 'job.toolDiameter', 'job.safetyZ', 'outline.manualDefinition.x', 'outline.manualDefinition.y').on('init'),
             computeToolpath: function () {
                 var _this = this;
                 if (this.get('type')) {
                     var operation = Operations[this.get('type')];
                     var params = {
                         job: {safetyZ: this.get('job.safetyZ'), toolDiameter: this.get('job.toolDiameter')},
-                        outline: {clipperPolyline: this.get('outline.clipperPolyline')},
+                        outline: {
+                            clipperPolyline: this.get('outline.clipperPolyline'),
+                            point: {
+                                x: this.get('outline.manualDefinition.x'),
+                                y: this.get('outline.manualDefinition.y')
+                            }
+                        },
                         type: this.get('type')
                     };
                     Object.keys(operation.properties).forEach(function (key) {

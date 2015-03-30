@@ -36,7 +36,8 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                 simple_contourZ: attr('number', {defaultValue: -5}),
                 contour_inside: attr('boolean', {defaultValue: true}),
                 contour_leaveStock: attr('number', {defaultValue: 0}),
-                contour_climbMilling: attr('boolean', {defaultValue: true})},
+                contour_climbMilling: attr('boolean', {defaultValue: true})
+            },
             computeToolpath: function (params) {
                 return new RSVP.Promise(function (resolve, reject) {
                     var machine = new cam.Machine(null);
@@ -54,7 +55,8 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                         return generalPath;
                     }));
                 });
-            }},
+            }
+        },
         'RampingContourOperation': {
             label: 'Ramping Contour',
             specialTemplate: 'rampingContour',
@@ -145,6 +147,28 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
             },
             computeToolpath: function (op) {
                 return null;
-            }}
+            }
+        },
+        'DrillOperation': {
+            label: 'Drilling',
+            specialTemplate: 'drilling',
+            properties: {
+                drilling_startZ: attr('number', {defaultValue: 0}),
+                drilling_stopZ: attr('number', {defaultValue: -5})
+            },
+            computeToolpath: function (op) {
+                return new RSVP.Promise(function (resolve, reject) {
+                    var start = op.drilling_startZ;
+                    var stop = op.drilling_stopZ;
+                    var point = op.outline.point;
+                    var safetyZ = op.job.safetyZ;
+                    var path = new tp.GeneralPolylineToolpath();
+                    path.pushPointXYZ(point.x, point.y, safetyZ);
+                    path.pushPointXYZ(point.x, point.y, start);
+                    path.pushPointXYZ(point.x, point.y, stop);
+                    resolve([path]);
+                });
+            }
+        }
     };
 });

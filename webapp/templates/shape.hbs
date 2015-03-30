@@ -75,6 +75,19 @@
                             <td class="input-group input-group-sm">{{number-input numericValue=manualDefinition.fontSize}}
                                 <span class="input-group-addon">mm</span></td>
                         </tr>
+                    {{else}}
+                        {{#if isPoint}}
+                            <tr>
+                                <th>X:</th>
+                                <td class="input-group input-group-sm">{{number-input numericValue=manualDefinition.x}}
+                                    <span class="input-group-addon">mm</span></td>
+                            </tr>
+                            <tr>
+                                <th>Y:</th>
+                                <td class="input-group input-group-sm">{{number-input numericValue=manualDefinition.y}}
+                                    <span class="input-group-addon">mm</span></td>
+                            </tr>
+                        {{/if}}
                     {{/if}}
                 {{/if}}
             {{/if}}

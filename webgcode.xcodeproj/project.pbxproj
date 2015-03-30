@@ -257,6 +257,7 @@
 		DDAA5C13154AE7ADC61D5403 /* test.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test.html; sourceTree = "<group>"; };
 		DDAA5C1795288A876C637870 /* TrackballControls.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = TrackballControls.js; path = webapp/libs/threejs/TrackballControls.js; sourceTree = "<group>"; };
 		DDAA5C39B59BE70527721DE7 /* cnc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cnc.h; path = interpolator/cnc.h; sourceTree = "<group>"; };
+		DDAA5C4590D198711729289B /* drilling.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = drilling.hbs; sourceTree = "<group>"; };
 		DDAA5C540B906C544541D05B /* dremel_bracket.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = dremel_bracket.js; path = webapp/samples/dremel_bracket.js; sourceTree = "<group>"; };
 		DDAA5C7C2C93424ED58CED62 /* operations.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = operations.js; sourceTree = "<group>"; };
 		DDAA5C7DCC7731222576D7BA /* delaunay.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = delaunay.js; path = webapp/cnc/delaunay.js; sourceTree = "<group>"; };
@@ -389,6 +390,7 @@
 				DDAA5FB75EA37BF204AB17BA /* index.hbs */,
 				DDAA539FD93D356B58CD2E5F /* shape.hbs */,
 				DDAA5FC5CC98A3276865B59A /* 3DMilling.hbs */,
+				DDAA5C4590D198711729289B /* drilling.hbs */,
 			);
 			path = templates;
 			sourceTree = "<group>";

@@ -190,7 +190,7 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
                     _this.set('fonts', list);
                 });
             },
-            shapeTypes: ['rectangle', 'circle', 'text'],
+            shapeTypes: ['rectangle', 'circle', 'text', 'point'],
             isManual: function () {
                 return this.get('type') == 'manual';
             }.property('type'),
@@ -202,6 +202,9 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
             }.property('isManual', 'manualDefinition.type'),
             isText: function () {
                 return this.get('isManual') && this.get('manualDefinition.type') == 'text';
+            }.property('isManual', 'manualDefinition.type'),
+            isPoint: function () {
+                return this.get('isManual') && this.get('manualDefinition.type') == 'point';
             }.property('isManual', 'manualDefinition.type'),
             fonts: null,
             fontChanged: function () {

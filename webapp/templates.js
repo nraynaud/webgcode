@@ -354,6 +354,24 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.TwoDView", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data})));
   
 });
+Ember.TEMPLATES["drilling"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
+this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+  var buffer = '', helper, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression;
+
+
+  data.buffer.push("<tr>\n    <th>Surface :</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("drilling_startZ")
+  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Bottom Z :</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("drilling_stopZ")
+  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n");
+  return buffer;
+  
+});
 Ember.TEMPLATES["index"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
@@ -798,7 +816,7 @@ function program7(depth0,data) {
   
   var buffer = '', stack1;
   data.buffer.push("\n                    ");
-  stack1 = helpers['if'].call(depth0, "isText", {hash:{},hashTypes:{},hashContexts:{},inverse:self.noop,fn:self.program(8, program8, data),contexts:[depth0],types:["ID"],data:data});
+  stack1 = helpers['if'].call(depth0, "isText", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(10, program10, data),fn:self.program(8, program8, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n                ");
   return buffer;
@@ -830,6 +848,30 @@ function program8(depth0,data) {
     'numericValue': ("manualDefinition.fontSize")
   },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n                                <span class=\"input-group-addon\">mm</span></td>\n                        </tr>\n                    ");
+  return buffer;
+  }
+
+function program10(depth0,data) {
+  
+  var buffer = '', stack1;
+  data.buffer.push("\n                        ");
+  stack1 = helpers['if'].call(depth0, "isPoint", {hash:{},hashTypes:{},hashContexts:{},inverse:self.noop,fn:self.program(11, program11, data),contexts:[depth0],types:["ID"],data:data});
+  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+  data.buffer.push("\n                    ");
+  return buffer;
+  }
+function program11(depth0,data) {
+  
+  var buffer = '', helper, options;
+  data.buffer.push("\n                            <tr>\n                                <th>X:</th>\n                                <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("manualDefinition.x")
+  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push("\n                                    <span class=\"input-group-addon\">mm</span></td>\n                            </tr>\n                            <tr>\n                                <th>Y:</th>\n                                <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("manualDefinition.y")
+  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push("\n                                    <span class=\"input-group-addon\">mm</span></td>\n                            </tr>\n                        ");
   return buffer;
   }
 
