@@ -91,6 +91,13 @@
                     {{/if}}
                 {{/if}}
             {{/if}}
+        {{else}}
+            <tr>
+                <th title="the plane of symmetry is along the Y axis and passes by the center of the bbox">Flipped:</th>
+                <td>
+                    {{input type="checkbox" checked=flipped}}
+                </td>
+            </tr>
         {{/if}}
         <tr>
             <th>Bounds:</th>

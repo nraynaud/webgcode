@@ -149,6 +149,14 @@ define(function () {
     }
 
     BoundingBox.prototype = {
+        pushPolylines: function (polylines) {
+            var _this = this;
+            polylines.forEach(function (polyline) {
+                polyline.forEach(function (point) {
+                    _this.pushPoint(point);
+                });
+            });
+        },
         pushPoint: function (p) {
             this.pushCoordinates(p.x, p.y, p.z);
         },

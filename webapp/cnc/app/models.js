@@ -57,12 +57,31 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             visible: attr('boolean', {defaultValue: true}),
             definition: attr('string'),
             encodedStlModel: attr('string'),
-            polyline: function () {
+            flipped: attr('boolean', {defaultValue: false}),
+            rawPolyline: function () {
                 return cam.pathDefToPolygons(this.get('definition'));
             }.property('definition'),
+            polyline: function () {
+                var polygons = this.get('rawPolyline');
+                if (!this.get('flipped') || !polygons)
+                    return polygons;
+                var box = new util.BoundingBox();
+                box.pushPolylines(polygons);
+                var middleX = (box.x.max + box.x.min) / 2;
+                return polygons.map(function (poly) {
+                    return poly.map(function (point) {
+                        return new util.Point(middleX - point.x, point.y, point.z);
+                    });
+                });
+            }.property('rawPolyline', 'flipped'),
             clipperPolyline: function () {
-                return cam.pathDefToClipper(this.get('definition'));
-            }.property('definition'),
+                var polygons = this.get('polyline');
+                return polygons.map(function (poly) {
+                    return poly.map(function (point) {
+                        return point.scale(cam.CLIPPER_SCALE).round();
+                    });
+                });
+            }.property('polyline'),
             boundingBox: function () {
                 var box = new util.BoundingBox();
                 var mesh = this.get('meshGeometry');
@@ -74,14 +93,9 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 }
                 var polygons = this.get('polyline');
                 if (polygons) {
-                    polygons.forEach(function (polygon) {
-                        polygon.forEach(function (point) {
-                            box.pushPoint(point);
-                        });
-                    });
+                    box.pushPolylines(polygons);
                     return box;
                 }
-
             }.property('polyline', 'meshGeometry'),
             stlModel: function (key, value) {
                 if (arguments.length > 1) {
