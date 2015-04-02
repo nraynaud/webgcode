@@ -67,10 +67,9 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     return polygons;
                 var box = new util.BoundingBox();
                 box.pushPolylines(polygons);
-                var middleX = (box.x.max + box.x.min) / 2;
                 return polygons.map(function (poly) {
                     return poly.map(function (point) {
-                        return new util.Point(middleX - point.x, point.y, point.z);
+                        return new util.Point(box.x.max - point.x, point.y, point.z);
                     });
                 });
             }.property('rawPolyline', 'flipped'),
