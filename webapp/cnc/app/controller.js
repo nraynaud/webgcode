@@ -130,8 +130,7 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
             deleteSlider: 0,
             addShapes: function (shapeDefinitions, name) {
                 var shape = this.get('model').createShape(shapeDefinitions.join(' '), name);
-                var contour = this.get('model').createOperation({outline: shape});
-                this.transitionToRoute('operation', contour);
+                this.transitionToRoute('shape', shape);
             },
             addSTL: function (stlData, name) {
                 var shape = this.get('model').createShape('', name);
