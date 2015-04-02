@@ -117,9 +117,6 @@ define(function () {
         // to SVGroot's coordinate space
         var matrix = pathDOM.getTransformToElement(svgDOM);
 
-        //nraynaud: reverse y direction
-        matrix.d *= -1;
-
 
         // The following code can bake transformations
         // both normalized and non-normalized data
