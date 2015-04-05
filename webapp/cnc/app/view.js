@@ -6,6 +6,7 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/ui/threeDView', '
         });
         var JobView = Ember.View.extend({
             classNames: ['job'],
+            classNameBindings: ['isBusy'],
             didInsertElement: function () {
                 var _this = this;
                 this.$('#deleteBlock').hover(function () {
@@ -52,11 +53,13 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/ui/threeDView', '
                     reader.readAsText(file);
                 }
 
-                function loadGerber() {
+                function loadGerber(file) {
+                    _this.set('isBusy', true);
                     var reader = new FileReader();
                     reader.onload = function (e) {
                         var res = gerberImporter(e.target.result);
                         _this.get('controller').addShapes([res], file.name);
+                        _this.set('isBusy', false);
                     };
                     reader.readAsText(file);
                 }
