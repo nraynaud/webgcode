@@ -283,7 +283,11 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
                             shape = subtract(shape, [unitShape]);
                     } else if (instruction[0] == '$') {
                         var res = instruction.split('=');
-                        args[parseInt(res[0].substring(1))] = computeValue(res[1], args);
+                        var value = computeValue(res[1], args);
+                        console.log('$$ ', instruction, '==>', value, '|', args.map(function (a, i) {
+                            return '$' + (i + 1) + ': ' + a;
+                        }).join(', '));
+                        args[parseInt(res[0].substring(1)) - 1] = value;
                     }
                 }
                 return {type: name, poly: shape};
