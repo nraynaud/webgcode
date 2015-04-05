@@ -1,6 +1,6 @@
 'use strict';
-define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/ui/threeDView', 'THREE'],
-    function (Ember, svgImporter, gerberImporter, TreeDView, THREE) {
+define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter', 'cnc/ui/threeDView', 'THREE', 'cnc/util'],
+    function (Ember, svgImporter, gerberImporter, excellonImporter, TreeDView, THREE, util) {
         var ApplicationView = Ember.View.extend({
             classNames: ['rootview']
         });
@@ -60,6 +60,26 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/ui/threeDView', '
                         try {
                             var res = gerberImporter(e.target.result);
                             _this.get('controller').addShapes([res], file.name);
+                        } catch (error) {
+                            if (error.message == 'unrecognized file') {
+                                console.log('unrecognized gerber, trying excellon');
+                                var res2 = excellonImporter(e.target.result);
+                                var keys = Object.keys(res2.holes);
+                                var shapes = [];
+                                for (var i = 0; i < keys.length; i++) {
+                                    var k = keys[i];
+                                    var diameter = res2.defs[k];
+                                    var positions = res2.holes[k];
+                                    var right = new util.Point(diameter / 1.8, 0);
+                                    var top = new util.Point(0, diameter / 1.8);
+                                    for (var j = 0; j < positions.length; j++) {
+                                        var pos = positions[j];
+                                        shapes.push('M' + pos.sub(right).svg() + 'L' + pos.add(right).svg());
+                                        shapes.push('M' + pos.sub(top).svg() + 'L' + pos.add(top).svg());
+                                    }
+                                }
+                                _this.get('controller').addShapes([shapes], file.name);
+                            }
                         } finally {
                             _this.set('isBusy', false);
                         }

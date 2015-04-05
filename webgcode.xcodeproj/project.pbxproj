@@ -93,6 +93,7 @@
 		DDAA5D38B3BF7B2FC43F4851 /* fontExample.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5950A619B90125653E97 /* fontExample.js */; };
 		DDAA5D3E4B6B0860793CF993 /* modelProjector.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5453F941FAED7073FAF6 /* modelProjector.js */; };
 		DDAA5D43FB7EF67FAE49C5C4 /* build-app.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5EE2867F451CC9A90B32 /* build-app.js */; };
+		DDAA5D53FDA3835E9E30C7FA /* excellonImporter.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5F43806C94E0CB22BFF4 /* excellonImporter.js */; };
 		DDAA5D5E700F9A145BC68B4F /* svgImporter.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA58A20FC66E2EF26DDE50 /* svgImporter.js */; };
 		DDAA5D6C847AA2C7E9608326 /* threeDView.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA52CAC3926B8B4F4B829A /* threeDView.js */; };
 		DDAA5D6E4E2AFD02DD05691A /* box2.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA52B1A4915275E73497A2 /* box2.js */; };
@@ -289,6 +290,7 @@
 		DDAA5F329B72AC25F4AAA0F4 /* toolpath.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = toolpath.js; sourceTree = "<group>"; };
 		DDAA5F376DB68FEFFF7FC133 /* CAM.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = CAM.html; path = webapp/CAM.html; sourceTree = "<group>"; };
 		DDAA5F4033A35CFACA352CEE /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; name = Makefile; path = interpolator/Makefile; sourceTree = "<group>"; };
+		DDAA5F43806C94E0CB22BFF4 /* excellonImporter.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = excellonImporter.js; sourceTree = "<group>"; };
 		DDAA5F7BC2F729E4D954E307 /* threeDView.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = threeDView.css; sourceTree = "<group>"; };
 		DDAA5F7F528A51ECF8A211B8 /* build-cam.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "build-cam.js"; sourceTree = "<group>"; };
 		DDAA5F8E872CAF0D98D72C3D /* icon_fraise_48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_fraise_48.png; sourceTree = "<group>"; };
@@ -438,6 +440,7 @@
 				DDAA516E79E125B69CDA92DF /* cad */,
 				DDAA5B3E3A796AE05E292A03 /* app */,
 				DDAA588F9FE71EEF0F8A0791 /* gerberImporter.js */,
+				DDAA5F43806C94E0CB22BFF4 /* excellonImporter.js */,
 			);
 			path = cnc;
 			sourceTree = "<group>";
@@ -803,6 +806,7 @@
 				DDAA5427DBFF039E57D1F32D /* task.js in Sources */,
 				DDAA57D2E5598CB83A286091 /* flatten.js in Sources */,
 				DDAA5CE0C0CD524CDC51CC86 /* gerberImporter.js in Sources */,
+				DDAA5D53FDA3835E9E30C7FA /* excellonImporter.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -538,6 +538,8 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
             if (fragment.length == 0)
                 continue;
             var res = fragment.split(extendedInstructionRegex);
+            if (res.length == 1)
+                throw new Error('unrecognized file');
             //ok, now res is a mix of [normalInst*normalInst*, %extended, %extended, normalInst*normalInst*]
             for (i = 0; i < res.length; i++) {
                 fragment = res[i];
