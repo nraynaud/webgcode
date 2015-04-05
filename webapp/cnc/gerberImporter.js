@@ -157,7 +157,7 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
         function parseApertureDef(def) {
             var parsed = def.split(',');
             var name = parsed[0];
-            var args = parsed[1].split('X');
+            var args = parsed[1] ? parsed[1].split('X') : [];
             var parser = shapesDict[name];
             if (parser)
                 return parser(args);
@@ -243,8 +243,12 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
                 return [];
             },
             '5': function (params) {
-                console.log('Polygon', params);
-                return [];
+                var vertices = parseFloat(params[2]);
+                var x = parseDistance(params[3]);
+                var y = parseDistance(params[4]);
+                var diameter = parseDistance(params[5]);
+                var angle = parseFloat(params[6]);
+                return createCircle(diameter / 2, new util.Point(x, y), vertices, angle);
             },
             '6': function (params) {
                 console.log('Moiré', params);
