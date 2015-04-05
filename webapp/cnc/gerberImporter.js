@@ -235,8 +235,14 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
                 return createRectangle(w, h, new util.Point(x, y));
             },
             '22': function (params) {
-                console.log('Lower Left Line', params);
-                return [];
+                var w = parseDistance(params[2]);
+                var h = parseDistance(params[3]);
+                var x = parseDistance(params[4]);
+                var y = parseDistance(params[5]);
+                var angle = parseFloat(params[6]);
+                if (angle != 0)
+                    throw new Error('angle != 0 is not yet supported (was ' + angle + '°)');
+                return createRectangle(w, h, new util.Point(x + w / 2, y + h / 2));
             },
             '4': function (params) {
                 var polygon = [];
