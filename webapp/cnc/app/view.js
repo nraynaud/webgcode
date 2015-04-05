@@ -57,9 +57,12 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/ui/threeDView', '
                     _this.set('isBusy', true);
                     var reader = new FileReader();
                     reader.onload = function (e) {
-                        var res = gerberImporter(e.target.result);
-                        _this.get('controller').addShapes([res], file.name);
-                        _this.set('isBusy', false);
+                        try {
+                            var res = gerberImporter(e.target.result);
+                            _this.get('controller').addShapes([res], file.name);
+                        } finally {
+                            _this.set('isBusy', false);
+                        }
                     };
                     reader.readAsText(file);
                 }
