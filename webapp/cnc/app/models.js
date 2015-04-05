@@ -54,6 +54,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             name: attr('string', {defaultValue: 'New Shape'}),
             type: attr('string', {defaultValue: 'imported'}),
             manualDefinition: DS.belongsTo('manualShape', {embedded: true}),
+            job: DS.belongsTo('job'),
             visible: attr('boolean', {defaultValue: true}),
             definition: attr('string'),
             encodedStlModel: attr('string'),
@@ -62,17 +63,20 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 return cam.pathDefToPolygons(this.get('definition'));
             }.property('definition'),
             polyline: function () {
+                var ox = this.get('job.offsetX');
+                var oy = this.get('job.offsetY');
                 var polygons = this.get('rawPolyline');
-                if (!this.get('flipped') || !polygons)
+                if (!polygons)
                     return polygons;
                 var box = new util.BoundingBox();
                 box.pushPolylines(polygons);
+                var scaleX = this.get('flipped') ? -1 : 1;
                 return polygons.map(function (poly) {
                     return poly.map(function (point) {
-                        return new util.Point(box.x.max - point.x, point.y, point.z);
+                        return new util.Point(scaleX * (point.x - ox), point.y - oy, point.z);
                     });
                 });
-            }.property('rawPolyline', 'flipped'),
+            }.property('rawPolyline', 'flipped', 'job.offsetX', 'job.offsetY'),
             clipperPolyline: function () {
                 var polygons = this.get('polyline');
                 return polygons.map(function (poly) {
@@ -260,8 +264,10 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             speed: attr('number', {defaultValue: 24000}),
             startPoint: attr('point', {defaultValue: new util.Point(0, 0, 10)}),
             jobSummary: DS.belongsTo('jobSummary', {inverse: 'job', async: true}),
-            shapes: DS.hasMany('shape', {embedded: true}),
+            shapes: DS.hasMany('shape', {inverse: 'job', embedded: true}),
             operations: DS.hasMany('operation', {inverse: 'job', embedded: true}),
+            offsetX: attr('number', {defaultValue: 0}),
+            offsetY: attr('number', {defaultValue: 0}),
             transitionTravels: [],
             deleteOperation: function (operation) {
                 this.get('operations').removeObject(operation);

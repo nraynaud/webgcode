@@ -589,7 +589,15 @@ function program14(depth0,data) {
   data.buffer.push(" Compute Speed and Feed</td>\n        </tr>\n        ");
   stack1 = helpers['if'].call(depth0, "computeSpeedFeed", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n        <tr>\n            <th title=\"travel path is displayed in red\">Display Travel</th>\n            <td>");
+  data.buffer.push("\n        <tr>\n            <th title=\"in mm\">X Offset:</th>\n            <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("offsetX")
+  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push("\n                <span class=\"input-group-addon\">mm</span></td>\n        </tr>\n        <tr>\n            <th title=\"in mm\">Y Offset:</th>\n            <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("offsetY")
+  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push("\n                <span class=\"input-group-addon\">mm</span></td>\n        </tr>\n        <tr>\n            <th title=\"travel path is displayed in red\">Display Travel</th>\n            <td>");
   data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
     'type': ("checkbox"),
     'checked': ("showTravel")
