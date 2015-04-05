@@ -239,8 +239,17 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
                 return [];
             },
             '4': function (params) {
-                console.log('Outline', params);
-                return [];
+                var polygon = [];
+                var points = parseFloat(params[2]);
+                for (var i = 3; i <= points * 2 + 3; i += 2) {
+                    var x = parseDistance(params[i]);
+                    var y = parseDistance(params[i + 1]);
+                    polygon.push(new util.Point(x, y));
+                }
+                var angle = parseFloat(params[5 + 2 * points]);
+                if (angle != 0)
+                    throw new Error('angle != 0 is not yet supported (was ' + angle + '°)');
+                return polygon;
             },
             '5': function (params) {
                 var vertices = parseFloat(params[2]);
