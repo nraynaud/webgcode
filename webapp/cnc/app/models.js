@@ -220,9 +220,8 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 task.start();
             },
             computing: function () {
-                console.log('computing', this.get('task') && !this.get('task.isDone'));
-                return this.get('task') && !this.get('task.isDone');
-            }.property('task', 'task.isDone'),
+                return (this.get('task') && !this.get('task.isDone')) || this.get('toolpathWorker');
+            }.property('task', 'task.isDone', 'toolpathWorker'),
             paused: function () {
                 console.log('computing', this.get('task') && !this.get('task.isDone'));
                 return this.get('task.isPaused');
