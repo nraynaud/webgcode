@@ -28,7 +28,8 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                         }
                     resolve(toolpath);
                 });
-            }},
+            }
+        },
         'SimpleContourOperation': {
             label: 'Simple Contour',
             specialTemplate: 'simpleContour',
@@ -162,11 +163,27 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                     var stop = op.drilling_stopZ;
                     var point = op.outline.point;
                     var safetyZ = op.job.safetyZ;
-                    var path = new tp.GeneralPolylineToolpath();
-                    path.pushPointXYZ(point.x, point.y, safetyZ);
-                    path.pushPointXYZ(point.x, point.y, start);
-                    path.pushPointXYZ(point.x, point.y, stop);
-                    resolve([path]);
+
+                    function tpForPoint(point) {
+                        var path = new tp.GeneralPolylineToolpath();
+                        path.pushPointXYZ(point.x - op.job.offsetX, point.y - op.job.offsetY, safetyZ);
+                        path.pushPointXYZ(point.x - op.job.offsetX, point.y - op.job.offsetY, start);
+                        path.pushPointXYZ(point.x - op.job.offsetX, point.y - op.job.offsetY, stop);
+                        return path;
+                    }
+
+                    if (op.outline.drillData) {
+                        var result = [];
+                        var data = JSON.parse(op.outline.drillData);
+                        var keys = Object.keys(data.holes);
+                        for (var i = 0; i < keys.length; i++) {
+                            var points = data.holes[keys[i]];
+                            for (var j = 0; j < points.length; j++)
+                                result.push(tpForPoint(points[j]));
+                        }
+                        resolve(result);
+                    } else
+                        resolve([tpForPoint(point)]);
                 });
             }
         }

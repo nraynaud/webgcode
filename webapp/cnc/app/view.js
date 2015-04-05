@@ -78,7 +78,7 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter'
                                         shapes.push('M' + pos.sub(top).svg() + 'L' + pos.add(top).svg());
                                     }
                                 }
-                                _this.get('controller').addShapes([shapes], file.name);
+                                _this.get('controller').addShapes([shapes], file.name, {drillData: JSON.stringify(res2)});
                             }
                         } finally {
                             _this.set('isBusy', false);

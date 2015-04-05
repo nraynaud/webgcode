@@ -128,14 +128,14 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
             currentShape: null,
             showTravel: true,
             deleteSlider: 0,
-            addShapes: function (shapeDefinitions, name) {
-                var shape = this.get('model').createShape(shapeDefinitions.join(' '), name);
-                this.transitionToRoute('shape', shape);
+            addShapes: function (shapeDefinitions, name, params) {
+                var shape = this.get('model').createShape(shapeDefinitions.join(' '), name, params);
+                return this.transitionToRoute('shape', shape);
             },
             addSTL: function (stlData, name) {
                 var shape = this.get('model').createShape('', name);
                 shape.set('stlModel', stlData);
-                this.transitionToRoute('shape', shape);
+                return this.transitionToRoute('shape', shape);
             },
             actions: {
                 save: function () {

@@ -58,6 +58,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             visible: attr('boolean', {defaultValue: true}),
             definition: attr('string'),
             encodedStlModel: attr('string'),
+            drillData: attr('string'),
             flipped: attr('boolean', {defaultValue: false}),
             rawPolyline: function () {
                 return cam.pathDefToPolygons(this.get('definition'));
@@ -160,13 +161,19 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 if (this.get('type')) {
                     var operation = Operations[this.get('type')];
                     var params = {
-                        job: {safetyZ: this.get('job.safetyZ'), toolDiameter: this.get('job.toolDiameter')},
+                        job: {
+                            safetyZ: this.get('job.safetyZ'),
+                            toolDiameter: this.get('job.toolDiameter'),
+                            offsetX: this.get('job.offsetX'),
+                            offsetY: this.get('job.offsetY')
+                        },
                         outline: {
                             clipperPolyline: this.get('outline.clipperPolyline'),
                             point: {
                                 x: this.get('outline.manualDefinition.x'),
                                 y: this.get('outline.manualDefinition.y')
-                            }
+                            },
+                            drillData: this.get('outline.drillData')
                         },
                         type: this.get('type')
                     };
