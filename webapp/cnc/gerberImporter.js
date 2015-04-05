@@ -1,31 +1,29 @@
 "use strict";
-define(['cnc/util', 'cnc/cam/cam', 'clipper'], function (util, cam, clipper) {
+define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, cam, clipper, jp) {
     clipper.Error = function (message) {
         throw new Error(message);
     };
 
+    jp.memoize = false;
+
     var decimalRegex = '[+-]?(?:\\d*\\.)?\\d+';
-    var circleRegex = new RegExp('C,(' + decimalRegex + ')(?:X(' + decimalRegex + '))?(?:X(' + decimalRegex + '))?');
-    var rectangleRegex = new RegExp('R,(' + decimalRegex + ')X(' + decimalRegex + ')(?:X(' + decimalRegex + '))?(?:X(' + decimalRegex + '))?');
-    var obroundRegex = new RegExp('O,(' + decimalRegex + ')X(' + decimalRegex + ')(?:X(' + decimalRegex + '))?(?:X(' + decimalRegex + '))?');
-    var polygonRegex = new RegExp('P,(' + decimalRegex + ')X(' + decimalRegex + ')(?:X(' + decimalRegex + '))?(?:X(' + decimalRegex + '))?(?:X(' + decimalRegex + '))?');
     var interpolationRegex = /^(G\d+)?/;
     var dCodeRegex = /D(\d+)$/;
     var displacementRegex = /(?:X([+-]?\d+))?(?:Y([+-]?\d+))?(?:I([+-]?\d+))?(?:J([+-]?\d+))?/;
     var newLinesRegex = /\r?\n|\r/gm;
     var commentRegex = /G(?:4|04)[^*]*[*]/gm;
-    var extendedInstructionRegex = /[%]([^%]*)[%]/gm;
-    var normalInstructionRegex = /([^*]*)[*]/gm;
+    var extendedInstructionRegex = /([%][^%]*)[*][%]/gm;
 
     function fixOrientations(polys) {
         return union(polys, clipper.PolyFillType.pftEvenOdd);
     }
 
-    function union(polys, filltype) {
+    function union(polys, filltype, other) {
         var res = [];
+
         var c = new clipper.Clipper();
         c.AddPaths(polys, clipper.PolyType.ptSubject, true);
-        c.AddPaths([], clipper.PolyType.ptClip, true);
+        c.AddPaths(other == null ? [] : other, clipper.PolyType.ptClip, true);
         c.Execute(clipper.ClipType.ctUnion, res, filltype, filltype);
         return res;
     }
@@ -51,6 +49,8 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper'], function (util, cam, clipper) {
         var isInMultiquadrant = false;
         var isInRegion = false;
 
+        var currentLayer = [];
+
         var tracks = [];
         var flashes = [];
         var areas = [];
@@ -59,6 +59,20 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper'], function (util, cam, clipper) {
 
         function parseDistance(str) {
             return unitFactor * parseFloat(str);
+        }
+
+        function collectCurrentWork() {
+            console.log('collectCurrentWork', darkPolarity);
+            closeCurrentPath();
+            var poly = union(areas, clipper.PolyFillType.pftNonZero).concat(flashes, tracks);
+            tracks = [];
+            flashes = [];
+            areas = [];
+            if (darkPolarity)
+                currentLayer = union(poly, clipper.PolyFillType.pftNonZero, currentLayer);
+            else
+                currentLayer = subtract(currentLayer, union(poly, clipper.PolyFillType.pftNonZero));
+
         }
 
         function createCircle(radius, center, steps, startAngle) {
@@ -76,13 +90,15 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper'], function (util, cam, clipper) {
             return poly;
         }
 
-        function createRectangle(xSize, ySize) {
+        function createRectangle(xSize, ySize, center) {
+            if (!center)
+                center = new util.Point(0, 0);
             return [
-                new util.Point(-xSize / 2, -ySize / 2).round(),
-                new util.Point(+xSize / 2, -ySize / 2).round(),
-                new util.Point(+xSize / 2, +ySize / 2).round(),
-                new util.Point(-xSize / 2, +ySize / 2).round(),
-                new util.Point(-xSize / 2, -ySize / 2).round()];
+                new util.Point(-xSize / 2, -ySize / 2).add(center).round(),
+                new util.Point(+xSize / 2, -ySize / 2).add(center).round(),
+                new util.Point(+xSize / 2, +ySize / 2).add(center).round(),
+                new util.Point(-xSize / 2, +ySize / 2).add(center).round(),
+                new util.Point(-xSize / 2, -ySize / 2).add(center).round()];
         }
 
         function createHole(holeTxtX, holeTxtY) {
@@ -98,26 +114,23 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper'], function (util, cam, clipper) {
         }
 
         var shapesDict = {
-            C: function (def) {
-                var result = def.split(circleRegex);
-                var diameter = parseDistance(result[1]);
-                var hole = createHole(result[2], result[3]);
+            C: function (args) {
+                var diameter = parseDistance(args[0]);
+                var hole = createHole(args[1], args[2]);
                 var poly = [createCircle(diameter / 2)];
                 return {type: 'C', diameter: diameter, hole: hole, poly: subtract(poly, hole)};
             },
-            R: function (def) {
-                var result = def.split(rectangleRegex);
-                var xSize = parseDistance(result[1]);
-                var ySize = parseDistance(result[2]);
-                var hole = createHole(result[3], result[4]);
+            R: function (args) {
+                var xSize = parseDistance(args[0]);
+                var ySize = parseDistance(args[1]);
+                var hole = createHole(args[2], args[3]);
                 var poly = [createRectangle(xSize, ySize)];
                 return {type: 'R', xSize: xSize, ySize: ySize, hole: hole, poly: subtract(poly, hole)};
             },
-            O: function (def) {
-                var result = def.split(obroundRegex);
-                var xSize = parseDistance(result[1]);
-                var ySize = parseDistance(result[2]);
-                var hole = createHole(result[3], result[4]);
+            O: function (args) {
+                var xSize = parseDistance(args[0]);
+                var ySize = parseDistance(args[1]);
+                var hole = createHole(args[2], args[3]);
                 var e1, e2;
                 if (xSize < ySize) {
                     e1 = createCircle(xSize / 2, new util.Point(0, -ySize / 2));
@@ -129,36 +142,163 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper'], function (util, cam, clipper) {
                 var poly = union([createRectangle(xSize, ySize), e1, e2], clipper.PolyFillType.pftPositive);
                 return {type: 'O', xSize: xSize, ySize: ySize, hole: hole, poly: subtract(poly, hole)};
             },
-            P: function (def) {
-                var result = def.split(polygonRegex);
-                var diameter = parseDistance(result[1]);
-                var vertices = parseFloat(result[2]);
-                var angle = parseFloat(result[3]);
+            P: function (args) {
+                var diameter = parseDistance(args[0]);
+                var vertices = parseFloat(args[1]);
+                var angle = parseFloat(args[2]);
                 if (isNaN(angle))
                     angle = 0;
                 var shape = createCircle(diameter / 2, null, vertices, angle * Math.PI / 180);
-                var hole = createHole(result[4], result[5]);
+                var hole = createHole(args[3], args[4]);
                 return {type: 'P', hole: hole, poly: subtract([shape], hole)};
             }
         };
 
         function parseApertureDef(def) {
-            var parser = shapesDict[def[0]];
+            var parsed = def.split(',');
+            var name = parsed[0];
+            var args = parsed[1].split('X');
+            var parser = shapesDict[name];
             if (parser)
-                return parser(def);
-            else
-                console.log('no parser for', def)
+                return parser(args);
+            console.log('no parser for', name, shapesDict);
+        }
+
+        function computeValue(str, args) {
+            var Expr = function (state) {
+                return Expr(state);
+            };
+
+            var number = jp.join_action(jp.repeat1(jp.range('0', '9')), '');
+            var decimalPart = jp.join_action(jp.sequence('.', jp.optional(number)), '');
+            var integerAndDecimal = jp.action(jp.sequence(number, jp.optional(decimalPart)), function (ast) {
+                return ast[1] !== false ? ast[0] + ast[1] : ast[0];
+            });
+            var unsignedNumber = jp.choice(integerAndDecimal, decimalPart);
+            var decimal = jp.action(jp.sequence(jp.optional(jp.choice('+', '-')), unsignedNumber), function (ast) {
+                return parseFloat(ast[0] !== false ? ast[0] + ast[1] : ast[1]);
+            });
+
+            var bracketedExpression = jp.action(jp.wsequence(jp.expect('('), Expr, jp.expect(')')), function (ast) {
+                return ast[0];
+            });
+            var Variable = jp.action(jp.sequence(jp.expect('$'), number), function (ast) {
+                return args[parseInt(ast) - 1];
+            });
+
+            var Value = jp.choice(decimal, Variable, bracketedExpression, Expr);
+
+            function operator_action(p, func) {
+                return jp.action(p, function (ast) {
+                    return func;
+                });
+            }
+
+            var Times = operator_action('x', function (lhs, rhs) {
+                return lhs * rhs;
+            });
+            var Divides = operator_action('/', function (lhs, rhs) {
+                return lhs / rhs;
+            });
+            var Plus = operator_action('+', function (lhs, rhs) {
+                return parseFloat(lhs) + parseFloat(rhs);
+            });
+            var Minus = operator_action('-', function (lhs, rhs) {
+                return lhs - rhs;
+            });
+
+            var Product = jp.chainl(Value, jp.choice(Times, Divides));
+            Expr = jp.chainl(Product, jp.choice(Plus, Minus));
+            return Expr(jp.ps(str)).ast;
+        }
+
+        var macroShapeDict = {
+            '1': function (params) {
+                var diameter = parseDistance(params[2]);
+                var x = parseDistance(params[3]);
+                var y = parseDistance(params[4]);
+                return createCircle(diameter / 2, new util.Point(x, y));
+            },
+            '2': function (params) {
+                console.log('Vector Line', params);
+                return [];
+            },
+            '21': function (params) {
+                console.log('Center Line', params);
+                var w = parseDistance(params[2]);
+                var h = parseDistance(params[3]);
+                var x = parseDistance(params[4]);
+                var y = parseDistance(params[5]);
+                var angle = parseFloat(params[6]);
+                if (angle != 0)
+                    throw new Error('angle != 0 is not yet supported (was ' + angle + '°)');
+                return createRectangle(w, h, new util.Point(x, y));
+            },
+            '22': function (params) {
+                console.log('Lower Left Line', params);
+                return [];
+            },
+            '4': function (params) {
+                console.log('Outline', params);
+                return [];
+            },
+            '5': function (params) {
+                console.log('Polygon', params);
+                return [];
+            },
+            '6': function (params) {
+                console.log('Moiré', params);
+                return [];
+            },
+            '7': function (params) {
+                console.log('Thermal', params);
+                return [];
+            }
+        };
+
+        function parseMacro(command) {
+            var res = command.split('*');
+            var name = res[0].substring(2);
+            var code = res.slice(1);
+            shapesDict[name] = function (args) {
+                console.log('executing', name);
+                console.log('inputs', args.map(function (a, i) {
+                    return '$' + (i + 1) + ': ' + a;
+                }).join(', '));
+                var shape = [];
+                for (var i = 0; i < code.length; i++) {
+                    var instruction = code[i];
+                    if (instruction[0].match(/[1-9]/)) {
+                        var decomposition = instruction.split(',');
+                        var values = [decomposition[0]];
+                        for (var j = 1; j < decomposition.length; j++) {
+                            var obj = decomposition[j];
+                            values.push(computeValue(obj, args));
+                        }
+                        console.log('**', instruction, ' ==>', values.join(','));
+                        var unitShape = macroShapeDict[decomposition[0]](values, shape);
+                        if (parseInt(values[1]))
+                            shape.push(unitShape);
+                        else
+                            shape = subtract(shape, [unitShape]);
+                    } else if (instruction[0] == '$') {
+                        var res = instruction.split('=');
+                        args[parseInt(res[0].substring(1))] = computeValue(res[1], args);
+                    }
+                }
+                return {type: name, poly: shape};
+            };
         }
 
         var firstLetterDict = {
             A: function (command) {
-                if (command[2] != 'D')
-                    return command;
+                if (command[1] == 'M')
+                    return parseMacro(command);
+                if (command[1] != 'D')
+                    return;
                 var result = command.split(/ADD(\d+)/);
                 var apertureDef = parseApertureDef(result[2]);
                 var index = parseInt(result[1]);
-                console.log(index);
-                console.log(apertureDef);
                 apertureDef.index = index;
                 aperturesTable[index] = apertureDef;
             },
@@ -168,7 +308,7 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper'], function (util, cam, clipper) {
                 var decimals = parseInt(result[4]);
                 var omittedZero = result[1];
                 if (result[2] != 'A')
-                    throw new Error("incremental coordinates are unsupported");
+                    throw new Error("incremental coordinates are not supported");
                 coordinateParser = function (str) {
                     return unitFactor * parseInt(str) * Math.pow(10, omittedZero == 'L' ? -decimals : integers - str.length);
                 };
@@ -177,7 +317,10 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper'], function (util, cam, clipper) {
                 if (command[1] == 'N')
                     return;
                 console.log('POLARITY', command);
-                darkPolarity = command == 'LPD';
+                var newPolarity = command == 'LPD';
+                if (newPolarity != darkPolarity)
+                    collectCurrentWork();
+                darkPolarity = newPolarity;
             },
             M: function (command) {
                 var result = command.split(/MO(IN|MM)/);
@@ -362,34 +505,35 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper'], function (util, cam, clipper) {
         }
 
         function toPathDef() {
-            var poly = union(areas, clipper.PolyFillType.pftNonZero).concat(flashes, tracks);
-            return cam.clipperToPathDef(union(poly, clipper.PolyFillType.pftNonZero));
+            return cam.clipperToPathDef(currentLayer);
         }
 
         gerberText = gerberText.replace(newLinesRegex, '');
-        var result = gerberText.split(commentRegex);
-        var res2 = [];
-        for (var i = 0; i < result.length; i++) {
-            var fragment = result[i];
+        var commentLessFragments = gerberText.split(commentRegex);
+        for (var i = 0; i < commentLessFragments.length; i++) {
+            var fragment = commentLessFragments[i];
             if (fragment.length == 0)
                 continue;
             var res = fragment.split(extendedInstructionRegex);
-            res2.pushObjects(res);
+            //ok, now res is a mix of [normalInst*normalInst*, %extended, %extended, normalInst*normalInst*]
+            for (i = 0; i < res.length; i++) {
+                fragment = res[i];
+                if (fragment.length == 0)
+                    continue;
+                var commands;
+                if (fragment[0] == '%')
+                    commands = [fragment.substring(1)];
+                else
+                    commands = fragment.split('*');
+                for (var j = 0; j < commands.length; j++)
+                    if (commands[j].length) {
+                        var items = parseCommand(commands[j]);
+                        if (items)
+                            parseCommand(items);
+                    }
+            }
         }
-        var res3 = [];
-        for (i = 0; i < res2.length; i++) {
-            fragment = res2[i];
-            if (fragment.length == 0)
-                continue;
-            res = fragment.split(normalInstructionRegex);
-            for (var j = 0; j < res.length; j++)
-                if (res[j].length) {
-                    var items = parseCommand(res[j]);
-                    if (items)
-                        res3.push(parseCommand(res[j]));
-                }
-        }
-        closeCurrentPath();
+        collectCurrentWork();
         return toPathDef();
     }
 });
