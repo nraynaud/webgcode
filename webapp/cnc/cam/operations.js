@@ -4,6 +4,26 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
         return {type: type, options: options};
     }
 
+    // stolen from https://github.com/kkaefer/node-morton/blob/master/lib/morton.js
+    var X = [0, 1], Y = [0, 2];
+    for (var i = 4; i < 0xFFFF; i <<= 2) {
+        for (var j = 0, l = X.length; j < l; j++) {
+            X.push((X[j] | i));
+            Y.push((X[j] | i) << 1);
+        }
+    }
+
+    // Only works for 24 bit input numbers (up to 16777215).
+    function morton(x, y) {
+        return (Y[y & 0xFF] | X[x & 0xFF]) +
+            (Y[(y >> 8) & 0xFF] | X[(x >> 8) & 0xFF]) * 0x10000 +
+            (Y[(y >> 16) & 0xFF] | X[(x >> 16) & 0xFF]) * 0x100000000;
+    }
+
+    function mortonPoint(p1, p2) {
+        return morton(p1.x, p1.y) - morton(p2.x, p2.y);
+    }
+
     return {
         'SimpleEngravingOperation': {
             label: 'Simple Engraving',
@@ -46,7 +66,11 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                     var offset = parseFloat(params.job.toolDiameter) / 2 + parseFloat(params.contour_leaveStock);
                     var polygon1 = machine.contourClipper(params.outline.clipperPolyline, offset, params.contour_inside);
                     var areaPositive = machine.contourAreaPositive(params.contour_inside, params.contour_climbMilling);
-                    resolve(machine.fromClipper(polygon1, true, areaPositive).map(function (path) {
+                    var contours = machine.fromClipper(polygon1, true, areaPositive);
+                    contours.sort(function (path1, path2) {
+                        return mortonPoint(path1.getStartPoint(), path2.getStartPoint());
+                    });
+                    resolve(contours.map(function (path) {
                         var startPoint = path.getStartPoint();
                         var generalPath = path.asGeneralToolpath(params.simple_contourZ);
                         // plunge from safety plane
@@ -179,9 +203,12 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                         for (var i = 0; i < keys.length; i++) {
                             var points = data.holes[keys[i]];
                             for (var j = 0; j < points.length; j++)
-                                result.push(tpForPoint(points[j]));
+                                result.push(points[j]);
                         }
-                        resolve(result);
+                        result.sort(mortonPoint);
+                        resolve(result.map(function (point) {
+                            return tpForPoint(point);
+                        }));
                     } else
                         resolve([tpForPoint(point)]);
                 });
