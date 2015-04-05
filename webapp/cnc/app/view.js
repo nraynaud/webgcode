@@ -1,6 +1,6 @@
 'use strict';
-define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE'],
-    function (Ember, svgImporter, TreeDView, THREE) {
+define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/ui/threeDView', 'THREE'],
+    function (Ember, svgImporter, gerberImporter, TreeDView, THREE) {
         var ApplicationView = Ember.View.extend({
             classNames: ['rootview']
         });
@@ -38,7 +38,7 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE'],
                 function loadStl(file) {
                     var reader = new FileReader();
                     reader.onload = function (e) {
-                        _this.get('controller').addSTL(e.target.result, 'Imported ' + file.name);
+                        _this.get('controller').addSTL(e.target.result, file.name);
                     };
                     reader.readAsBinaryString(file);
                 }
@@ -47,7 +47,16 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE'],
                     var reader = new FileReader();
                     reader.onload = function (e) {
                         var res = svgImporter(e.target.result);
-                        _this.get('controller').addShapes(res, 'Imported ' + file.name);
+                        _this.get('controller').addShapes(res, file.name);
+                    };
+                    reader.readAsText(file);
+                }
+
+                function loadGerber() {
+                    var reader = new FileReader();
+                    reader.onload = function (e) {
+                        var res = gerberImporter(e.target.result);
+                        _this.get('controller').addShapes([res], file.name);
                     };
                     reader.readAsText(file);
                 }
@@ -57,10 +66,11 @@ define(['Ember', 'cnc/svgImporter', 'cnc/ui/threeDView', 'THREE'],
                 var files = event.dataTransfer.files;
                 for (var i = 0; i < files.length; i++) {
                     var file = files[i];
-                    if (file.type.indexOf('svg') != -1)
+                    if (file.type.indexOf('svg') != -1 || file.name.match(/\.stl/i))
                         loadSvg(file);
                     else if (file.type.indexOf('stl') != -1 || file.name.match(/\.stl/i))
                         loadStl(file);
+                    else loadGerber(file);
                 }
             },
             displayFakeDelete: function (displayFake) {
