@@ -69,8 +69,6 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 var polygons = this.get('rawPolyline');
                 if (!polygons)
                     return polygons;
-                var box = new util.BoundingBox();
-                box.pushPolylines(polygons);
                 var scaleX = this.get('flipped') ? -1 : 1;
                 return polygons.map(function (poly) {
                     return poly.map(function (point) {
@@ -319,6 +317,10 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     suffix.pushPoint(this.get('startPoint'));
                     travelBits.push(suffix);
                 }
+                var len = 0;
+                for (var i = 0; i < travelBits.length; i++)
+                    len += travelBits[i].length();
+                console.log('travel dist', len);
                 this.set('transitionTravels', travelBits);
             },
             createOperation: function (params) {

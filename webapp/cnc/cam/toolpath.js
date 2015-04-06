@@ -124,6 +124,16 @@ define(['cnc/util'], function (util) {
                 buffer[i * 3 + 2] = this.path[i].z;
             }
             return buffer;
+        },
+        length: function () {
+            var len = 0;
+            var lastPoint = null;
+            this.path.forEach(function (point) {
+                if (lastPoint)
+                    len += lastPoint.distance(point);
+                lastPoint = point;
+            });
+            return len;
         }
     };
 
