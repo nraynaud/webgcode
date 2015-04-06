@@ -36,9 +36,9 @@ static const struct {
 volatile cnc_memory_t cncMemory = {
         .position = {.x = 0, .y = 0, .z = 0, .speed = 0},
         .parameters = {
-                .stepsPerMillimeter = 640,
-                .maxSpeed = 3000,
-                .maxAcceleration = 150,
+                .stepsPerMillimeter = 320,
+                .maxSpeed = 2000,
+                .maxAcceleration = 750,
                 .clockFrequency = 200000},
         .state = READY,
         .lastEvent = {NULL_EVENT, 0, 0, 0},
