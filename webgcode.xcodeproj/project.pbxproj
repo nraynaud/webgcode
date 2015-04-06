@@ -40,6 +40,7 @@
 		DDAA55540BD64EEFE07C6C79 /* build-cam.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5F7F528A51ECF8A211B8 /* build-cam.js */; };
 		DDAA56105E019F8318F45B2F /* geometry.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5AAFC3B9C67160FA662D /* geometry.js */; };
 		DDAA5627DFA975E3CFD1372C /* models.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54B87A480F458CED26C3 /* models.js */; };
+		DDAA562BD5757A9BECFECBE2 /* hilbert.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5F8FF34A16D06AB0A58E /* hilbert.js */; };
 		DDAA563B30809A928E04C41B /* toolProfile.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5EFD373F700DB1829F53 /* toolProfile.js */; };
 		DDAA5647D1988D2672299EA5 /* js_sandbox.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5FD621B8DA11F0ECD11B /* js_sandbox.js */; };
 		DDAA5654909C5FCF3844108D /* parser.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA524C2453225E6A0DEB24 /* parser.js */; };
@@ -190,6 +191,7 @@
 		DDAA55AE23998F53B255B243 /* visucamTest.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = visucamTest.html; sourceTree = "<group>"; };
 		DDAA55B330007C9773B22298 /* palette.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = palette.png; sourceTree = "<group>"; };
 		DDAA55BC4AF31055E9F8A697 /* worker.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = worker.js; path = webapp/worker.js; sourceTree = "<group>"; };
+		DDAA55C35AFE6514E4CC086D /* make_zip.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = make_zip.sh; sourceTree = "<group>"; };
 		DDAA55F97E8D9015119CC503 /* wabble.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = wabble.js; path = cad/wabble.js; sourceTree = "<group>"; };
 		DDAA56084DF1239F53C2D3A8 /* minkowskiPass.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = minkowskiPass.js; sourceTree = "<group>"; };
 		DDAA560A454AFC2E09FD860F /* elliptic.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = elliptic.js; sourceTree = "<group>"; };
@@ -294,6 +296,7 @@
 		DDAA5F7BC2F729E4D954E307 /* threeDView.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = threeDView.css; sourceTree = "<group>"; };
 		DDAA5F7F528A51ECF8A211B8 /* build-cam.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "build-cam.js"; sourceTree = "<group>"; };
 		DDAA5F8E872CAF0D98D72C3D /* icon_fraise_48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_fraise_48.png; sourceTree = "<group>"; };
+		DDAA5F8FF34A16D06AB0A58E /* hilbert.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = hilbert.js; sourceTree = "<group>"; };
 		DDAA5F9065BDDAC8C08A000D /* icon_fraise_48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_fraise_48.png; sourceTree = "<group>"; };
 		DDAA5F9F727CB3FC94D086B9 /* dremel_bracket.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = dremel_bracket.js; sourceTree = "<group>"; };
 		DDAA5FB75EA37BF204AB17BA /* index.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = index.hbs; sourceTree = "<group>"; };
@@ -441,6 +444,7 @@
 				DDAA5B3E3A796AE05E292A03 /* app */,
 				DDAA588F9FE71EEF0F8A0791 /* gerberImporter.js */,
 				DDAA5F43806C94E0CB22BFF4 /* excellonImporter.js */,
+				DDAA5F8FF34A16D06AB0A58E /* hilbert.js */,
 			);
 			path = cnc;
 			sourceTree = "<group>";
@@ -569,6 +573,7 @@
 				DDAA546068AA808773A44475 /* pako.min.js */,
 				DDAA5AC14AAD3A2C784B1419 /* yenc.js */,
 				DDAA5CA206006D8E2D7FCDB5 /* flatten.js */,
+				DDAA55C35AFE6514E4CC086D /* make_zip.sh */,
 			);
 			path = webapp;
 			sourceTree = "<group>";
@@ -807,6 +812,7 @@
 				DDAA57D2E5598CB83A286091 /* flatten.js in Sources */,
 				DDAA5CE0C0CD524CDC51CC86 /* gerberImporter.js in Sources */,
 				DDAA5D53FDA3835E9E30C7FA /* excellonImporter.js in Sources */,
+				DDAA562BD5757A9BECFECBE2 /* hilbert.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
