@@ -20,8 +20,12 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
             (Y[(y >> 16) & 0xFF] | X[(x >> 16) & 0xFF]) * 0x100000000;
     }
 
-    function mortonPoint(p1, p2) {
-        return morton(p1.x, p1.y) - morton(p2.x, p2.y);
+    function pointmetric(p) {
+        return morton(p.x, p.y)
+    }
+
+    function pointComparison(p1, p2) {
+        return pointmetric(p1) - pointmetric(p2);
     }
 
     return {
@@ -46,6 +50,10 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                             for (var j = 0; j < polygons[i].length; j++)
                                 path.pushPointXYZ(polygons[i][j].x / machine.clipperScale, polygons[i][j].y / machine.clipperScale, z);
                         }
+                    console.log(toolpath);
+                    toolpath.sort(function (path1, path2) {
+                        return pointComparison(path1.getStartPoint(), path2.getStartPoint());
+                    });
                     resolve(toolpath);
                 });
             }
@@ -68,7 +76,7 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                     var areaPositive = machine.contourAreaPositive(params.contour_inside, params.contour_climbMilling);
                     var contours = machine.fromClipper(polygon1, true, areaPositive);
                     contours.sort(function (path1, path2) {
-                        return mortonPoint(path1.getStartPoint(), path2.getStartPoint());
+                        return pointComparison(path1.getStartPoint(), path2.getStartPoint());
                     });
                     resolve(contours.map(function (path) {
                         var startPoint = path.getStartPoint();
@@ -109,6 +117,9 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                     toolpath.forEach(function (path) {
                         var startPoint = path.getStartPoint();
                         path.pushPointInFront(startPoint.x, startPoint.y, safetyZ);
+                    });
+                    toolpath.sort(function (path1, path2) {
+                        return pointComparison(path1.getStartPoint(), path2.getStartPoint());
                     });
                     resolve(toolpath);
                 });
@@ -205,7 +216,7 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                             for (var j = 0; j < points.length; j++)
                                 result.push(points[j]);
                         }
-                        result.sort(mortonPoint);
+                        result.sort(pointComparison);
                         resolve(result.map(function (point) {
                             return tpForPoint(point);
                         }));
