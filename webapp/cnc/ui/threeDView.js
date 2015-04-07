@@ -187,7 +187,7 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             this.overlayScene.add(axes);
             this.drawing = new THREE.Object3D();
             this.tool = new THREE.Object3D();
-            var toolbit = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 10, 20, 2, false), new THREE.MeshPhongMaterial({
+            var toolbit = new THREE.Mesh(new THREE.CylinderGeometry(2, 0, 10, 20, 2, false), new THREE.MeshPhongMaterial({
                 emissive: 0xEF0000,
                 specular: 0x0F0000,
                 shininess: 204,
