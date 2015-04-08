@@ -146,6 +146,7 @@ var tasks = {
                             return direction + enableStep;
                         }
 
+                        time = Math.min(65535, time);
                         this.view.setUint16(HEADER_LENGTH + this.instructionsCount * 3, time, true);
                         var word = '00' + bin(dz) + bin(dy) + bin(dx);
                         this.view.setUint8(HEADER_LENGTH + this.instructionsCount * 3 + 2, parseInt(word, 2));
