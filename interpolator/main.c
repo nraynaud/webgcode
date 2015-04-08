@@ -37,13 +37,13 @@ volatile cnc_memory_t cncMemory = {
         .position = {.x = 0, .y = 0, .z = 0, .speed = 0},
         .parameters = {
                 .stepsPerMillimeter = 320,
-                .maxSpeed = 2000,
-                .maxAcceleration = 750,
+                .maxSpeed = 3000,
+                .maxAcceleration = 150,
                 .clockFrequency = 200000},
         .state = READY,
         .lastEvent = {NULL_EVENT, 0, 0, 0},
-        .running = 0,
-        .tick = 0};
+        .tick = 0,
+        .stepperState = NOT_RUNNING};
 
 static const struct {
     unsigned int x:1, y:1, z:1;
@@ -53,9 +53,8 @@ static const struct {
         .z = 0};
 
 static step_t nextProgramStep() {
-    checkProgramEnd();
     uint8_t bytes[3];
-    if (!readBufferArray(sizeof(bytes) / sizeof(*bytes), bytes))
+    if (!readFromProgram(sizeof(bytes) / sizeof(*bytes), bytes))
         return (step_t) {.duration = 0,
                 .axes = {
                         .xStep = 0,
@@ -95,39 +94,30 @@ static void executeStep(step_t step) {
         if (xor(cncMemory.currentStep.axes.zDirection, motorDirection.z))
             directions |= motorsPinout.zDirection;
         GPIO_SetBits(motorsPinout.gpio, directions);
+        cncMemory.stepperState = DIRECTION_SET;
         uint32_t duration = step.duration;
         int32_t axesCount = step.axes.xStep + step.axes.yStep + step.axes.zStep;
         float32_t stepFactor = stepFactors[axesCount];
         uint32_t correctedMinDuration = (uint32_t) ceilf(minDuration * stepFactor);
         correctedMinDuration = correctedMinDuration < 2 ? 2 : correctedMinDuration;
-        //clamp speed according to max allowed speed
-        duration = duration < correctedMinDuration ? correctedMinDuration : duration;
+        if (cncMemory.state != MANUAL_CONTROL)
+            //clamp speed according to max allowed speed
+            duration = duration < correctedMinDuration ? correctedMinDuration : duration;
         cncMemory.position.speed = (int32_t) (stepFactor == 0 ? 0 : duration / stepFactor);
         TIM3->ARR = duration;
         TIM3->CNT = 0;
-        TIM_SelectOnePulseMode(TIM3, TIM_OPMode_Single);
-        TIM_Cmd(TIM3, ENABLE);
-    } else {
-        cncMemory.position.speed = 0;
-        cncMemory.running = 0;
-        TIM3->ARR = 10000;
         TIM_SelectOnePulseMode(TIM3, TIM_OPMode_Single);
         TIM_Cmd(TIM3, ENABLE);
     }
 }
 
 void executeNextStep() {
-    if (!isEmergencyStopped()) {
-        cncMemory.running = 1;
-        if (cncMemory.state == MANUAL_CONTROL)
-            executeStep(nextManualStep());
-        else if (cncMemory.state == RUNNING_PROGRAM)
-            executeStep(nextProgramStep());
-        else {
-            cncMemory.running = 0;
-            cncMemory.position.speed = 0;
-        }
-    }
+    if (cncMemory.state == MANUAL_CONTROL)
+        executeStep(nextManualStep());
+    else if (cncMemory.state == RUNNING_PROGRAM)
+        executeStep(nextProgramStep());
+    else
+        cncMemory.position.speed = 0;
 }
 
 void updatePosition(step_t step) {
@@ -139,26 +129,20 @@ void updatePosition(step_t step) {
         cncMemory.position.z += step.axes.zDirection ? 1 : -1;
 }
 
-__attribute__ ((used)) void TIM3_IRQHandler(void) {
-    if (TIM_GetITStatus(TIM3, TIM_IT_CC1) != RESET) {
-        TIM_ClearITPendingBit(TIM3, TIM_IT_CC1);
-        if (cncMemory.currentStep.duration) {
-            uint16_t steps = 0;
-            if (cncMemory.currentStep.axes.xStep)
-                steps |= motorsPinout.xStep;
-            if (cncMemory.currentStep.axes.yStep)
-                steps |= motorsPinout.yStep;
-            if (cncMemory.currentStep.axes.zStep)
-                steps |= motorsPinout.zStep;
-            GPIO_SetBits(motorsPinout.gpio, steps);
-            updatePosition(cncMemory.currentStep);
-        }
-    }
-    if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET) {
-        TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
-        STM_EVAL_LEDOff(LED6);
-        executeNextStep();
-    }
+int stepTimeHasCome() {
+    return TIM_GetITStatus(TIM3, TIM_IT_CC1) != RESET;
+}
+
+void clearStepTimeHasCome() {
+    TIM_ClearITPendingBit(TIM3, TIM_IT_CC1);
+}
+
+int stepIsOver() {
+    return TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET;
+}
+
+void clearStepIsOver() {
+    TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
 }
 
 uint32_t isEmergencyStopped() {
@@ -195,28 +179,7 @@ __attribute__ ((noreturn)) void main(void) {
             .GPIO_PuPd = GPIO_PuPd_DOWN
     });
 
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
-    SYSCFG_EXTILineConfig(eStopPinout.extiPortSource, eStopPinout.extiPinSource);
-    EXTI_Init(&(EXTI_InitTypeDef) {
-            .EXTI_Line = eStopPinout.stopInterruptLine,
-            .EXTI_Mode = EXTI_Mode_Interrupt,
-            .EXTI_Trigger = EXTI_Trigger_Rising,
-            .EXTI_LineCmd = ENABLE});
-
-    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
-    NVIC_Init(&(NVIC_InitTypeDef) {
-            .NVIC_IRQChannel = eStopPinout.stopIrqN,
-            .NVIC_IRQChannelPreemptionPriority = 0,
-            .NVIC_IRQChannelSubPriority = 0,
-            .NVIC_IRQChannelCmd = ENABLE});
-
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
-    NVIC_Init(&(NVIC_InitTypeDef) {
-            .NVIC_IRQChannel = TIM3_IRQn,
-            .NVIC_IRQChannelPreemptionPriority = 0,
-            .NVIC_IRQChannelSubPriority = 0,
-            .NVIC_IRQChannelCmd = ENABLE});
-
     TIM_Cmd(TIM3, DISABLE);
     TIM_UpdateRequestConfig(TIM3, TIM_UpdateSource_Regular);
     TIM_SelectOnePulseMode(TIM3, TIM_OPMode_Single);
@@ -239,18 +202,42 @@ __attribute__ ((noreturn)) void main(void) {
     initManualControls();
     SysTick_Config(SystemCoreClock / cncMemory.parameters.clockFrequency);
 
-    while (1);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmissing-noreturn"
+    while (1) {
+        copyUSBufferIfPossible();
+        if (cncMemory.state == READY || cncMemory.state == MANUAL_CONTROL)
+            tryToStartProgram();
+        if (cncMemory.stepperState == DIRECTION_SET && stepTimeHasCome()) {
+            if (cncMemory.currentStep.duration) {
+                uint16_t steps = 0;
+                if (cncMemory.currentStep.axes.xStep)
+                    steps |= motorsPinout.xStep;
+                if (cncMemory.currentStep.axes.yStep)
+                    steps |= motorsPinout.yStep;
+                if (cncMemory.currentStep.axes.zStep)
+                    steps |= motorsPinout.zStep;
+                GPIO_SetBits(motorsPinout.gpio, steps);
+                updatePosition(cncMemory.currentStep);
+            }
+            cncMemory.stepperState = STEP_SET;
+            clearStepTimeHasCome();
+        }
+        if (cncMemory.stepperState == STEP_SET && stepIsOver()) {
+            cncMemory.stepperState = NOT_RUNNING;
+            STM_EVAL_LEDOff(LED6);
+            clearStepIsOver();
+        }
+        if (cncMemory.state == RUNNING_PROGRAM && cncMemory.stepperState == NOT_RUNNING)
+            checkProgramEnd();
+        if (cncMemory.stepperState == NOT_RUNNING && !isEmergencyStopped()
+                && (cncMemory.state == RUNNING_PROGRAM || cncMemory.state == MANUAL_CONTROL))
+            executeNextStep();
+    }
+#pragma clang diagnostic pop
 }
 
 __attribute__ ((used)) void SysTick_Handler(void) {
     cncMemory.tick++;
     periodicUICallback();
-}
-
-__attribute__ ((used)) void EXTI15_10_IRQHandler() {
-    STM_EVAL_LEDToggle(LED5);
-    if (EXTI_GetITStatus(eStopPinout.stopInterruptLine) != RESET) {
-        EXTI_ClearITPendingBit(eStopPinout.stopInterruptLine);
-        executeNextStep();
-    }
 }

@@ -25,14 +25,20 @@ typedef struct {
     float32_t z;
 } vec3f_t;
 
+typedef enum {
+    NOT_RUNNING = 0,
+    DIRECTION_SET = 1,
+    STEP_SET = 2
+} stepper_state_t;
+
 typedef struct {
     position_t position;
     parameters_t parameters;
     uint16_t state;
     int32_t lastEvent[4];
     step_t currentStep;
-    uint8_t running;
     uint64_t tick;
+    stepper_state_t stepperState;
 } cnc_memory_t;
 
 typedef enum {
@@ -74,11 +80,9 @@ extern uint32_t isEmergencyStopped();
 
 extern void initUSB();
 
-extern int32_t readBufferArray(uint32_t count, uint8_t *array);
+extern int32_t readFromProgram(uint32_t count, uint8_t *array);
 
 extern void checkProgramEnd();
-
-extern void sendEvent(uint32_t event);
 
 extern uint8_t *cncGetCfgDesc(uint8_t speed, uint16_t *length);
 
@@ -91,3 +95,7 @@ extern void initManualControls();
 extern uint32_t toggleManualMode();
 
 extern void periodicUICallback();
+
+extern void copyUSBufferIfPossible();
+
+extern void tryToStartProgram();

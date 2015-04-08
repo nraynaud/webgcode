@@ -21,25 +21,28 @@ static volatile struct {
     float32_t x, y, z;
     float32_t deadzoneRadius;
     float32_t snapOnAxisRadius;
-    float32_t maxAcceleration;
     int32_t minFeed;
     int32_t maxFeed;
-    uint8_t zeroX, zeroY, zeroZ;
+    int32_t maxZFeed;
+    float32_t zeroX, zeroY, zeroZ;
     uint64_t lastTick;
     vec3f_t lastSpeed;
     volatile __attribute__((aligned (4))) uint8_t adcValue[3];
+    vec3f_t filteredAdc;
 } manualControlStatus = {
-        .deadzoneRadius = 0.12F,
+        .deadzoneRadius = 0.01F,
         .snapOnAxisRadius = 0.70F,
-        .maxAcceleration = 150,
         .minFeed = 5,
-        .maxFeed = 8000,
+        .maxFeed = 4000,
+        .maxZFeed = 1000,
         .zeroX = 128,
         .zeroY = 128,
         .zeroZ = 128,
         .lastTick = 0,
         .lastSpeed = {0, 0, 0},
-        .adcValue = {0, 0, 0}};
+        .adcValue = {0, 0, 0},
+        .filteredAdc= {0, 0, 0}};
+
 
 static float32_t norm(vec3f_t vector) {
     //fuck [golberg91]
@@ -48,7 +51,7 @@ static float32_t norm(vec3f_t vector) {
 
 static char findMajorAxis(vec3f_t vector) {
     float32_t absX = fabsf(vector.x), absY = fabsf(vector.y), absZ = fabsf(vector.z);
-    return absX >= absY && absX >= absZ ? 'x' : (absY >= absX && absY >= absZ ? 'y' : 'z');
+    return (char) ((absX >= absY && absX >= absZ) ? 'x' : (absY >= absX && absY >= absZ) ? 'y' : 'z');
 }
 
 static vec3f_t snapAxes(vec3f_t speedVector) {
@@ -70,7 +73,8 @@ static vec3f_t joystick2speed(vec3f_t joystickPosition) {
     float32_t minSpeed = manualControlStatus.minFeed / 60.0F;
     float32_t maxSpeed = manualControlStatus.maxFeed / 60.0F;
     float32_t ratio = powf(maxSpeed, magnitude) * powf(minSpeed, (1 - magnitude));
-    return (vec3f_t) {joystickPosition.x * ratio, joystickPosition.y * ratio, joystickPosition.z * ratio};
+    return (vec3f_t) {joystickPosition.x * ratio, joystickPosition.y * ratio,
+            joystickPosition.z * (powf(manualControlStatus.maxZFeed / 60.0F, magnitude) * powf(minSpeed, (1 - magnitude)))};
 }
 
 static uint16_t deadlineForDate(float32_t speed, uint64_t date) {
@@ -130,9 +134,9 @@ static vec3f_t deadZoneJoystick(vec3f_t joystickPosition) {
 step_t nextManualStep() {
     uint64_t currentTick = cncMemory.tick;
     vec3f_t joystickPosition = {
-            .x = (manualControlStatus.adcValue[0] - manualControlStatus.zeroX) / 128.0F * uiPinout.xOrientation,
-            .y = (manualControlStatus.adcValue[1] - manualControlStatus.zeroY) / 128.0F * uiPinout.yOrientation,
-            .z = (manualControlStatus.adcValue[2] - manualControlStatus.zeroZ) / 128.0F * uiPinout.zOrientation};
+            .x = (manualControlStatus.filteredAdc.x - manualControlStatus.zeroX) / 128.0F * uiPinout.xOrientation,
+            .y = (manualControlStatus.filteredAdc.y - manualControlStatus.zeroY) / 128.0F * uiPinout.yOrientation,
+            .z = (manualControlStatus.filteredAdc.z - manualControlStatus.zeroZ) / 128.0F * uiPinout.zOrientation};
     joystickPosition = clampPositionTo1(joystickPosition);
     joystickPosition = deadZoneJoystick(joystickPosition);
     joystickPosition = snapAxes(joystickPosition);
@@ -144,9 +148,9 @@ step_t nextManualStep() {
 }
 
 void zeroJoystick() {
-    manualControlStatus.zeroX = manualControlStatus.adcValue[0];
-    manualControlStatus.zeroY = manualControlStatus.adcValue[1];
-    manualControlStatus.zeroZ = manualControlStatus.adcValue[2];
+    manualControlStatus.zeroX = manualControlStatus.filteredAdc.x;
+    manualControlStatus.zeroY = manualControlStatus.filteredAdc.y;
+    manualControlStatus.zeroZ = manualControlStatus.filteredAdc.z;
 }
 
 uint32_t toggleManualMode() {
@@ -155,13 +159,10 @@ uint32_t toggleManualMode() {
             STM_EVAL_LEDOn(LED3);
             zeroJoystick();
             cncMemory.state = MANUAL_CONTROL;
-            executeNextStep();
-            sendEvent(ENTER_MANUAL_MODE);
             return 1;
         case MANUAL_CONTROL:
             STM_EVAL_LEDOff(LED3);
             cncMemory.state = READY;
-            sendEvent(EXIT_MANUAL_MODE);
             return 1;
         default:
             return 0;
@@ -209,9 +210,9 @@ void initManualControls() {
             .DMA_MemoryBurst = DMA_MemoryBurst_Single,
             .DMA_PeripheralBurst = DMA_PeripheralBurst_Single});
     DMA_Cmd(DMA2_Stream0, ENABLE);
-    ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 1, ADC_SampleTime_3Cycles);
-    ADC_RegularChannelConfig(ADC1, ADC_Channel_2, 2, ADC_SampleTime_3Cycles);
-    ADC_RegularChannelConfig(ADC1, ADC_Channel_3, 3, ADC_SampleTime_3Cycles);
+    ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 1, ADC_SampleTime_28Cycles);
+    ADC_RegularChannelConfig(ADC1, ADC_Channel_2, 2, ADC_SampleTime_28Cycles);
+    ADC_RegularChannelConfig(ADC1, ADC_Channel_3, 3, ADC_SampleTime_28Cycles);
     ADC_DMARequestAfterLastTransferCmd(ADC1, ENABLE);
     ADC_DMACmd(ADC1, ENABLE);
     ADC_Cmd(ADC1, ENABLE);
@@ -225,6 +226,13 @@ void periodicUICallback(void) {
     static uint8_t previousDebouncedValue;
     static uint8_t stableValueTicks = 0;
     static uint8_t lastRawValue;
+    float32_t factor = 0.999f;
+    manualControlStatus.filteredAdc.x = manualControlStatus.filteredAdc.x * factor
+            + manualControlStatus.adcValue[0] * (1.0f - factor);
+    manualControlStatus.filteredAdc.y = manualControlStatus.filteredAdc.y * factor
+            + manualControlStatus.adcValue[1] * (1.0f - factor);
+    manualControlStatus.filteredAdc.z = manualControlStatus.filteredAdc.z * factor
+            + manualControlStatus.adcValue[2] * (1.0f - factor);
     if (cncMemory.tick % SYSTICK_UI_DEBOUNCE_SCALING_FACTOR == 0) {
         uint8_t rawValue = GPIO_ReadInputDataBit(uiPinout.gpio, uiPinout.manualButton);
         if (rawValue == lastRawValue) {
