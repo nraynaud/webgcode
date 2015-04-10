@@ -92,7 +92,7 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter'
                 var files = event.dataTransfer.files;
                 for (var i = 0; i < files.length; i++) {
                     var file = files[i];
-                    if (file.type.indexOf('svg') != -1 || file.name.match(/\.stl/i))
+                    if (file.type.indexOf('svg') != -1 || file.name.match(/\.svg/i))
                         loadSvg(file);
                     else if (file.type.indexOf('stl') != -1 || file.name.match(/\.stl/i))
                         loadStl(file);
