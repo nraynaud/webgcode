@@ -273,7 +273,10 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
                 function planningStepCollector(dx, dy, dz, ratio) {
                     //go slower if we are stepping in diagonals
                     var speedFactor = speedFactors[!!dx + !!dy + !!dz];
-                    var time = Math.ceil(timebase * speedFactor * stepSize / dataForRatio(segment, ratio).speed);
+                    var speed = dataForRatio(segment, ratio).speed;
+                    var minSpeed = segment.feedRate / 60 / 20;
+                    speed = Math.max(speed, minSpeed);
+                    var time = Math.ceil(timebase * speedFactor * stepSize / speed);
                     stepCollector(dx, dy, dz, time);
                 }
 
