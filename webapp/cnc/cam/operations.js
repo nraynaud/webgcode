@@ -50,7 +50,6 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                             for (var j = 0; j < polygons[i].length; j++)
                                 path.pushPointXYZ(polygons[i][j].x / machine.clipperScale, polygons[i][j].y / machine.clipperScale, z);
                         }
-                    console.log(toolpath);
                     toolpath.sort(function (path1, path2) {
                         return pointComparison(path1.getStartPoint(), path2.getStartPoint());
                     });
