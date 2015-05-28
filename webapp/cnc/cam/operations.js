@@ -64,7 +64,7 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                 simple_contourZ: attr('number', {defaultValue: -5}),
                 contour_inside: attr('boolean', {defaultValue: true}),
                 contour_leaveStock: attr('number', {defaultValue: 0}),
-                contour_climbMilling: attr('boolean', {defaultValue: true})
+                contour_climbMilling: attr('boolean', {defaultValue: false})
             },
             computeToolpath: function (params) {
                 return new RSVP.Promise(function (resolve, reject) {
@@ -98,7 +98,7 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                 ramping_turns: attr('number', {defaultValue: 5}),
                 contour_inside: attr('boolean', {defaultValue: true}),
                 contour_leaveStock: attr('number', {defaultValue: 0}),
-                contour_climbMilling: attr('boolean', {defaultValue: true})
+                contour_climbMilling: attr('boolean', {defaultValue: false})
             },
             computeToolpath: function (op) {
                 return new RSVP.Promise(function (resolve, reject) {
