@@ -254,6 +254,9 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
                     return $.extend({class: key}, Operations[key]);
                 });
             }.property(),
+            isVTool: function () {
+                return this.get('3d_toolType').indexOf('v') == 0;
+            }.property('3d_toolType'),
             toolShapes: function () {
                 return [
                     {label: 'Cylinder', id: 'cylinder'},

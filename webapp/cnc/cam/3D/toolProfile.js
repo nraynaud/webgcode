@@ -1,6 +1,7 @@
 "use strict";
 define([], function () {
-    function createSphericalTool(sampleCount, zRatio, radiusMM, roundDistance) {
+    function createSphericalTool(tool, sampleCount, zRatio, roundDistance) {
+        var radiusMM = tool.diameter / 2;
         var samples = [];
         var newRadius = radiusMM + roundDistance;
         for (var i = 0; i < sampleCount; i++) {
@@ -10,16 +11,25 @@ define([], function () {
         return samples;
     }
 
-    function createVTool(sampleCount, zRatio, radiusMM, roundDistance) {
+    function createVTool(tool, sampleCount, zRatio, roundDistance) {
+        var radiusMM = tool.diameter / 2;
+        var angle = 90 - tool.angle / 2;
+        var tan = Math.tan(angle / 180 * Math.PI);
+        var tipRadius = tool.tipDiameter / 2;
         var samples = [];
         var profileRadius = radiusMM + roundDistance;
         var sampleWidth = profileRadius / (sampleCount - 1);
-        for (var i = 0; i <= radiusMM; i += sampleWidth)
-            samples.push(i);
+        for (var i = 0; i <= radiusMM; i += sampleWidth) {
+            if (i < tipRadius)
+                samples.push(0);
+            else
+                samples.push((i - tipRadius) * tan * zRatio);
+        }
         return roundProfile(samples, sampleCount, roundDistance, radiusMM, zRatio);
     }
 
-    function createCylindricalTool(sampleCount, zRatio, radiusMM, roundDistance) {
+    function createCylindricalTool(tool, sampleCount, zRatio, roundDistance) {
+        var radiusMM = tool.diameter / 2;
         var samples = [];
         var profileRadius = radiusMM + roundDistance;
         var sampleWidth = profileRadius / (sampleCount - 1);
@@ -48,9 +58,20 @@ define([], function () {
         return samples;
     }
 
+    var types = {
+        cylinder: createCylindricalTool,
+        ball: createSphericalTool,
+        v: createVTool
+    };
+
+    function createTool(tool, sampleCount, zRatio, roundDistance) {
+        return types[tool.type](tool, sampleCount, zRatio, roundDistance);
+    }
+
     return {
         createCylindricalTool: createCylindricalTool,
         createSphericalTool: createSphericalTool,
-        createVTool: createVTool
+        createVTool: createVTool,
+        createTool: createTool
     }
 });

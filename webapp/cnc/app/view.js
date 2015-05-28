@@ -1,6 +1,6 @@
 'use strict';
-define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter', 'cnc/ui/threeDView', 'THREE', 'cnc/util'],
-    function (Ember, svgImporter, gerberImporter, excellonImporter, TreeDView, THREE, util) {
+define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter', 'cnc/ui/threeDView', 'THREE', 'cnc/util', 'cnc/cam/3D/toolProfile'],
+    function (Ember, svgImporter, gerberImporter, excellonImporter, TreeDView, THREE, util, toolProfile) {
         var ApplicationView = Ember.View.extend({
             classNames: ['rootview']
         });
@@ -283,10 +283,69 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter'
             }.observes('controller.toolPosition')
         });
 
+        var ToolView = Ember.View.extend({
+            tagName: 'canvas',
+            didInsertElement: function () {
+                var ctx = this.get('element').getContext('2d');
+                this.set('canvas', ctx);
+                this.updateImage();
+            },
+            updateImage: function () {
+                var ctx = this.get('canvas');
+                if (!ctx)
+                    return;
+                var leaveStock = this.get('controller.3d_leaveStock');
+                var radius = this.get('controller.job.toolDiameter') / 2 + leaveStock;
+                var profile = toolProfile.createTool(this.get('controller.tool'), 30, 1, leaveStock);
+                var max = -Infinity;
+                var min = Infinity;
+                for (var i = 0; i < profile.length; i++) {
+                    var point = profile[i];
+                    if (isFinite(point) && !isNaN(point)) {
+                        max = Math.max(point, max);
+                        min = Math.min(point, min);
+                    }
+                }
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                var middleX = ctx.canvas.width / 2;
+                var factor = ctx.canvas.height / 2 / (max - min);
+                ctx.strokeStyle = "blue";
+                ctx.save();
+                ctx.setLineDash([8, 3]);
+                ctx.beginPath();
+                var startX = middleX - radius * factor;
+                for (i = 0; i < profile.length; i++) {
+                    point = profile[profile.length - i - 1];
+                    ctx.lineTo(startX + (i / profile.length * radius) * factor, Math.max(ctx.canvas.height - (point - min) * factor, 0));
+                }
+                for (i = 0; i < profile.length; i++) {
+                    point = profile[i];
+                    ctx.lineTo(startX + (1 + i / profile.length) * radius * factor, Math.max(ctx.canvas.height - (point - min) * factor, 0));
+                }
+                ctx.stroke();
+                ctx.restore();
+                profile = toolProfile.createTool(this.get('controller.tool'), 30, 1, 0);
+                radius = this.get('controller.job.toolDiameter') / 2;
+                ctx.strokeStyle = "black";
+                ctx.beginPath();
+                startX = middleX - radius * factor;
+                for (i = 0; i < profile.length; i++) {
+                    point = profile[profile.length - i - 1];
+                    ctx.lineTo(startX + (i / profile.length * radius) * factor, Math.max(ctx.canvas.height - (point - min) * factor, 0));
+                }
+                for (i = 0; i < profile.length; i++) {
+                    point = profile[i];
+                    ctx.lineTo(startX + (1 + i / profile.length) * radius * factor, Math.max(ctx.canvas.height - (point - min) * factor, 0));
+                }
+                ctx.stroke();
+            }.observes('controller.model.tool', 'controller.3d_leaveStock')
+        });
+
         return {
             ThreeDView: ThreeDView,
             LoginView: LoginView,
             ApplicationView: ApplicationView,
-            JobView: JobView
+            JobView: JobView,
+            ToolView: ToolView
         };
     });

@@ -206,14 +206,14 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 var model = this.get('outline.meshGeometry');
                 var leaveStock = this.get('3d_leaveStock');
                 var minZ = this.get('3d_minZ');
-                var type = this.get('3d_toolType');
+                var tool = this.get('tool');
                 var orientation = this.get('3d_pathOrientation');
                 var stepover = this.get('3d_diametralEngagement') * toolDiameter / 100;
                 var startRatio = this.get('3d_startPercent') / 100;
                 var stopRatio = this.get('3d_stopPercent') / 100;
                 var zigzag = this.get('3d_zigZag');
                 var computer = new Computer.ToolPathComputer();
-                var task = computer.computeHeightField(model, stepover, type, toolDiameter / 2, leaveStock, orientation,
+                var task = computer.computeHeightField(model, stepover, tool, leaveStock, orientation,
                     startRatio, stopRatio);
                 this.set('task', task);
                 task.addObserver('isDone', function () {
@@ -234,7 +234,15 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             paused: function () {
                 console.log('computing', this.get('task') && !this.get('task.isDone'));
                 return this.get('task.isPaused');
-            }.property('task', 'task.isPaused')
+            }.property('task', 'task.isPaused'),
+            tool: function () {
+                return {
+                    type: this.get('3d_toolType'),
+                    diameter: this.get('job.toolDiameter'),
+                    angle: this.get('3d_vToolAngle'),
+                    tipDiameter: this.get('3d_vToolTipDiameter')
+                };
+            }.property('3d_toolType', 'job.toolDiameter', '3d_vToolAngle', '3d_vToolTipDiameter')
         };
 
 //add all the attributes from all the operations types

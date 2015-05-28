@@ -15,7 +15,7 @@ define(['RSVP', 'THREE', 'Piecon', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/mink
         }
 
         ToolPathComputer.prototype = {
-            computeHeightField: function (geometry, stepover, toolType, toolRadius, leaveStock, angle, startRatio, stopRatio, renderer, displayResult) {
+            computeHeightField: function (geometry, stepover, tool, leaveStock, angle, startRatio, stopRatio, renderer, displayResult) {
                 var _this = this;
 
                 function work(task, resolve, reject) {
@@ -34,13 +34,8 @@ define(['RSVP', 'THREE', 'Piecon', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/mink
                             preserveDrawingBuffer: true
                         });
                     var toolSamples = 30;
-                    var sampleRate = toolSamples / (toolRadius + leaveStock);
-                    var types = {
-                        cylinder: toolProfile.createCylindricalTool,
-                        ball: toolProfile.createSphericalTool,
-                        v: toolProfile.createVTool
-                    };
-                    var profile = types[toolType](toolSamples, modelStage.zRatio, toolRadius, leaveStock);
+                    var sampleRate = toolSamples / (tool.diameter / 2 + leaveStock);
+                    var profile = toolProfile.createTool(tool, toolSamples, modelStage.zRatio, leaveStock);
                     var bbox = modelStage.modelBbox.clone();
 
                     var minX = Math.floor(bbox.min.x * sampleRate);

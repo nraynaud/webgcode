@@ -2,35 +2,50 @@
     <th>Tool Profile:</th>
     <td>{{view Ember.Select value=3d_toolType content=toolShapes optionValuePath="content.id" optionLabelPath="content.label"}}</td>
 </tr>
+{{#if isVTool}}
+    <tr>
+        <th>Tool Angle:</th>
+        <td class="input-group input-group-sm">{{number-input numericValue=3d_vToolAngle min=0 max=180}}
+            <span class="input-group-addon">°</span></td>
+    </tr>
+    <tr>
+        <th>Tip Diameter:</th>
+        <td class="input-group input-group-sm">{{number-input numericValue=3d_vToolTipDiameter min=0 max=job.toolDiameter}}
+            <span class="input-group-addon">mm</span></td>
+    </tr>
+{{/if}}
+<tr>
+    <td colspan="2">{{view Visucam.ToolView}}</td>
+</tr>
 <tr>
     <th title="in all directions">Leave Stock:</th>
     <td class="input-group input-group-sm">{{number-input numericValue=3d_leaveStock min="0"}}
-        <span class="input-group-addon" id="percent3">mm</span></td>
+        <span class="input-group-addon">mm</span></td>
 </tr>
 <tr>
     <th>Min Z:</th>
     <td class="input-group input-group-sm">{{number-input numericValue=3d_minZ}}
-        <span class="input-group-addon" id="percent3">mm</span></td>
+        <span class="input-group-addon">mm</span></td>
 </tr>
 <tr>
     <th title="Engagement in %">Diametral Engagement:</th>
-    <td class="input-group input-group-sm">{{number-input numericValue=3d_diametralEngagement aria-describedby="percent3"}}
-        <span class="input-group-addon" id="percent3">%</span></td>
+    <td class="input-group input-group-sm">{{number-input numericValue=3d_diametralEngagement}}
+        <span class="input-group-addon">%</span></td>
 </tr>
 <tr>
     <th title="in degrees">Path Orientation:</th>
     <td class="input-group input-group-sm">{{number-input numericValue=3d_pathOrientation min=-90 max=90 increment=1}}
-        <span class="input-group-addon" id="degrees">°</span></td>
+        <span class="input-group-addon">°</span></td>
 </tr>
 <tr>
     <th title="to skip the beginning of the toolpath">Start:</th>
     <td class="input-group input-group-sm">{{number-input numericValue=3d_startPercent}}
-        <span class="input-group-addon" id="percent1">%</span></td>
+        <span class="input-group-addon">%</span></td>
 </tr>
 <tr>
     <th title="to skip the end of the toolpath">Stop:</th>
     <td class="input-group input-group-sm">{{number-input numericValue=3d_stopPercent}}
-        <span class="input-group-addon" id="percent2">%</span></td>
+        <span class="input-group-addon">%</span></td>
 </tr>
 <tr>
     <th>zigzag:</th>
