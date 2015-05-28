@@ -292,51 +292,49 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter'
             },
             updateImage: function () {
                 var ctx = this.get('canvas');
-                if (!ctx)
-                    return;
                 var leaveStock = this.get('controller.3d_leaveStock');
-                var radius = this.get('controller.job.toolDiameter') / 2 + leaveStock;
-                var profile = toolProfile.createTool(this.get('controller.tool'), 30, 1, leaveStock);
+                var profile = toolProfile.createTool(this.get('controller.tool'), 100, 1, leaveStock);
                 var max = -Infinity;
                 var min = Infinity;
                 for (var i = 0; i < profile.length; i++) {
-                    var point = profile[i];
-                    if (isFinite(point) && !isNaN(point)) {
-                        max = Math.max(point, max);
-                        min = Math.min(point, min);
+                    if (isFinite(profile[i]) && !isNaN(profile[i])) {
+                        max = Math.max(profile[i], max);
+                        min = Math.min(profile[i], min);
                     }
                 }
                 ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                var radius = this.get('controller.job.toolDiameter') / 2 + leaveStock;
                 var middleX = ctx.canvas.width / 2;
-                var factor = ctx.canvas.height / 2 / (max - min);
+                var factorY = ctx.canvas.height / 2 / (max - min);
+                var factorX = ctx.canvas.width / 2 / radius;
+                var factor = Math.min(factorX, factorY);
+
+                function drawProfile(profile, radius) {
+                    var startX = middleX - radius * factor;
+                    for (i = 0; i < profile.length; i++) {
+                        var x = startX + (i / profile.length * radius) * factor;
+                        if (i == 0)
+                            ctx.moveTo(x, 0);
+                        ctx.lineTo(x, Math.max(ctx.canvas.height - (profile[profile.length - i - 1] - min) * factor, 0));
+                    }
+                    for (i = 0; i < profile.length; i++) {
+                        x = startX + (1 + i / profile.length) * radius * factor;
+                        ctx.lineTo(x, Math.max(ctx.canvas.height - ( profile[i] - min) * factor, 0));
+                        if (i + 1 >= profile.length)
+                            ctx.lineTo(x, 0);
+                    }
+                }
                 ctx.strokeStyle = "blue";
                 ctx.save();
                 ctx.setLineDash([8, 3]);
                 ctx.beginPath();
-                var startX = middleX - radius * factor;
-                for (i = 0; i < profile.length; i++) {
-                    point = profile[profile.length - i - 1];
-                    ctx.lineTo(startX + (i / profile.length * radius) * factor, Math.max(ctx.canvas.height - (point - min) * factor, 0));
-                }
-                for (i = 0; i < profile.length; i++) {
-                    point = profile[i];
-                    ctx.lineTo(startX + (1 + i / profile.length) * radius * factor, Math.max(ctx.canvas.height - (point - min) * factor, 0));
-                }
+                drawProfile(profile, radius);
                 ctx.stroke();
                 ctx.restore();
-                profile = toolProfile.createTool(this.get('controller.tool'), 30, 1, 0);
-                radius = this.get('controller.job.toolDiameter') / 2;
+                profile = toolProfile.createTool(this.get('controller.tool'), 100, 1, 0);
                 ctx.strokeStyle = "black";
                 ctx.beginPath();
-                startX = middleX - radius * factor;
-                for (i = 0; i < profile.length; i++) {
-                    point = profile[profile.length - i - 1];
-                    ctx.lineTo(startX + (i / profile.length * radius) * factor, Math.max(ctx.canvas.height - (point - min) * factor, 0));
-                }
-                for (i = 0; i < profile.length; i++) {
-                    point = profile[i];
-                    ctx.lineTo(startX + (1 + i / profile.length) * radius * factor, Math.max(ctx.canvas.height - (point - min) * factor, 0));
-                }
+                drawProfile(profile, this.get('controller.job.toolDiameter') / 2);
                 ctx.stroke();
             }.observes('controller.model.tool', 'controller.3d_leaveStock')
         });
