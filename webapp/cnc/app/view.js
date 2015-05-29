@@ -246,9 +246,14 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter'
                         toolpath2.forEach(function (toolpath) {
                             threeDView.normalToolpathNode.addCollated(collectVertices(toolpath, operation.get('contourZ')));
                         });
+                    var missedArea = operation.get('missedArea');
+                    if (missedArea)
+                        missedArea.forEach(function (area) {
+                            threeDView.normalToolpathNode.addPolygons(area);
+                        });
                 }
                 threeDView.reRender();
-            }.observes('controller.currentOperation', 'controller.currentOperation.toolpath.@each', 'controller.currentOperation.toolpath'),
+            }.observes('controller.currentOperation', 'controller.currentOperation.toolpath.@each', 'controller.currentOperation.toolpath', 'controller.currentOperation.missedArea'),
             synchronizeCurrentShape: function () {
                 var highlightDisplay = this.get('highlightDisplay');
                 highlightDisplay.clear();
@@ -324,6 +329,7 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter'
                             ctx.lineTo(x, 0);
                     }
                 }
+
                 ctx.strokeStyle = "blue";
                 ctx.save();
                 ctx.setLineDash([8, 3]);

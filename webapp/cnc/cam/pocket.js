@@ -1,6 +1,6 @@
 "use strict";
 
-define(['RSVP', 'clipper', 'cnc/cam/cam', 'require'], function (RSVP, clipper, cam, require) {
+define(['RSVP', 'clipper', 'cnc/cam/cam', 'require', 'cnc/util'], function (RSVP, clipper, cam, require, util) {
 
     function lastItem(array) {
         return array[array.length - 1];
@@ -125,7 +125,11 @@ define(['RSVP', 'clipper', 'cnc/cam/cam', 'require'], function (RSVP, clipper, c
     function computeUndercut(shapePoly, outlineAtToolCenter, scaledToolRadius, tolerance) {
         co.ArcTolerance = tolerance;
         var undercut = offsetPolygon(outlineAtToolCenter, scaledToolRadius + tolerance);
-        return cam.polyOp(shapePoly, undercut, clipper.ClipType.ctDifference, false);
+        return cam.polyOp(shapePoly, undercut, clipper.ClipType.ctDifference, false).map(function (poly) {
+            return poly.map(function (point) {
+                return new util.Point(point.X, point.Y).scale(1 / cam.CLIPPER_SCALE);
+            });
+        });
     }
 
     function polyToPocketLayer(poly) {

@@ -41,9 +41,10 @@ var tasks = {
             operations[event.data.params.type]
                 .computeToolpath(event.data.params).then(function (toolpath) {
                     self.postMessage({
-                        toolpath: toolpath.map(function (p) {
+                        toolpath: toolpath.toolpath.map(function (p) {
                             return p.toJSON()
-                        })
+                        }),
+                        missedArea: toolpath.missedArea ? toolpath.missedArea : []
                     });
                 }).catch(function (e) {
                     console.log('error ', e);

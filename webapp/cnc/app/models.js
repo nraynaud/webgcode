@@ -182,12 +182,20 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     if (previousWorker)
                         previousWorker.terminate();
                     _this.set('toolpath', null);
+                    _this.set('missedArea', null);
                     var worker = new Worker(require.toUrl('worker.js'));
                     worker.onmessage = Ember.run.bind(this, function (event) {
                         _this.get('toolpathWorker').terminate();
                         _this.set('toolpathWorker', null);
                         _this.set('toolpath', event.data.toolpath.map(function (p) {
                             return tp.decodeToolPath(p)
+                        }));
+                        _this.set('missedArea', event.data.missedArea.map(function (polys) {
+                            return polys.map(function (poly) {
+                                return poly.map(function (point) {
+                                    return new util.Point(point.x, point.y, 0);
+                                });
+                            });
                         }));
                     });
                     worker.onerror = Ember.run.bind(this, function (error) {

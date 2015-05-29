@@ -53,7 +53,7 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                     toolpath.sort(function (path1, path2) {
                         return pointComparison(path1.getStartPoint(), path2.getStartPoint());
                     });
-                    resolve(toolpath);
+                    resolve({toolpath: toolpath});
                 });
             }
         },
@@ -77,15 +77,17 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                     contours.sort(function (path1, path2) {
                         return pointComparison(path1.getStartPoint(), path2.getStartPoint());
                     });
-                    resolve(contours.map(function (path) {
-                        var startPoint = path.getStartPoint();
-                        var generalPath = path.asGeneralToolpath(params.simple_contourZ);
-                        // plunge from safety plane
-                        generalPath.pushPointInFront(startPoint.x, startPoint.y, params.job.safetyZ);
-                        //close the loop
-                        generalPath.pushPointXYZ(startPoint.x, startPoint.y, params.simple_contourZ);
-                        return generalPath;
-                    }));
+                    resolve({
+                        toolpath: contours.map(function (path) {
+                            var startPoint = path.getStartPoint();
+                            var generalPath = path.asGeneralToolpath(params.simple_contourZ);
+                            // plunge from safety plane
+                            generalPath.pushPointInFront(startPoint.x, startPoint.y, params.job.safetyZ);
+                            //close the loop
+                            generalPath.pushPointXYZ(startPoint.x, startPoint.y, params.simple_contourZ);
+                            return generalPath;
+                        })
+                    });
                 });
             }
         },
@@ -120,7 +122,7 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                     toolpath.sort(function (path1, path2) {
                         return pointComparison(path1.getStartPoint(), path2.getStartPoint());
                     });
-                    resolve(toolpath);
+                    resolve({toolpath: toolpath});
                 });
             }
         },
@@ -145,14 +147,14 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                     var z = op.pocket_depth;
                     var safetyZ = op.job.safetyZ;
                     var toolpath = [];
+                    var missedArea = [];
                     var promises = result.workArray.map(function (unit) {
-                        return unit.promise
+                        return RSVP.hash({result: unit.promise, undercut: unit.undercutPromise});
                     });
                     resolve(RSVP.all(promises).then(function (workResult) {
                         workResult.forEach(function (result) {
-                            result.forEach(function (pocketResult, index) {
-                                var path;
-                                path = pocketResult.spiraledToolPath
+                            result.result.forEach(function (pocketResult, index) {
+                                var path = pocketResult.spiraledToolPath
                                     ? machine.fromClipper([pocketResult.spiraledToolPath.path])
                                     : machine.fromClipper(pocketResult.contour);
                                 path.forEach(function (path) {
@@ -164,8 +166,9 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                                     toolpath.push(generalPath);
                                 });
                             });
+                            missedArea.push(result.undercut);
                         });
-                        return toolpath;
+                        return {toolpath: toolpath, missedArea: missedArea};
                     }));
                 });
             }
@@ -221,11 +224,13 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                                 result.push(points[j]);
                         }
                         result.sort(pointComparison);
-                        resolve(result.map(function (point) {
-                            return tpForPoint(point);
-                        }));
+                        resolve({
+                            toolpath: result.map(function (point) {
+                                return tpForPoint(point);
+                            })
+                        });
                     } else
-                        resolve([tpForPoint(point)]);
+                        resolve({toolpath: [tpForPoint(point)]});
                 });
             }
         }

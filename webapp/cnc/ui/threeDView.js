@@ -1,6 +1,6 @@
 "use strict";
-define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cubeManipulator'],
-    function (THREE, TWEEN, util, OrbitControls, cubeManipulator) {
+define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cubeManipulator', 'libs/earcut.min'],
+    function (THREE, TWEEN, util, OrbitControls, cubeManipulator, earcut) {
 
         function webglSupported() {
             try {
@@ -60,6 +60,22 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                         rawVertices[j * 3 + 2] = poly[j].z;
                     }
                     this.addCollated(rawVertices);
+                }
+            },
+            addPolygons: function (polygons) {
+                for (var i = 0; i < polygons.length; i++) {
+                    var poly = polygons[i];
+                    var rawVertices = new Float32Array(poly.length * 3);
+                    for (var j = 0; j < poly.length; j++) {
+                        rawVertices[j * 3 + 0] = poly[j].x;
+                        rawVertices[j * 3 + 1] = poly[j].y;
+                        rawVertices[j * 3 + 2] = poly[j].z;
+                    }
+                    var res = earcut(rawVertices, [], 3);
+                    var bufferedGeometry = new THREE.BufferGeometry();
+                    bufferedGeometry.addAttribute('position', new THREE.BufferAttribute(rawVertices, 3));
+                    bufferedGeometry.addAttribute('index', new THREE.BufferAttribute(new Uint16Array(res), 1));
+                    this.node.add(new THREE.Mesh(bufferedGeometry, this.meshMaterial));
                 }
             },
             addCollated: function (rawVertices) {
@@ -232,7 +248,12 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             $container.prepend(cubeManipulator(this));
             $container.prepend($('<div class="3DWarning" title="maybe one day" style="position:absolute; top:0; right: 0;">Sorry, there is no mouse selection in this view.</div>'));
             this.rapidToolpathNode = this.createDrawingNode(this.rapidMaterial);
-            this.normalToolpathNode = this.createDrawingNode(this.normalMaterial);
+            this.normalToolpathNode = this.createDrawingNode(this.normalMaterial, new THREE.MeshBasicMaterial({
+                color: 0x6622BB,
+                opacity: 0.5,
+                side: THREE.DoubleSide,
+                transparent: true
+            }));
             this.reRender();
         }
 
