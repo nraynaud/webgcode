@@ -140,7 +140,7 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                     if (leaveStock)
                         clipperPolygon = machine.offsetPolygon(clipperPolygon, -leaveStock);
                     var scaledToolRadius = parseFloat(op.job.toolDiameter) / 2 * cam.CLIPPER_SCALE;
-                    var result = pocket.createPocket(clipperPolygon, scaledToolRadius, op.pocket_engagement / 100, true);
+                    var result = pocket.createPocket(clipperPolygon, scaledToolRadius, op.pocket_engagement / 100, self['Worker'] == undefined);
 
                     var z = op.pocket_depth;
                     var safetyZ = op.job.safetyZ;
@@ -148,10 +148,13 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                     var promises = result.workArray.map(function (unit) {
                         return unit.promise
                     });
-                    RSVP.all(promises).then(function (workResult) {
+                    resolve(RSVP.all(promises).then(function (workResult) {
                         workResult.forEach(function (result) {
                             result.forEach(function (pocketResult, index) {
-                                var path = machine.fromClipper([pocketResult.spiraledToolPath.path]);
+                                var path;
+                                path = pocketResult.spiraledToolPath
+                                    ? machine.fromClipper([pocketResult.spiraledToolPath.path])
+                                    : machine.fromClipper(pocketResult.contour);
                                 path.forEach(function (path) {
                                     var startPoint = path.getStartPoint();
                                     var generalPath = path.asGeneralToolpath(z);
@@ -162,8 +165,8 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                                 });
                             });
                         });
-                        resolve(toolpath);
-                    });
+                        return toolpath;
+                    }));
                 });
             }
         },

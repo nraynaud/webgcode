@@ -240,15 +240,10 @@ define(['RSVP', 'clipper', 'cnc/cam/cam', 'require'], function (RSVP, clipper, c
             message: {operation: 'createPocket', poly: polygon, scaledToolRadius: scaledToolRadius, radialEngagementRatio: radialEngagementRatio},
             messageHandler: function (data) {
                 if (data['finished']) {
-                    var result = data['result'];
-                    require(['Ember'], function (Ember) {
-                        Ember.run(deferred, deferred.resolve, result);
-                    });
+                    deferred.resolve(data['result']);
                     return true;
                 } else if (data['operation'] == 'displayUndercutPoly')
-                    require(['Ember'], function (Ember) {
-                        Ember.run(undercutDeferred, undercutDeferred.resolve, data['polygon']);
-                    });
+                    undercutDeferred.resolve(data['polygon']);
                 return false;
             },
             promise: deferred.promise,
@@ -274,8 +269,8 @@ define(['RSVP', 'clipper', 'cnc/cam/cam', 'require'], function (RSVP, clipper, c
         var workArray = polygons.map(function (poly) {
             return createWork(poly, scaledToolRadius, radialEngagementRatio);
         });
-        window.workerPool = createWorkerPool(require.toUrl('worker.js'), workArray, 6);
-        return {workArray: workArray, abort: window.workerPool.abort};
+        self.workerPool = createWorkerPool(require.toUrl('worker.js'), workArray, 6);
+        return {workArray: workArray, abort: self.workerPool.abort};
     }
 
     function createPocketImmediately(polygons, scaledToolRadius, radialEngagementRatio) {

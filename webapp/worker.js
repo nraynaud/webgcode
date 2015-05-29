@@ -38,15 +38,16 @@ var tasks = {
                     return new util.Point(point.x, point.y, point.z);
                 });
             });
-            operations[event.data.params.type].
-                computeToolpath(event.data.params).then(function (toolpath) {
+            operations[event.data.params.type]
+                .computeToolpath(event.data.params).then(function (toolpath) {
                     self.postMessage({
                         toolpath: toolpath.map(function (p) {
                             return p.toJSON()
                         })
                     });
-                }).finally(function () {
-                    close();
+                }).catch(function (e) {
+                    console.log('error ', e);
+                    throw e;
                 });
         });
     },
