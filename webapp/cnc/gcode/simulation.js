@@ -1,6 +1,8 @@
 "use strict";
 define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
-
+    function scaledLine(axis, line, ratio) {
+        return line.from[axis] + ratio * (line.to[axis] - line.from[axis]);
+    }
     var COMPONENT_TYPES = {
         line: {
             length: function (line) {
@@ -19,6 +21,9 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
             },
             exitDirection: function (line) {
                 return COMPONENT_TYPES.line.entryDirection(line);
+            },
+            pointAtRatio: function (line, ratio) {
+                return line.from.lerp(line.to, ratio);
             },
             simulationSteps: function () {
                 return 40;
@@ -236,6 +241,8 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
 
         function discretize(segment) {
             var type = COMPONENT_TYPES[segment.type];
+
+            console.log(segment.type, type);
             var steps = type.simulationSteps(segment);
             var startTime = currentTime;
             for (var j = 1; j <= steps; j++) {
