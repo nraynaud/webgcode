@@ -147,6 +147,13 @@ define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util'
                 toolRadius = -toolRadius;
             return this.offsetPolygon(clipperPolygon, toolRadius);
         },
+        contourAndMissedArea: function (clipperPolygon, toolRadius, leaveStock, inside) {
+            var sign = inside ? -1 : 1;
+            var shape = this.offsetPolygon(clipperPolygon, sign * leaveStock);
+            var toolpath = this.offsetPolygon(clipperPolygon, sign * (leaveStock + toolRadius));
+            var missed = this.polyOp(shape, this.offsetPolygon(toolpath, -sign * toolRadius), clipper.ClipType.ctDifference);
+            return {toolpath: toolpath, missedArea: missed};
+        },
         registerToolPath: function (toolpath) {
             this.operations.push(toolpath);
         },

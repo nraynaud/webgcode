@@ -28,6 +28,17 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
         return pointmetric(p1) - pointmetric(p2);
     }
 
+    function contour(params, machine) {
+        var result = machine.contourAndMissedArea(params.outline.clipperPolyline, parseFloat(params.job.toolDiameter) / 2,
+            parseFloat(params.contour_leaveStock), params.contour_inside);
+        return {
+            contours: machine.fromClipper(result.toolpath, true, machine.contourAreaPositive(params.contour_inside, params.contour_climbMilling)),
+            missedArea: [machine.fromClipper(result.missedArea).map(function (poly) {
+                return poly.asGeneralToolpath(0).path;
+            })]
+        };
+    }
+
     return {
         'SimpleEngravingOperation': {
             label: 'Simple Engraving',
@@ -70,15 +81,13 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                 return new RSVP.Promise(function (resolve, reject) {
                     var machine = new cam.Machine(null);
                     machine.setParams(params.simple_contourZ, 10, 100);
-                    var offset = parseFloat(params.job.toolDiameter) / 2 + parseFloat(params.contour_leaveStock);
-                    var polygon1 = machine.contourClipper(params.outline.clipperPolyline, offset, params.contour_inside);
-                    var areaPositive = machine.contourAreaPositive(params.contour_inside, params.contour_climbMilling);
-                    var contours = machine.fromClipper(polygon1, true, areaPositive);
-                    contours.sort(function (path1, path2) {
+                    var result = contour(params, machine);
+                    result.contours.sort(function (path1, path2) {
                         return pointComparison(path1.getStartPoint(), path2.getStartPoint());
                     });
                     resolve({
-                        toolpath: contours.map(function (path) {
+                        missedArea: result.missedArea,
+                        toolpath: result.contours.map(function (path) {
                             var startPoint = path.getStartPoint();
                             var generalPath = path.asGeneralToolpath(params.simple_contourZ);
                             // plunge from safety plane
@@ -106,23 +115,16 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                 return new RSVP.Promise(function (resolve, reject) {
                     var machine = new cam.Machine(null);
                     machine.setParams(op.ramping_startZ, 10, 100);
-                    var clipperPolygon = op.outline.clipperPolyline;
-                    var offset = parseFloat(op.job.toolDiameter) / 2 + parseFloat(op.contour_leaveStock);
-                    var inside = op.contour_inside;
-                    var contour = machine.contourClipper(clipperPolygon, offset, inside);
-                    var areaPositive = machine.contourAreaPositive(inside, op.contour_climbMilling);
-                    var toolpath2 = machine.fromClipper(contour, true, areaPositive);
-                    var toolpath = machine.rampToolPathArray(toolpath2,
-                        op.ramping_startZ, op.ramping_stopZ, op.ramping_turns);
-                    var safetyZ = op.job.safetyZ;
+                    var result = contour(op, machine);
+                    var toolpath = machine.rampToolPathArray(result.contours, op.ramping_startZ, op.ramping_stopZ, op.ramping_turns);
                     toolpath.forEach(function (path) {
                         var startPoint = path.getStartPoint();
-                        path.pushPointInFront(startPoint.x, startPoint.y, safetyZ);
+                        path.pushPointInFront(startPoint.x, startPoint.y, op.job.safetyZ);
                     });
                     toolpath.sort(function (path1, path2) {
                         return pointComparison(path1.getStartPoint(), path2.getStartPoint());
                     });
-                    resolve({toolpath: toolpath});
+                    resolve({missedArea: result.missedArea, toolpath: toolpath});
                 });
             }
         },
@@ -143,9 +145,6 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                         clipperPolygon = machine.offsetPolygon(clipperPolygon, -leaveStock);
                     var scaledToolRadius = parseFloat(op.job.toolDiameter) / 2 * cam.CLIPPER_SCALE;
                     var result = pocket.createPocket(clipperPolygon, scaledToolRadius, op.pocket_engagement / 100, self['Worker'] == undefined);
-
-                    var z = op.pocket_depth;
-                    var safetyZ = op.job.safetyZ;
                     var toolpath = [];
                     var missedArea = [];
                     var promises = result.workArray.map(function (unit) {
@@ -159,10 +158,10 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                                     : machine.fromClipper(pocketResult.contour);
                                 path.forEach(function (path) {
                                     var startPoint = path.getStartPoint();
-                                    var generalPath = path.asGeneralToolpath(z);
+                                    var generalPath = path.asGeneralToolpath(op.pocket_depth);
                                     if (index == 0)
                                     // plunge from safety plane
-                                        generalPath.pushPointInFront(startPoint.x, startPoint.y, safetyZ);
+                                        generalPath.pushPointInFront(startPoint.x, startPoint.y, op.job.safetyZ);
                                     toolpath.push(generalPath);
                                 });
                             });
