@@ -60,6 +60,10 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             encodedStlModel: attr('string'),
             drillData: attr('string'),
             flipped: attr('boolean', {defaultValue: false}),
+            repetitionX: attr('number', {defaultValue: 1}),
+            repetitionY: attr('number', {defaultValue: 1}),
+            repetitionSpacingX: attr('number', {defaultValue: 1}),
+            repetitionSpacingY: attr('number', {defaultValue: 1}),
             rawPolyline: function () {
                 return cam.pathDefToPolygons(this.get('definition'));
             }.property('definition'),
@@ -70,12 +74,25 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 if (!polygons)
                     return polygons;
                 var scaleX = this.get('flipped') ? -1 : 1;
-                return polygons.map(function (poly) {
+                var beforeRepetition = polygons.map(function (poly) {
                     return poly.map(function (point) {
                         return new util.Point(scaleX * (point.x - ox), point.y - oy, point.z);
                     });
                 });
-            }.property('rawPolyline', 'flipped', 'job.offsetX', 'job.offsetY'),
+                var result = [];
+                var spacingX = this.get('repetitionSpacingX');
+                var spacingY = this.get('repetitionSpacingY');
+                for (var i = 0; i < this.get('repetitionX'); i++) {
+                    for (var j = 0; j < this.get('repetitionY'); j++) {
+                        for (var p = 0; p < polygons.length; p++) {
+                            result.push(beforeRepetition[p].map(function (point) {
+                                return point.add(new util.Point(i * spacingX, j * spacingY));
+                            }));
+                        }
+                    }
+                }
+                return result;
+            }.property('rawPolyline', 'flipped', 'repetitionSpacingX', 'repetitionSpacingY', 'repetitionX', 'repetitionY', 'job.offsetX', 'job.offsetY'),
             clipperPolyline: function () {
                 var polygons = this.get('polyline');
                 return polygons.map(function (poly) {

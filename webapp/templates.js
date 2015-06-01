@@ -914,6 +914,54 @@ function program13(depth0,data) {
     'type': ("checkbox"),
     'checked': ("flipped")
   },hashTypes:{'type': "STRING",'checked': "ID"},hashContexts:{'type': depth0,'checked': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+    data.buffer.push("\n                </td>\n            </tr>\n            <tr>\n                <th>X repetition:</th>\n                <td>\n                    ");
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'numericValue': ("repetitionX"),
+            'min': (1),
+            'step': (1)
+        },
+        hashTypes: {'numericValue': "ID", 'min': "INTEGER", 'step': "INTEGER"},
+        hashContexts: {'numericValue': depth0, 'min': depth0, 'step': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+    data.buffer.push("\n                </td>\n            </tr>\n            <tr>\n                <th>Y repetition:</th>\n                <td>\n                    ");
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'numericValue': ("repetitionY"),
+            'min': (1),
+            'step': (1)
+        },
+        hashTypes: {'numericValue': "ID", 'min': "INTEGER", 'step': "INTEGER"},
+        hashContexts: {'numericValue': depth0, 'min': depth0, 'step': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+    data.buffer.push("\n                </td>\n            </tr>\n            <tr>\n                <th>X Spacing:</th>\n                <td>\n                    ");
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'numericValue': ("repetitionSpacingX")
+        },
+        hashTypes: {'numericValue': "ID"},
+        hashContexts: {'numericValue': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+    data.buffer.push("\n                </td>\n            </tr>\n            <tr>\n                <th>Y Spacing:</th>\n                <td>\n                    ");
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'numericValue': ("repetitionSpacingY")
+        },
+        hashTypes: {'numericValue': "ID"},
+        hashContexts: {'numericValue': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n                </td>\n            </tr>\n        ");
   return buffer;
   }
