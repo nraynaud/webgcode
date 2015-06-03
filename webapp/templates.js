@@ -612,15 +612,7 @@ function program14(depth0,data) {
   data.buffer.push(" Compute Speed and Feed</td>\n        </tr>\n        ");
   stack1 = helpers['if'].call(depth0, "computeSpeedFeed", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n        <tr>\n            <th title=\"in mm\">X Offset:</th>\n            <td class=\"input-group input-group-sm\">");
-  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
-    'numericValue': ("offsetX")
-  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-  data.buffer.push("\n                <span class=\"input-group-addon\">mm</span></td>\n        </tr>\n        <tr>\n            <th title=\"in mm\">Y Offset:</th>\n            <td class=\"input-group input-group-sm\">");
-  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
-    'numericValue': ("offsetY")
-  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-  data.buffer.push("\n                <span class=\"input-group-addon\">mm</span></td>\n        </tr>\n        <tr>\n            <th title=\"travel path is displayed in red\">Display Travel</th>\n            <td>");
+  data.buffer.push("\n        <tr>\n            <th title=\"travel path is displayed in red\">Display Travel</th>\n            <td>");
   data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
     'type': ("checkbox"),
     'checked': ("showTravel")
@@ -918,67 +910,39 @@ function program13(depth0,data) {
   return buffer;
   }
 
-    function program15(depth0, data) {
+function program15(depth0,data) {
+  
+  var buffer = '';
+  data.buffer.push("\n        \n        ");
+  return buffer;
+  }
 
-        var buffer = '';
-        data.buffer.push("\n            \n        ");
-        return buffer;
-    }
-
-    function program17(depth0, data) {
-
-        var buffer = '', helper, options;
-        data.buffer.push("\n            <tr>\n                <th>X repetition:</th>\n                <td>\n                    ");
-        data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-            hash: {
-                'numericValue': ("repetitionX"),
-                'min': (1),
-                'step': (1)
-            },
-            hashTypes: {'numericValue': "ID", 'min': "INTEGER", 'step': "INTEGER"},
-            hashContexts: {'numericValue': depth0, 'min': depth0, 'step': depth0},
-            contexts: [],
-            types: [],
-            data: data
-        }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-        data.buffer.push("\n                </td>\n            </tr>\n            <tr>\n                <th>Y repetition:</th>\n                <td>\n                    ");
-        data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-            hash: {
-                'numericValue': ("repetitionY"),
-                'min': (1),
-                'step': (1)
-            },
-            hashTypes: {'numericValue': "ID", 'min': "INTEGER", 'step': "INTEGER"},
-            hashContexts: {'numericValue': depth0, 'min': depth0, 'step': depth0},
-            contexts: [],
-            types: [],
-            data: data
-        }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-        data.buffer.push("\n                </td>\n            </tr>\n            <tr>\n                <th>X Spacing:</th>\n                <td>\n                    ");
-        data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-            hash: {
-                'numericValue': ("repetitionSpacingX")
-            },
-            hashTypes: {'numericValue': "ID"},
-            hashContexts: {'numericValue': depth0},
-            contexts: [],
-            types: [],
-            data: data
-        }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-        data.buffer.push("\n                </td>\n            </tr>\n            <tr>\n                <th>Y Spacing:</th>\n                <td>\n                    ");
-        data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-            hash: {
-                'numericValue': ("repetitionSpacingY")
-            },
-            hashTypes: {'numericValue': "ID"},
-            hashContexts: {'numericValue': depth0},
-            contexts: [],
-            types: [],
-            data: data
-        }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-        data.buffer.push("\n                </td>\n            </tr>\n        ");
-        return buffer;
-    }
+function program17(depth0,data) {
+  
+  var buffer = '', helper, options;
+  data.buffer.push("\n            <tr>\n                <th>X repetition:</th>\n                <td>\n                    ");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("repetitionX"),
+    'min': (1),
+    'step': (1)
+  },hashTypes:{'numericValue': "ID",'min': "INTEGER",'step': "INTEGER"},hashContexts:{'numericValue': depth0,'min': depth0,'step': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push("\n                </td>\n            </tr>\n            <tr>\n                <th>Y repetition:</th>\n                <td>\n                    ");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("repetitionY"),
+    'min': (1),
+    'step': (1)
+  },hashTypes:{'numericValue': "ID",'min': "INTEGER",'step': "INTEGER"},hashContexts:{'numericValue': depth0,'min': depth0,'step': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push("\n                </td>\n            </tr>\n            <tr>\n                <th>X Spacing:</th>\n                <td>\n                    ");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("repetitionSpacingX")
+  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push("\n                </td>\n            </tr>\n            <tr>\n                <th>Y Spacing:</th>\n                <td>\n                    ");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("repetitionSpacingY")
+  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push("\n                </td>\n            </tr>\n        ");
+  return buffer;
+  }
 
   data.buffer.push("<div>\n    <table class=\"form\">\n        <tbody>\n        <tr class=\"form-header\">\n            <th>Name:</th>\n            <td>");
   data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
@@ -988,21 +952,10 @@ function program13(depth0,data) {
   data.buffer.push("</td>\n        </tr>\n        ");
   stack1 = helpers['if'].call(depth0, "isManual", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(13, program13, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-    data.buffer.push("\n        ");
-    stack1 = helpers['if'].call(depth0, "isPoint", {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        inverse: self.program(17, program17, data),
-        fn: self.program(15, program15, data),
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    });
-    if (stack1 || stack1 === 0) {
-        data.buffer.push(stack1);
-    }
-    data.buffer.push("\n        <tr>\n            <th>Bounds:</th>\n            <td>\n                <table>\n                    <tbody>\n                    <tr>\n                        <th>X:</th>\n                        <td>");
+  data.buffer.push("\n        ");
+  stack1 = helpers['if'].call(depth0, "isPoint", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(17, program17, data),fn:self.program(15, program15, data),contexts:[depth0],types:["ID"],data:data});
+  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+  data.buffer.push("\n        <tr>\n            <th>Bounds:</th>\n            <td>\n                <table>\n                    <tbody>\n                    <tr>\n                        <th>X:</th>\n                        <td>");
   data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number),options={hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data},helper ? helper.call(depth0, "boundingBox.x.min", options) : helperMissing.call(depth0, "number", "boundingBox.x.min", options))));
   data.buffer.push("</td>\n                        <td>→</td>\n                        <td>");
   data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number),options={hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data},helper ? helper.call(depth0, "boundingBox.x.max", options) : helperMissing.call(depth0, "number", "boundingBox.x.max", options))));
