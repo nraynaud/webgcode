@@ -40,7 +40,7 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
     return function (gerberText) {
         var currentPoint = new util.Point(0, 0);
         var coordinateParser = null;
-        var unitFactor = null;
+        var unitFactor = 25.4 * cam.CLIPPER_SCALE; //imperial by default
         var darkPolarity = true;
         var repetition = {xCount: 1, yCount: 1, xSpacing: 0, ySpacing: 0};
         var currentAperture = null;
@@ -536,8 +536,10 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
 
         function parseCommand(command) {
             var parser = firstLetterDict[command[0]];
-            if (!parser)
+            if (!parser) {
+                console.log('unrecognized file', command);
                 throw new Error('unrecognized file');
+            }
             else
                 return parser(command);
         }
@@ -548,30 +550,37 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
 
         gerberText = gerberText.replace(newLinesRegex, '');
         var commentLessFragments = [gerberText];
-        for (var i = 0; i < commentLessFragments.length; i++) {
-            var fragment = commentLessFragments[i];
-            if (fragment.length == 0)
-                continue;
-            var res = fragment.split(extendedInstructionRegex);
-            //ok, now res is a mix of [normalInst*normalInst*, %extended, %extended, normalInst*normalInst*]
-            for (var j = 0; j < res.length; j++) {
-                var fragment2 = res[j];
-                if (fragment2 == undefined || fragment2.length == 0)
+        console.log('parsing gerber ...');
+        try {
+            for (var i = 0; i < commentLessFragments.length; i++) {
+                var fragment = commentLessFragments[i];
+                if (fragment.length == 0)
                     continue;
-                var commands;
-                if (fragment2[0] == '%')
-                    commands = [fragment2.substring(1)];
-                else
-                    commands = fragment2.split('*');
-                for (var k = 0; k < commands.length; k++)
-                    if (commands[k].length) {
-                        var items = parseCommand(commands[k]);
-                        if (items)
-                            parseCommand(items);
-                    }
+                var res = fragment.split(extendedInstructionRegex);
+                //ok, now res is a mix of [normalInst*normalInst*, %extended, %extended, normalInst*normalInst*]
+                for (var j = 0; j < res.length; j++) {
+                    console.log(res[j]);
+                    var fragment2 = res[j];
+                    if (fragment2 == undefined || fragment2.length == 0)
+                        continue;
+                    var commands;
+                    if (fragment2[0] == '%')
+                        commands = [fragment2.substring(1)];
+                    else
+                        commands = fragment2.split('*');
+                    console.log(commands);
+                    for (var k = 0; k < commands.length; k++)
+                        if (commands[k].length) {
+                            var items = parseCommand(commands[k]);
+                            if (items)
+                                parseCommand(items);
+                        }
+                }
             }
+            collectCurrentWork();
+            return toPathDef();
+        } finally {
+            console.log('parsing done');
         }
-        collectCurrentWork();
-        return toPathDef();
     }
 });
