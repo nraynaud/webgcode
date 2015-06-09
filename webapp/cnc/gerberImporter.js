@@ -11,7 +11,6 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
     var dCodeRegex = /D(\d+)$/;
     var displacementRegex = /(?:X([+-]?\d+))?(?:Y([+-]?\d+))?(?:I([+-]?\d+))?(?:J([+-]?\d+))?/;
     var newLinesRegex = /\r?\n|\r/gm;
-    var commentRegex = /G(?:4|04)[^*]*[*]/gm;
     var extendedInstructionRegex = /([%][^%]*)[*][%]/gm;
 
     function fixOrientations(polys) {
@@ -325,6 +324,7 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
                 apertureDef.index = index;
                 aperturesTable[index] = apertureDef;
             },
+            D: parseMove,
             F: function (command) {
                 var result = command.split(/FS(L|T)(A|I)X(\d)(\d)Y(\d)(\d)/);
                 var integers = parseInt(result[3]);
@@ -336,6 +336,7 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
                     return unitFactor * parseInt(str) * Math.pow(10, omittedZero == 'L' ? -decimals : integers - str.length);
                 };
             },
+            G: parseMove,
             L: function (command) {
                 if (command[1] == 'N')
                     return;
@@ -347,6 +348,8 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
             },
             M: function (command) {
                 var result = command.split(/MO(IN|MM)/);
+                if (result.length <= 1 && result != 'M02')
+                    throw new Error('unrecognized file');
                 unitFactor = result[1] == 'MM' ? cam.CLIPPER_SCALE : 25.4 * cam.CLIPPER_SCALE;
             },
             S: function (command) {
@@ -367,7 +370,9 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
             },
             T: function (command) {
                 //ignore T for now
-            }
+            },
+            X: parseMove,
+            Y: parseMove
         };
 
         function g1() {
@@ -392,6 +397,8 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
             G2: g2,
             G03: g3,
             G3: g3,
+            G4: ignore,
+            G04: ignore,
             G36: function () {
                 closeCurrentPath();
                 isInRegion = true;
@@ -497,33 +504,41 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
             }
         }
 
+        function parseMove(command) {
+            var res = command.split(interpolationRegex);
+            var gcode = res[1];
+            var movement = null;
+            if (gcode) {
+                movement = res[2];
+                var handlers = gcodes[gcode];
+                if (handlers)
+                    handlers();
+                else
+                    console.log('G', gcode, handlers);
+            } else
+                movement = res[0];
+            var res2 = movement.split(dCodeRegex);
+            if (res2.length <= 1 && res <= 1) {
+                console.log('unrecognized file', res);
+                throw new Error('unrecognized file');
+            }
+            var dCode = parseFloat(res2[1]);
+            if (dCode >= 10) {
+                closeCurrentPath();
+                currentAperture = aperturesTable[dCode];
+                return;
+            }
+            if (isNaN(dCode))
+                return;
+            var res3 = displacementRegex.exec(res2[0]);
+            pushPoint(coordinateParser(res3[1]), coordinateParser(res3[2]), coordinateParser(res3[3]), coordinateParser(res3[4]), dCode);
+        }
+
         function parseCommand(command) {
             var parser = firstLetterDict[command[0]];
-            if (!parser) {
-                var res = command.split(interpolationRegex);
-                var gcode = res[1];
-                var movement = null;
-                if (gcode) {
-                    movement = res[2];
-                    var handlers = gcodes[gcode];
-                    if (handlers)
-                        handlers();
-                    else
-                        console.log('G', gcode, handlers);
-                } else
-                    movement = res[0];
-                var res2 = movement.split(dCodeRegex);
-                var dCode = parseFloat(res2[1]);
-                if (dCode >= 10) {
-                    closeCurrentPath();
-                    currentAperture = aperturesTable[dCode];
-                    return;
-                }
-                if (isNaN(dCode))
-                    return;
-                var res3 = displacementRegex.exec(res2[0]);
-                pushPoint(coordinateParser(res3[1]), coordinateParser(res3[2]), coordinateParser(res3[3]), coordinateParser(res3[4]), dCode);
-            } else
+            if (!parser)
+                throw new Error('unrecognized file');
+            else
                 return parser(command);
         }
 
@@ -532,27 +547,25 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
         }
 
         gerberText = gerberText.replace(newLinesRegex, '');
-        var commentLessFragments = gerberText.split(commentRegex);
+        var commentLessFragments = [gerberText];
         for (var i = 0; i < commentLessFragments.length; i++) {
             var fragment = commentLessFragments[i];
             if (fragment.length == 0)
                 continue;
             var res = fragment.split(extendedInstructionRegex);
-            if (res.length == 1)
-                throw new Error('unrecognized file');
             //ok, now res is a mix of [normalInst*normalInst*, %extended, %extended, normalInst*normalInst*]
-            for (i = 0; i < res.length; i++) {
-                fragment = res[i];
-                if (fragment.length == 0)
+            for (var j = 0; j < res.length; j++) {
+                var fragment2 = res[j];
+                if (fragment2 == undefined || fragment2.length == 0)
                     continue;
                 var commands;
-                if (fragment[0] == '%')
-                    commands = [fragment.substring(1)];
+                if (fragment2[0] == '%')
+                    commands = [fragment2.substring(1)];
                 else
-                    commands = fragment.split('*');
-                for (var j = 0; j < commands.length; j++)
-                    if (commands[j].length) {
-                        var items = parseCommand(commands[j]);
+                    commands = fragment2.split('*');
+                for (var k = 0; k < commands.length; k++)
+                    if (commands[k].length) {
+                        var items = parseCommand(commands[k]);
                         if (items)
                             parseCommand(items);
                     }
