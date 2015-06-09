@@ -211,7 +211,7 @@ define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util'
         offsetPolygon: function (polygon, radius) {
             var result = [];
             var co = new clipper.ClipperOffset(2, 0.0001 * this.clipperScale);
-            co.AddPaths(polygon, clipper.JoinType.jtRound, clipper.EndType.etClosedPolygon);
+            co.AddPaths(polyOp(polygon, [], clipper.ClipType.ctUnion), clipper.JoinType.jtRound, clipper.EndType.etClosedPolygon);
             co.Execute(result, radius * this.clipperScale);
             return result;
         },
