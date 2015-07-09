@@ -29,7 +29,11 @@ define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util'
 
     function showClipperPolygon(group, polygon, stroke) {
         $.each(polygon, function (_, polygon) {
-            var path = group.path('', true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: stroke == null ? 'yellow' : stroke});
+            var path = group.path('', true).attr({
+                'vector-effect': 'non-scaling-stroke',
+                fill: 'none',
+                stroke: stroke == null ? 'yellow' : stroke
+            });
             pushPolygonOn(path, polygon);
         });
     }
@@ -70,7 +74,7 @@ define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util'
 
     var geom = (function () {
         function op(l, x, y) {
-            return  l + x + ',' + y;
+            return l + x + ',' + y;
         }
 
         function createCircle(centerX, centerY, radius) {
@@ -89,7 +93,7 @@ define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util'
 
         function createRelativeRectangle(xSpan, ySpan) {
             function lineTo(x, y) {
-                return  'l' + x + ',' + y;
+                return 'l' + x + ',' + y;
             }
 
             return lineTo(xSpan, 0) + lineTo(0, ySpan) + lineTo(-xSpan, 0) + 'Z';
@@ -107,10 +111,12 @@ define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util'
             return polygon;
         }
 
-        return {createCircle: createCircle,
+        return {
+            createCircle: createCircle,
             createRelativeRectangle: createRelativeRectangle,
             op: op,
-            closePolygons: closePolygons};
+            closePolygons: closePolygons
+        };
     })();
 
     function createDrillHole(x, y) {
@@ -135,7 +141,11 @@ define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util'
         },
         createOutline: function (definition, color) {
             this.outlines.push({definition: definition, color: color});
-            return this.paper.path(definition, true).attr({'vector-effect': 'non-scaling-stroke', fill: 'none', stroke: color == null ? 'yellow' : color});
+            return this.paper.path(definition, true).attr({
+                'vector-effect': 'non-scaling-stroke',
+                fill: 'none',
+                stroke: color == null ? 'yellow' : color
+            });
         },
         contouring: function (shapePath, toolRadius, inside, climbMilling) {
             var clipperPolygon = this.toClipper(shapePath);
@@ -147,7 +157,33 @@ define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util'
                 toolRadius = -toolRadius;
             return this.offsetPolygon(clipperPolygon, toolRadius);
         },
+
         contourAndMissedArea: function (clipperPolygon, toolRadius, leaveStock, inside) {
+            function polygonDifference(p1, p2) {
+                var p1_0 = p1.Contour()[0];
+                var p2_0 = p2.Contour()[0];
+                return util.morton(p1_0.X, p1_0.Y) - util.morton(p2_0.X, p2_0.Y);
+            }
+
+            function reorderPolytreeForContour(polytree) {
+                var result = [];
+                var outerStack = polytree.Childs().slice().sort(polygonDifference);
+                for (var j = 0; j < outerStack.length; j++) {
+                    var outerNode = outerStack[j];
+                    var holes = outerNode.Childs().slice().sort(polygonDifference);
+                    for (var i = 0; i < holes.length; i++) {
+                        result = result.concat(reorderPolytreeForContour(holes[i]));
+                        result.push(holes[i].Contour());
+                    }
+                    result.push(outerNode.Contour());
+                }
+                return result;
+            }
+
+            function orderContourInside2Outside(clipperContour) {
+                return reorderPolytreeForContour(polyOp(clipperContour, [], clipper.ClipType.ctUnion, true));
+            }
+
             var sign = inside ? -1 : 1;
             clipperPolygon = this.polyOp(clipperPolygon, [], clipper.ClipType.ctUnion);
             var shape = this.offsetPolygon(clipperPolygon, sign * leaveStock);
@@ -156,7 +192,7 @@ define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util'
             if (!inside)
                 polygons.reverse();
             var missed = this.polyOp(polygons[0], polygons[1], clipper.ClipType.ctDifference);
-            return {toolpath: toolpath, missedArea: missed};
+            return {toolpath: orderContourInside2Outside(toolpath), missedArea: missed};
         },
         registerToolPath: function (toolpath) {
             this.operations.push(toolpath);

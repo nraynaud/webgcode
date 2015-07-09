@@ -1,31 +1,7 @@
 "use strict";
-define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (RSVP, cam, tp, pocket) {
+define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util'], function (RSVP, cam, tp, pocket, util) {
     function attr(type, options) {
         return {type: type, options: options};
-    }
-
-    // stolen from https://github.com/kkaefer/node-morton/blob/master/lib/morton.js
-    var X = [0, 1], Y = [0, 2];
-    for (var i = 4; i < 0xFFFF; i <<= 2) {
-        for (var j = 0, l = X.length; j < l; j++) {
-            X.push((X[j] | i));
-            Y.push((X[j] | i) << 1);
-        }
-    }
-
-    // Only works for 24 bit input numbers (up to 16777215).
-    function morton(x, y) {
-        return (Y[y & 0xFF] | X[x & 0xFF]) +
-            (Y[(y >> 8) & 0xFF] | X[(x >> 8) & 0xFF]) * 0x10000 +
-            (Y[(y >> 16) & 0xFF] | X[(x >> 16) & 0xFF]) * 0x100000000;
-    }
-
-    function pointmetric(p) {
-        return morton(p.x, p.y)
-    }
-
-    function pointComparison(p1, p2) {
-        return pointmetric(p1) - pointmetric(p2);
     }
 
     function contour(params, machine) {
@@ -82,9 +58,6 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                     var machine = new cam.Machine(null);
                     machine.setParams(params.simple_contourZ, 10, 100);
                     var result = contour(params, machine);
-                    result.contours.sort(function (path1, path2) {
-                        return pointComparison(path1.getStartPoint(), path2.getStartPoint());
-                    });
                     resolve({
                         missedArea: result.missedArea,
                         toolpath: result.contours.map(function (path) {
@@ -120,9 +93,6 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                     toolpath.forEach(function (path) {
                         var startPoint = path.getStartPoint();
                         path.pushPointInFront(startPoint.x, startPoint.y, op.job.safetyZ);
-                    });
-                    toolpath.sort(function (path1, path2) {
-                        return pointComparison(path1.getStartPoint(), path2.getStartPoint());
                     });
                     resolve({missedArea: result.missedArea, toolpath: toolpath});
                 });
@@ -205,6 +175,10 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                     var point = op.outline.point;
                     var safetyZ = op.job.safetyZ;
 
+                    function pointComparison(p1, p2) {
+                        return util.morton(p1.x, p1.y) - util.morton(p2.x, p2.y);
+                    }
+
                     function tpForPoint(point) {
                         var path = new tp.GeneralPolylineToolpath();
                         path.pushPointXYZ(point.x - op.job.offsetX, point.y - op.job.offsetY, safetyZ);
@@ -222,6 +196,7 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket'], function (
                             for (var j = 0; j < points.length; j++)
                                 result.push(points[j]);
                         }
+
                         result.sort(pointComparison);
                         resolve({
                             toolpath: result.map(function (point) {
