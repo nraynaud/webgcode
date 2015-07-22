@@ -160,7 +160,7 @@
             height: 0;
         }
 
-        .estopframe.estop {
+        .estopframe.estop, .estopframe.tool-probe {
             background: orangered;
             color: black;
             -webkit-animation-name: blinker;
@@ -182,11 +182,11 @@
             animation-direction: alternate;
         }
 
-        .estopframe.estop:before {
+        .estopframe.estop:before, .estopframe.tool-probe:before {
             border-bottom-color: orangered;
         }
 
-        .estopframe.estop:after {
+        .estopframe.estop:after, .estopframe.tool-probe:after {
             border-top-color: orangered;
         }
 

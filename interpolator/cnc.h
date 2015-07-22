@@ -78,6 +78,8 @@ extern void executeNextStep();
 
 extern uint32_t isEmergencyStopped();
 
+extern uint32_t isToolProbeTripped();
+
 extern void initUSB();
 
 extern int32_t readFromProgram(uint32_t count, uint8_t *array);

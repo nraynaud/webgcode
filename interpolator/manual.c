@@ -5,7 +5,7 @@
 
 static const struct {
     GPIO_TypeDef *gpio;
-    uint16_t manualButton, xControl, yControl, zControl;
+    uint16_t manualButton, xControl, yControl, zControl, toolLength;
     int8_t xOrientation, yOrientation, zOrientation;
 } uiPinout = {
         .gpio = GPIOA,
@@ -13,6 +13,7 @@ static const struct {
         .xControl = GPIO_Pin_1,
         .yControl = GPIO_Pin_2,
         .zControl = GPIO_Pin_3,
+        .toolLength = GPIO_Pin_8,
         .xOrientation = 1,
         .yOrientation = 1,
         .zOrientation = 1};
@@ -82,6 +83,10 @@ static uint16_t deadlineForDate(float32_t speed, uint64_t date) {
     return (uint16_t) (period - date % period);
 }
 
+uint32_t isToolProbeTripped() {
+    return (uint32_t) !GPIO_ReadInputDataBit(uiPinout.gpio, uiPinout.toolLength);
+}
+
 static step_t nextStep(vec3f_t speed, uint64_t date) {
     step_t result = {
             .duration = 0,
@@ -112,6 +117,13 @@ static step_t nextStep(vec3f_t speed, uint64_t date) {
             }
             result.duration = deadlineZ;
         }
+    }
+    if (isToolProbeTripped()) {
+        // if tool length is tripped, only going z up is allowed
+        result.axes.xStep = 0;
+        result.axes.yStep = 0;
+        if (!result.axes.zDirection)
+            result.axes.zStep = 0;
     }
     return result;
 }
@@ -174,11 +186,15 @@ void initManualControls() {
     GPIO_Init(uiPinout.gpio, &(GPIO_InitTypeDef) {
             .GPIO_Pin = uiPinout.manualButton,
             .GPIO_Mode = GPIO_Mode_IN,
-            .GPIO_PuPd = GPIO_PuPd_NOPULL});
+            .GPIO_PuPd = GPIO_PuPd_DOWN});
     GPIO_Init(uiPinout.gpio, &(GPIO_InitTypeDef) {
             .GPIO_Pin = uiPinout.xControl | uiPinout.yControl | uiPinout.zControl,
             .GPIO_Mode = GPIO_Mode_AN,
             .GPIO_PuPd = GPIO_PuPd_NOPULL});
+    GPIO_Init(uiPinout.gpio, &(GPIO_InitTypeDef) {
+            .GPIO_Pin = uiPinout.toolLength,
+            .GPIO_Mode = GPIO_Mode_IN,
+            .GPIO_PuPd = GPIO_PuPd_UP});
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2, ENABLE);
     ADC_CommonInit(&(ADC_CommonInitTypeDef) {

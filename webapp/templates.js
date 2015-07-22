@@ -314,6 +314,12 @@ function program15(depth0,data) {
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n\n    <div class=\"control\">\n        <div ");
   data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
+      'class': (":estopframe toolProbe")
+  }, hashTypes: {'class': "STRING"}, hashContexts: {'class': depth0}, contexts: [], types: [], data: data
+  })));
+    data.buffer.push(">Tool Probe</div>\n        <div ");
+    data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {
+        hash: {
     'class': (":estopframe estop")
   },hashTypes:{'class': "STRING"},hashContexts:{'class': depth0},contexts:[],types:[],data:data})));
   data.buffer.push(">E-STOP</div>\n        <div class=\"position\">\n            <table>\n                <colgroup>\n                    <col>\n                    <col>\n                </colgroup>\n                <tbody>\n                ");

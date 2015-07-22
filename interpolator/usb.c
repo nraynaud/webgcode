@@ -128,7 +128,7 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                         case REQUEST_STATE: {
                             //using a static, so that it doesn't get cleaned up before the driver reads it
                             static volatile uint32_t state[2];
-                            state[0] = isEmergencyStopped() << 16 | cncMemory.state;
+                            state[0] = isToolProbeTripped() << 17 | isEmergencyStopped() << 16 | cncMemory.state;
                             state[1] = 0;
                             if (cncMemory.state == RUNNING_PROGRAM || cncMemory.state == ABORTING_PROGRAM)
                                 state[1] = circularBuffer.programID;

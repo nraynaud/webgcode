@@ -120,7 +120,9 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
             var dataView = new DataView(data);
             var state = dataView.getUint16(0, true);
             this.set('currentState', state);
-            this.set('estop', !!dataView.getUint16(2, true));
+            var bitPart = dataView.getUint16(2, true);
+            this.set('estop', !!(bitPart & 1));
+            this.set('toolProbe', !!(bitPart & 2));
             this.set('programID', dataView.getUint32(4, true));
         },
         getParameters: function () {
