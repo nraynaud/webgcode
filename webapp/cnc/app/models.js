@@ -82,8 +82,10 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 var result = [];
                 var spacingX = this.get('repetitionSpacingX');
                 var spacingY = this.get('repetitionSpacingY');
-                for (var i = 0; i < this.get('repetitionX'); i++) {
-                    for (var j = 0; j < this.get('repetitionY'); j++) {
+                var repetitionX = this.get('repetitionX');
+                var repetitionY = this.get('repetitionY');
+                for (var i = 0; i < repetitionX; i++) {
+                    for (var j = 0; j < repetitionY; j++) {
                         for (var p = 0; p < polygons.length; p++) {
                             result.push(beforeRepetition[p].map(function (point) {
                                 return point.add(new util.Point(i * spacingX, j * spacingY));
@@ -141,7 +143,16 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 if (geometry.type != 'BufferGeometry')
                     geometry = new THREE.BufferGeometry().fromGeometry(geometry);
                 return geometry;
-            }.property('stlModel')
+            }.property('stlModel'),
+            shapeType: function () {
+                var isManual = this.get('type') == 'manual';
+                if (isManual && this.get('manualDefinition.type') == 'point'
+                    || !isManual && this.get('drillData'))
+                    return 'points';
+                if (!isManual && this.get('stlModel'))
+                    return '3D';
+                return 'polylines';
+            }.property('imported', 'stlModel', 'type', 'drillData', 'manualDefinition.type')
         });
 
         var operationDefinition = {

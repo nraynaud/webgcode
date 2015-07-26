@@ -80,6 +80,8 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter'
                                 }
                                 _this.get('controller').addShapes([shapes], file.name, {drillData: JSON.stringify(res2)});
                             }
+                            else
+                                throw new Error(error.message + error.stack);
                         } finally {
                             _this.set('isBusy', false);
                         }
