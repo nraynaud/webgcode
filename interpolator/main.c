@@ -120,7 +120,7 @@ void executeNextStep() {
         cncMemory.position.speed = 0;
 }
 
-void updatePosition(step_t step) {
+void updateMemoryPosition(step_t step) {
     if (step.axes.xStep)
         cncMemory.position.x += step.axes.xDirection ? 1 : -1;
     if (step.axes.yStep)
@@ -147,6 +147,17 @@ void clearStepIsOver() {
 
 uint32_t isEmergencyStopped() {
     return (uint32_t) !GPIO_ReadInputDataBit(eStopPinout.gpio, eStopPinout.eStopButton);
+}
+
+static void setStepGPIO(axes_t axes) {
+    uint16_t steps = 0;
+    if (axes.xStep)
+        steps |= motorsPinout.xStep;
+    if (axes.yStep)
+        steps |= motorsPinout.yStep;
+    if (axes.zStep)
+        steps |= motorsPinout.zStep;
+    GPIO_SetBits(motorsPinout.gpio, steps);
 }
 
 __attribute__ ((noreturn)) void main(void) {
@@ -210,15 +221,8 @@ __attribute__ ((noreturn)) void main(void) {
             tryToStartProgram();
         if (cncMemory.stepperState == DIRECTION_SET && stepTimeHasCome()) {
             if (cncMemory.currentStep.duration) {
-                uint16_t steps = 0;
-                if (cncMemory.currentStep.axes.xStep)
-                    steps |= motorsPinout.xStep;
-                if (cncMemory.currentStep.axes.yStep)
-                    steps |= motorsPinout.yStep;
-                if (cncMemory.currentStep.axes.zStep)
-                    steps |= motorsPinout.zStep;
-                GPIO_SetBits(motorsPinout.gpio, steps);
-                updatePosition(cncMemory.currentStep);
+                setStepGPIO(cncMemory.currentStep.axes);
+                updateMemoryPosition(cncMemory.currentStep);
             }
             cncMemory.stepperState = STEP_SET;
             clearStepTimeHasCome();
