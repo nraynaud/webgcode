@@ -4,6 +4,10 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util']
         return {type: type, options: options};
     }
 
+    function pointComparison(p1, p2) {
+        return util.morton(p1.x, p1.y) - util.morton(p2.x, p2.y);
+    }
+
     function contour(params, machine) {
         var result = machine.contourAndMissedArea(params.outline.clipperPolyline, parseFloat(params.job.toolDiameter) / 2,
             parseFloat(params.contour_leaveStock), params.contour_inside);
@@ -174,10 +178,6 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util']
                     var stop = op.drilling_stopZ;
                     var point = op.outline.point;
                     var safetyZ = op.job.safetyZ;
-
-                    function pointComparison(p1, p2) {
-                        return util.morton(p1.x, p1.y) - util.morton(p2.x, p2.y);
-                    }
 
                     function tpForPoint(point) {
                         var path = new tp.GeneralPolylineToolpath();
