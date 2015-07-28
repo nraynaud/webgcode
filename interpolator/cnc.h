@@ -38,7 +38,8 @@ typedef struct {
     int32_t lastEvent[4];
     step_t currentStep;
     uint64_t tick;
-    stepper_state_t stepperState;
+    uint8_t spindleOutput;
+    uint8_t spindleInput;
 } cnc_memory_t;
 
 typedef enum {
@@ -50,7 +51,8 @@ typedef enum {
     READY = 0,
     RUNNING_PROGRAM = 1,
     MANUAL_CONTROL = 2,
-    ABORTING_PROGRAM = 3
+    ABORTING_PROGRAM = 3,
+    PAUSED_PROGRAM = 4
 } cnc_state_t;
 
 enum {
@@ -61,6 +63,14 @@ enum {
     ENTER_MANUAL_MODE = 4,
     EXIT_MANUAL_MODE = 5
 };
+
+//http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html
+
+#define crBegin static int state=0; switch(state) { case 0:
+#define crFinish state=0;}
+#define crReturn do { state=0; return; } while (0)
+#define crComeBackLater do { state=__LINE__; return; \
+                         case __LINE__:; } while (0)
 
 #define INTERRUPT_PACKET_SIZE         24
 #define INTERRUPT_ENDPOINT_NUM        1
@@ -73,8 +83,6 @@ enum {
 #define BULK_ENDPOINT                 (BULK_ENDPOINT_DIR|BULK_ENDPOINT_NUM)
 
 extern volatile cnc_memory_t cncMemory;
-
-extern void executeNextStep();
 
 extern uint32_t isEmergencyStopped();
 

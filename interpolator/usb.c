@@ -33,7 +33,9 @@ enum {
     REQUEST_TOGGLE_MANUAL_STATE = 3,
     REQUEST_DEFINE_AXIS_POSITION = 4,
     REQUEST_ABORT = 5,
-    REQUEST_CLEAR_ABORT = 6
+    REQUEST_CLEAR_ABORT = 6,
+    REQUEST_SET_SPINDLE_OUTPUT = 7,
+    REQUEST_RESUME_PROGRAM = 8
 };
 
 typedef enum {
@@ -128,7 +130,7 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                         case REQUEST_STATE: {
                             //using a static, so that it doesn't get cleaned up before the driver reads it
                             static volatile uint32_t state[2];
-                            state[0] = isToolProbeTripped() << 17 | isEmergencyStopped() << 16 | cncMemory.state;
+                            state[0] = cncMemory.spindleInput << 24 | isToolProbeTripped() << 17 | isEmergencyStopped() << 16 | cncMemory.state;
                             state[1] = 0;
                             if (cncMemory.state == RUNNING_PROGRAM || cncMemory.state == ABORTING_PROGRAM)
                                 state[1] = circularBuffer.programID;
@@ -157,10 +159,17 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                             USBD_CtlPrepareRx(pdev, (uint8_t *) controlEndpointState.positionBuffer, sizeof(controlEndpointState.positionBuffer));
                             USBD_CtlSendStatus(pdev);
                             return USBD_OK;
+                        case REQUEST_SET_SPINDLE_OUTPUT:
+                            STM_EVAL_LEDToggle(LED4);
+                            cncMemory.spindleOutput = (uint8_t) req->wValue;
+                            return USBD_OK;
                         case REQUEST_ABORT:
                             cncMemory.state = ABORTING_PROGRAM;
                             //connect the endpoint to the drain
                             DCD_EP_PrepareRx(&usbDevice, BULK_ENDPOINT, buffer, BUFFER_SIZE);
+                            return USBD_OK;
+                        case REQUEST_RESUME_PROGRAM:
+                            cncMemory.state = RUNNING_PROGRAM;
                             return USBD_OK;
                         case REQUEST_CLEAR_ABORT:
                             DCD_EP_PrepareRx(&usbDevice, BULK_ENDPOINT, buffer, BUFFER_SIZE);
@@ -222,21 +231,31 @@ void checkProgramEnd() {
 
 void copyUSBufferIfPossible() {
     static uint32_t lastSignal = 0;
-    uint32_t seenSignal = circularBuffer.signaled;
-    if (seenSignal != lastSignal) {
-        uint32_t count = USBD_GetRxCount(&usbDevice, BULK_ENDPOINT_NUM);
-        if (fillLevel() < CIRCULAR_BUFFER_SIZE - count) {
-            for (uint32_t i = 0; i < count; i++) {
-                circularBuffer.buffer[circularBuffer.writeCount % CIRCULAR_BUFFER_SIZE] = buffer[i];
-                circularBuffer.writeCount++;
+    static uint32_t seenSignal = 0;
+    static uint32_t count;
+    crBegin;
+            do {
+                seenSignal = circularBuffer.signaled;
+                crComeBackLater;
+            } while (seenSignal == lastSignal);
+            count = USBD_GetRxCount(&usbDevice, BULK_ENDPOINT_NUM);
+            while (fillLevel() >= CIRCULAR_BUFFER_SIZE - count) {
+                STM_EVAL_LEDOn(LED4);
+                crComeBackLater;
             }
+            unsigned int bufferPosition = circularBuffer.writeCount % CIRCULAR_BUFFER_SIZE;
+            int overflowingCount = bufferPosition + count - CIRCULAR_BUFFER_SIZE;
+            if (overflowingCount < 0)
+                overflowingCount = 0;
+            unsigned int saturatedCount = count - overflowingCount;
+            memcpy(circularBuffer.buffer + bufferPosition, buffer, saturatedCount);
+            if (overflowingCount > 0)
+                memcpy(circularBuffer.buffer, buffer + saturatedCount, overflowingCount);
+            circularBuffer.writeCount += count;
             lastSignal = seenSignal;
             DCD_EP_PrepareRx(&usbDevice, BULK_ENDPOINT, buffer, BUFFER_SIZE);
             STM_EVAL_LEDOff(LED4);
-        } else {
-            STM_EVAL_LEDOn(LED4);
-        }
-    }
+    crFinish;
 }
 
 static uint8_t cncDataOut(void *pdev, uint8_t epnum) {

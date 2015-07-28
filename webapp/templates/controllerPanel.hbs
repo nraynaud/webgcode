@@ -1,21 +1,30 @@
 <div id="header" {{bind-attr class="connection.opened:connected"}}>
     {{#if connection.opened}}
         {{#if isProgramRunnable}}
-            <button id='send' {{action "sendProgram"}}>Send Program</button>
+            <button {{action "sendProgram"}}><i class="fa fa-play"></i> Send Program</button>
         {{/if}}
         {{#if isProgramAbortable}}
-            <button id='abort' {{action "abort"}}>Abort</button>
+            <button {{action "abort"}}><i class="fa fa-eject"></i> Abort</button>
+        {{/if}}
+        {{#if isResumable}}
+            <button {{action "resumeProgram"}}><i class="fa fa-play"></i> Resume</button>
         {{/if}}
         {{#if isManualModeTogglable}}
-            <button id='manualControl' {{action "setManualMode"}}>{{manualButtonLabel}}</button>
+            <button id='manualControl' {{action "setManualMode"}}><i class="fa fa-arrows-alt"></i> {{manualButtonLabel}}
+            </button>
         {{/if}}
+
     {{else}}
-        <button id='connect' {{action "connect"}}>Connect</button>
+        <button id='connect' {{action "connect"}}><i class="fa fa-plug"></i> Connect</button>
     {{/if}}
 
     <div class="control">
         <div {{bind-attr class=":estopframe toolProbe"}}>Tool Probe</div>
         <div {{bind-attr class=":estopframe estop"}}>E-STOP</div>
+        <div {{bind-attr class=":spindle spindleRunning"}}>Spindle <br>
+            <button {{action "toggleSpindle"}}>{{spindleButtonLabel}}</button>
+        </div>
+
         <div class="position">
             <table>
                 <colgroup>
@@ -41,17 +50,17 @@
         </div>
         <div class="controlButtons">
             <div class="xyBlock">
-                <button class="axisButton" {{action "move" "Y+" }}>Y+</button>
+                <button class="axisButton" {{action "move" "Y+" }}><i class="fa fa-arrow-up"></i> Y+</button>
                 <div class="centerRow">
-                    <button class="axisButton" {{action "move" "X-" }}>X-</button>
-                    <button class="axisButton" {{action "move" "X+" }}>X+</button>
+                    <button class="axisButton" {{action "move" "X-" }}><i class="fa fa-arrow-left"></i> X-</button>
+                    <button class="axisButton" {{action "move" "X+" }}><i class="fa fa-arrow-right"></i> X+</button>
                 </div>
-                <button class="axisButton" {{action "move" "Y-" }}>Y-</button>
+                <button class="axisButton" {{action "move" "Y-" }}><i class="fa fa-arrow-down"></i> Y-</button>
             </div>
             <div class="zBlock">
-                <button class="axisButton" {{action "move" "Z+" }}>Z+</button>
+                <button class="axisButton" {{action "move" "Z+" }}><i class="fa fa-arrow-circle-up"></i> Z+</button>
                 <div>&nbsp;</div>
-                <button class="axisButton" {{action "move" "Z-" }}>Z-</button>
+                <button class="axisButton" {{action "move" "Z-" }}><i class="fa fa-arrow-circle-down"></i> Z-</button>
             </div>
         </div>
         <div class="controlParams">

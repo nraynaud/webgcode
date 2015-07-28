@@ -235,13 +235,24 @@ void initManualControls() {
     ADC_SoftwareStartConv(ADC1);
 }
 
-#define UI_DEBOUNCE_MAX_CHECKS 50
-#define SYSTICK_UI_DEBOUNCE_SCALING_FACTOR 50
+#define UI_DEBOUNCE_MAX_CHECKS 1000
+
+void handleButton() {
+    static int pressCounts = 0;
+    static uint8_t rawValue = 0;
+    crBegin;
+            pressCounts = 0;
+            do {
+                rawValue = GPIO_ReadInputDataBit(uiPinout.gpio, uiPinout.manualButton);
+                crComeBackLater;
+            }
+            while (rawValue && ++pressCounts < UI_DEBOUNCE_MAX_CHECKS);
+            if (rawValue)
+                toggleManualMode();
+    crFinish;
+}
 
 void periodicUICallback(void) {
-    static uint8_t previousDebouncedValue;
-    static uint8_t stableValueTicks = 0;
-    static uint8_t lastRawValue;
     float32_t factor = 0.999f;
     manualControlStatus.filteredAdc.x = manualControlStatus.filteredAdc.x * factor
             + manualControlStatus.adcValue[0] * (1.0f - factor);
@@ -249,18 +260,5 @@ void periodicUICallback(void) {
             + manualControlStatus.adcValue[1] * (1.0f - factor);
     manualControlStatus.filteredAdc.z = manualControlStatus.filteredAdc.z * factor
             + manualControlStatus.adcValue[2] * (1.0f - factor);
-    if (cncMemory.tick % SYSTICK_UI_DEBOUNCE_SCALING_FACTOR == 0) {
-        uint8_t rawValue = GPIO_ReadInputDataBit(uiPinout.gpio, uiPinout.manualButton);
-        if (rawValue == lastRawValue) {
-            if (stableValueTicks < UI_DEBOUNCE_MAX_CHECKS)
-                stableValueTicks++;
-            else {
-                if (rawValue && !previousDebouncedValue)
-                    toggleManualMode();
-                previousDebouncedValue = rawValue;
-            }
-        } else
-            stableValueTicks = 1;
-        lastRawValue = rawValue;
-    }
+    handleButton();
 }

@@ -3,6 +3,7 @@
 #include "math.h"
 #include "arm_math.h"
 #include "cnc.h"
+#include "core_cm4.h"
 
 static const struct {
     GPIO_TypeDef *gpio;
@@ -33,6 +34,25 @@ static const struct {
         .extiPinSource = EXTI_PinSource14
 };
 
+static const struct {
+    GPIO_TypeDef *gpio;
+    uint32_t gpioAhb1Periph;
+    SPI_TypeDef *spi;
+    uint8_t spiAlternateFunction;
+    uint32_t spiApb1Periph;
+    uint16_t spiClock, spiMosi, spiMiso, spiEnablePin;
+} spindlePinout = {
+        .gpio = GPIOB,
+        .gpioAhb1Periph = RCC_AHB1Periph_GPIOB,
+        .spi = SPI2,
+        .spiAlternateFunction = GPIO_AF_SPI2,
+        .spiApb1Periph = RCC_APB1Periph_SPI2,
+        .spiClock = GPIO_Pin_13,
+        .spiMosi = GPIO_Pin_15,
+        .spiMiso = GPIO_Pin_14,
+        .spiEnablePin = GPIO_Pin_12
+};
+
 volatile cnc_memory_t cncMemory = {
         .position = {.x = 0, .y = 0, .z = 0, .speed = 0},
         .parameters = {
@@ -43,7 +63,9 @@ volatile cnc_memory_t cncMemory = {
         .state = READY,
         .lastEvent = {NULL_EVENT, 0, 0, 0},
         .tick = 0,
-        .stepperState = NOT_RUNNING};
+        .spindleOutput = 0,
+        .spindleInput = 0
+};
 
 static const struct {
     unsigned int x:1, y:1, z:1;
@@ -76,7 +98,8 @@ static int xor(int a, int b) {
     return (a && !b) || (!a && b);
 }
 
-static void executeStep(step_t step) {
+//returns 1 if a step was started
+static int startStep(step_t step) {
     //diagonal steps are longer than straight ones
     static float32_t stepFactors[] = {0, 1, 1.414213562f, 1.732050808f};
     float32_t minDuration = cncMemory.parameters.clockFrequency /
@@ -85,7 +108,6 @@ static void executeStep(step_t step) {
             | motorsPinout.yDirection | motorsPinout.yStep | motorsPinout.zDirection | motorsPinout.zStep);
     cncMemory.currentStep = step;
     if (step.duration) {
-        STM_EVAL_LEDOn(LED6);
         uint16_t directions = 0;
         if (xor(cncMemory.currentStep.axes.xDirection, motorDirection.x))
             directions |= motorsPinout.xDirection;
@@ -94,7 +116,6 @@ static void executeStep(step_t step) {
         if (xor(cncMemory.currentStep.axes.zDirection, motorDirection.z))
             directions |= motorsPinout.zDirection;
         GPIO_SetBits(motorsPinout.gpio, directions);
-        cncMemory.stepperState = DIRECTION_SET;
         uint32_t duration = step.duration;
         int32_t axesCount = step.axes.xStep + step.axes.yStep + step.axes.zStep;
         float32_t stepFactor = stepFactors[axesCount];
@@ -108,19 +129,24 @@ static void executeStep(step_t step) {
         TIM3->CNT = 0;
         TIM_SelectOnePulseMode(TIM3, TIM_OPMode_Single);
         TIM_Cmd(TIM3, ENABLE);
+        return 1;
     }
+    else
+        return 0;
 }
 
-void executeNextStep() {
+//returns 1 if a step was started
+int startNextStep() {
     if (cncMemory.state == MANUAL_CONTROL)
-        executeStep(nextManualStep());
+        return startStep(nextManualStep());
     else if (cncMemory.state == RUNNING_PROGRAM)
-        executeStep(nextProgramStep());
+        return startStep(nextProgramStep());
     else
         cncMemory.position.speed = 0;
+    return 0;
 }
 
-void updateMemoryPosition(step_t step) {
+static void updateMemoryPosition(step_t step) {
     if (step.axes.xStep)
         cncMemory.position.x += step.axes.xDirection ? 1 : -1;
     if (step.axes.yStep)
@@ -129,19 +155,19 @@ void updateMemoryPosition(step_t step) {
         cncMemory.position.z += step.axes.zDirection ? 1 : -1;
 }
 
-int stepTimeHasCome() {
+static int stepTimeHasCome() {
     return TIM_GetITStatus(TIM3, TIM_IT_CC1) != RESET;
 }
 
-void clearStepTimeHasCome() {
+static void clearStepTimeHasCome() {
     TIM_ClearITPendingBit(TIM3, TIM_IT_CC1);
 }
 
-int stepIsOver() {
+static int stepIsOver() {
     return TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET;
 }
 
-void clearStepIsOver() {
+static void clearStepIsOver() {
     TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
 }
 
@@ -158,6 +184,71 @@ static void setStepGPIO(axes_t axes) {
     if (axes.zStep)
         steps |= motorsPinout.zStep;
     GPIO_SetBits(motorsPinout.gpio, steps);
+}
+
+static void flashShiftRegisters() {
+    GPIO_ResetBits(spindlePinout.gpio, spindlePinout.spiEnablePin);
+    GPIO_SetBits(spindlePinout.gpio, spindlePinout.spiEnablePin);
+}
+
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "missing_default_case"
+
+static void handleSPI() {
+    crBegin;
+            flashShiftRegisters();
+            SPI_I2S_SendData(spindlePinout.spi, cncMemory.spindleOutput);
+            while ((spindlePinout.spi->SR & SPI_SR_TXE) == 0)
+                crComeBackLater;
+            while ((spindlePinout.spi->SR & SPI_SR_RXNE) == 0)
+                crComeBackLater;
+            cncMemory.spindleInput = (uint8_t) SPI_I2S_ReceiveData(spindlePinout.spi);
+            while ((spindlePinout.spi->SR & SPI_SR_BSY) != 0)
+                crComeBackLater;
+            flashShiftRegisters();
+    crFinish;
+}
+
+#pragma ide diagnostic ignored "missing_default_case"
+
+static void run() {
+    crBegin;
+            if (cncMemory.state == RUNNING_PROGRAM)
+                checkProgramEnd();
+            while (isEmergencyStopped() || cncMemory.state == PAUSED_PROGRAM)
+                crComeBackLater;
+            if (startNextStep()) {
+                STM_EVAL_LEDOn(LED6);
+                while (!stepTimeHasCome())
+                    crComeBackLater;
+                setStepGPIO(cncMemory.currentStep.axes);
+                updateMemoryPosition(cncMemory.currentStep);
+                clearStepTimeHasCome();
+                while (!stepIsOver())
+                    crComeBackLater;
+                STM_EVAL_LEDOff(LED6);
+                clearStepIsOver();
+            }
+    crFinish;
+}
+
+#pragma clang diagnostic pop
+
+static uint16_t myLog2(int value) {
+    return 31 - __builtin_clz(value);
+}
+
+static void handleSpindle() {
+    static uint64_t discrepancyStartTick = 0;
+    crBegin;
+            discrepancyStartTick = cncMemory.tick;
+            while (cncMemory.tick < discrepancyStartTick + 20000) {
+                if (!(cncMemory.spindleOutput & 1) || cncMemory.spindleInput & 2)
+                    crReturn;
+                crComeBackLater;
+            }
+            cncMemory.spindleOutput = (uint8_t) (cncMemory.spindleOutput & ~1);
+    crFinish;
 }
 
 __attribute__ ((noreturn)) void main(void) {
@@ -209,39 +300,70 @@ __attribute__ ((noreturn)) void main(void) {
     TIM_OC1PreloadConfig(TIM3, TIM_OCPreload_Disable);
     TIM_ITConfig(TIM3, TIM_IT_CC1 | TIM_IT_Update, ENABLE);
 
+    RCC_APB1PeriphClockCmd(spindlePinout.spiApb1Periph, ENABLE);
+    RCC_AHB1PeriphClockCmd(spindlePinout.gpioAhb1Periph, ENABLE);
+    GPIO_PinAFConfig(spindlePinout.gpio, myLog2(spindlePinout.spiClock), spindlePinout.spiAlternateFunction);
+    GPIO_PinAFConfig(spindlePinout.gpio, myLog2(spindlePinout.spiMosi), spindlePinout.spiAlternateFunction);
+    GPIO_PinAFConfig(spindlePinout.gpio, myLog2(spindlePinout.spiMiso), spindlePinout.spiAlternateFunction);
+    GPIO_Init(spindlePinout.gpio, &(GPIO_InitTypeDef) {
+            .GPIO_Pin = spindlePinout.spiEnablePin,
+            .GPIO_Mode = GPIO_Mode_OUT,
+            .GPIO_Speed = GPIO_Speed_100MHz,
+            .GPIO_OType = GPIO_OType_PP});
+    GPIO_Init(spindlePinout.gpio, &(GPIO_InitTypeDef) {
+            .GPIO_Pin = spindlePinout.spiClock | spindlePinout.spiMosi,
+            .GPIO_Mode = GPIO_Mode_AF,
+            .GPIO_Speed = GPIO_Speed_100MHz,
+            .GPIO_OType = GPIO_OType_PP,
+            .GPIO_PuPd = GPIO_PuPd_DOWN});
+    GPIO_Init(spindlePinout.gpio, &(GPIO_InitTypeDef) {
+            .GPIO_Pin = spindlePinout.spiMiso,
+            .GPIO_Mode = GPIO_Mode_AF,
+            .GPIO_Speed = GPIO_Speed_100MHz,
+            .GPIO_OType = GPIO_OType_PP,
+            .GPIO_PuPd = GPIO_PuPd_NOPULL});
+    SPI_I2S_DeInit(spindlePinout.spi);
+    SPI_Init(spindlePinout.spi, &(SPI_InitTypeDef) {
+            .SPI_Mode = SPI_Mode_Master,
+            .SPI_Direction = SPI_Direction_2Lines_FullDuplex,
+            .SPI_DataSize = SPI_DataSize_8b,
+            .SPI_CPOL = SPI_CPOL_High,
+            .SPI_CPHA = SPI_CPHA_1Edge,
+            .SPI_NSS = SPI_NSS_Soft,
+            .SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4,
+            .SPI_FirstBit = SPI_FirstBit_MSB,
+            .SPI_CRCPolynomial = 7
+    });
+    SPI_TIModeCmd(spindlePinout.spi, DISABLE);
+    SPI_Cmd(spindlePinout.spi, ENABLE);
+
     initUSB();
     initManualControls();
-    SysTick_Config(SystemCoreClock / cncMemory.parameters.clockFrequency);
+    SysTick_Config(SystemCoreClock / 100000 - 1);
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-noreturn"
     while (1) {
+        STM_EVAL_LEDOn(LED4);
+        if (isEmergencyStopped()) {
+            if (cncMemory.state == RUNNING_PROGRAM)
+                cncMemory.state = PAUSED_PROGRAM;
+            cncMemory.spindleOutput = (uint8_t) (cncMemory.spindleOutput & ~1);
+        }
+        handleSPI();
+        handleSpindle();
         copyUSBufferIfPossible();
         if (cncMemory.state == READY || cncMemory.state == MANUAL_CONTROL)
             tryToStartProgram();
-        if (cncMemory.stepperState == DIRECTION_SET && stepTimeHasCome()) {
-            if (cncMemory.currentStep.duration) {
-                setStepGPIO(cncMemory.currentStep.axes);
-                updateMemoryPosition(cncMemory.currentStep);
-            }
-            cncMemory.stepperState = STEP_SET;
-            clearStepTimeHasCome();
-        }
-        if (cncMemory.stepperState == STEP_SET && stepIsOver()) {
-            cncMemory.stepperState = NOT_RUNNING;
-            STM_EVAL_LEDOff(LED6);
-            clearStepIsOver();
-        }
-        if (cncMemory.state == RUNNING_PROGRAM && cncMemory.stepperState == NOT_RUNNING)
-            checkProgramEnd();
-        if (cncMemory.stepperState == NOT_RUNNING && !isEmergencyStopped()
-                && (cncMemory.state == RUNNING_PROGRAM || cncMemory.state == MANUAL_CONTROL))
-            executeNextStep();
+        run();
+        periodicUICallback();
+        STM_EVAL_LEDOff(LED4);
     }
 #pragma clang diagnostic pop
 }
 
 __attribute__ ((used)) void SysTick_Handler(void) {
+    STM_EVAL_LEDOn(LED5);
     cncMemory.tick++;
-    periodicUICallback();
+    STM_EVAL_LEDOff(LED5);
 }

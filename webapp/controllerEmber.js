@@ -34,6 +34,15 @@ require(['Ember', 'templates', 'cnc/ui/views', 'cnc/controller/CNCMachine'], fun
                 this.get('model').transmitProgram().finally(function () {
                     console.timeEnd('program');
                 });
+            },
+            resumeProgram: function () {
+                this.get('model').resumeProgram();
+            },
+            toggleSpindle: function () {
+                if (this.get('model.spindleRunning'))
+                    this.get('model').stopSpindle();
+                else
+                    this.get('model').startSpindle();
             }
         },
         increment: 10,
@@ -49,6 +58,10 @@ require(['Ember', 'templates', 'cnc/ui/views', 'cnc/controller/CNCMachine'], fun
                 return "manual";
             if (state == CNCMachine.STATES.RUNNING_PROGRAM)
                 return "running";
+            if (state == CNCMachine.STATES.ABORTING_PROGRAM)
+                return "aborting";
+            if (state == CNCMachine.STATES.PAUSED_PROGRAM)
+                return "paused";
             return "unknown";
         }.property('model.currentState'),
         manualButtonLabel: function () {
@@ -56,17 +69,26 @@ require(['Ember', 'templates', 'cnc/ui/views', 'cnc/controller/CNCMachine'], fun
                 "Stop Manual Jogging" : "Manual Jogging";
         }.property('model.currentState'),
         isManualModeTogglable: function () {
-            return this.get('model.currentState') != CNCMachine.STATES.RUNNING_PROGRAM;
+            return this.get('model.currentState') != CNCMachine.STATES.RUNNING_PROGRAM
+                && this.get('model.currentState') != CNCMachine.STATES.PAUSED_PROGRAM;
         }.property('model.currentState'),
         isProgramRunnable: function () {
-            return this.get('model.currentState') != CNCMachine.STATES.RUNNING_PROGRAM;
+            return this.get('model.currentState') != CNCMachine.STATES.RUNNING_PROGRAM
+                && this.get('model.currentState') != CNCMachine.STATES.PAUSED_PROGRAM;
         }.property('model.currentState'),
         isProgramAbortable: function () {
-            return this.get('model.currentState') == CNCMachine.STATES.RUNNING_PROGRAM;
+            return this.get('model.currentState') == CNCMachine.STATES.RUNNING_PROGRAM
+                || this.get('model.currentState') == CNCMachine.STATES.PAUSED_PROGRAM;
         }.property('model.currentState'),
         isBusy: function () {
             return this.get('model.currentState') == CNCMachine.STATES.RUNNING_PROGRAM;
-        }.property('model.currentState')
+        }.property('model.currentState'),
+        isResumable: function () {
+            return this.get('model.currentState') == CNCMachine.STATES.PAUSED_PROGRAM;
+        }.property('model.currentState'),
+        spindleButtonLabel: function () {
+            return this.get('model.spindleRunning') ? 'Stop' : 'Start';
+        }.property('model.spindleRunning')
     });
     CNCController.ApplicationView = Ember.View.extend({
         templateName: 'controllerPanel',

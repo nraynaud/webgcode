@@ -2,10 +2,11 @@
 define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/runner', 'cnc/util'], function (RSVP, $, Ember, Connection, Runner, util) {
     var CONTROL_COMMANDS = {
         REQUEST_POSITION: 0, REQUEST_PARAMETERS: 1, REQUEST_STATE: 2, REQUEST_TOGGLE_MANUAL_STATE: 3,
-        REQUEST_DEFINE_AXIS_POSITION: 4, REQUEST_ABORT: 5, REQUEST_CLEAR_ABORT: 6
+        REQUEST_DEFINE_AXIS_POSITION: 4, REQUEST_ABORT: 5, REQUEST_CLEAR_ABORT: 6, REQUEST_SET_SPINDLE_OUTPUT: 7,
+        REQUEST_RESUME_PROGRAM: 8
     };
     var EVENTS = {PROGRAM_END: 1, PROGRAM_START: 2, MOVED: 3, ENTER_MANUAL_MODE: 4, EXIT_MANUAL_MODE: 5};
-    var STATES = {READY: 0, RUNNING_PROGRAM: 1, MANUAL_CONTROL: 2, ABORTING_PROGRAM: 3};
+    var STATES = {READY: 0, RUNNING_PROGRAM: 1, MANUAL_CONTROL: 2, ABORTING_PROGRAM: 3, PAUSED_PROGRAM: 4};
     var Axis = Ember.Object.extend({
         name: null,
         position: 0,
@@ -120,9 +121,11 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
             var dataView = new DataView(data);
             var state = dataView.getUint16(0, true);
             this.set('currentState', state);
-            var bitPart = dataView.getUint16(2, true);
+            var bitPart = dataView.getUint8(2, true);
             this.set('estop', !!(bitPart & 1));
             this.set('toolProbe', !!(bitPart & 2));
+            this.set('spindleInput', dataView.getUint8(3, true));
+            this.set('spindleRunning', !!(this.get('spindleInput') & 2));
             this.set('programID', dataView.getUint32(4, true));
         },
         getParameters: function () {
@@ -158,6 +161,26 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
             $('#webView')[0].contentWindow.postMessage({type: 'gimme program', parameters: this.getParameters()}, '*',
                 [this.get('runner').getCodeChannel(deferred)]);
             return deferred.promise;
+        },
+        resumeProgram: function () {
+            this.get('connection').controlTransfer({
+                direction: 'out',
+                request: CONTROL_COMMANDS.REQUEST_RESUME_PROGRAM
+            })
+        },
+        startSpindle: function () {
+            this.get('connection').controlTransfer({
+                direction: 'out',
+                request: CONTROL_COMMANDS.REQUEST_SET_SPINDLE_OUTPUT,
+                value: 1
+            });
+        },
+        stopSpindle: function () {
+            this.get('connection').controlTransfer({
+                direction: 'out',
+                request: CONTROL_COMMANDS.REQUEST_SET_SPINDLE_OUTPUT,
+                value: 0
+            });
         }
     });
     CNCMachine.STATES = STATES;
