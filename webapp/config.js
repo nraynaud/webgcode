@@ -15,7 +15,8 @@ requirejs.config({
         canvg: 'libs/canvg/canvg',
         bootstrap: 'libs/bootstrap/js/bootstrap.min',
         base64: 'libs/deflate/base64',
-        Piecon: 'libs/piecon.min'
+        Piecon: 'libs/piecon.min',
+        Sortable: 'libs/Sortable.min'
     },
     shim: {
         jQuery: {exports: '$'},

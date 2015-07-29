@@ -578,35 +578,7 @@ function program10(depth0,data) {
 function program11(depth0,data) {
   
   var buffer = '', stack1;
-    data.buffer.push("\n                <div class=\"arrow-panel\">\n                    ");
-    stack1 = helpers['if'].call(depth0, "isNotFirst", {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        inverse: self.program(14, program14, data),
-        fn: self.program(12, program12, data),
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    });
-    if (stack1 || stack1 === 0) {
-        data.buffer.push(stack1);
-    }
-    data.buffer.push("\n                    ");
-    stack1 = helpers['if'].call(depth0, "isNotLast", {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        inverse: self.noop,
-        fn: self.program(16, program16, data),
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    });
-    if (stack1 || stack1 === 0) {
-        data.buffer.push(stack1);
-    }
-    data.buffer.push("\n                </div>\n                <span ");
+    data.buffer.push("\n                <div class=\"arrow-panel\">\n                    <i class=\"fa fa-sort\"></i>\n                </div>\n                <span ");
     data.buffer.push(escapeExpression(helpers.action.call(depth0, "toggleEnabled", {
         hash: {},
         hashTypes: {},
@@ -628,7 +600,7 @@ function program11(depth0,data) {
         hashTypes: {},
         hashContexts: {},
         inverse: self.noop,
-        fn: self.program(18, program18, data),
+        fn: self.program(12, program12, data),
         contexts: [depth0],
         types: ["ID"],
         data: data
@@ -640,7 +612,7 @@ function program11(depth0,data) {
         hashTypes: {},
         hashContexts: {},
         inverse: self.noop,
-        fn: self.program(20, program20, data),
+        fn: self.program(14, program14, data),
         contexts: [depth0],
         types: ["ID"],
         data: data
@@ -652,56 +624,18 @@ function program11(depth0,data) {
   return buffer;
   }
 function program12(depth0,data) {
-
-    var buffer = '';
-    data.buffer.push("\n                        <div title=\"move operation one position earlier\" ");
-    data.buffer.push(escapeExpression(helpers.action.call(depth0, "moveEarlier", {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["STRING"],
-        data: data
-    })));
-    data.buffer.push("\n                             class=\"arrow-button arrow-up\">\n                            <i class=\"fa fa-arrow-up\"></i></div>\n                    ");
-    return buffer;
-}
-
-    function program14(depth0, data) {
-
-
-        data.buffer.push("\n                        <div class=\"arrow-button\">&nbsp;</div>\n                    ");
-    }
-
-    function program16(depth0, data) {
-
-        var buffer = '';
-        data.buffer.push("\n                        <div title=\"move operation one position later\" ");
-        data.buffer.push(escapeExpression(helpers.action.call(depth0, "moveLater", {
-            hash: {},
-            hashTypes: {},
-            hashContexts: {},
-            contexts: [depth0],
-            types: ["STRING"],
-            data: data
-        })));
-        data.buffer.push("\n                             class=\"arrow-button arrow-down\">\n                            <i class=\"fa fa-arrow-down\"></i></div>\n                    ");
-        return buffer;
-    }
-
-    function program18(depth0, data) {
   
   
   data.buffer.push("<i class=\"fa fa-play-circle\" title=\"operation currently running\"></i>");
   }
 
-    function program20(depth0, data) {
+    function program14(depth0, data) {
   
   
   data.buffer.push("<i class=\"fa fa-cog fa-spin\" title=\"computing...\"></i>");
   }
 
-    function program22(depth0, data) {
+    function program16(depth0, data) {
   
   
   data.buffer.push("\n            No operation yet.\n        ");
@@ -763,14 +697,14 @@ function program12(depth0,data) {
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n    </ul>\n    <h2>Operations\n        <button title=\"create new operation\" class=\"btn btn-default\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "createOperation", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
-  data.buffer.push(">+</button>\n    </h2>\n    <div class=\"list-group\">\n        ");
+    data.buffer.push(">+</button>\n    </h2>\n    <div id=\"operationList\" class=\"list-group\">\n        ");
     stack1 = helpers.each.call(depth0, "orderedOperations", {
         hash: {
     'itemController': ("operationListItem")
         },
         hashTypes: {'itemController': "STRING"},
         hashContexts: {'itemController': depth0},
-        inverse: self.program(22, program22, data),
+        inverse: self.program(16, program16, data),
         fn: self.program(10, program10, data),
         contexts: [depth0],
         types: ["ID"],

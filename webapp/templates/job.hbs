@@ -87,22 +87,11 @@
     <h2>Operations
         <button title="create new operation" class="btn btn-default" {{action "createOperation"}}>+</button>
     </h2>
-    <div class="list-group">
+    <div id="operationList" class="list-group">
         {{#each orderedOperations itemController="operationListItem"}}
-            {{#link-to "operation" this classNames="list-group-item"}}
+            {{#link-to "operation" this classNames="list-group-item" }}
                 <div class="arrow-panel">
-                    {{#if isNotFirst}}
-                        <div title="move operation one position earlier" {{action "moveEarlier"}}
-                             class="arrow-button arrow-up">
-                            <i class="fa fa-arrow-up"></i></div>
-                    {{else}}
-                        <div class="arrow-button">&nbsp;</div>
-                    {{/if}}
-                    {{#if isNotLast}}
-                        <div title="move operation one position later" {{action "moveLater"}}
-                             class="arrow-button arrow-down">
-                            <i class="fa fa-arrow-down"></i></div>
-                    {{/if}}
+                    <i class="fa fa-sort"></i>
                 </div>
                 <span {{action "toggleEnabled"}} title="include or exclude from job" class="enable-button"
                                                  style=""> <i

@@ -1,6 +1,6 @@
 'use strict';
-define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter', 'cnc/ui/threeDView', 'THREE', 'cnc/util', 'cnc/cam/3D/toolProfile'],
-    function (Ember, svgImporter, gerberImporter, excellonImporter, TreeDView, THREE, util, toolProfile) {
+define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter', 'cnc/ui/threeDView', 'THREE', 'cnc/util', 'cnc/cam/3D/toolProfile', 'Sortable'],
+    function (Ember, svgImporter, gerberImporter, excellonImporter, TreeDView, THREE, util, toolProfile, Sortable) {
         var ApplicationView = Ember.View.extend({
             classNames: ['rootview']
         });
@@ -23,6 +23,27 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter'
                         _this.displayFakeDelete(true);
                     }
                     _this.set('controller.deleteSlider', 0);
+                });
+                var currentSwap1 = null;
+                var currentSwap2 = null;
+                Sortable.create(this.$('#operationList')[0], {
+                    draggable: ".list-group-item",
+                    filter: "script",
+                    animation: 150,
+                    scroll: this.$('.jobDetail')[0],
+                    handle: ".arrow-panel",
+                    ghostClass: 'drag-ghost',
+                    onEnd: function (evt) {
+                        var tmp = currentSwap1.get('index');
+                        currentSwap1.set('index', currentSwap2.get('index'));
+                        currentSwap2.set('index', tmp);
+                    },
+                    onMove: function (evt) {
+                        currentSwap1 = Ember.View.views[$(evt.dragged).attr('id')].get('parameters.context.model');
+                        var view = Ember.View.views[$(evt.related).attr('id')];
+                        if (view)
+                            currentSwap2 = view.get('parameters.context.model');
+                    }
                 });
             },
             dragEnter: function (event) {
