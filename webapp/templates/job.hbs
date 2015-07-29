@@ -107,7 +107,7 @@
                 <span {{action "toggleEnabled"}} title="include or exclude from job" class="enable-button"
                                                  style=""> <i
                     {{bind-attr class="enabled:fa-check-square-o:fa-square-o :fa"}}></i></span>
-                {{name}}({{index}})
+                {{name}}
                 {{#if isRunning}}<i class="fa fa-play-circle" title="operation currently running"></i>{{/if}}
                 {{#if computing}}<i class="fa fa-cog fa-spin" title="computing..."></i>{{/if}}
                 <span class="delete" {{action "delete"}} title="Delete Operation" style="float:right"><i
