@@ -127,6 +127,11 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
             this.set('spindleInput', dataView.getUint8(3, true));
             this.set('spindleRunning', !!(this.get('spindleInput') & 2));
             this.set('programID', dataView.getUint32(4, true));
+            var operations = this.get('runner').programs[this.get('programID')];
+            $('#webView')[0].contentWindow.postMessage({
+                type: 'current operations',
+                operations: (operations ? operations : [])
+            }, '*');
         },
         getParameters: function () {
             var keys = ['stepsPerMillimeter', 'maxFeedrate', 'maxAcceleration', 'clockFrequency'];

@@ -7,6 +7,7 @@ define(['RSVP'], function (RSVP) {
         this.connection = connection;
         this.worker = null;
         this.aborted = false;
+        this.programs = {};
     }
 
     Runner.prototype = {
@@ -14,6 +15,7 @@ define(['RSVP'], function (RSVP) {
             this.aborted = false;
             this.worker = new Worker("worker.js");
             this.loop = loop;
+            this.programs = {};
             var workQueue = [];
             var sentToUSBProgramsCount = 0;
             var running = false;
@@ -59,9 +61,10 @@ define(['RSVP'], function (RSVP) {
             this.worker.postMessage({operation: 'acceptProgram'}, [inputChannel.port1, outputChannel.port1]);
             this.worker.outputPort = outputChannel.port2;
             this.worker.outputPort.onmessage = function (event) {
-                var work = event.data;
-                if (work != null)
-                    workQueue.push(work);
+                var data = event.data;
+                _this.programs[data.programID] = data.operations;
+                if (data.program != null)
+                    workQueue.push(data.program);
                 else
                     _this.terminateWorker();
                 if (!running)

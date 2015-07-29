@@ -284,7 +284,7 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
                     var minSpeed = segment.feedRate / 60 / 20;
                     speed = Math.max(speed, minSpeed);
                     var time = Math.ceil(timebase * speedFactor * stepSize / speed);
-                    stepCollector(dx, dy, dz, time);
+                    stepCollector(dx, dy, dz, time, segment);
                 }
 
                 COMPONENT_TYPES[segment.type].rasterize(segment, stepSize, planningStepCollector);

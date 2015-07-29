@@ -100,19 +100,18 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
             init: function () {
                 this._super();
                 var _this = this;
-                window.addEventListener("message", function (event) {
+                window.addEventListener("message", Ember.run.bind(this, function (event) {
                     if (event.data['type'] == 'gimme program') {
                         var parameters = event.data.parameters;
-                        parameters.maxAcceleration = 75;
-                        parameters.maxFeedrate = 2000;
                         var toolPath = _this.get('model').computeCompactToolPath();
-                        console.log(parameters);
                         console.time('postMessage');
                         event.ports[0].postMessage({
                             type: 'compactToolPath',
                             parameters: parameters,
                             toolPath: toolPath,
-                            hasMore: false
+                            hasMore: false,
+                            startSpindleBefore: _this.get('model').get('startSpindle'),
+                            stopSpindleAfter: _this.get('model').get('startSpindle')
                         });
                         console.timeEnd('postMessage');
                     }
@@ -121,8 +120,12 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
                         _this.set('toolPosition', new util.Point(pos.x, pos.y, pos.z));
                         _this.set('model.startPoint', new util.Point(pos.x, pos.y, pos.z));
                     }
-                }, false);
+                    if (event.data['type'] == 'current operations') {
+                        _this.set('runningOperations', event.data['operations']);
+                    }
+                }), false);
             },
+            runningOperations: [],
             toolPosition: null,
             currentOperation: null,
             currentShape: null,
@@ -286,7 +289,10 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
             },
             isCurrent: function () {
                 return this.get('controllers.job.currentOperation') === this.get('model');
-            }.property('controllers.job.currentOperation')
+            }.property('controllers.job.currentOperation'),
+            isRunning: function () {
+                return this.get('controllers.job.runningOperations').contains(this.get('model.id'));
+            }.property('controllers.job.runningOperations')
         });
         var ShapeListItemController = Ember.ObjectController.extend({
             needs: ['job'],

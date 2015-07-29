@@ -134,7 +134,6 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
             afterAuth: Ember.run.bind(this, function (error, authData) {
                 if (error)
                     console.log('afterAuth error', error);
-                console.log(arguments);
                 Visucam.reset();
             })
         });

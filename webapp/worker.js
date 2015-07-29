@@ -84,14 +84,15 @@ var tasks = {
                             var position;
                             var travelFeedrate = data.parameters.maxFeedrate;
 
-                            function travelTo(point, speedTag, feedrate) {
+                            function travelTo(point, speedTag, feedrate, operation) {
                                 if (position)
                                     travelBits.push({
                                         type: 'line',
                                         from: position,
                                         to: point,
                                         speedTag: speedTag,
-                                        feedRate: speedTag == 'rapid' ? travelFeedrate : feedrate
+                                        feedRate: speedTag == 'rapid' ? travelFeedrate : feedrate,
+                                        operation: operation
                                     });
                                 position = point;
                             }
@@ -100,7 +101,7 @@ var tasks = {
                                 var fragment = fragments[i];
                                 for (var j = 0; j < fragment.path.length; j += 3) {
                                     var point = new util.Point(fragment.path[j], fragment.path[j + 1], fragment.path[j + 2]);
-                                    travelTo(point, fragment.speedTag, fragment.feedRate);
+                                    travelTo(point, fragment.speedTag, fragment.feedRate, fragment.operation);
                                 }
                             }
                             return travelBits;
@@ -128,6 +129,7 @@ var tasks = {
             function createProgramEncoder(maximumInstructionsCount) {
                 var HEADER_LENGTH = 8;
                 var programID = 1;
+                var operationsForProgram = {};
                 var buffer = new ArrayBuffer(maximumInstructionsCount * 3 + HEADER_LENGTH);
                 return {
                     buffer: buffer,
@@ -141,13 +143,15 @@ var tasks = {
                     isNotEmpty: function () {
                         return this.instructionsCount != 0;
                     },
-                    pushInstruction: function (dx, dy, dz, time) {
+                    pushInstruction: function (dx, dy, dz, time, segment) {
                         function bin(axis) {
                             var direction = axis >= 0 ? '1' : '0';
                             var enableStep = axis ? '1' : '0';
                             return direction + enableStep;
                         }
 
+                        if (segment.operation)
+                            operationsForProgram[segment.operation] = 1;
                         time = Math.min(65535, time);
                         this.view.setUint16(HEADER_LENGTH + this.instructionsCount * 3, time, true);
                         var word = '00' + bin(dz) + bin(dy) + bin(dx);
@@ -160,8 +164,14 @@ var tasks = {
                         this.view.setUint32(4, programID, true);
                         var encodedProgram = this.buffer.slice(0, HEADER_LENGTH + this.instructionsCount * 3);
                         this.instructionsCount = 0;
+                        var result = {
+                            program: encodedProgram,
+                            programID: programID,
+                            operations: Object.keys(operationsForProgram)
+                        };
+                        operationsForProgram = {};
                         programID++;
-                        return encodedProgram;
+                        return result;
                     }
                 };
             }
@@ -171,8 +181,8 @@ var tasks = {
                     var toolPathChunk = pendingToolPathChunks.shift();
                     var params = toolPathChunk.parameters;
                     simulation.planProgram(toolPathChunk, params.maxAcceleration, 1 / params.stepsPerMillimeter, params.clockFrequency,
-                        function stepCollector(dx, dy, dz, time) {
-                            programEncoder.pushInstruction(dx, dy, dz, time);
+                        function stepCollector(dx, dy, dz, time, segment) {
+                            programEncoder.pushInstruction(dx, dy, dz, time, segment);
                             if (programEncoder.isFull()) {
                                 outputPort.postMessage(programEncoder.popEncodedProgram());
                                 sentToRunnerProgramsCount++;
@@ -184,7 +194,7 @@ var tasks = {
                             outputPort.postMessage(programEncoder.popEncodedProgram());
                             sentToRunnerProgramsCount++;
                         }
-                        outputPort.postMessage(null);
+                        outputPort.postMessage({program: null});
                         outputPort.close();
                         inputPort.close();
                     }

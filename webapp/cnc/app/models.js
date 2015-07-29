@@ -317,6 +317,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             operations: DS.hasMany('operation', {inverse: 'job', embedded: true}),
             offsetX: attr('number', {defaultValue: 0}),
             offsetY: attr('number', {defaultValue: 0}),
+            startSpindle: attr('boolean', {defaultValue: true}),
             transitionTravels: [],
             deleteOperation: function (operation) {
                 this.get('operations').removeObject(operation);
@@ -421,7 +422,11 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 var pathFragments = [];
                 var endPoint = null;
                 operations.forEach(function (operation) {
-                    pathFragments.pushObjects(operation.get('toolpath'));
+                    var toolpath = operation.get('toolpath');
+                    toolpath.forEach(function (fragment) {
+                        fragment.operation = operation.get('id');
+                    });
+                    pathFragments.pushObjects(toolpath);
                 });
                 var startPoint = this.get('startPoint');
                 console.timeEnd('preparation');
@@ -438,7 +443,12 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     travelBits.push({speedTag: 'rapid', path: segment(safeStartPoint, position)});
                     for (var i = 0; i < pathFragments.length; i++) {
                         var fragment = pathFragments[i];
-                        travelBits.push({speedTag: 'normal', feedRate: feedrate, path: fragment.asCompactToolpath()});
+                        travelBits.push({
+                            operation: fragment.operation,
+                            speedTag: 'normal',
+                            feedRate: feedrate,
+                            path: fragment.asCompactToolpath()
+                        });
                         endPoint = fragment.getStopPoint();
                         position = new util.Point(endPoint.x, endPoint.y, safetyZ);
                         travelBits.push({speedTag: 'rapid', path: segment(endPoint, position)});

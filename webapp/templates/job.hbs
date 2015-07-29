@@ -60,6 +60,10 @@
             </tr>
         {{/if}}
         <tr>
+            <th title="start the spindle before the job, then stop it after completion">Start Spindle</th>
+            <td>{{input type="checkbox" checked=startSpindle}}</td>
+        </tr>
+        <tr>
             <th title="travel path is displayed in red">Display Travel</th>
             <td>{{input type="checkbox" checked=showTravel}}</td>
         </tr>
@@ -86,7 +90,8 @@
     <div class="list-group">
         {{#each operations itemController="operationListItem"}}
             {{#link-to "operation" this classNames="list-group-item"}}{{name}}
-                {{#if computing}}<i class="fa fa-cog fa-spin"></i>{{/if}}
+                {{#if isRunning}}<i class="fa fa-play-circle" title="operation currently running"></i>{{/if}}
+                {{#if computing}}<i class="fa fa-cog fa-spin" title="computing..."></i>{{/if}}
                 <span class="delete badge" {{action "delete"}} title="Delete Operation"><i
                         class="fa fa-times"></i></span>{{/link-to}}
         {{else}}
