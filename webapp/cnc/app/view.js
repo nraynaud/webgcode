@@ -179,8 +179,12 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter'
             didInsertElement: function () {
                 var threeDView = new TreeDView.ThreeDView(this.$());
                 threeDView.normalToolpathNode.lineMaterial = new THREE.LineBasicMaterial({
-                    linewidth: 1.2,
+                    linewidth: 1.5,
                     color: 0x6688aa
+                });
+                threeDView.disabledToolpathNode.lineMaterial = new THREE.LineBasicMaterial({
+                    linewidth: 1.2,
+                    color: 0x8899bb
                 });
                 threeDView.rapidMaterial = new THREE.LineBasicMaterial({
                     linewidth: 1.2,
@@ -243,19 +247,20 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter'
                 threeDView.clearToolpath();
                 var operation = this.get('controller.currentOperation');
                 if (operation) {
+                    var node = operation.get('selected') ? threeDView.normalToolpathNode : threeDView.disabledToolpathNode;
                     var toolpath2 = operation.get('toolpath');
                     if (toolpath2)
                         toolpath2.forEach(function (toolpath) {
-                            threeDView.normalToolpathNode.addCollated(collectVertices(toolpath, operation.get('contourZ')));
+                            node.addCollated(collectVertices(toolpath, operation.get('contourZ')));
                         });
                     var missedArea = operation.get('missedArea');
                     if (missedArea)
                         missedArea.forEach(function (area) {
-                            threeDView.normalToolpathNode.addPolygons(area);
+                            node.addPolygons(area);
                         });
                 }
                 threeDView.reRender();
-            }.observes('controller.currentOperation', 'controller.currentOperation.toolpath.@each', 'controller.currentOperation.toolpath', 'controller.currentOperation.missedArea'),
+            }.observes('controller.currentOperation', 'controller.currentOperation.toolpath.@each', 'controller.currentOperation.toolpath', 'controller.currentOperation.missedArea', 'controller.currentOperation.selected'),
             synchronizeCurrentShape: function () {
                 var highlightDisplay = this.get('highlightDisplay');
                 highlightDisplay.clear();

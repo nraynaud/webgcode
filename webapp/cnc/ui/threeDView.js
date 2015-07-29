@@ -254,6 +254,12 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                 side: THREE.DoubleSide,
                 transparent: true
             }));
+            this.disabledToolpathNode = this.createDrawingNode(this.normalMaterial, new THREE.MeshBasicMaterial({
+                color: 0x6622DD,
+                opacity: 0.5,
+                side: THREE.DoubleSide,
+                transparent: true
+            }));
             this.reRender();
         }
 
@@ -267,6 +273,7 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             clearToolpath: function () {
                 this.rapidToolpathNode.clear();
                 this.normalToolpathNode.clear();
+                this.disabledToolpathNode.clear();
             },
             computeDrawingBBox: function () {
                 var bbox = new THREE.Box3();
