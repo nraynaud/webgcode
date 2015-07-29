@@ -218,7 +218,6 @@ static void run() {
             while (isEmergencyStopped() || cncMemory.state == PAUSED_PROGRAM)
                 crComeBackLater;
             if (startNextStep()) {
-                STM_EVAL_LEDOn(LED6);
                 while (!stepTimeHasCome())
                     crComeBackLater;
                 setStepGPIO(cncMemory.currentStep.axes);
@@ -226,7 +225,6 @@ static void run() {
                 clearStepTimeHasCome();
                 while (!stepIsOver())
                     crComeBackLater;
-                STM_EVAL_LEDOff(LED6);
                 clearStepIsOver();
             }
     crFinish;
@@ -344,7 +342,6 @@ __attribute__ ((noreturn)) void main(void) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-noreturn"
     while (1) {
-        STM_EVAL_LEDOn(LED4);
         if (isEmergencyStopped()) {
             if (cncMemory.state == RUNNING_PROGRAM)
                 cncMemory.state = PAUSED_PROGRAM;
@@ -357,13 +354,10 @@ __attribute__ ((noreturn)) void main(void) {
             tryToStartProgram();
         run();
         periodicUICallback();
-        STM_EVAL_LEDOff(LED4);
     }
 #pragma clang diagnostic pop
 }
 
 __attribute__ ((used)) void SysTick_Handler(void) {
-    STM_EVAL_LEDOn(LED5);
     cncMemory.tick++;
-    STM_EVAL_LEDOff(LED5);
 }

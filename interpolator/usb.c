@@ -160,13 +160,17 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                             USBD_CtlSendStatus(pdev);
                             return USBD_OK;
                         case REQUEST_SET_SPINDLE_OUTPUT:
-                            STM_EVAL_LEDToggle(LED4);
                             cncMemory.spindleOutput = (uint8_t) req->wValue;
                             return USBD_OK;
                         case REQUEST_ABORT:
                             cncMemory.state = ABORTING_PROGRAM;
-                            //connect the endpoint to the drain
+                            //connect the endpoint to the /dev/null
                             DCD_EP_PrepareRx(&usbDevice, BULK_ENDPOINT, buffer, BUFFER_SIZE);
+                            circularBuffer.programID = 0;
+                            circularBuffer.programLength = 0;
+                            circularBuffer.writeCount = 0;
+                            circularBuffer.readCount = 0;
+                            circularBuffer.signaled = 0;
                             return USBD_OK;
                         case REQUEST_RESUME_PROGRAM:
                             cncMemory.state = RUNNING_PROGRAM;
@@ -240,7 +244,6 @@ void copyUSBufferIfPossible() {
             } while (seenSignal == lastSignal);
             count = USBD_GetRxCount(&usbDevice, BULK_ENDPOINT_NUM);
             while (fillLevel() >= CIRCULAR_BUFFER_SIZE - count) {
-                STM_EVAL_LEDOn(LED4);
                 crComeBackLater;
             }
             unsigned int bufferPosition = circularBuffer.writeCount % CIRCULAR_BUFFER_SIZE;
@@ -254,7 +257,6 @@ void copyUSBufferIfPossible() {
             circularBuffer.writeCount += count;
             lastSignal = seenSignal;
             DCD_EP_PrepareRx(&usbDevice, BULK_ENDPOINT, buffer, BUFFER_SIZE);
-            STM_EVAL_LEDOff(LED4);
     crFinish;
 }
 
