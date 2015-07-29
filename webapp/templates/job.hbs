@@ -75,7 +75,7 @@
     <ul class="list-group shapeList">
         {{#each shapes itemController="shapeListItem"}}
             {{#link-to "shape" this classNames="list-group-item"}} <span {{action "toggleHide"}}
-                    title="Toggle Visibility"><i
+                    title="Toggle Visibility" style="display:inline-block; width: 16px;"><i
                     class="fa fa-eye"></i></span>
                 <span {{bind-attr class="visible:shape-visible:shape-hidden"}}>{{name}}</span>
                 <span class="delete" {{action "delete"}} title="Delete Shape" style="float:right"><i
@@ -89,10 +89,13 @@
     </h2>
     <div class="list-group">
         {{#each operations itemController="operationListItem"}}
-            {{#link-to "operation" this classNames="list-group-item"}}{{name}}
+            {{#link-to "operation" this classNames="list-group-item"}}
+                <span {{action "toggleSelection"}} title="include in program or not"
+                                                   style="display:inline-block; width: 16px;"><i {{bind-attr class="selected:fa-check-square-o:fa-square-o :fa"}}></i></span>
+                {{name}}
                 {{#if isRunning}}<i class="fa fa-play-circle" title="operation currently running"></i>{{/if}}
                 {{#if computing}}<i class="fa fa-cog fa-spin" title="computing..."></i>{{/if}}
-                <span class="delete badge" {{action "delete"}} title="Delete Operation"><i
+                <span class="delete" {{action "delete"}} title="Delete Operation" style="float:right"><i
                         class="fa fa-times"></i></span>{{/link-to}}
         {{else}}
             No operation yet.

@@ -161,6 +161,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             },
             name: attr('string', {defaultValue: 'New Operation'}),
             type: attr('string', {defaultValue: 'SimpleEngravingOperation'}),
+            selected: attr('boolean', {defaultValue: true}),
             outline: DS.belongsTo('shape'),
             job: DS.belongsTo('job'),
             task: null,
@@ -329,11 +330,12 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 shape.destroyRecord();
                 this.save();
             },
+            selectedOperations: Ember.computed.filterBy('operations', 'selected', true),
             transitionTravelsObeserved: function () {
                 Ember.run.debounce(this, this.computeTransitionTravels, 100);
-            }.observes('operations.@each.toolpath.@each'),
+            }.observes('selectedOperations.@each.toolpath.@each'),
             computeTransitionTravels: function () {
-                var operations = this.get('operations');
+                var operations = this.get('selectedOperations');
                 var travelBits = [];
                 var pathFragments = [];
                 var endPoint = null;
@@ -363,11 +365,11 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     travelBits.push(suffix);
                 }
                 var len = 0;
-                for (var i = 0; i < travelBits.length; i++)
+                for (i = 0; i < travelBits.length; i++)
                     len += travelBits[i].length();
                 console.log('travel dist', len);
                 this.set('transitionTravels', travelBits);
-            },
+            }.on('init'),
             createOperation: function (params) {
                 if (params == null) {
                     var lastOp = this.get('operations.lastObject');
@@ -414,7 +416,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 return this.get('computeSpeedFeed') ? this.get('computedFeedrate') : this.get('userFeedrate');
             }.property('computedFeedrate', 'userFeedrate', 'computeSpeedFeed'),
             computeCompactToolPath: function () {
-                var operations = this.get('operations');
+                var operations = this.get('selectedOperations');
                 var feedrate = this.get('feedrate');
                 console.log('using feed rate', feedrate);
                 var safetyZ = this.get('safetyZ');
