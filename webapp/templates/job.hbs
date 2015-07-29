@@ -75,7 +75,7 @@
     <ul class="list-group shapeList">
         {{#each shapes itemController="shapeListItem"}}
             {{#link-to "shape" this classNames="list-group-item"}} <span {{action "toggleHide"}}
-                    title="Toggle Visibility" style="display:inline-block; width: 16px;"><i
+                    title="Toggle Visibility" class="visibility-button"><i
                     class="fa fa-eye"></i></span>
                 <span {{bind-attr class="visible:shape-visible:shape-hidden"}}>{{name}}</span>
                 <span class="delete" {{action "delete"}} title="Delete Shape" style="float:right"><i
@@ -88,12 +88,26 @@
         <button title="create new operation" class="btn btn-default" {{action "createOperation"}}>+</button>
     </h2>
     <div class="list-group">
-        {{#each operations itemController="operationListItem"}}
+        {{#each orderedOperations itemController="operationListItem"}}
             {{#link-to "operation" this classNames="list-group-item"}}
-                <span {{action "toggleEnabled"}} title="include in job or not"
-                                                 style="display:inline-block; width: 16px;"><i
+                <div class="arrow-panel">
+                    {{#if isNotFirst}}
+                        <div title="move operation one position earlier" {{action "moveEarlier"}}
+                             class="arrow-button arrow-up">
+                            <i class="fa fa-arrow-up"></i></div>
+                    {{else}}
+                        <div class="arrow-button">&nbsp;</div>
+                    {{/if}}
+                    {{#if isNotLast}}
+                        <div title="move operation one position later" {{action "moveLater"}}
+                             class="arrow-button arrow-down">
+                            <i class="fa fa-arrow-down"></i></div>
+                    {{/if}}
+                </div>
+                <span {{action "toggleEnabled"}} title="include or exclude from job" class="enable-button"
+                                                 style=""> <i
                     {{bind-attr class="enabled:fa-check-square-o:fa-square-o :fa"}}></i></span>
-                {{name}}
+                {{name}}({{index}})
                 {{#if isRunning}}<i class="fa fa-play-circle" title="operation currently running"></i>{{/if}}
                 {{#if computing}}<i class="fa fa-cog fa-spin" title="computing..."></i>{{/if}}
                 <span class="delete" {{action "delete"}} title="Delete Operation" style="float:right"><i

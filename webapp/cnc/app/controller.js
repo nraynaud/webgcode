@@ -286,8 +286,24 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
                     else
                         operation.get('job').deleteOperation(operation);
                 },
-                'toggleEnabled': function () {
+                toggleEnabled: function () {
                     this.set('enabled', !this.get('enabled'));
+                },
+                moveEarlier: function () {
+                    var operations = this.get('job.orderedOperations');
+                    var operation = this.get('model');
+                    var previous = operations[operations.indexOf(operation) - 1];
+                    var index = this.get('index');
+                    this.set('model.index', previous.get('index'));
+                    previous.set('index', index);
+                },
+                moveLater: function () {
+                    var operations = this.get('job.orderedOperations');
+                    var operation = this.get('model');
+                    var next = operations[operations.indexOf(operation) + 1];
+                    var index = this.get('index');
+                    this.set('model.index', next.get('index'));
+                    next.set('index', index);
                 }
             },
             isCurrent: function () {
@@ -295,7 +311,13 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
             }.property('controllers.job.currentOperation'),
             isRunning: function () {
                 return this.get('controllers.job.runningOperations').contains(this.get('model.id'));
-            }.property('controllers.job.runningOperations')
+            }.property('controllers.job.runningOperations'),
+            isNotFirst: function () {
+                return this.get('index') > this.get('job.orderedOperations.firstObject.index');
+            }.property('index'),
+            isNotLast: function () {
+                return this.get('index') < this.get('job.orderedOperations.lastObject.index');
+            }.property('index')
         });
         var ShapeListItemController = Ember.ObjectController.extend({
             needs: ['job'],

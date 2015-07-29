@@ -160,6 +160,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 this._super.apply(this, arguments);
             },
             name: attr('string', {defaultValue: 'New Operation'}),
+            index: attr('number', {defaultValue: 0}),
             type: attr('string', {defaultValue: 'SimpleEngravingOperation'}),
             enabled: attr('boolean', {defaultValue: true}),
             outline: DS.belongsTo('shape'),
@@ -320,6 +321,17 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             offsetY: attr('number', {defaultValue: 0}),
             startSpindle: attr('boolean', {defaultValue: true}),
             transitionTravels: [],
+            operationsOrderProperty: ['index'],
+            orderedOperations: Ember.computed.sort('operations', 'operationsOrderProperty'),
+            enabledOperations: Ember.computed.filterBy('orderedOperations', 'enabled', true),
+            didLoad: function () {
+                //re-number operations, because some of them were serialized before the index field existed.
+                var i = 0;
+                this.get('orderedOperations').slice().forEach(function (op) {
+                    op.set('index', i);
+                    i++;
+                });
+            },
             deleteOperation: function (operation) {
                 this.get('operations').removeObject(operation);
                 operation.destroyRecord();
@@ -330,7 +342,6 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 shape.destroyRecord();
                 this.save();
             },
-            enabledOperations: Ember.computed.filterBy('operations', 'enabled', true),
             transitionTravelsObeserved: function () {
                 Ember.run.debounce(this, this.computeTransitionTravels, 100);
             }.observes('enabledOperations.@each.toolpath.@each'),
@@ -371,13 +382,16 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 this.set('transitionTravels', travelBits);
             }.on('init'),
             createOperation: function (params) {
-                if (params == null) {
-                    var lastOp = this.get('operations.lastObject');
-                    if (lastOp) {
+                var lastOp = this.get('orderedOperations.lastObject');
+                if (lastOp) {
+                    if (params == null) {
                         params = lastOp.toJSON();
                         params.job = this;
                         params.outline = lastOp.get('outline');
+                        params.index = lastOp.get('index') + 1;
                     }
+                    if (params.index == null)
+                        params.index = lastOp.get('index') + 1;
                 }
                 var operation = this.store.createRecord('operation', params);
                 operation.set('job', this);
