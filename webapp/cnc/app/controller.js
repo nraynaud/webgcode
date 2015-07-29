@@ -286,8 +286,8 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
                     else
                         operation.get('job').deleteOperation(operation);
                 },
-                'toggleSelection': function () {
-                    this.set('selected', !this.get('selected'));
+                'toggleEnabled': function () {
+                    this.set('enabled', !this.get('enabled'));
                 }
             },
             isCurrent: function () {

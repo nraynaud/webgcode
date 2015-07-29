@@ -161,7 +161,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             },
             name: attr('string', {defaultValue: 'New Operation'}),
             type: attr('string', {defaultValue: 'SimpleEngravingOperation'}),
-            selected: attr('boolean', {defaultValue: true}),
+            enabled: attr('boolean', {defaultValue: true}),
             outline: DS.belongsTo('shape'),
             job: DS.belongsTo('job'),
             task: null,
@@ -330,12 +330,12 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 shape.destroyRecord();
                 this.save();
             },
-            selectedOperations: Ember.computed.filterBy('operations', 'selected', true),
+            enabledOperations: Ember.computed.filterBy('operations', 'enabled', true),
             transitionTravelsObeserved: function () {
                 Ember.run.debounce(this, this.computeTransitionTravels, 100);
-            }.observes('selectedOperations.@each.toolpath.@each'),
+            }.observes('enabledOperations.@each.toolpath.@each'),
             computeTransitionTravels: function () {
-                var operations = this.get('selectedOperations');
+                var operations = this.get('enabledOperations');
                 var travelBits = [];
                 var pathFragments = [];
                 var endPoint = null;
@@ -416,7 +416,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 return this.get('computeSpeedFeed') ? this.get('computedFeedrate') : this.get('userFeedrate');
             }.property('computedFeedrate', 'userFeedrate', 'computeSpeedFeed'),
             computeCompactToolPath: function () {
-                var operations = this.get('selectedOperations');
+                var operations = this.get('enabledOperations');
                 var feedrate = this.get('feedrate');
                 console.log('using feed rate', feedrate);
                 var safetyZ = this.get('safetyZ');

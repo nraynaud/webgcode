@@ -579,10 +579,17 @@ function program11(depth0,data) {
   
   var buffer = '', stack1;
   data.buffer.push("\n                <span ");
-  data.buffer.push(escapeExpression(helpers.action.call(depth0, "toggleSelection", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
-  data.buffer.push(" title=\"include in program or not\"\n                                                   style=\"display:inline-block; width: 16px;\"><i ");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "toggleEnabled", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["STRING"],
+        data: data
+    })));
+    data.buffer.push(" title=\"include in job or not\"\n                                                 style=\"display:inline-block; width: 16px;\"><i\n                    ");
   data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
-    'class': ("selected:fa-check-square-o:fa-square-o :fa")
+      'class': ("enabled:fa-check-square-o:fa-square-o :fa")
   },hashTypes:{'class': "STRING"},hashContexts:{'class': depth0},contexts:[],types:[],data:data})));
   data.buffer.push("></i></span>\n                ");
   stack1 = helpers._triageMustache.call(depth0, "name", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});

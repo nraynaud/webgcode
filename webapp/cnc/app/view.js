@@ -247,7 +247,7 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter'
                 threeDView.clearToolpath();
                 var operation = this.get('controller.currentOperation');
                 if (operation) {
-                    var node = operation.get('selected') ? threeDView.normalToolpathNode : threeDView.disabledToolpathNode;
+                    var node = operation.get('enabled') ? threeDView.normalToolpathNode : threeDView.disabledToolpathNode;
                     var toolpath2 = operation.get('toolpath');
                     if (toolpath2)
                         toolpath2.forEach(function (toolpath) {
@@ -260,7 +260,7 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter'
                         });
                 }
                 threeDView.reRender();
-            }.observes('controller.currentOperation', 'controller.currentOperation.toolpath.@each', 'controller.currentOperation.toolpath', 'controller.currentOperation.missedArea', 'controller.currentOperation.selected'),
+            }.observes('controller.currentOperation', 'controller.currentOperation.toolpath.@each', 'controller.currentOperation.toolpath', 'controller.currentOperation.missedArea', 'controller.currentOperation.enabled'),
             synchronizeCurrentShape: function () {
                 var highlightDisplay = this.get('highlightDisplay');
                 highlightDisplay.clear();
