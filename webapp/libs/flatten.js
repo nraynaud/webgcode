@@ -537,7 +537,7 @@ define(function () {
         var res = new obj.constructor;
         for (var key in obj) {
             if (obj[has](key)) {
-                res[key] = clone(obj[key]);
+                res[key] = typeof obj[key] == 'function' ? obj[key] : clone(obj[key]);
             }
         }
         return res;
