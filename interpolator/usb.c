@@ -60,7 +60,7 @@ typedef struct {
     ctrl_req_recipient_t recipient: 5;
     ctrl_req_type_t type: 2;
     ctrl_req_direction_t direction : 1;
-} bmRequest_t;
+} __attribute__((packed)) bmRequest_t;
 
 #define CIRCULAR_BUFFER_SIZE    16384U
 static struct {
@@ -160,7 +160,10 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                             USBD_CtlSendStatus(pdev);
                             return USBD_OK;
                         case REQUEST_SET_SPINDLE_OUTPUT:
-                            cncMemory.spindleOutput = (uint8_t) req->wValue;
+                            cncMemory.spindleOutput = ((union {
+                                uint8_t n;
+                                spindle_output_t s;
+                            }) {.n=(uint8_t) req->wValue}).s;
                             return USBD_OK;
                         case REQUEST_ABORT:
                             cncMemory.state = ABORTING_PROGRAM;
@@ -217,12 +220,32 @@ int32_t readBufferArray2(uint32_t count, uint8_t *array) {
     return 1;
 }
 
+#define PROGRAM_HEADER_LENGTH 8
+
+typedef enum {
+    PROGRAM_STEPS = 0,
+    PROGRAM_START_SPINDLE = 1,
+    PROGRAM_STOP_SPINDLE = 2
+} program_type_t;
+
+
 void tryToStartProgram() {
-    uint8_t array[8];
-    if (readBufferArray2(8, array)) {
-        cncMemory.state = RUNNING_PROGRAM;
-        circularBuffer.programLength = array[3] << 24 | array[2] << 16 | array[1] << 8 | array[0];
-        circularBuffer.programID = array[7] << 24 | array[6] << 16 | array[5] << 8 | array[4];
+    uint8_t array[PROGRAM_HEADER_LENGTH];
+    if (readBufferArray2(PROGRAM_HEADER_LENGTH, array)) {
+        program_type_t programType = (program_type_t) (array[0]);
+        switch (programType) {
+            case PROGRAM_STEPS:
+                cncMemory.state = RUNNING_PROGRAM;
+                circularBuffer.programLength = array[3] << 16 | array[2] << 8 | array[1];
+                circularBuffer.programID = array[7] << 24 | array[6] << 16 | array[5] << 8 | array[4];
+                return;
+            case PROGRAM_START_SPINDLE:
+                cncMemory.spindleOutput.run = 1;
+                return;
+            case PROGRAM_STOP_SPINDLE:
+                cncMemory.spindleOutput.run = 0;
+                return;
+        }
     }
 }
 

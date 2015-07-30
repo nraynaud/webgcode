@@ -54,9 +54,24 @@ var tasks = {
     },
     acceptProgram: function (event) {
         require(['cnc/gcode/parser', 'cnc/gcode/simulation', 'cnc/util.js'], function (parser, simulation, util) {
+            var PROGRAM_TYPES = {
+                PROGRAM_STEPS: 0,
+                PROGRAM_START_SPINDLE: 1,
+                PROGRAM_STOP_SPINDLE: 2
+            };
+            var START_SPINDLE_PACKET = {
+                program: new Uint8Array([PROGRAM_TYPES.PROGRAM_START_SPINDLE, 0, 0, 0, 0, 0, 0, 0]).buffer,
+                programID: 0,
+                operations: []
+            };
+            var STOP_SPINDLE_PACKET = {
+                program: new Uint8Array([PROGRAM_TYPES.PROGRAM_STOP_SPINDLE, 0, 0, 0, 0, 0, 0, 0]).buffer,
+                programID: 0,
+                operations: []
+            };
             var MAX_QUEUED_PROGRAMS = 10;
             var TOOLPATH_CHUNK_SIZE = 100000;
-            var MAX_PROGRAM_SIZE = 30000;
+            var MAX_PROGRAM_SIZE = 300;
             var sentToRunnerProgramsCount = 0;
             var sentToUSBProgramsCount = 0;
             var programEncoder = createProgramEncoder(MAX_PROGRAM_SIZE);
@@ -64,10 +79,13 @@ var tasks = {
             var pendingToolPathChunks = [];
             var inputPort = event.ports[0];
             var outputPort = event.ports[1];
+            var stopSpindleAfter = false;
 
             inputPort.onmessage = function (deferredEvent) {
                 pendingEvents.push(deferredEvent);
-
+                stopSpindleAfter |= deferredEvent.data.stopSpindleAfter;
+                if (deferredEvent.data.startSpindleBefore)
+                    outputPort.postMessage(START_SPINDLE_PACKET);
                 while (pendingEvents.length > 0 && sentToRunnerProgramsCount - sentToUSBProgramsCount < MAX_QUEUED_PROGRAMS) {
                     var event = pendingEvents.shift();
                     var typeConverter = {
@@ -159,8 +177,11 @@ var tasks = {
                         ++this.instructionsCount;
                     },
                     popEncodedProgram: function () {
-                        // We send the *size in byte* of the program, header excluded, not the instructions count
-                        this.view.setUint32(0, this.instructionsCount * 3, true);
+                        // program type goes to first byte.
+                        this.view.setUint8(0, PROGRAM_TYPES.PROGRAM_STEPS, true);
+                        // We send the *size in bytes* of the program, header excluded on a 3 bytes numbers starting after one byte.
+                        this.view.setUint32(1, this.instructionsCount * 3, true);
+                        // we squish the size MSB to keep it 24 bits.
                         this.view.setUint32(4, programID, true);
                         var encodedProgram = this.buffer.slice(0, HEADER_LENGTH + this.instructionsCount * 3);
                         this.instructionsCount = 0;
@@ -194,7 +215,10 @@ var tasks = {
                             outputPort.postMessage(programEncoder.popEncodedProgram());
                             sentToRunnerProgramsCount++;
                         }
+                        if (stopSpindleAfter)
+                            outputPort.postMessage(STOP_SPINDLE_PACKET);
                         outputPort.postMessage({program: null});
+                        stopSpindleAfter = false;
                         outputPort.close();
                         inputPort.close();
                     }

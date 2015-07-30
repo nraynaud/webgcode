@@ -63,7 +63,7 @@ volatile cnc_memory_t cncMemory = {
         .state = READY,
         .lastEvent = {NULL_EVENT, 0, 0, 0},
         .tick = 0,
-        .spindleOutput = 0,
+        .spindleOutput ={.run = 0},
         .spindleInput = 0
 };
 
@@ -197,7 +197,7 @@ static void flashShiftRegisters() {
 static void handleSPI() {
     crBegin;
             flashShiftRegisters();
-            SPI_I2S_SendData(spindlePinout.spi, cncMemory.spindleOutput);
+            SPI_I2S_SendData(spindlePinout.spi, ((spindle_output_serializer_t) {.s=cncMemory.spindleOutput}).n);
             while ((spindlePinout.spi->SR & SPI_SR_TXE) == 0)
                 crComeBackLater;
             while ((spindlePinout.spi->SR & SPI_SR_RXNE) == 0)
@@ -241,11 +241,11 @@ static void handleSpindle() {
     crBegin;
             discrepancyStartTick = cncMemory.tick;
             while (cncMemory.tick < discrepancyStartTick + 20000) {
-                if (!(cncMemory.spindleOutput & 1) || cncMemory.spindleInput & 2)
+                if (!(cncMemory.spindleOutput.run) || cncMemory.spindleInput & 2)
                     crReturn;
                 crComeBackLater;
             }
-            cncMemory.spindleOutput = (uint8_t) (cncMemory.spindleOutput & ~1);
+            cncMemory.spindleOutput.run = 1;
     crFinish;
 }
 
@@ -343,14 +343,15 @@ __attribute__ ((noreturn)) void main(void) {
 #pragma clang diagnostic ignored "-Wmissing-noreturn"
     while (1) {
         if (isEmergencyStopped()) {
+            //pause the program so that it doesn't restart when releasing the button
             if (cncMemory.state == RUNNING_PROGRAM)
                 cncMemory.state = PAUSED_PROGRAM;
-            cncMemory.spindleOutput = (uint8_t) (cncMemory.spindleOutput & ~1);
+            cncMemory.spindleOutput.run = 0;
         }
         handleSPI();
         handleSpindle();
         copyUSBufferIfPossible();
-        if (cncMemory.state == READY || cncMemory.state == MANUAL_CONTROL)
+        if (cncMemory.state == READY || cncMemory.state == MANUAL_CONTROL && !isEmergencyStopped())
             tryToStartProgram();
         run();
         periodicUICallback();

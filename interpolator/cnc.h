@@ -32,13 +32,22 @@ typedef enum {
 } stepper_state_t;
 
 typedef struct {
+    int run: 1;
+} __attribute__((packed)) spindle_output_t;
+
+typedef union {
+    uint8_t n;
+    spindle_output_t s;
+} spindle_output_serializer_t;
+
+typedef struct {
     position_t position;
     parameters_t parameters;
     uint16_t state;
     int32_t lastEvent[4];
     step_t currentStep;
     uint64_t tick;
-    uint8_t spindleOutput;
+    spindle_output_t spindleOutput;
     uint8_t spindleInput;
 } cnc_memory_t;
 
