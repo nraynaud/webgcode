@@ -127,9 +127,17 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util']
                     resolve(RSVP.all(promises).then(function (workResult) {
                         workResult.forEach(function (result) {
                             result.result.forEach(function (pocketResult, index) {
-                                var path = pocketResult.spiraledToolPath
-                                    ? machine.fromClipper([pocketResult.spiraledToolPath.path])
-                                    : machine.fromClipper(pocketResult.contour);
+                                var path = [];
+
+                                function collect(layer) {
+                                    for (var i = 0; i < layer.children.length; i++)
+                                        collect(layer.children[i]);
+                                    path = path.concat(layer.spiraledToolPath
+                                        ? machine.fromClipper([layer.spiraledToolPath.path])
+                                        : machine.fromClipper(layer.contour));
+                                }
+
+                                collect(pocketResult);
                                 path.forEach(function (path) {
                                     var startPoint = path.getStartPoint();
                                     var generalPath = path.asGeneralToolpath(op.pocket_depth);
