@@ -91,7 +91,18 @@
         {{#each orderedOperations itemController="operationListItem"}}
             {{#link-to "operation" this classNames="list-group-item" }}
                 <div class="arrow-panel">
-                    <i class="fa fa-sort"></i>
+                    {{#if isNotFirst}}
+                        <div title="move operation one position earlier" {{action "moveEarlier"}}
+                             class="arrow-button arrow-up">
+                            <i class="fa fa-arrow-up"></i></div>
+                    {{else}}
+                        <div class="arrow-button">&nbsp;</div>
+                    {{/if}}
+                    {{#if isNotLast}}
+                        <div title="move operation one position later" {{action "moveLater"}}
+                             class="arrow-button arrow-down">
+                            <i class="fa fa-arrow-down"></i></div>
+                    {{/if}}
                 </div>
                 <span {{action "toggleEnabled"}} title="include or exclude from job" class="enable-button"
                                                  style=""> <i

@@ -26,6 +26,8 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter'
                 });
                 var currentSwap1 = null;
                 var currentSwap2 = null;
+                /*
+                 //sadly removed because drag/drop doesn't work in chrome applications.
                 Sortable.create(this.$('#operationList')[0], {
                     draggable: ".list-group-item",
                     filter: "script",
@@ -44,7 +46,7 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter'
                         if (view)
                             currentSwap2 = view.get('parameters.context.model');
                     }
-                });
+                 });*/
             },
             dragEnter: function (event) {
                 event.preventDefault();
