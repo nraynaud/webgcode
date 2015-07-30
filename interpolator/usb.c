@@ -228,25 +228,26 @@ typedef enum {
     PROGRAM_STOP_SPINDLE = 2
 } program_type_t;
 
-
 void tryToStartProgram() {
     uint8_t array[PROGRAM_HEADER_LENGTH];
-    if (readBufferArray2(PROGRAM_HEADER_LENGTH, array)) {
-        program_type_t programType = (program_type_t) (array[0]);
-        switch (programType) {
-            case PROGRAM_STEPS:
-                cncMemory.state = RUNNING_PROGRAM;
-                circularBuffer.programLength = array[3] << 16 | array[2] << 8 | array[1];
-                circularBuffer.programID = array[7] << 24 | array[6] << 16 | array[5] << 8 | array[4];
-                return;
-            case PROGRAM_START_SPINDLE:
-                cncMemory.spindleOutput.run = 1;
-                return;
-            case PROGRAM_STOP_SPINDLE:
-                cncMemory.spindleOutput.run = 0;
-                return;
-        }
-    }
+    crBegin;
+            if (readBufferArray2(PROGRAM_HEADER_LENGTH, array)) {
+                program_type_t programType = (program_type_t) (array[0]);
+                if (programType == PROGRAM_STEPS) {
+                    cncMemory.state = RUNNING_PROGRAM;
+                    circularBuffer.programLength = array[3] << 16 | array[2] << 8 | array[1];
+                    circularBuffer.programID = array[7] << 24 | array[6] << 16 | array[5] << 8 | array[4];
+                } else if (programType == PROGRAM_START_SPINDLE) {
+                    cncMemory.spindleOutput.run = 1;
+                    while (!(cncMemory.spindleInput & 2)) {
+                        crComeBackLater;
+                    }
+                    crReturn;
+                } else if (programType == PROGRAM_STOP_SPINDLE) {
+                    cncMemory.spindleOutput.run = 0;
+                }
+            }
+    crFinish;
 }
 
 void checkProgramEnd() {

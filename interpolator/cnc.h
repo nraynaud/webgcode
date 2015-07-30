@@ -48,6 +48,7 @@ typedef struct {
     step_t currentStep;
     uint64_t tick;
     spindle_output_t spindleOutput;
+    uint8_t unfilteredSpindleInput;
     uint8_t spindleInput;
 } cnc_memory_t;
 
@@ -75,7 +76,7 @@ enum {
 
 //http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html
 
-#define crBegin static int state=0; switch(state) { case 0:
+#define crBegin static int state=0; switch(state) { default:break; case 0:
 #define crFinish state=0;}
 #define crReturn do { state=0; return; } while (0)
 #define crComeBackLater do { state=__LINE__; return; \

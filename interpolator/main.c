@@ -4,6 +4,7 @@
 #include "arm_math.h"
 #include "cnc.h"
 #include "core_cm4.h"
+#include "core_cmInstr.h"
 
 static const struct {
     GPIO_TypeDef *gpio;
@@ -51,6 +52,12 @@ static const struct {
         .spiMosi = GPIO_Pin_15,
         .spiMiso = GPIO_Pin_14,
         .spiEnablePin = GPIO_Pin_12
+};
+
+static const struct {
+    uint8_t polarity;
+} spindleInputPolarity = {
+        .polarity = 3
 };
 
 volatile cnc_memory_t cncMemory = {
@@ -202,7 +209,7 @@ static void handleSPI() {
                 crComeBackLater;
             while ((spindlePinout.spi->SR & SPI_SR_RXNE) == 0)
                 crComeBackLater;
-            cncMemory.spindleInput = (uint8_t) SPI_I2S_ReceiveData(spindlePinout.spi);
+            cncMemory.unfilteredSpindleInput = (uint8_t) SPI_I2S_ReceiveData(spindlePinout.spi) ^ spindleInputPolarity.polarity;
             while ((spindlePinout.spi->SR & SPI_SR_BSY) != 0)
                 crComeBackLater;
             flashShiftRegisters();
@@ -236,17 +243,39 @@ static uint16_t myLog2(int value) {
     return 31 - __builtin_clz(value);
 }
 
-static void handleSpindle() {
+
+static void debounceRunbit() {
     static uint64_t discrepancyStartTick = 0;
     crBegin;
-            discrepancyStartTick = cncMemory.tick;
+            discrepancyStartTick += cncMemory.tick;
             while (cncMemory.tick < discrepancyStartTick + 20000) {
-                if (!(cncMemory.spindleOutput.run) || cncMemory.spindleInput & 2)
+                if (!(cncMemory.spindleOutput.run) || cncMemory.spindleInput & 1)
                     crReturn;
                 crComeBackLater;
             }
             cncMemory.spindleOutput.run = 1;
     crFinish;
+}
+
+static int32_t filterSpiInput[2] = {0, 0};
+
+static void filterSpindleInput(int32_t tickDifference) {
+    filterSpiInput[0] = __SSAT(filterSpiInput[0] + (cncMemory.unfilteredSpindleInput & 1 ? tickDifference : -tickDifference), 8);
+    filterSpiInput[1] = __SSAT(filterSpiInput[1] + (cncMemory.unfilteredSpindleInput & 2 ? tickDifference : -tickDifference), 14);
+    cncMemory.spindleInput = (uint8_t) ((filterSpiInput[1] > 0) << 1 | (filterSpiInput[0] > 0));
+    if (cncMemory.spindleInput & 2)
+        STM_EVAL_LEDOn(LED3);
+    else
+        STM_EVAL_LEDOff(LED3);
+}
+
+static void periodicSpindleFunction() {
+    static uint64_t lastTick;
+    uint64_t tick = cncMemory.tick;
+    int32_t tickDifference = (uint32_t) (tick - lastTick);
+    lastTick = tick;
+    debounceRunbit();
+    filterSpindleInput(tickDifference);
 }
 
 __attribute__ ((noreturn)) void main(void) {
@@ -349,16 +378,16 @@ __attribute__ ((noreturn)) void main(void) {
             cncMemory.spindleOutput.run = 0;
         }
         handleSPI();
-        handleSpindle();
+        periodicSpindleFunction();
         copyUSBufferIfPossible();
-        if (cncMemory.state == READY || cncMemory.state == MANUAL_CONTROL && !isEmergencyStopped())
+        if ((cncMemory.state == READY || cncMemory.state == MANUAL_CONTROL) && !isEmergencyStopped())
             tryToStartProgram();
         run();
-        periodicUICallback();
     }
 #pragma clang diagnostic pop
 }
 
 __attribute__ ((used)) void SysTick_Handler(void) {
     cncMemory.tick++;
+    periodicUICallback();
 }

@@ -253,7 +253,7 @@ void handleButton() {
 }
 
 void periodicUICallback(void) {
-    float32_t factor = 0.999f;
+    float32_t factor = 0.99f;
     manualControlStatus.filteredAdc.x = manualControlStatus.filteredAdc.x * factor
             + manualControlStatus.adcValue[0] * (1.0f - factor);
     manualControlStatus.filteredAdc.y = manualControlStatus.filteredAdc.y * factor
