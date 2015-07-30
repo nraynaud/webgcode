@@ -334,7 +334,7 @@ function program17(depth0,data) {
   },hashTypes:{'class': "STRING"},hashContexts:{'class': depth0},contexts:[],types:[],data:data})));
   data.buffer.push(">E-STOP</div>\n        <div ");
   data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
-    'class': (":spindle spindleRunning")
+      'class': (":spindle spindleRunning spindleUpToSpeed")
   },hashTypes:{'class': "STRING"},hashContexts:{'class': depth0},contexts:[],types:[],data:data})));
   data.buffer.push(">Spindle <br>\n            <button ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "toggleSpindle", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
