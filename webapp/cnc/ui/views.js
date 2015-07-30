@@ -5,6 +5,7 @@ define(['Ember'], function (Ember) {
         NumberField: Ember.TextField.extend({
             type: 'number',
             attributeBindings: ['min', 'max', 'step'],
+            classNames: ['form-control'],
             valueChanged: function () {
                 var previousNumericValue = this.get('numericValue');
                 var newNumericValue = parseFloat(this.get('value'));

@@ -270,7 +270,8 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
             pathOrientations: [
                 {label: 'X', id: 'x'},
                 {label: 'Y', id: 'y'}
-            ]
+            ],
+            noRamping: Ember.computed.not('pocket_ramping_entry')
         });
 
         var OperationListItemController = Ember.ObjectController.extend({

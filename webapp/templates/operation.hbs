@@ -3,18 +3,18 @@
         <tbody>
         <tr class="form-header">
             <th>Name:</th>
-            <td>{{input value=name placeholder="name"}} </td>
+            <td>{{input value=name placeholder="name" classNames="form-control"}} </td>
         </tr>
         <tr>
             <th>Type:</th>
             <td>{{view Ember.Select value=type content=operationDescriptors optionValuePath="content.class"
-            optionLabelPath="content.label"}}</td>
+            optionLabelPath="content.label" classNames="form-control"}}</td>
         </tr>
         <tr>
             <th>Outline:</th>
             <td>
                 {{view Ember.Select selection=outline content=suitableShapes optionValuePath="content.id"
-                optionLabelPath="content.name"}}
+                optionLabelPath="content.name" classNames="form-control"}}
             </td>
         </tr>
         {{partial specialTemplate}}

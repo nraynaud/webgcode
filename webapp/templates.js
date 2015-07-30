@@ -79,7 +79,7 @@ function program8(depth0,data) {
   },hashTypes:{'numericValue': "ID",'min': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n        <span class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Min Z:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
-    'numericValue': ("3d_minZ")
+      'numericValue': ("bottom_Z")
   },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push("\n        <span class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th title=\"Engagement in %\">Diametral Engagement:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
@@ -410,11 +410,11 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
 
   data.buffer.push("<tr>\n    <th>Surface :</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
-    'numericValue': ("drilling_startZ")
+      'numericValue': ("top_Z")
   },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Bottom Z :</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
-    'numericValue': ("drilling_stopZ")
+      'numericValue': ("bottom_Z")
   },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n");
   return buffer;
@@ -724,8 +724,15 @@ function program12(depth0,data) {
   },hashTypes:{'id': "STRING",'type': "STRING",'min': "INTEGER",'max': "INTEGER",'step': "STRING",'value': "ID"},hashContexts:{'id': depth0,'type': depth0,'min': depth0,'max': depth0,'step': depth0,'value': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
   data.buffer.push("\n            <span id=\"slideToDelete\">Slide right deletes the job</span>\n            <span id=\"releaseToDelete\" style=\"display: none;font-weight: bold\">Release mouse to delete</span>\n        </div>\n        <div id=\"fakeDelete\">\n            <button class=\"btn btn-default\">Delete</button>\n        </div>\n    </div>\n    <table class=\"form\">\n        <tbody>\n        <tr>\n            <th>Name:</th>\n            <td>");
   data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
-    'value': ("name")
-  },hashTypes:{'value': "ID"},hashContexts:{'value': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+      'value': ("name"),
+      'classNames': ("form-control")
+  },
+      hashTypes: {'value': "ID", 'classNames': "STRING"},
+      hashContexts: {'value': depth0, 'classNames': depth0},
+      contexts: [],
+      types: [],
+      data: data
+  }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
   data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th>Safety Z:</th>\n            <td>");
   data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
     'numericValue': ("safetyZ")
@@ -824,22 +831,67 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   data.buffer.push("<div>\n    <table class=\"form\">\n        <tbody>\n        <tr class=\"form-header\">\n            <th>Name:</th>\n            <td>");
   data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
     'value': ("name"),
-    'placeholder': ("name")
-  },hashTypes:{'value': "ID",'placeholder': "STRING"},hashContexts:{'value': depth0,'placeholder': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+      'placeholder': ("name"),
+      'classNames': ("form-control")
+  },
+      hashTypes: {'value': "ID", 'placeholder': "STRING", 'classNames': "STRING"},
+      hashContexts: {'value': depth0, 'placeholder': depth0, 'classNames': depth0},
+      contexts: [],
+      types: [],
+      data: data
+  }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
   data.buffer.push(" </td>\n        </tr>\n        <tr>\n            <th>Type:</th>\n            <td>");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Ember.Select", {hash:{
     'value': ("type"),
     'content': ("operationDescriptors"),
     'optionValuePath': ("content.class"),
-    'optionLabelPath': ("content.label")
-  },hashTypes:{'value': "ID",'content': "ID",'optionValuePath': "STRING",'optionLabelPath': "STRING"},hashContexts:{'value': depth0,'content': depth0,'optionValuePath': depth0,'optionLabelPath': depth0},contexts:[depth0],types:["ID"],data:data})));
+      'optionLabelPath': ("content.label"),
+      'classNames': ("form-control")
+  },
+      hashTypes: {
+          'value': "ID",
+          'content': "ID",
+          'optionValuePath': "STRING",
+          'optionLabelPath': "STRING",
+          'classNames': "STRING"
+      },
+      hashContexts: {
+          'value': depth0,
+          'content': depth0,
+          'optionValuePath': depth0,
+          'optionLabelPath': depth0,
+          'classNames': depth0
+      },
+      contexts: [depth0],
+      types: ["ID"],
+      data: data
+  })));
   data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th>Outline:</th>\n            <td>\n                ");
   data.buffer.push(escapeExpression(helpers.view.call(depth0, "Ember.Select", {hash:{
     'selection': ("outline"),
     'content': ("suitableShapes"),
     'optionValuePath': ("content.id"),
-    'optionLabelPath': ("content.name")
-  },hashTypes:{'selection': "ID",'content': "ID",'optionValuePath': "STRING",'optionLabelPath': "STRING"},hashContexts:{'selection': depth0,'content': depth0,'optionValuePath': depth0,'optionLabelPath': depth0},contexts:[depth0],types:["ID"],data:data})));
+      'optionLabelPath': ("content.name"),
+      'classNames': ("form-control")
+  },
+      hashTypes: {
+          'selection': "ID",
+          'content': "ID",
+          'optionValuePath': "STRING",
+          'optionLabelPath': "STRING",
+          'classNames': "STRING"
+      },
+      hashContexts: {
+          'selection': depth0,
+          'content': depth0,
+          'optionValuePath': depth0,
+          'optionLabelPath': depth0,
+          'classNames': depth0
+      },
+      contexts: [depth0],
+      types: ["ID"],
+      data: data
+  })));
   data.buffer.push("\n            </td>\n        </tr>\n        ");
   data.buffer.push(escapeExpression((helper = helpers.partial || (depth0 && depth0.partial),options={hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data},helper ? helper.call(depth0, "specialTemplate", options) : helperMissing.call(depth0, "partial", "specialTemplate", options))));
   data.buffer.push("\n        </tbody>\n    </table>\n</div>");
@@ -854,7 +906,7 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
 
   data.buffer.push("<tr>\n    <th title=\"in mm\">Bottom Z:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
-    'numericValue': ("pocket_depth")
+      'numericValue': ("bottom_Z")
   },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th title=\"Engagement in %\">Radial Engagement:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
@@ -863,12 +915,51 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
     'increment': ("1"),
     'max': ("100")
   },hashTypes:{'numericValue': "ID",'min': "STRING",'increment': "STRING",'max': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0,'increment': depth0,'max': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-  data.buffer.push("\n        <span class=\"input-group-addon\">%</span></td>\n</tr>\n<tr>\n    <th title=\"lateral in mm\">Leave Stock:</th>\n    <td class=\"input-group input-group-sm\">");
+    data.buffer.push("\n        <span class=\"input-group-addon\">%</span></td>\n</tr>\n<tr>\n    <th title=\"Lateral in mm\">Leave Stock:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
     'numericValue': ("pocket_leaveStock"),
     'min': ("0")
   },hashTypes:{'numericValue': "ID",'min': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-  data.buffer.push("\n        <span class=\"input-group-addon\">mm</span></td>\n</tr>");
+    data.buffer.push("\n        <span class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th title=\"Avoid straight plunging\">Ramping Entry:</th>\n    <td class=\"input-group input-group-sm\">");
+    data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input), options = {
+        hash: {
+            'type': ("checkbox"),
+            'checked': ("pocket_ramping_entry")
+        },
+        hashTypes: {'type': "STRING", 'checked': "ID"},
+        hashContexts: {'type': depth0, 'checked': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+    data.buffer.push("</td>\n</tr>\n<tr>\n    <th>Ramp Starting Z:</th>\n    <td class=\"input-group input-group-sm\">");
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'numericValue': ("top_Z"),
+            'disabled': ("noRamping")
+        },
+        hashTypes: {'numericValue': "ID", 'disabled': "ID"},
+        hashContexts: {'numericValue': depth0, 'disabled': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+    data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th># of Ramping Turns:</th>\n    <td class=\"input-group input-group-sm\">");
+    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+        hash: {
+            'numericValue': ("ramping_turns"),
+            'min': ("1"),
+            'step': ("1"),
+            'disabled': ("noRamping"),
+            'classNames': ("form-control")
+        },
+        hashTypes: {'numericValue': "ID", 'min': "STRING", 'step': "STRING", 'disabled': "ID", 'classNames': "STRING"},
+        hashContexts: {'numericValue': depth0, 'min': depth0, 'step': depth0, 'disabled': depth0, 'classNames': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+    data.buffer.push("\n        <span class=\"input-group-addon\">units</span></td>\n</tr>");
   return buffer;
   
 });
@@ -895,11 +986,11 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   },hashTypes:{'numericValue': "ID",'min': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Start Z:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
-    'numericValue': ("ramping_startZ")
+      'numericValue': ("top_Z")
   },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Stop Z:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
-    'numericValue': ("ramping_stopZ")
+      'numericValue': ("bottom_Z")
   },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th># of turns:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
@@ -1146,7 +1237,7 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   },hashTypes:{'numericValue': "ID",'min': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Contour Z:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
-    'numericValue': ("simple_contourZ")
+      'numericValue': ("bottom_Z")
   },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n");
   return buffer;
@@ -1160,7 +1251,7 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
 
   data.buffer.push("<tr>\n    <th>engraving Z:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
-    'numericValue': ("engraving_Z")
+      'numericValue': ("bottom_Z")
   },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
   data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n");
   return buffer;

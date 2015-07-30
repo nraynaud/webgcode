@@ -24,11 +24,11 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util']
             label: 'Simple Engraving',
             specialTemplate: 'simpleEngraving',
             properties: {
-                engraving_Z: attr('number', {defaultValue: -5})
+                bottom_Z: attr('number', {defaultValue: -5})
             },
             computeToolpath: function (op) {
                 return new RSVP.Promise(function (resolve, reject) {
-                    var z = op.engraving_Z;
+                    var z = op.bottom_Z;
                     var safetyZ = op.job.safetyZ;
                     var polygons = op.outline.clipperPolyline;
                     var toolpath = [];
@@ -52,7 +52,7 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util']
             label: 'Simple Contour',
             specialTemplate: 'simpleContour',
             properties: {
-                simple_contourZ: attr('number', {defaultValue: -5}),
+                bottom_Z: attr('number', {defaultValue: -5}),
                 contour_inside: attr('boolean', {defaultValue: true}),
                 contour_leaveStock: attr('number', {defaultValue: 0}),
                 contour_climbMilling: attr('boolean', {defaultValue: false})
@@ -60,17 +60,17 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util']
             computeToolpath: function (params) {
                 return new RSVP.Promise(function (resolve, reject) {
                     var machine = new cam.Machine(null);
-                    machine.setParams(params.simple_contourZ, 10, 100);
+                    machine.setParams(params.bottom_Z, 10, 100);
                     var result = contour(params, machine);
                     resolve({
                         missedArea: result.missedArea,
                         toolpath: result.contours.map(function (path) {
                             var startPoint = path.getStartPoint();
-                            var generalPath = path.asGeneralToolpath(params.simple_contourZ);
+                            var generalPath = path.asGeneralToolpath(params.bottom_Z);
                             // plunge from safety plane
                             generalPath.pushPointInFront(startPoint.x, startPoint.y, params.job.safetyZ);
                             //close the loop
-                            generalPath.pushPointXYZ(startPoint.x, startPoint.y, params.simple_contourZ);
+                            generalPath.pushPointXYZ(startPoint.x, startPoint.y, params.bottom_Z);
                             return generalPath;
                         })
                     });
@@ -81,8 +81,8 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util']
             label: 'Ramping Contour',
             specialTemplate: 'rampingContour',
             properties: {
-                ramping_startZ: attr('number', {defaultValue: 0}),
-                ramping_stopZ: attr('number', {defaultValue: -5}),
+                top_Z: attr('number', {defaultValue: 0}),
+                bottom_Z: attr('number', {defaultValue: -5}),
                 ramping_turns: attr('number', {defaultValue: 5}),
                 contour_inside: attr('boolean', {defaultValue: true}),
                 contour_leaveStock: attr('number', {defaultValue: 0}),
@@ -91,9 +91,9 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util']
             computeToolpath: function (op) {
                 return new RSVP.Promise(function (resolve, reject) {
                     var machine = new cam.Machine(null);
-                    machine.setParams(op.ramping_startZ, 10, 100);
+                    machine.setParams(op.top_Z, 10, 100);
                     var result = contour(op, machine);
-                    var toolpath = machine.rampToolPathArray(result.contours, op.ramping_startZ, op.ramping_stopZ, op.ramping_turns);
+                    var toolpath = machine.rampToolPathArray(result.contours, op.top_Z, op.bottom_Z, op.ramping_turns);
                     toolpath.forEach(function (path) {
                         var startPoint = path.getStartPoint();
                         path.pushPointInFront(startPoint.x, startPoint.y, op.job.safetyZ);
@@ -106,9 +106,12 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util']
             label: 'Pocket',
             specialTemplate: 'operationPocket',
             properties: {
-                pocket_depth: attr('number', {defaultValue: -5}),
+                bottom_Z: attr('number', {defaultValue: -5}),
                 pocket_engagement: attr('number', {defaultValue: 50}),
-                pocket_leaveStock: attr('number', {defaultValue: 0.1})
+                pocket_leaveStock: attr('number', {defaultValue: 0.1}),
+                pocket_ramping_entry: attr('boolean', {defaultValue: true}),
+                ramping_turns: attr('number', {defaultValue: 2}),
+                top_Z: attr('number', {defaultValue: 0})
             },
             computeToolpath: function (op) {
                 return new RSVP.Promise(function (resolve, reject) {
@@ -128,19 +131,23 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util']
                         workResult.forEach(function (result) {
                             result.result.forEach(function (pocketResult, index) {
                                 var path = [];
+                                var entries = [];
 
                                 function collect(layer) {
                                     for (var i = 0; i < layer.children.length; i++)
                                         collect(layer.children[i]);
-                                    path = path.concat(layer.spiraledToolPath
-                                        ? machine.fromClipper([layer.spiraledToolPath.path])
-                                        : machine.fromClipper(layer.contour));
+                                    path = path.concat(machine.fromClipper(layer.spiraledToolPath
+                                        ? [layer.spiraledToolPath.path] : layer.contour));
+                                    if (layer.spiraledToolPath)
+                                        entries.push(machine.fromClipper([layer.entryPath])[0]);
                                 }
 
                                 collect(pocketResult);
+                                if (op.pocket_ramping_entry)
+                                    path = machine.rampToolPathArray(entries, op.top_Z, op.bottom_Z, op.ramping_turns).concat(path);
                                 path.forEach(function (path) {
                                     var startPoint = path.getStartPoint();
-                                    var generalPath = path.asGeneralToolpath(op.pocket_depth);
+                                    var generalPath = path.asGeneralToolpath(op.bottom_Z);
                                     if (index == 0)
                                     // plunge from safety plane
                                         generalPath.pushPointInFront(startPoint.x, startPoint.y, op.job.safetyZ);
@@ -159,7 +166,7 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util']
             specialTemplate: '3DMilling',
             properties: {
                 '3d_leaveStock': attr('number', {defaultValue: 0.5}),
-                '3d_minZ': attr('number', {defaultValue: -1000}),
+                'bottom_Z': attr('number', {defaultValue: -1000}),
                 '3d_toolType': attr('string', {defaultValue: 'cylinder'}),
                 '3d_vToolAngle': attr('number', {defaultValue: 10}),
                 '3d_vToolTipDiameter': attr('number', {defaultValue: 0.1}),
@@ -177,13 +184,13 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util']
             label: 'Drilling',
             specialTemplate: 'drilling',
             properties: {
-                drilling_startZ: attr('number', {defaultValue: 0}),
-                drilling_stopZ: attr('number', {defaultValue: -5})
+                top_Z: attr('number', {defaultValue: 0}),
+                bottom_Z: attr('number', {defaultValue: -5})
             },
             computeToolpath: function (op) {
                 return new RSVP.Promise(function (resolve, reject) {
-                    var start = op.drilling_startZ;
-                    var stop = op.drilling_stopZ;
+                    var start = op.top_Z;
+                    var stop = op.bottom_Z;
                     var point = op.outline.point;
                     var safetyZ = op.job.safetyZ;
 

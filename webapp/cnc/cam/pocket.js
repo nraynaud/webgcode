@@ -59,12 +59,15 @@ define(['RSVP', 'clipper', 'cnc/cam/cam', 'require', 'cnc/util'], function (RSVP
         if (pocket.children.length == 1 && pocket.contour.length == 1) {
             var child = pocket.children[0];
             if (child.contour.length == 1 || child['spiraledToolPath']) {
+                var entryPath;
                 var newSpiraledToolPath;
                 if (child['spiraledToolPath']) {
                     var childToolPath = child.spiraledToolPath;
+                    entryPath = child.entryPath;
                     newSpiraledToolPath = spiralFromData(pocket, childToolPath.path, childToolPath.shell);
                 } else {
                     var childContour = child.contour[0];
+                    entryPath = childContour;
                     var shell = [childContour];
                     if (child.children.length)
                         shell.push(childContour);
@@ -73,6 +76,7 @@ define(['RSVP', 'clipper', 'cnc/cam/cam', 'require', 'cnc/util'], function (RSVP
                 //the lowest chainable child might itself have non-chainable children
                 pocket.children = child.children;
                 pocket.spiraledToolPath = newSpiraledToolPath;
+                pocket.entryPath = entryPath;
             }
         }
     }
@@ -234,14 +238,20 @@ define(['RSVP', 'clipper', 'cnc/cam/cam', 'require', 'cnc/util'], function (RSVP
                         work.worker = null;
                     }
                 }
-            }};
+            }
+        };
     }
 
     function createWork(polygon, scaledToolRadius, radialEngagementRatio) {
         var deferred = RSVP.defer();
         var undercutDeferred = RSVP.defer();
         return {
-            message: {operation: 'createPocket', poly: polygon, scaledToolRadius: scaledToolRadius, radialEngagementRatio: radialEngagementRatio},
+            message: {
+                operation: 'createPocket',
+                poly: polygon,
+                scaledToolRadius: scaledToolRadius,
+                radialEngagementRatio: radialEngagementRatio
+            },
             messageHandler: function (data) {
                 if (data['finished']) {
                     deferred.resolve(data['result']);

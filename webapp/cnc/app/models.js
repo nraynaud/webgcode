@@ -243,7 +243,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 var _this = this;
                 var model = this.get('outline.meshGeometry');
                 var leaveStock = this.get('3d_leaveStock');
-                var minZ = this.get('3d_minZ');
+                var minZ = this.get('bottom_Z');
                 var tool = this.get('tool');
                 var orientation = this.get('3d_pathOrientation');
                 var stepover = this.get('3d_diametralEngagement') * toolDiameter / 100;
