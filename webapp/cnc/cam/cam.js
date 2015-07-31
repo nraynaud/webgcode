@@ -159,18 +159,19 @@ define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util'
         },
 
         contourAndMissedArea: function (clipperPolygon, toolRadius, leaveStock, inside) {
-            function polygonDifference(p1, p2) {
-                var p1_0 = p1.Contour()[0];
-                var p2_0 = p2.Contour()[0];
-                return util.morton(p1_0.X, p1_0.Y) - util.morton(p2_0.X, p2_0.Y);
+
+            function sortedChildren(polygon) {
+                return polygon.Childs().slice().sort(function polygonDifference(p1, p2) {
+                    return util.mortonClipper(p1.Contour()[0], p2.Contour()[0]);
+                });
             }
 
             function reorderPolytreeForContour(polytree) {
                 var result = [];
-                var outerStack = polytree.Childs().slice().sort(polygonDifference);
+                var outerStack = sortedChildren(polytree);
                 for (var j = 0; j < outerStack.length; j++) {
                     var outerNode = outerStack[j];
-                    var holes = outerNode.Childs().slice().sort(polygonDifference);
+                    var holes = sortedChildren(outerNode);
                     for (var i = 0; i < holes.length; i++) {
                         result = result.concat(reorderPolytreeForContour(holes[i]));
                         result.push(holes[i].Contour());

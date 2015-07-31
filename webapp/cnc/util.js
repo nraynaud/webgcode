@@ -188,6 +188,10 @@ define(function () {
             (Y[(y >> 16) & 0xFF] | X[(x >> 16) & 0xFF]) * 0x100000000;
     }
 
+    function mortonClipper(p1, p2) {
+        return morton(p1.X, p1.Y) - morton(p2.X, p2.Y)
+    }
+
     return {
         Point: Point,
         toggleClass: toggleClass,
@@ -218,6 +222,7 @@ define(function () {
         createSimulationAccumulator: createSimulationAccumulator,
         humanizeDuration: humanizeDuration,
         BoundingBox: BoundingBox,
-        morton: morton
+        morton: morton,
+        mortonClipper: mortonClipper
     };
 });
