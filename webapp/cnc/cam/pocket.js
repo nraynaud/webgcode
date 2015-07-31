@@ -122,7 +122,7 @@ define(['RSVP', 'clipper', 'cnc/cam/cam', 'require', 'cnc/util'], function (RSVP
 
     function sortChildren(pocket) {
         pocket.children.sort(function (p1, p2) {
-            return pointOrder(p1.contour[0][0], p2.contour[0][0]);
+            return util.mortonClipper(p1.contour[0][0], p2.contour[0][0]);
         });
     }
 
@@ -266,17 +266,12 @@ define(['RSVP', 'clipper', 'cnc/cam/cam', 'require', 'cnc/util'], function (RSVP
         };
     }
 
-    function pointOrder(p1, p2) {
-        var dX = p1.X - p2.X;
-        if (dX == 0)
-            return p1.Y - p2.Y;
-        return dX;
+    function polygonOrder(p1, p2) {
+        return util.mortonClipper(p1[0][0], p2[0][0]);
     }
 
     function sortPolygons(polygons) {
-        polygons.sort(function (p1, p2) {
-            return pointOrder(p1[0][0], p2[0][0]);
-        });
+        polygons.sort(polygonOrder);
     }
 
     function createPocketInWorkerPool(polygons, scaledToolRadius, radialEngagementRatio) {
