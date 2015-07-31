@@ -132,12 +132,22 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util']
                             result.result.forEach(function (pocketResult, index) {
                                 var path = [];
                                 var entries = [];
+                                var separatedContours = [];
 
                                 function collect(layer) {
                                     for (var i = 0; i < layer.children.length; i++)
                                         collect(layer.children[i]);
-                                    path = path.concat(machine.fromClipper(layer.spiraledToolPath
-                                        ? [layer.spiraledToolPath.path] : layer.contour));
+                                    if (layer.spiraledToolPath) {
+                                        path = path.concat(machine.fromClipper([layer.spiraledToolPath.path]));
+                                    } else {
+                                        //split the side paths by index
+                                        var contours = machine.fromClipper(layer.contour);
+                                        for (var j = 0; j < contours.length; j++) {
+                                            if (!separatedContours[j])
+                                                separatedContours[j] = [];
+                                            separatedContours[j].push(contours[j]);
+                                        }
+                                    }
                                     if (layer.spiraledToolPath)
                                         entries.push(machine.fromClipper([layer.entryPath])[0]);
                                 }
@@ -145,6 +155,13 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util']
                                 collect(pocketResult);
                                 if (op.pocket_ramping_entry)
                                     path = machine.rampToolPathArray(entries, op.top_Z, op.bottom_Z, op.ramping_turns).concat(path);
+                                //make a spiral with each side, now that they are separated.
+                                for (var i = 0; i < separatedContours.length; i++) {
+                                    var ct = new tp.ConstantZPolygonToolpath();
+                                    for (var j = 0; j < separatedContours[i].length; j++)
+                                        ct.path = ct.path.concat(separatedContours[i][j].path);
+                                    path.push(ct);
+                                }
                                 path.forEach(function (path) {
                                     var startPoint = path.getStartPoint();
                                     var generalPath = path.asGeneralToolpath(op.bottom_Z);
