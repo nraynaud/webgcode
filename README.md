@@ -32,3 +32,14 @@ Chrome Application
 
 On the computer, you can send the g-code to the machine. The application's main part is simply an iframe with the normal g-code simulator web page in it.
 The USB protocol is custom since I couldn't find any standard. This is all Chrome in the hope to remove OS re-compilation/deployment efforts.
+
+License
+-------
+
+As you can see, there is no license currently, it's a readable source non private software. I have currently no job and I keep my options open to make money off of this codebase one day, and also open source licenses are a pain to choose. If you want to fork it for some open source stuff, contact me, I'll release a branch under a licence of your choosing for you to fork from, that way you can start an open source fork and I can keep the upcoming commits non free.
+
+
+Contact
+-------
+
+to contact me about anything, you can use the issues system, there is no traffic on it.
