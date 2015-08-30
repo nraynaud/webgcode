@@ -10,7 +10,7 @@ I am trying to remove the dependency on g-code, because I don't like it, but I m
 Web Stuff
 ---------
 
-[![test](images/visucam_pocket_thumb.png)](images/visucam_pocket.png)
+[![test](images/visucam_pockets_thumb.png)](images/visucam_pockets.png)
 
 A preliminary CAM system for toolpath generation is present here: http://nraynaud.github.io/webgcode/webapp/visucamTest.html#/
 
