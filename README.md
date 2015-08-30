@@ -5,14 +5,16 @@ The beginning of a browser integrated CNC milling machine.
 I have a Mac, and there are no real software to control a milling machine from that kind of computer. So I decided to hack some random pieces of technology together.
 Some people might be interested so I did everything in web technologies for easy trial.
 
-I will try to remove the dependency on g-code, since that language is just a disaster. I might keep some compatibility to help people try out this system or use it only partially.
+I am trying to remove the dependency on g-code, because I don't like it, but I might retain some compatibility, so that users can tip toe into the system.
 
 Web Stuff
 ---------
 
+[![test](images/visucam_pocket_thumb.png)](images/visucam_pocket.png)
+
 A preliminary CAM system for toolpath generation is present here: http://nraynaud.github.io/webgcode/webapp/visucamTest.html#/
 
-There is a g-code simulator here: http://nraynaud.github.io/webgcode/
+There is a g-code simulator here: http://nraynaud.github.io/webgcode/ (that's where the name comes from).
 
 Controller Board
 ----------------
