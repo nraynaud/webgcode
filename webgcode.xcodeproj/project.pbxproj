@@ -206,6 +206,7 @@
 		DDAA5646268DBD0C1FEF3018 /* cam.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = cam.js; path = cam/cam.js; sourceTree = "<group>"; };
 		DDAA564BD4990327507E01D0 /* manual.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = manual.c; sourceTree = "<group>"; };
 		DDAA564C2FBE78706409C739 /* simulation.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = simulation.js; path = gcode/simulation.js; sourceTree = "<group>"; };
+		DDAA56579CF2C65E1BC0ADD2 /* images */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
 		DDAA565B87C730ABFFB31DCA /* parser.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = parser.js; path = gcode/parser.js; sourceTree = "<group>"; };
 		DDAA568D3480E5D010BB2D93 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		DDAA5699D633BDE7062A0B3B /* modelProjector.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = modelProjector.js; sourceTree = "<group>"; };
@@ -643,6 +644,7 @@
 				DDAA57A9418E011585C0FF54 /* test_wireframe.html */,
 				DDAA529BF8EEBE4231120887 /* test_3D_flat.html */,
 				DDAA584D3D02743E506BD4E2 /* test_3D_stream.html */,
+				DDAA56579CF2C65E1BC0ADD2 /* images */,
 			);
 			sourceTree = "<group>";
 		};

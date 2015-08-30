@@ -10,7 +10,7 @@ I am trying to remove the dependency on g-code, because I don't like it, but I m
 Web Stuff
 ---------
 
-[![visucam screen capture](images/visucam_pockets_thumb.png)](images/visucam_pockets.png)
+[![visucam screen capture](images/visucam_pockets_thumb.png)](images/visucam_pockets.png) [![visucam screen capture](images/visucam_3D_thumb.png)](images/visucam_3D.png)
 
 A preliminary CAM system for toolpath generation is present here: http://nraynaud.github.io/webgcode/webapp/visucamTest.html#/
 
@@ -37,7 +37,9 @@ Chrome Application
 [![controller screen capture](images/controller_full_thumb.png)](images/controller_full.png)
 
 On the computer, you can send the program to the machine. The application's main part is simply an iframe with the normal CAM html page in it (they talk with messages).
+
 The USB protocol is custom since I couldn't find any standard, tell me if you know of any USB protocol to send sequences of steps to a machine (there is no g-code interpolator in the embedded system). 
+
 This is all Chrome technology in the hope to remove OS re-compilation/deployment efforts.
 
 License
