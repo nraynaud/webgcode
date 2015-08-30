@@ -18,12 +18,14 @@
             </td>
         </tr>
         <tr>
-            <th title="Zero means global job Feed Rate, otherwise, this operation will have its own feed rate">Feed Rate
+            <th title="Check the box and set a value for an operation specific feedrate. Otherwise the job feed rate will be used.">
+                Feed Rate
                 Over.:
             </th>
-            <td class="input-group input-group-sm">{{number-input numericValue=feedrate min=0 max=3000 step=10}} <span
+            <td class="input-group input-group-sm"><span class="input-group-addon">
+                {{input type="checkbox" checked=feedrateOverride}}
+            </span>{{number-input numericValue=feedrate min=0 max=3000 step=10 disabled=cannotChangeFeedrate}}<span
                     class="input-group-addon">mm/min</span></td>
-
         </tr>        {{partial specialTemplate}}
         </tbody>
     </table>

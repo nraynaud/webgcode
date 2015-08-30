@@ -271,7 +271,8 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
                 {label: 'X', id: 'x'},
                 {label: 'Y', id: 'y'}
             ],
-            noRamping: Ember.computed.not('pocket_ramping_entry')
+            noRamping: Ember.computed.not('pocket_ramping_entry'),
+            cannotChangeFeedrate: Ember.computed.not('feedrateOverride')
         });
 
         var OperationListItemController = Ember.ObjectController.extend({
