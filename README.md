@@ -2,8 +2,8 @@ Webgcode
 ========
 The beginning of a browser integrated CNC milling machine.
 
-I have a Mac, and there are no real software to control a milling machine from that kind of computer. So I decided to hack some random pieces of technology together.
-Some people might be interested so I did everything in web technologies for easy trial.
+I have a Mac, and there are no real software to control a milling machine from that kind of computer. I decided to hack some random pieces of technology together.
+Other people might be interested so I did everything in web technologies for easy trial.
 
 I am trying to remove the dependency on g-code, because I don't like it, but I might retain some compatibility, so that users can tip toe into the system.
 
