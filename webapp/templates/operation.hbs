@@ -17,7 +17,14 @@
                 optionLabelPath="content.name" classNames="form-control"}}
             </td>
         </tr>
-        {{partial specialTemplate}}
+        <tr>
+            <th title="Zero means global job Feed Rate, otherwise, this operation will have its own feed rate">Feed Rate
+                Over.:
+            </th>
+            <td class="input-group input-group-sm">{{number-input numericValue=feedrate min=0 max=3000 step=10}} <span
+                    class="input-group-addon">mm/min</span></td>
+
+        </tr>        {{partial specialTemplate}}
         </tbody>
     </table>
 </div>

@@ -130,6 +130,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 return this.get('computeSpeedFeed') ? this.get('computedFeedrate') : this.get('userFeedrate');
             }.property('computedFeedrate', 'userFeedrate', 'computeSpeedFeed'),
             computeCompactToolPath: function () {
+                console.log('computeCompactToolPath');
                 var operations = this.get('enabledOperations');
                 var feedrate = this.get('feedrate');
                 console.log('using feed rate', feedrate);
@@ -141,6 +142,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     var toolpath = operation.get('toolpath');
                     toolpath.forEach(function (fragment) {
                         fragment.operation = operation.get('id');
+                        fragment.feedrate = operation.get('actualFeedrate');
                     });
                     pathFragments.pushObjects(toolpath);
                 });
@@ -159,10 +161,11 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     travelBits.push({speedTag: 'rapid', path: segment(safeStartPoint, position)});
                     for (var i = 0; i < pathFragments.length; i++) {
                         var fragment = pathFragments[i];
+                        console.log('feedrate', fragment.feedrate);
                         travelBits.push({
                             operation: fragment.operation,
                             speedTag: 'normal',
-                            feedRate: feedrate,
+                            feedRate: fragment.feedrate,
                             path: fragment.asCompactToolpath()
                         });
                         endPoint = fragment.getStopPoint();

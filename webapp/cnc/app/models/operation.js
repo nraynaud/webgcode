@@ -6,9 +6,11 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             init: function () {
                 this._super.apply(this, arguments);
             },
+
             name: attr('string', {defaultValue: 'New Operation'}),
             index: attr('number', {defaultValue: 0}),
             type: attr('string', {defaultValue: 'SimpleEngravingOperation'}),
+            feedrate: attr('number', {defaultValue: 0}),
             enabled: attr('boolean', {defaultValue: true}),
             outline: DS.belongsTo('shape'),
             job: DS.belongsTo('job'),
@@ -127,7 +129,11 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     angle: this.get('3d_vToolAngle'),
                     tipDiameter: this.get('3d_vToolTipDiameter')
                 };
-            }.property('3d_toolType', 'job.toolDiameter', '3d_vToolAngle', '3d_vToolTipDiameter')
+            }.property('3d_toolType', 'job.toolDiameter', '3d_vToolAngle', '3d_vToolTipDiameter'),
+            actualFeedrate: function () {
+                var f = this.get('feedrate');
+                return f == 0 ? this.get('job.feedrate') : f;
+            }.property('feedrate', 'job.feedrate')
         };
 
 //add all the attributes from all the operations types
