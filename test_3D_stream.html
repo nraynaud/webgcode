@@ -82,7 +82,10 @@
                     loadStlFile('webapp/samples/soap.stl', function (stlData) {
                         console.log('hello');
                         new Computer.ToolPathComputer()
-                                .computeHeightField(stlData, 0.1, 'cylinder', 0.5, 0, 10, 0, 1, renderer, true)
+                                .computeHeightField(new STLLoader().parse(stlData), 0.1, {
+                                    type: 'cylinder',
+                                    diameter: 1
+                                }, 0.5, 0, 0, 1, renderer, true)
                                 .start();
                     });
                 });

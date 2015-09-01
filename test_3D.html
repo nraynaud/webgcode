@@ -147,11 +147,6 @@
                             this.setSampleRate(pixelsOnRadius / s);
                             var pixelCount = (pixelsOnRadius * 2) * (pixelsOnRadius * 2) * ySamples * this.modelStage.displaySide + this.modelStage.displaySide * this.modelStage.displaySide;
                             console.log('actual pixel count (millions): ', pixelCount / 1000000);
-                            var types = {
-                                cylinder: toolProfile.createCylindricalTool,
-                                ball: toolProfile.createSphericalTool,
-                                v: toolProfile.createVTool
-                            };
                             var samples = toolProfile.createTool({
                                 type: this.toolType,
                                 diameter: this.toolRadiusMm * 2,
