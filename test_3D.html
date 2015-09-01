@@ -1,339 +1,367 @@
 <!DOCTYPE html >
 <html>
 <head>
-<meta http-equiv="X-UA-Compatible" content="chrome=1"/>
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
-<title>Visual CAM</title>
-<script src="webapp/libs/require.js"></script>
-<script src="webapp/config.js"></script>
-<script>
-    requirejs.config({
-        baseUrl: 'webapp'
-    });
-</script>
-<link rel="shortcut icon" href="webapp/images/icon_fraise_48.png"/>
-<link rel="stylesheet" href="webapp/twoDView.css" type="text/css">
-<link rel="stylesheet" href="webapp/threeDView.css" type="text/css">
-<link rel="stylesheet" href="webapp/libs/bootstrap/css/bootstrap.min.css">
-<link rel="stylesheet" href="webapp/libs/font-awesome-4.2.0/css/font-awesome.min.css">
-<style>
-
-    body, html {
-        height: 100%;
-        width: 100%;
-        margin: 0;
-        padding: 0;
-        background: #fafafa;
-        color: #444;
-    }
-
-    body {
-        font-family: sans-serif;
-        display: flex;
-        flex-direction: column;
-    }
-
-    canvas {
-        flex: 1;
-    }
-
-    .moving {
-        cursor: move;
-    }
-</style>
-<script>
-require(['jQuery', 'THREE', 'cnc/cam/3D/toolProfile', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/minkowskiPass', 'libs/threejs/STLLoader',
-            'libs/threejs/postprocessing/ShaderPass', 'libs/threejs/OrbitControls'],
-        function ($, THREE, toolProfile, ModelStage, MinkowskiPass, STLLoader, ShaderPass, OrbitControls) {
-            var $container = $('body');
-            var renderer = new THREE.WebGLRenderer({antialias: false, alpha: true, precision: 'highp', autoClear: true});
-            renderer.autoClear = true;
-            $container.append(renderer.domElement);
-            var outputWidth = $container.width();
-            var outputHeight = $container.height();
-            renderer.sortObjects = false;
-            renderer.setSize(outputWidth, outputHeight);
-            renderer.setViewport(0, 0, outputWidth, outputHeight);
-            renderer.clear();
-            new STLLoader().load('webapp/samples/soap.stl', function (geometry) {
-                function draw() {
-                    displayGeometry(geometry);
-                }
-
-                draw();
-            });
-
-            function TerrainStage(geometry) {
-                function divV(v1, v2) {
-                    return v1.set(v1.x / v2.x, v1.y / v2.y);
-                }
-
-                this.modelStage = new ModelStage();
-                this.modelStage.setGeometry(geometry);
-
-                var bboxSize = this.modelStage.modelBbox.size();
-                var modelDisplaySideMm = (bboxSize.x > bboxSize.y ? bboxSize.x : bboxSize.y) * 1.1;
-                var modelBufferOrigin = new THREE.Vector2(0, 0).addScalar(-modelDisplaySideMm / 2);
-                var modelBufferSize = new THREE.Vector2(modelDisplaySideMm, modelDisplaySideMm);
-                this.modelStage.camera.left = modelBufferOrigin.x;
-                this.modelStage.camera.right = modelBufferOrigin.x + modelBufferSize.x;
-                this.modelStage.camera.bottom = modelBufferOrigin.y;
-                this.modelStage.camera.top = modelBufferOrigin.y + modelBufferSize.y;
-                this.modelStage.camera.updateProjectionMatrix();
-
-                this.bufferOrigin = modelBufferOrigin.clone();
-                this.bufferSize = modelBufferSize.clone();
-                this.terrainRatio = divV(this.bufferSize.clone(), modelBufferSize);
-                this.terrainTranslation = this.bufferOrigin.clone().sub(modelBufferOrigin).divide(modelBufferSize);
-                this.minkowskiPass = new MinkowskiPass();
-                this.toolRadiusMm = 2;
-                this.toolType = 'ball';
-                this.renderer = renderer;
-                this.toolLeaveStockRadius = 0.5;
-                this.updateToolShape();
-            }
-
-            TerrainStage.prototype = {
-                render: function (renderer) {
-                    if (!this.modelStageClean) {
-                        this.modelStage.render(renderer, this.modelBuffer);
-                        this.modelStageClean = true;
-                        this.minkowskiPassClean = false;
-                    }
-                    if (!this.minkowskiPassClean) {
-                        this.minkowskiPass.render(renderer, this.toolPosBuffer, this.modelBuffer, this.terrainRatio, this.terrainTranslation);
-                        this.minkowskiPassClean = true;
-                    }
-                },
-                setSampleRate: function (newSampleRate) {
-                    console.log('sampleRate', newSampleRate);
-                    if (this.modelBuffer)
-                        this.modelBuffer.dispose();
-                    var bboxSize = this.modelStage.modelBbox.size();
-                    var displaySide = (this.modelStage.aspectRatio >= 1 ? bboxSize.x : bboxSize.y) * newSampleRate;
-                    this.modelBuffer = new THREE.WebGLRenderTarget(displaySide, displaySide,
-                            {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.FloatType});
-                },
-                updateToolShape: function () {
-                    var totalPixels = 20000000;
-                    var ySamples = 10;
-                    var ds = this.modelStage.displaySideMm;
-                    var s = this.toolRadiusMm + this.toolLeaveStockRadius;
-                    var y = ySamples;
-                    var z = totalPixels;
-                    var pw = Math.pow;
-
-                    function crt(x) {
-                        return pw(x, 1 / 3);
-                    }
-
-                    //http://www.wolframalpha.com/input/?i=solve+4*r%5E2*y*d*r%2Fs%2Bd%5E2*r%5E2%2Fs%5E2+%3D+z+for+r
-                    var bigSquareRoot = Math.sqrt(108 * pw(ds, 4) * pw(s, 8) * pw(y, 4) * pw(z, 2) - pw(ds, 8) * pw(s, 4) * pw(y, 2) * z);
-                    var bigCubicRoot = crt(-pw(ds, 6) + 216 * pw(ds, 2) * pw(s, 4) * pw(y, 2) * z + 12 * Math.sqrt(3) * bigSquareRoot);
-                    var estimatePixels = (bigCubicRoot / (ds * s * y) + pw(ds, 3) / ((s * y * bigCubicRoot)) - ds / (s * y)) / 12;
-                    var newPixelsOnRadius = isNaN(estimatePixels) ? 1 : Math.floor(estimatePixels) + 1;
-                    console.log('s', s, 'radialSamples', newPixelsOnRadius);
-                    console.log('estimated pixel count (millions): ', 4 * pw(newPixelsOnRadius, 2) * ySamples * ds * (newPixelsOnRadius / s) / 1000000);
-                    var pixelsOnRadius = newPixelsOnRadius;
-                    this.setSampleRate(pixelsOnRadius / s);
-                    var pixelCount = (pixelsOnRadius * 2) * (pixelsOnRadius * 2) * ySamples * this.modelStage.displaySide + this.modelStage.displaySide * this.modelStage.displaySide;
-                    console.log('actual pixel count (millions): ', pixelCount / 1000000);
-                    var types = {cylinder: toolProfile.createCylindricalTool, ball: toolProfile.createSphericalTool, v: toolProfile.createVTool};
-                    var samples = types[this.toolType](pixelsOnRadius, this.modelStage.zRatio, this.toolRadiusMm, this.toolLeaveStockRadius);
-                    var toolToPartRatio = s / this.modelStage.displaySideMm;
-                    this.minkowskiPass.setParams(samples, new THREE.Vector2(toolToPartRatio, toolToPartRatio));
-                    if (this.toolPosBuffer)
-                        this.toolPosBuffer.dispose();
-                    this.toolPosBuffer = new THREE.WebGLRenderTarget(this.modelStage.displaySide, ySamples,
-                            {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.FloatType});
-                    this.modelStageClean = false;
-                },
-                setToolType: function (type) {
-                    this.toolType = type;
-                    this.updateToolShape();
-                },
-                setToolRadius: function (radius) {
-                    this.toolRadiusMm = radius;
-                    this.updateToolShape();
-                },
-                setLeaveStock: function (radius) {
-                    this.toolLeaveStockRadius = radius;
-                    this.updateToolShape();
-                }
-            };
-
-            function displayGeometry(geometry) {
-                var clonedGeometry = geometry;
-                var pipeline = new TerrainStage(geometry);
-                var scene2 = new THREE.Scene();
-                var camera2 = new THREE.PerspectiveCamera(45, outputWidth / outputHeight, 0.1, 1500);
-                camera2.up.set(0, 0, 1);
-                camera2.position.z = 100;
-                scene2.add(camera2);
-                camera2.updateMatrixWorld();
-                var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-                directionalLight.position.set(1000, 1000, 1000);
-                scene2.add(directionalLight);
-                var directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
-                directionalLight2.position.set(-1000, -1000, 1000);
-                scene2.add(directionalLight2);
-                var terrainToWorld = new THREE.Matrix4()
-                        .makeScale(pipeline.bufferSize.x, pipeline.bufferSize.y, 1)
-                        .setPosition(new THREE.Vector3(pipeline.bufferOrigin.x, pipeline.bufferOrigin.y, 0));
-                pipeline.modelStage.pushZInverseProjOn(terrainToWorld);
-                var terrainShader = {
-                    wireframe: false,
-                    size: 2,
-                    uniforms: {
-                        tDisplacement: {type: 't', value: null},
-                        terrainToWorld: {type: 'm4', value: terrainToWorld},
-                        sampleCount: {type: 'v2', value: new THREE.Vector2(pipeline.toolPosBuffer.width, pipeline.toolPosBuffer.height)},
-                        minZ: {type: 'f', value: -7}
-                    },
-                    vertexShader: [
-                        'uniform sampler2D tDisplacement;',
-                        'uniform mat4 terrainToWorld;',
-                        'uniform vec2 sampleCount;',
-                        'uniform float minZ;',
-                        'varying vec4 color;',
-                        'highp float factor = (exp2(24.0) - 1.0) / exp2(24.0);',
-                        'highp float DecodeFloatRGB(vec3 rgb) {',
-                        '   return dot(rgb, vec3(1.0, 1.0 / 255.0, 1.0 / 255.0 / 255.0)) / factor;',
-                        '}',
-                        'void main() {',
-                        '   vec2 uv = position.xy / sampleCount * (sampleCount - 1.0) + 0.5 / sampleCount;',
-                        '   color = texture2D(tDisplacement, vec2(uv));',
-                        '   vec3 pos = (terrainToWorld * vec4(uv, DecodeFloatRGB(color.rgb), 1.0)).xyz;',
-                        '   pos.z = max(minZ, pos.z);',
-                        '   gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);',
-                        '}'
-                    ].join('\n'),
-                    fragmentShader: [
-                        'varying vec4 color;',
-                        'void main() {',
-                        '   gl_FragColor = vec4(color.r, 0.6 - abs(color.r - 0.5), 1.0 - color.r, 1.0);',
-                        '}'].join('\n')
-                };
-
-                var terrainMaterial = new THREE.ShaderMaterial(terrainShader);
-
-                function createGrid(xRes, yRes, points, avoidX, avoidY) {
-                    var geometry = new THREE.BufferGeometry();
-                    var vertices = [];
-                    var offset = 0;
-
-                    function pushVertex(i, j) {
-                        vertices.push(i / (xRes - 1), j / (yRes - 1), 0);
-                    }
-
-                    for (var i = 0; i < xRes; i++)
-                        for (var j = 0; j < yRes; j++) {
-                            if (points)
-                                pushVertex(i, j);
-                            else {
-                                if (i != 0 && !avoidX) {
-                                    pushVertex(i - 1, j);
-                                    pushVertex(i, j);
-                                }
-                                if (j != 0 && !avoidY) {
-                                    pushVertex(i, j - 1);
-                                    pushVertex(i, j);
-                                }
-                            }
-                            offset += 3
-                        }
-                    geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
-                    if (points)
-                        return new THREE.PointCloud(geometry, terrainMaterial);
-                    else
-                        return new THREE.Line(geometry, terrainMaterial, THREE.LinePieces);
-                }
-
-                var grid = createGrid(pipeline.toolPosBuffer.width, pipeline.toolPosBuffer.height, false, false, true);
-                grid.frustumCulled = false;
-                scene2.add(grid);
-                scene2.add(new THREE.Mesh(clonedGeometry, new THREE.MeshLambertMaterial({color: 0xFEEFFE, shading: THREE.SmoothShading})));
-
-                document.documentElement.addEventListener('keydown', function (event) {
-                    if (event.shiftKey === true) {
-                        document.body.classList.add('moving');
-                    }
-                });
-
-                document.documentElement.addEventListener('keyup', function (event) {
-                    if (event.shiftKey === false) {
-                        document.body.classList.remove('moving');
-                    }
-                });
-
-                var controls = new OrbitControls(camera2, renderer.domElement);
-                controls.rotateSpeed = 1.0;
-                controls.zoomSpeed = 1.2;
-                controls.panSpeed = 0.8;
-                controls.noZoom = false;
-                controls.noPan = false;
-                controls.staticMoving = true;
-                controls.dynamicDampingFactor = 0.3;
-                controls.minDistance = 3;
-                controls.keys = [ 65, 83, 68 ];
-                controls.addEventListener('change', function () {
-                    reRenderPipeline();
-                });
-                function reRender() {
-                    terrainMaterial.uniforms.tDisplacement.value = pipeline.toolPosBuffer;
-                    terrainMaterial.uniforms.sampleCount.value = new THREE.Vector2(pipeline.toolPosBuffer.width, pipeline.toolPosBuffer.height);
-                    renderer.render(scene2, camera2);
-                }
-
-                function setToolType(type) {
-                    console.time('tool change');
-                    pipeline.setToolType(type);
-                    reRenderPipeline();
-                    console.timeEnd('tool change');
-                }
-
-                function setToolRadius(radius) {
-                    $('#radius').text(radius);
-                    console.time('tool change');
-                    pipeline.setToolRadius(parseFloat(radius));
-                    reRenderPipeline();
-                    console.timeEnd('tool change');
-                }
-
-                function reRenderPipeline() {
-                    console.time('complete render');
-                    pipeline.render(renderer);
-                    reRender();
-
-                    //for pessimistic computation time measure, since gl.finish() is faked.
-                    var gl = renderer.getContext();
-                    gl.flush();
-                    var pixelBuffer = new Uint8Array(4);
-                    gl.readPixels(1, 1, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixelBuffer);
-                    console.timeEnd('complete render');
-                }
-
-                window.setToolType = setToolType;
-                window.setToolRadius = setToolRadius;
-                window.setSliceZ = function (z) {
-                    $('#slice').text(z);
-                    console.time('tool change');
-                    terrainMaterial.uniforms.minZ.value = parseFloat(z);
-                    reRenderPipeline();
-                    console.timeEnd('tool change');
-                };
-                window.setLeaveStock = function (radius) {
-                    $('#leaveStock').text(radius);
-                    console.time('tool change');
-                    pipeline.setLeaveStock(parseFloat(radius));
-                    reRenderPipeline();
-                    console.timeEnd('tool change');
-                };
-                //pipeline.render(renderer);
-                reRenderPipeline();
-            }
+    <meta http-equiv="X-UA-Compatible" content="chrome=1"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+    <title>Visual CAM</title>
+    <script src="webapp/libs/require.js"></script>
+    <script src="webapp/config.js"></script>
+    <script>
+        requirejs.config({
+            baseUrl: 'webapp'
         });
-</script>
+    </script>
+    <link rel="shortcut icon" href="webapp/images/icon_fraise_48.png"/>
+    <link rel="stylesheet" href="webapp/twoDView.css" type="text/css">
+    <link rel="stylesheet" href="webapp/threeDView.css" type="text/css">
+    <link rel="stylesheet" href="webapp/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="webapp/libs/font-awesome-4.2.0/css/font-awesome.min.css">
+    <style>
+
+        body, html {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            background: #fafafa;
+            color: #444;
+        }
+
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        canvas {
+            flex: 1;
+        }
+
+        .moving {
+            cursor: move;
+        }
+    </style>
+    <script>
+        require(['jQuery', 'THREE', 'cnc/cam/3D/toolProfile', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/minkowskiPass', 'libs/threejs/STLLoader',
+                    'libs/threejs/postprocessing/ShaderPass', 'libs/threejs/OrbitControls'],
+                function ($, THREE, toolProfile, ModelStage, MinkowskiPass, STLLoader, ShaderPass, OrbitControls) {
+                    var $container = $('body');
+                    var renderer = new THREE.WebGLRenderer({
+                        antialias: false,
+                        alpha: true,
+                        precision: 'highp',
+                        autoClear: true
+                    });
+                    renderer.autoClear = true;
+                    $container.append(renderer.domElement);
+                    var outputWidth = $container.width();
+                    var outputHeight = $container.height();
+                    renderer.sortObjects = false;
+                    renderer.setSize(outputWidth, outputHeight);
+                    renderer.setViewport(0, 0, outputWidth, outputHeight);
+                    renderer.clear();
+                    new STLLoader().load('webapp/samples/soap.stl', function (geometry) {
+                        function draw() {
+                            displayGeometry(geometry);
+                        }
+
+                        draw();
+                    });
+
+                    function TerrainStage(geometry) {
+                        function divV(v1, v2) {
+                            return v1.set(v1.x / v2.x, v1.y / v2.y);
+                        }
+
+                        this.modelStage = new ModelStage();
+                        this.modelStage.setGeometry(geometry);
+
+                        var bboxSize = this.modelStage.modelBbox.size();
+                        var modelDisplaySideMm = (bboxSize.x > bboxSize.y ? bboxSize.x : bboxSize.y) * 1.1;
+                        var modelBufferOrigin = new THREE.Vector2(0, 0).addScalar(-modelDisplaySideMm / 2);
+                        var modelBufferSize = new THREE.Vector2(modelDisplaySideMm, modelDisplaySideMm);
+                        this.modelStage.camera.left = modelBufferOrigin.x;
+                        this.modelStage.camera.right = modelBufferOrigin.x + modelBufferSize.x;
+                        this.modelStage.camera.bottom = modelBufferOrigin.y;
+                        this.modelStage.camera.top = modelBufferOrigin.y + modelBufferSize.y;
+                        this.modelStage.camera.updateProjectionMatrix();
+
+                        this.bufferOrigin = modelBufferOrigin.clone();
+                        this.bufferSize = modelBufferSize.clone();
+                        this.terrainRatio = divV(this.bufferSize.clone(), modelBufferSize);
+                        this.terrainTranslation = this.bufferOrigin.clone().sub(modelBufferOrigin).divide(modelBufferSize);
+                        this.minkowskiPass = new MinkowskiPass();
+                        this.toolRadiusMm = 2;
+                        this.toolType = 'ball';
+                        this.renderer = renderer;
+                        this.toolLeaveStockRadius = 0.5;
+                        this.updateToolShape();
+                    }
+
+                    TerrainStage.prototype = {
+                        render: function (renderer) {
+                            if (!this.modelStageClean) {
+                                this.modelStage.render(renderer, this.modelBuffer);
+                                this.modelStageClean = true;
+                                this.minkowskiPassClean = false;
+                            }
+                            if (!this.minkowskiPassClean) {
+                                this.minkowskiPass.render(renderer, this.toolPosBuffer, this.modelBuffer, this.terrainRatio, this.terrainTranslation);
+                                this.minkowskiPassClean = true;
+                            }
+                        },
+                        setSampleRate: function (newSampleRate) {
+                            console.log('sampleRate', newSampleRate);
+                            if (this.modelBuffer)
+                                this.modelBuffer.dispose();
+                            var bboxSize = this.modelStage.modelBbox.size();
+                            var displaySide = (this.modelStage.aspectRatio >= 1 ? bboxSize.x : bboxSize.y) * newSampleRate;
+                            this.modelBuffer = new THREE.WebGLRenderTarget(displaySide, displaySide,
+                                    {
+                                        minFilter: THREE.NearestFilter,
+                                        magFilter: THREE.NearestFilter,
+                                        type: THREE.FloatType
+                                    });
+                        },
+                        updateToolShape: function () {
+                            var totalPixels = 20000000;
+                            var ySamples = 10;
+                            var ds = this.modelStage.displaySideMm;
+                            var s = this.toolRadiusMm + this.toolLeaveStockRadius;
+                            var y = ySamples;
+                            var z = totalPixels;
+                            var pw = Math.pow;
+
+                            function crt(x) {
+                                return pw(x, 1 / 3);
+                            }
+
+                            //http://www.wolframalpha.com/input/?i=solve+4*r%5E2*y*d*r%2Fs%2Bd%5E2*r%5E2%2Fs%5E2+%3D+z+for+r
+                            var bigSquareRoot = Math.sqrt(108 * pw(ds, 4) * pw(s, 8) * pw(y, 4) * pw(z, 2) - pw(ds, 8) * pw(s, 4) * pw(y, 2) * z);
+                            var bigCubicRoot = crt(-pw(ds, 6) + 216 * pw(ds, 2) * pw(s, 4) * pw(y, 2) * z + 12 * Math.sqrt(3) * bigSquareRoot);
+                            var estimatePixels = (bigCubicRoot / (ds * s * y) + pw(ds, 3) / ((s * y * bigCubicRoot)) - ds / (s * y)) / 12;
+                            var newPixelsOnRadius = isNaN(estimatePixels) ? 1 : Math.floor(estimatePixels) + 1;
+                            console.log('s', s, 'radialSamples', newPixelsOnRadius);
+                            console.log('estimated pixel count (millions): ', 4 * pw(newPixelsOnRadius, 2) * ySamples * ds * (newPixelsOnRadius / s) / 1000000);
+                            var pixelsOnRadius = newPixelsOnRadius;
+                            this.setSampleRate(pixelsOnRadius / s);
+                            var pixelCount = (pixelsOnRadius * 2) * (pixelsOnRadius * 2) * ySamples * this.modelStage.displaySide + this.modelStage.displaySide * this.modelStage.displaySide;
+                            console.log('actual pixel count (millions): ', pixelCount / 1000000);
+                            var types = {
+                                cylinder: toolProfile.createCylindricalTool,
+                                ball: toolProfile.createSphericalTool,
+                                v: toolProfile.createVTool
+                            };
+                            var samples = toolProfile.createTool({
+                                type: this.toolType,
+                                diameter: this.toolRadiusMm * 2,
+                                angle: 5,
+                                tipDiameter: 0.1
+                            }, pixelsOnRadius, this.modelStage.zRatio, this.toolLeaveStockRadius);
+                            var toolToPartRatio = s / this.modelStage.displaySideMm;
+                            this.minkowskiPass.setParams(samples, new THREE.Vector2(toolToPartRatio, toolToPartRatio));
+                            if (this.toolPosBuffer)
+                                this.toolPosBuffer.dispose();
+                            this.toolPosBuffer = new THREE.WebGLRenderTarget(this.modelStage.displaySide, ySamples,
+                                    {
+                                        minFilter: THREE.NearestFilter,
+                                        magFilter: THREE.NearestFilter,
+                                        type: THREE.FloatType
+                                    });
+                            this.modelStageClean = false;
+                        },
+                        setToolType: function (type) {
+                            this.toolType = type;
+                            this.updateToolShape();
+                        },
+                        setToolRadius: function (radius) {
+                            this.toolRadiusMm = radius;
+                            this.updateToolShape();
+                        },
+                        setLeaveStock: function (radius) {
+                            this.toolLeaveStockRadius = radius;
+                            this.updateToolShape();
+                        }
+                    };
+
+                    function displayGeometry(geometry) {
+                        var clonedGeometry = geometry;
+                        var pipeline = new TerrainStage(geometry);
+                        var scene2 = new THREE.Scene();
+                        var camera2 = new THREE.PerspectiveCamera(45, outputWidth / outputHeight, 0.1, 1500);
+                        camera2.up.set(0, 0, 1);
+                        camera2.position.z = 100;
+                        scene2.add(camera2);
+                        camera2.updateMatrixWorld();
+                        var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+                        directionalLight.position.set(1000, 1000, 1000);
+                        scene2.add(directionalLight);
+                        var directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
+                        directionalLight2.position.set(-1000, -1000, 1000);
+                        scene2.add(directionalLight2);
+                        var terrainToWorld = new THREE.Matrix4()
+                                .makeScale(pipeline.bufferSize.x, pipeline.bufferSize.y, 1)
+                                .setPosition(new THREE.Vector3(pipeline.bufferOrigin.x, pipeline.bufferOrigin.y, 0));
+                        pipeline.modelStage.pushZInverseProjOn(terrainToWorld);
+                        var terrainShader = {
+                            wireframe: false,
+                            size: 2,
+                            uniforms: {
+                                tDisplacement: {type: 't', value: null},
+                                terrainToWorld: {type: 'm4', value: terrainToWorld},
+                                sampleCount: {
+                                    type: 'v2',
+                                    value: new THREE.Vector2(pipeline.toolPosBuffer.width, pipeline.toolPosBuffer.height)
+                                },
+                                minZ: {type: 'f', value: -7}
+                            },
+                            vertexShader: [
+                                'uniform sampler2D tDisplacement;',
+                                'uniform mat4 terrainToWorld;',
+                                'uniform vec2 sampleCount;',
+                                'uniform float minZ;',
+                                'varying vec4 color;',
+                                'highp float factor = (exp2(24.0) - 1.0) / exp2(24.0);',
+                                'highp float DecodeFloatRGB(vec3 rgb) {',
+                                '   return dot(rgb, vec3(1.0, 1.0 / 255.0, 1.0 / 255.0 / 255.0)) / factor;',
+                                '}',
+                                'void main() {',
+                                '   vec2 uv = position.xy / sampleCount * (sampleCount - 1.0) + 0.5 / sampleCount;',
+                                '   color = texture2D(tDisplacement, vec2(uv));',
+                                '   vec3 pos = (terrainToWorld * vec4(uv, DecodeFloatRGB(color.rgb), 1.0)).xyz;',
+                                '   pos.z = max(minZ, pos.z);',
+                                '   gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);',
+                                '}'
+                            ].join('\n'),
+                            fragmentShader: [
+                                'varying vec4 color;',
+                                'void main() {',
+                                '   gl_FragColor = vec4(color.r, 0.6 - abs(color.r - 0.5), 1.0 - color.r, 1.0);',
+                                '}'].join('\n')
+                        };
+
+                        var terrainMaterial = new THREE.ShaderMaterial(terrainShader);
+
+                        function createGrid(xRes, yRes, points, avoidX, avoidY) {
+                            var geometry = new THREE.BufferGeometry();
+                            var vertices = [];
+                            var offset = 0;
+
+                            function pushVertex(i, j) {
+                                vertices.push(i / (xRes - 1), j / (yRes - 1), 0);
+                            }
+
+                            for (var i = 0; i < xRes; i++)
+                                for (var j = 0; j < yRes; j++) {
+                                    if (points)
+                                        pushVertex(i, j);
+                                    else {
+                                        if (i != 0 && !avoidX) {
+                                            pushVertex(i - 1, j);
+                                            pushVertex(i, j);
+                                        }
+                                        if (j != 0 && !avoidY) {
+                                            pushVertex(i, j - 1);
+                                            pushVertex(i, j);
+                                        }
+                                    }
+                                    offset += 3
+                                }
+                            geometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
+                            if (points)
+                                return new THREE.PointCloud(geometry, terrainMaterial);
+                            else
+                                return new THREE.Line(geometry, terrainMaterial, THREE.LinePieces);
+                        }
+
+                        var grid = createGrid(pipeline.toolPosBuffer.width, pipeline.toolPosBuffer.height, false, false, true);
+                        grid.frustumCulled = false;
+                        scene2.add(grid);
+                        scene2.add(new THREE.Mesh(clonedGeometry, new THREE.MeshLambertMaterial({
+                            color: 0xFEEFFE,
+                            shading: THREE.SmoothShading
+                        })));
+
+                        document.documentElement.addEventListener('keydown', function (event) {
+                            if (event.shiftKey === true) {
+                                document.body.classList.add('moving');
+                            }
+                        });
+
+                        document.documentElement.addEventListener('keyup', function (event) {
+                            if (event.shiftKey === false) {
+                                document.body.classList.remove('moving');
+                            }
+                        });
+
+                        var controls = new OrbitControls(camera2, renderer.domElement);
+                        controls.rotateSpeed = 1.0;
+                        controls.zoomSpeed = 1.2;
+                        controls.panSpeed = 0.8;
+                        controls.noZoom = false;
+                        controls.noPan = false;
+                        controls.staticMoving = true;
+                        controls.dynamicDampingFactor = 0.3;
+                        controls.minDistance = 3;
+                        controls.keys = [65, 83, 68];
+                        controls.addEventListener('change', function () {
+                            reRenderPipeline();
+                        });
+                        function reRender() {
+                            terrainMaterial.uniforms.tDisplacement.value = pipeline.toolPosBuffer;
+                            terrainMaterial.uniforms.sampleCount.value = new THREE.Vector2(pipeline.toolPosBuffer.width, pipeline.toolPosBuffer.height);
+                            renderer.render(scene2, camera2);
+                        }
+
+                        function setToolType(type) {
+                            console.time('tool change');
+                            pipeline.setToolType(type);
+                            reRenderPipeline();
+                            console.timeEnd('tool change');
+                        }
+
+                        function setToolRadius(radius) {
+                            $('#radius').text(radius);
+                            console.time('tool change');
+                            pipeline.setToolRadius(parseFloat(radius));
+                            reRenderPipeline();
+                            console.timeEnd('tool change');
+                        }
+
+                        function reRenderPipeline() {
+                            console.time('complete render');
+                            pipeline.render(renderer);
+                            reRender();
+
+                            //for pessimistic computation time measure, since gl.finish() is faked.
+                            var gl = renderer.getContext();
+                            gl.flush();
+                            var pixelBuffer = new Uint8Array(4);
+                            gl.readPixels(1, 1, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixelBuffer);
+                            console.timeEnd('complete render');
+                        }
+
+                        window.setToolType = setToolType;
+                        window.setToolRadius = setToolRadius;
+                        window.setSliceZ = function (z) {
+                            $('#slice').text(z);
+                            console.time('tool change');
+                            terrainMaterial.uniforms.minZ.value = parseFloat(z);
+                            reRenderPipeline();
+                            console.timeEnd('tool change');
+                        };
+                        window.setLeaveStock = function (radius) {
+                            $('#leaveStock').text(radius);
+                            console.time('tool change');
+                            pipeline.setLeaveStock(parseFloat(radius));
+                            reRenderPipeline();
+                            console.timeEnd('tool change');
+                        };
+                        //pipeline.render(renderer);
+                        reRenderPipeline();
+                    }
+                });
+    </script>
 </head>
 <body>
 <div class="btn-toolbar" role="toolbar">
