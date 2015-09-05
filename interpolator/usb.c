@@ -35,7 +35,8 @@ enum {
     REQUEST_ABORT = 5,
     REQUEST_CLEAR_ABORT = 6,
     REQUEST_SET_SPINDLE_OUTPUT = 7,
-    REQUEST_RESUME_PROGRAM = 8
+    REQUEST_RESUME_PROGRAM = 8,
+    REQUEST_RESET_SPINDLE_OUTPUT = 9
 };
 
 typedef enum {
@@ -160,10 +161,12 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                             USBD_CtlSendStatus(pdev);
                             return USBD_OK;
                         case REQUEST_SET_SPINDLE_OUTPUT:
-                            cncMemory.spindleOutput = ((union {
-                                uint8_t n;
-                                spindle_output_t s;
-                            }) {.n=(uint8_t) req->wValue}).s;
+                            cncMemory.spindleOutput = ((spindle_output_serializer_t) {.n=(uint8_t) req->wValue
+                                    | ((spindle_output_serializer_t) {.s=cncMemory.spindleOutput}).n}).s;
+                            return USBD_OK;
+                        case REQUEST_RESET_SPINDLE_OUTPUT:
+                            cncMemory.spindleOutput = ((spindle_output_serializer_t) {.n=(uint8_t) req->wValue
+                                    & ~((spindle_output_serializer_t) {.s=cncMemory.spindleOutput}).n}).s;
                             return USBD_OK;
                         case REQUEST_ABORT:
                             cncMemory.state = ABORTING_PROGRAM;

@@ -33,6 +33,12 @@ typedef enum {
 
 typedef struct {
     int run: 1;
+    int reverse: 1;
+    int reset: 1;
+    int sph: 1;
+    int spm: 1;
+    int spl: 1;
+    int plug: 1;
 } __attribute__((packed)) spindle_output_t;
 
 typedef union {

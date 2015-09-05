@@ -33,7 +33,7 @@
                 </colgroup>
                 <tbody>
                 {{#each axes itemController="axis"}}
-                    <tr {{bind-attr title="helpText"}} {{action "editAxis" on="doubleClick"}} >
+                    <tr {{bind-attr title="helpText"}} {{bind-attr class="limit"}} {{action "editAxis" on="doubleClick"}} >
                         <th>{{name}}:</th>
                         <td class="posAxis">
                             {{#if isEditing}}

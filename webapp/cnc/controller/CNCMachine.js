@@ -3,7 +3,7 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
     var CONTROL_COMMANDS = {
         REQUEST_POSITION: 0, REQUEST_PARAMETERS: 1, REQUEST_STATE: 2, REQUEST_TOGGLE_MANUAL_STATE: 3,
         REQUEST_DEFINE_AXIS_POSITION: 4, REQUEST_ABORT: 5, REQUEST_CLEAR_ABORT: 6, REQUEST_SET_SPINDLE_OUTPUT: 7,
-        REQUEST_RESUME_PROGRAM: 8
+        REQUEST_RESUME_PROGRAM: 8, REQUEST_RESET_SPINDLE_OUTPUT: 9
     };
     var EVENTS = {PROGRAM_END: 1, PROGRAM_START: 2, MOVED: 3, ENTER_MANUAL_MODE: 4, EXIT_MANUAL_MODE: 5};
     var STATES = {READY: 0, RUNNING_PROGRAM: 1, MANUAL_CONTROL: 2, ABORTING_PROGRAM: 3, PAUSED_PROGRAM: 4};
@@ -11,6 +11,7 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
         name: null,
         position: 0,
         machine: null,
+        limit: false,
         definePosition: function (newPosition) {
             this.get('machine').setAxisValue(this.get('name'), newPosition);
         }
@@ -124,9 +125,12 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
             var bitPart = dataView.getUint8(2, true);
             this.set('estop', !!(bitPart & 1));
             this.set('toolProbe', !!(bitPart & 2));
-            this.set('spindleInput', dataView.getUint8(3, true));
+            this.set('spindleInput', dataView.getUint8(3, true) & 31);
             this.set('spindleRunning', !!(this.get('spindleInput') & 1));
             this.set('spindleUpToSpeed', !!(this.get('spindleInput') & 2));
+            this.get('axes')[0].set('limit', !!(this.get('spindleInput') & 4));
+            this.get('axes')[1].set('limit', !!(this.get('spindleInput') & 8));
+            this.get('axes')[2].set('limit', !!(this.get('spindleInput') & 16));
             this.set('programID', dataView.getUint32(4, true));
             var operations = this.get('runner').programs[this.get('programID')];
             $('#webView')[0].contentWindow.postMessage({
@@ -184,8 +188,8 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
         stopSpindle: function () {
             this.get('connection').controlTransfer({
                 direction: 'out',
-                request: CONTROL_COMMANDS.REQUEST_SET_SPINDLE_OUTPUT,
-                value: 0
+                request: CONTROL_COMMANDS.REQUEST_RESET_SPINDLE_OUTPUT,
+                value: 1
             });
         }
     });

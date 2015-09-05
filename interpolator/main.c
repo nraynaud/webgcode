@@ -243,8 +243,11 @@ static uint16_t myLog2(int value) {
     return 31 - __builtin_clz(value);
 }
 
-
 static void debounceRunbit() {
+    // when the spindle is stopped (sometimes by other means than a low signal on spindleOutput.run,
+    // like estop signal, or the interface stop button), we need to release the "run" signal.
+    // but there is a delay between when we set the 'run' signal and when the spindle answers with the "spindle running" signal
+    // so we wait a bit.
     static uint64_t discrepancyStartTick = 0;
     crBegin;
             discrepancyStartTick += cncMemory.tick;
