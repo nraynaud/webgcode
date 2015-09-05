@@ -30,6 +30,14 @@ The controller is also connected to the VFD through an SPI isolated breakout boa
 
 The wiring is described in the [main.c](interpolator/main.c#L10) and [manual.c](interpolator/manual.c#L11) files.
 
+IO Board
+--------
+
+[![IO board schematics](images/IO_interface_thumb.png)](images/IO_interface.png)
+
+There is an IO board to connect the MCU to various things, mainly the VFD. 
+The board consists of one 74HC595 and one 74HC165, behind a digital isolator; the MCU communicates over SPI to get isolated IOs.
+
 
 Chrome Application
 ------------------
