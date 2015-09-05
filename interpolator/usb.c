@@ -131,7 +131,13 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                         case REQUEST_STATE: {
                             //using a static, so that it doesn't get cleaned up before the driver reads it
                             static volatile uint32_t state[2];
-                            state[0] = cncMemory.spindleInput << 24 | isToolProbeTripped() << 17 | isEmergencyStopped() << 16 | cncMemory.state;
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "OCSimplifyInspection"
+                            state[0] = ((spi_input_serializer_t) {.s = cncMemory.spindleInput}).n << 24
+                                    | !!cncMemory.zHomed << 20 | !!cncMemory.yHomed << 19 | !!cncMemory.xHomed << 18
+                                    | isToolProbeTripped() << 17 | isEmergencyStopped() << 16
+                                    | cncMemory.state;
+#pragma clang diagnostic pop
                             state[1] = 0;
                             if (cncMemory.state == RUNNING_PROGRAM || cncMemory.state == ABORTING_PROGRAM)
                                 state[1] = circularBuffer.programID;
@@ -161,12 +167,12 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                             USBD_CtlSendStatus(pdev);
                             return USBD_OK;
                         case REQUEST_SET_SPINDLE_OUTPUT:
-                            cncMemory.spindleOutput = ((spindle_output_serializer_t) {.n=(uint8_t) req->wValue
-                                    | ((spindle_output_serializer_t) {.s=cncMemory.spindleOutput}).n}).s;
+                            cncMemory.spindleOutput = ((spi_output_serializer_t) {.n=(uint8_t) req->wValue
+                                    | ((spi_output_serializer_t) {.s=cncMemory.spindleOutput}).n}).s;
                             return USBD_OK;
                         case REQUEST_RESET_SPINDLE_OUTPUT:
-                            cncMemory.spindleOutput = ((spindle_output_serializer_t) {.n=(uint8_t) req->wValue
-                                    & ~((spindle_output_serializer_t) {.s=cncMemory.spindleOutput}).n}).s;
+                            cncMemory.spindleOutput = ((spi_output_serializer_t) {.n=(uint8_t) req->wValue
+                                    & ~((spi_output_serializer_t) {.s=cncMemory.spindleOutput}).n}).s;
                             return USBD_OK;
                         case REQUEST_ABORT:
                             cncMemory.state = ABORTING_PROGRAM;
@@ -242,7 +248,7 @@ void tryToStartProgram() {
                     circularBuffer.programID = array[7] << 24 | array[6] << 16 | array[5] << 8 | array[4];
                 } else if (programType == PROGRAM_START_SPINDLE) {
                     cncMemory.spindleOutput.run = 1;
-                    while (!(cncMemory.spindleInput & 2)) {
+                    while (!(cncMemory.spindleInput.drv)) {
                         crComeBackLater;
                     }
                     crReturn;

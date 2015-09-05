@@ -1,10 +1,6 @@
 #include "stm32f4xx_conf.h"
 #include "stm32f4_discovery.h"
-#include "math.h"
-#include "arm_math.h"
 #include "cnc.h"
-#include "core_cm4.h"
-#include "core_cmInstr.h"
 
 static const struct {
     GPIO_TypeDef *gpio;
@@ -35,51 +31,37 @@ static const struct {
         .extiPinSource = EXTI_PinSource14
 };
 
-static const struct {
-    GPIO_TypeDef *gpio;
-    uint32_t gpioAhb1Periph;
-    SPI_TypeDef *spi;
-    uint8_t spiAlternateFunction;
-    uint32_t spiApb1Periph;
-    uint16_t spiClock, spiMosi, spiMiso, spiEnablePin;
-} spindlePinout = {
-        .gpio = GPIOB,
-        .gpioAhb1Periph = RCC_AHB1Periph_GPIOB,
-        .spi = SPI2,
-        .spiAlternateFunction = GPIO_AF_SPI2,
-        .spiApb1Periph = RCC_APB1Periph_SPI2,
-        .spiClock = GPIO_Pin_13,
-        .spiMosi = GPIO_Pin_15,
-        .spiMiso = GPIO_Pin_14,
-        .spiEnablePin = GPIO_Pin_12
-};
-
-static const struct {
-    uint8_t polarity;
-} spindleInputPolarity = {
-        .polarity = 3
-};
-
 volatile cnc_memory_t cncMemory = {
         .position = {.x = 0, .y = 0, .z = 0, .speed = 0},
+        .workOffset = {.x = 0, .y = 0, .z = 0},
         .parameters = {
                 .stepsPerMillimeter = 640,
                 .maxSpeed = 3000,
                 .maxAcceleration = 100,
                 .clockFrequency = 200000},
+        .xHomed = 0,
+        .yHomed = 0,
+        .zHomed = 0,
         .state = READY,
         .lastEvent = {NULL_EVENT, 0, 0, 0},
         .tick = 0,
         .spindleOutput ={.run = 0},
-        .spindleInput = 0
+        .spindleInput = 0,
+        .homingAxis = 0
 };
 
 static const struct {
+    //how do we increase the axis value: 0 -> dir bit must high, 1-> dir bit must be low
     unsigned int x:1, y:1, z:1;
+    //how do we get towards the limit switch: 0 -> by decreasing the axis value, 1 -> by increasing the axis value
+    unsigned int homeX:1, homeY:1, homeZ:1;
 } motorDirection = {
         .x = 0,
+        .homeX = 0,
         .y = 0,
-        .z = 0};
+        .homeY = 1,
+        .z = 0,
+        .homeZ = 1};
 
 static step_t nextProgramStep() {
     uint8_t bytes[3];
@@ -193,30 +175,6 @@ static void setStepGPIO(axes_t axes) {
     GPIO_SetBits(motorsPinout.gpio, steps);
 }
 
-static void flashShiftRegisters() {
-    GPIO_ResetBits(spindlePinout.gpio, spindlePinout.spiEnablePin);
-    GPIO_SetBits(spindlePinout.gpio, spindlePinout.spiEnablePin);
-}
-
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "missing_default_case"
-
-static void handleSPI() {
-    crBegin;
-            flashShiftRegisters();
-            SPI_I2S_SendData(spindlePinout.spi, ((spindle_output_serializer_t) {.s=cncMemory.spindleOutput}).n);
-            while ((spindlePinout.spi->SR & SPI_SR_TXE) == 0)
-                crComeBackLater;
-            while ((spindlePinout.spi->SR & SPI_SR_RXNE) == 0)
-                crComeBackLater;
-            cncMemory.unfilteredSpindleInput = (uint8_t) SPI_I2S_ReceiveData(spindlePinout.spi) ^ spindleInputPolarity.polarity;
-            while ((spindlePinout.spi->SR & SPI_SR_BSY) != 0)
-                crComeBackLater;
-            flashShiftRegisters();
-    crFinish;
-}
-
-#pragma ide diagnostic ignored "missing_default_case"
 
 static void run() {
     crBegin;
@@ -235,49 +193,6 @@ static void run() {
                 clearStepIsOver();
             }
     crFinish;
-}
-
-#pragma clang diagnostic pop
-
-static uint16_t myLog2(int value) {
-    return 31 - __builtin_clz(value);
-}
-
-static void debounceRunbit() {
-    // when the spindle is stopped (sometimes by other means than a low signal on spindleOutput.run,
-    // like estop signal, or the interface stop button), we need to release the "run" signal.
-    // but there is a delay between when we set the 'run' signal and when the spindle answers with the "spindle running" signal
-    // so we wait a bit.
-    static uint64_t discrepancyStartTick = 0;
-    crBegin;
-            discrepancyStartTick += cncMemory.tick;
-            while (cncMemory.tick < discrepancyStartTick + 20000) {
-                if (!(cncMemory.spindleOutput.run) || cncMemory.spindleInput & 1)
-                    crReturn;
-                crComeBackLater;
-            }
-            cncMemory.spindleOutput.run = 1;
-    crFinish;
-}
-
-static int32_t filterSpiInput[8] = {0, 0};
-
-static void filterSpindleInput(int32_t tickDifference) {
-    uint8_t result = 0;
-    for (int i = 0; i < 8; i++) {
-        filterSpiInput[i] = __SSAT(filterSpiInput[i] + (cncMemory.unfilteredSpindleInput & (1 << i) ? tickDifference : -tickDifference), 2);
-        result |= (filterSpiInput[i] > 0) << i;
-    }
-    cncMemory.spindleInput = result;
-}
-
-static void periodicSpindleFunction() {
-    static uint64_t lastTick;
-    uint64_t tick = cncMemory.tick;
-    int32_t tickDifference = (uint32_t) (tick - lastTick);
-    lastTick = tick;
-    debounceRunbit();
-    filterSpindleInput(tickDifference);
 }
 
 __attribute__ ((noreturn)) void main(void) {
@@ -329,43 +244,7 @@ __attribute__ ((noreturn)) void main(void) {
     TIM_OC1PreloadConfig(TIM3, TIM_OCPreload_Disable);
     TIM_ITConfig(TIM3, TIM_IT_CC1 | TIM_IT_Update, ENABLE);
 
-    RCC_APB1PeriphClockCmd(spindlePinout.spiApb1Periph, ENABLE);
-    RCC_AHB1PeriphClockCmd(spindlePinout.gpioAhb1Periph, ENABLE);
-    GPIO_PinAFConfig(spindlePinout.gpio, myLog2(spindlePinout.spiClock), spindlePinout.spiAlternateFunction);
-    GPIO_PinAFConfig(spindlePinout.gpio, myLog2(spindlePinout.spiMosi), spindlePinout.spiAlternateFunction);
-    GPIO_PinAFConfig(spindlePinout.gpio, myLog2(spindlePinout.spiMiso), spindlePinout.spiAlternateFunction);
-    GPIO_Init(spindlePinout.gpio, &(GPIO_InitTypeDef) {
-            .GPIO_Pin = spindlePinout.spiEnablePin,
-            .GPIO_Mode = GPIO_Mode_OUT,
-            .GPIO_Speed = GPIO_Speed_100MHz,
-            .GPIO_OType = GPIO_OType_PP});
-    GPIO_Init(spindlePinout.gpio, &(GPIO_InitTypeDef) {
-            .GPIO_Pin = spindlePinout.spiClock | spindlePinout.spiMosi,
-            .GPIO_Mode = GPIO_Mode_AF,
-            .GPIO_Speed = GPIO_Speed_100MHz,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd = GPIO_PuPd_DOWN});
-    GPIO_Init(spindlePinout.gpio, &(GPIO_InitTypeDef) {
-            .GPIO_Pin = spindlePinout.spiMiso,
-            .GPIO_Mode = GPIO_Mode_AF,
-            .GPIO_Speed = GPIO_Speed_100MHz,
-            .GPIO_OType = GPIO_OType_PP,
-            .GPIO_PuPd = GPIO_PuPd_NOPULL});
-    SPI_I2S_DeInit(spindlePinout.spi);
-    SPI_Init(spindlePinout.spi, &(SPI_InitTypeDef) {
-            .SPI_Mode = SPI_Mode_Master,
-            .SPI_Direction = SPI_Direction_2Lines_FullDuplex,
-            .SPI_DataSize = SPI_DataSize_8b,
-            .SPI_CPOL = SPI_CPOL_High,
-            .SPI_CPHA = SPI_CPHA_1Edge,
-            .SPI_NSS = SPI_NSS_Soft,
-            .SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_4,
-            .SPI_FirstBit = SPI_FirstBit_MSB,
-            .SPI_CRCPolynomial = 7
-    });
-    SPI_TIModeCmd(spindlePinout.spi, DISABLE);
-    SPI_Cmd(spindlePinout.spi, ENABLE);
-
+    initSPISystem();
     initUSB();
     initManualControls();
     SysTick_Config(SystemCoreClock / 100000 - 1);

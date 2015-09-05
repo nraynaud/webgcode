@@ -19,6 +19,7 @@
 		DDAA51F326C3B7DBDBA134E1 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5048B1B1F3BE543B936C /* Makefile */; };
 		DDAA5219D9583110B392E36B /* elliptic.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA58FBD65B40549EC27922 /* elliptic.js */; };
 		DDAA524E6774021C15E7F044 /* background.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA58422CF9EADC8397599D /* background.js */; };
+		DDAA527F11BF37A7A90B4F67 /* spiIO.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA59BA108DAA54889DD24E /* spiIO.c */; };
 		DDAA52913C0A0E6F56B49AF9 /* usb.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA584BFDA15E844B048D27 /* usb.c */; };
 		DDAA52C23A7DF5F1AE0B65CF /* tests.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA550CF317C3168B90577A /* tests.js */; };
 		DDAA52CCCB5E5211FCE50E45 /* job.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5DFFCA6C2A31934FF748 /* job.js */; };
@@ -246,6 +247,7 @@
 		DDAA5957E406CDDA9E6840E6 /* svg.marker.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svg.marker.js; sourceTree = "<group>"; };
 		DDAA595DBB4D5BAE939717CF /* pocket.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = pocket.js; path = cam/pocket.js; sourceTree = "<group>"; };
 		DDAA59854CED3DBBCA224A7B /* simpleContour.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.handlebars; path = simpleContour.hbs; sourceTree = "<group>"; };
+		DDAA59BA108DAA54889DD24E /* spiIO.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = spiIO.c; sourceTree = "<group>"; };
 		DDAA59E3CD1BC8E48FD71658 /* textApp.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; name = textApp.hbs; path = templates/textApp.hbs; sourceTree = "<group>"; };
 		DDAA59E7DF6E04578E0F4F11 /* jsEditor.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jsEditor.js; sourceTree = "<group>"; };
 		DDAA59EA70480E724659BF78 /* controller.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = controller.js; sourceTree = "<group>"; };
@@ -472,6 +474,7 @@
 				DDAA5048B1B1F3BE543B936C /* Makefile */,
 				DDAA564BD4990327507E01D0 /* manual.c */,
 				DDAA53AA7C3A8E851F307E47 /* usbdesc.c */,
+				DDAA59BA108DAA54889DD24E /* spiIO.c */,
 			);
 			path = interpolator;
 			sourceTree = "<group>";
@@ -835,6 +838,7 @@
 				DDAA5F829DA328E442EA745B /* job.js in Sources */,
 				DDAA52CCCB5E5211FCE50E45 /* job.js in Sources */,
 				DDAA5BFD83B2A6D8F014E2AF /* operation.js in Sources */,
+				DDAA527F11BF37A7A90B4F67 /* spiIO.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

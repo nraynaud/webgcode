@@ -1,5 +1,8 @@
 #pragma once
 
+#include "math.h"
+#include "arm_math.h"
+
 typedef struct __attribute__((__packed__)) {
     uint32_t stepsPerMillimeter, maxSpeed, maxAcceleration, clockFrequency;
 } parameters_t;
@@ -7,6 +10,10 @@ typedef struct __attribute__((__packed__)) {
 typedef struct __attribute__((__packed__)) {
     int32_t x, y, z, speed;
 } position_t;
+
+typedef struct __attribute__((__packed__)) {
+    int32_t x, y, z;
+} offset_t;
 
 typedef struct __attribute__((packed)) {
     uint8_t xStep, xDirection;
@@ -38,24 +45,42 @@ typedef struct {
     int sph: 1;
     int spm: 1;
     int spl: 1;
-    int plug: 1;
-} __attribute__((packed)) spindle_output_t;
+    int socket: 1;
+} __attribute__((packed)) spi_output_t;
 
 typedef union {
     uint8_t n;
-    spindle_output_t s;
-} spindle_output_serializer_t;
+    spi_output_t s;
+} spi_output_serializer_t;
+
+typedef struct {
+    int upf: 1;
+    int drv: 1;
+    int limitX: 1;
+    int limitY: 1;
+    int limitZ: 1;
+} __attribute__((packed)) spi_input_t;
+
+typedef union {
+    uint8_t n;
+    spi_input_t s;
+} spi_input_serializer_t;
 
 typedef struct {
     position_t position;
+    offset_t workOffset;
     parameters_t parameters;
+    int xHomed;
+    int yHomed;
+    int zHomed;
     uint16_t state;
     int32_t lastEvent[4];
     step_t currentStep;
     uint64_t tick;
-    spindle_output_t spindleOutput;
+    spi_output_t spindleOutput;
     uint8_t unfilteredSpindleInput;
-    uint8_t spindleInput;
+    spi_input_t spindleInput;
+    uint8_t homingAxis;
 } cnc_memory_t;
 
 typedef enum {
@@ -68,7 +93,8 @@ typedef enum {
     RUNNING_PROGRAM = 1,
     MANUAL_CONTROL = 2,
     ABORTING_PROGRAM = 3,
-    PAUSED_PROGRAM = 4
+    PAUSED_PROGRAM = 4,
+    HOMING = 5
 } cnc_state_t;
 
 enum {
@@ -125,3 +151,9 @@ extern void periodicUICallback();
 extern void copyUSBufferIfPossible();
 
 extern void tryToStartProgram();
+
+extern void initSPISystem();
+
+extern void handleSPI();
+
+extern void periodicSpindleFunction();
