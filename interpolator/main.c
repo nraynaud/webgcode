@@ -257,16 +257,15 @@ static void debounceRunbit() {
     crFinish;
 }
 
-static int32_t filterSpiInput[2] = {0, 0};
+static int32_t filterSpiInput[8] = {0, 0};
 
 static void filterSpindleInput(int32_t tickDifference) {
-    filterSpiInput[0] = __SSAT(filterSpiInput[0] + (cncMemory.unfilteredSpindleInput & 1 ? tickDifference : -tickDifference), 8);
-    filterSpiInput[1] = __SSAT(filterSpiInput[1] + (cncMemory.unfilteredSpindleInput & 2 ? tickDifference : -tickDifference), 14);
-    cncMemory.spindleInput = (uint8_t) ((filterSpiInput[1] > 0) << 1 | (filterSpiInput[0] > 0));
-    if (cncMemory.spindleInput & 2)
-        STM_EVAL_LEDOn(LED3);
-    else
-        STM_EVAL_LEDOff(LED3);
+    uint8_t result = 0;
+    for (int i = 0; i < 8; i++) {
+        filterSpiInput[i] = __SSAT(filterSpiInput[i] + (cncMemory.unfilteredSpindleInput & (1 << i) ? tickDifference : -tickDifference), 2);
+        result |= (filterSpiInput[i] > 0) << i;
+    }
+    cncMemory.spindleInput = result;
 }
 
 static void periodicSpindleFunction() {
