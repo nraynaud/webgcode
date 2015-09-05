@@ -21,10 +21,14 @@
     <div class="control">
         <div {{bind-attr class=":estopframe toolProbe"}}>Tool Probe</div>
         <div {{bind-attr class=":estopframe estop"}}>E-STOP</div>
-        <div {{bind-attr class=":spindle spindleRunning spindleUpToSpeed"}}>Spindle <br>
-            <button {{action "toggleSpindle"}}>{{spindleButtonLabel}}</button>
+        <div class="io">
+            <div {{bind-attr class=":spindle spindleRunning spindleUpToSpeed"}}>Spindle <br>
+                <button {{action "toggleSpindle"}}>{{spindleButtonLabel}}</button>
+            </div>
+            <div {{bind-attr class=":socket socketOn"}}>Socket <br>
+                <button {{action "toggleSocket"}}>{{socketButtonLabel}}</button>
+            </div>
         </div>
-
         <div class="position">
             <table>
                 <colgroup>

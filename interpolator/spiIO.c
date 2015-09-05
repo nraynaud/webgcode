@@ -82,18 +82,17 @@ static void flashShiftRegisters() {
 void handleSPI() {
     crBegin;
             flashShiftRegisters();
-            SPI_I2S_SendData(spiPinout.spi, ((spi_output_serializer_t) {.s=cncMemory.spindleOutput}).n);
+            SPI_I2S_SendData(spiPinout.spi, ((spi_output_serializer_t) {.s=cncMemory.spiOutput}).n);
             while ((spiPinout.spi->SR & SPI_SR_TXE) == 0)
                 crComeBackLater;
             while ((spiPinout.spi->SR & SPI_SR_RXNE) == 0)
                 crComeBackLater;
-            cncMemory.unfilteredSpindleInput = (uint8_t) SPI_I2S_ReceiveData(spiPinout.spi) ^ ~((spi_input_serializer_t) {.s = spiInputPolarity}).n;
+            cncMemory.unfilteredSpiInput = (uint8_t) SPI_I2S_ReceiveData(spiPinout.spi) ^ ~((spi_input_serializer_t) {.s = spiInputPolarity}).n;
             while ((spiPinout.spi->SR & SPI_SR_BSY) != 0)
                 crComeBackLater;
             flashShiftRegisters();
     crFinish;
 }
-
 
 static void debounceRunbit() {
     // when the spindle is stopped (sometimes by other means than a low signal on spindleOutput.run,
@@ -104,30 +103,30 @@ static void debounceRunbit() {
     crBegin;
             discrepancyStartTick += cncMemory.tick;
             while (cncMemory.tick < discrepancyStartTick + 20000) {
-                if (!(cncMemory.spindleOutput.run) || cncMemory.spindleInput.upf)
+                if (!(cncMemory.spiOutput.run) || cncMemory.spiInput.upf)
                     crReturn;
                 crComeBackLater;
             }
-            cncMemory.spindleOutput.run = 1;
+            cncMemory.spiOutput.run = 1;
     crFinish;
 }
 
-static int32_t filterSpiInput[8] = {0, 0};
+static int32_t spiInputFilter[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
-static void filterSpindleInput(int32_t tickDifference) {
+static void filterSpiInput(int32_t tickDifference) {
     uint8_t result = 0;
     for (int i = 0; i < 8; i++) {
-        filterSpiInput[i] = __SSAT(filterSpiInput[i] + (cncMemory.unfilteredSpindleInput & (1 << i) ? tickDifference : -tickDifference), 2);
-        result |= (filterSpiInput[i] > 0) << i;
+        spiInputFilter[i] = __SSAT(spiInputFilter[i] + (cncMemory.unfilteredSpiInput & (1 << i) ? tickDifference : -tickDifference), 2);
+        result |= (spiInputFilter[i] > 0) << i;
     }
-    cncMemory.spindleInput = ((spi_input_serializer_t) {.n=result}).s;
+    cncMemory.spiInput = ((spi_input_serializer_t) {.n=result}).s;
 }
 
-void periodicSpindleFunction() {
+void periodicSpiFunction() {
     static uint64_t lastTick;
     uint64_t tick = cncMemory.tick;
     int32_t tickDifference = (uint32_t) (tick - lastTick);
     lastTick = tick;
     debounceRunbit();
-    filterSpindleInput(tickDifference);
+    filterSpiInput(tickDifference);
 }

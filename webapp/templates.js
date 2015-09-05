@@ -336,16 +336,43 @@ function program17(depth0,data) {
   data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
     'class': (":estopframe estop")
   },hashTypes:{'class': "STRING"},hashContexts:{'class': depth0},contexts:[],types:[],data:data})));
-  data.buffer.push(">E-STOP</div>\n        <div ");
+    data.buffer.push(">E-STOP</div>\n        <div class=\"io\">\n            <div ");
   data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
     'class': (":spindle spindleRunning spindleUpToSpeed")
   },hashTypes:{'class': "STRING"},hashContexts:{'class': depth0},contexts:[],types:[],data:data})));
-  data.buffer.push(">Spindle <br>\n            <button ");
+    data.buffer.push(">Spindle <br>\n                <button ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "toggleSpindle", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
   data.buffer.push(">");
   stack1 = helpers._triageMustache.call(depth0, "spindleButtonLabel", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("</button>\n        </div>\n\n        <div class=\"position\">\n            <table>\n                <colgroup>\n                    <col>\n                    <col>\n                </colgroup>\n                <tbody>\n                ");
+    data.buffer.push("</button>\n            </div>\n            <div ");
+    data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {
+        hash: {
+            'class': (":socket socketOn")
+        }, hashTypes: {'class': "STRING"}, hashContexts: {'class': depth0}, contexts: [], types: [], data: data
+    })));
+    data.buffer.push(">Socket <br>\n                <button ");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "toggleSocket", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["STRING"],
+        data: data
+    })));
+    data.buffer.push(">");
+    stack1 = helpers._triageMustache.call(depth0, "socketButtonLabel", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    });
+    if (stack1 || stack1 === 0) {
+        data.buffer.push(stack1);
+    }
+    data.buffer.push("</button>\n            </div>\n        </div>\n        <div class=\"position\">\n            <table>\n                <colgroup>\n                    <col>\n                    <col>\n                </colgroup>\n                <tbody>\n                ");
   stack1 = helpers.each.call(depth0, "axes", {hash:{
     'itemController': ("axis")
   },hashTypes:{'itemController': "STRING"},hashContexts:{'itemController': depth0},inverse:self.noop,fn:self.program(12, program12, data),contexts:[depth0],types:["ID"],data:data});

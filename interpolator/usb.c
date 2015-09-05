@@ -26,6 +26,7 @@ static uint8_t cncDeInit(void *pdev, uint8_t cfgidx) {
     return USBD_OK;
 }
 
+// correspondence in CNCMachine.js
 enum {
     REQUEST_POSITION = 0,
     REQUEST_PARAMETERS = 1,
@@ -34,9 +35,9 @@ enum {
     REQUEST_DEFINE_AXIS_POSITION = 4,
     REQUEST_ABORT = 5,
     REQUEST_CLEAR_ABORT = 6,
-    REQUEST_SET_SPINDLE_OUTPUT = 7,
+    REQUEST_SET_SPI_OUTPUT = 7,
     REQUEST_RESUME_PROGRAM = 8,
-    REQUEST_RESET_SPINDLE_OUTPUT = 9
+    REQUEST_RESET_SPI_OUTPUT = 9
 };
 
 typedef enum {
@@ -130,17 +131,18 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                             return USBD_OK;
                         case REQUEST_STATE: {
                             //using a static, so that it doesn't get cleaned up before the driver reads it
-                            static volatile uint32_t state[2];
+                            static volatile uint32_t state[3];
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "OCSimplifyInspection"
-                            state[0] = ((spi_input_serializer_t) {.s = cncMemory.spindleInput}).n << 24
-                                    | !!cncMemory.zHomed << 20 | !!cncMemory.yHomed << 19 | !!cncMemory.xHomed << 18
+                            state[0] = !!cncMemory.zHomed << 20 | !!cncMemory.yHomed << 19 | !!cncMemory.xHomed << 18
                                     | isToolProbeTripped() << 17 | isEmergencyStopped() << 16
                                     | cncMemory.state;
+                            state[1] = ((spi_output_serializer_t) {.s = cncMemory.spiOutput}).n << 16
+                                    | ((spi_input_serializer_t) {.s = cncMemory.spiInput}).n;
 #pragma clang diagnostic pop
-                            state[1] = 0;
+                            state[2] = 0;
                             if (cncMemory.state == RUNNING_PROGRAM || cncMemory.state == ABORTING_PROGRAM)
-                                state[1] = circularBuffer.programID;
+                                state[2] = circularBuffer.programID;
                             USBD_CtlSendData(pdev, (uint8_t *) &state, (uint16_t) sizeof(state));
                             return USBD_OK;
                         }
@@ -166,13 +168,13 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                             USBD_CtlPrepareRx(pdev, (uint8_t *) controlEndpointState.positionBuffer, sizeof(controlEndpointState.positionBuffer));
                             USBD_CtlSendStatus(pdev);
                             return USBD_OK;
-                        case REQUEST_SET_SPINDLE_OUTPUT:
-                            cncMemory.spindleOutput = ((spi_output_serializer_t) {.n=(uint8_t) req->wValue
-                                    | ((spi_output_serializer_t) {.s=cncMemory.spindleOutput}).n}).s;
+                        case REQUEST_SET_SPI_OUTPUT:
+                            cncMemory.spiOutput = ((spi_output_serializer_t) {.n = (uint8_t) req->wValue
+                                    | ((spi_output_serializer_t) {.s=cncMemory.spiOutput}).n}).s;
                             return USBD_OK;
-                        case REQUEST_RESET_SPINDLE_OUTPUT:
-                            cncMemory.spindleOutput = ((spi_output_serializer_t) {.n=(uint8_t) req->wValue
-                                    & ~((spi_output_serializer_t) {.s=cncMemory.spindleOutput}).n}).s;
+                        case REQUEST_RESET_SPI_OUTPUT:
+                            cncMemory.spiOutput = ((spi_output_serializer_t) {.n = ~(uint8_t) req->wValue
+                                    & ((spi_output_serializer_t) {.s=cncMemory.spiOutput}).n}).s;
                             return USBD_OK;
                         case REQUEST_ABORT:
                             cncMemory.state = ABORTING_PROGRAM;
@@ -247,13 +249,13 @@ void tryToStartProgram() {
                     circularBuffer.programLength = array[3] << 16 | array[2] << 8 | array[1];
                     circularBuffer.programID = array[7] << 24 | array[6] << 16 | array[5] << 8 | array[4];
                 } else if (programType == PROGRAM_START_SPINDLE) {
-                    cncMemory.spindleOutput.run = 1;
-                    while (!(cncMemory.spindleInput.drv)) {
+                    cncMemory.spiOutput.run = 1;
+                    while (!(cncMemory.spiInput.drv)) {
                         crComeBackLater;
                     }
                     crReturn;
                 } else if (programType == PROGRAM_STOP_SPINDLE) {
-                    cncMemory.spindleOutput.run = 0;
+                    cncMemory.spiOutput.run = 0;
                 }
             }
     crFinish;

@@ -43,6 +43,9 @@ require(['Ember', 'templates', 'cnc/ui/views', 'cnc/controller/CNCMachine'], fun
                     this.get('model').stopSpindle();
                 else
                     this.get('model').startSpindle();
+            },
+            toggleSocket: function () {
+                this.get('model').toggleSocket();
             }
         },
         increment: 10,
@@ -88,7 +91,10 @@ require(['Ember', 'templates', 'cnc/ui/views', 'cnc/controller/CNCMachine'], fun
         }.property('model.currentState'),
         spindleButtonLabel: function () {
             return this.get('model.spindleRunning') ? 'Stop' : 'Start';
-        }.property('model.spindleRunning')
+        }.property('model.spindleRunning'),
+        socketButtonLabel: function () {
+            return this.get('model.socketOn') ? 'Stop' : 'Start';
+        }.property('model.socketOn')
     });
     CNCController.ApplicationView = Ember.View.extend({
         templateName: 'controllerPanel',

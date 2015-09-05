@@ -77,9 +77,9 @@ typedef struct {
     int32_t lastEvent[4];
     step_t currentStep;
     uint64_t tick;
-    spi_output_t spindleOutput;
-    uint8_t unfilteredSpindleInput;
-    spi_input_t spindleInput;
+    spi_output_t spiOutput;
+    uint8_t unfilteredSpiInput;
+    spi_input_t spiInput;
     uint8_t homingAxis;
 } cnc_memory_t;
 
@@ -156,4 +156,4 @@ extern void initSPISystem();
 
 extern void handleSPI();
 
-extern void periodicSpindleFunction();
+extern void periodicSpiFunction();

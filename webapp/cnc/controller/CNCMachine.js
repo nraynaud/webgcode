@@ -1,9 +1,10 @@
 "use strict";
 define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/runner', 'cnc/util'], function (RSVP, $, Ember, Connection, Runner, util) {
+    // correspondence in usb.c
     var CONTROL_COMMANDS = {
         REQUEST_POSITION: 0, REQUEST_PARAMETERS: 1, REQUEST_STATE: 2, REQUEST_TOGGLE_MANUAL_STATE: 3,
-        REQUEST_DEFINE_AXIS_POSITION: 4, REQUEST_ABORT: 5, REQUEST_CLEAR_ABORT: 6, REQUEST_SET_SPINDLE_OUTPUT: 7,
-        REQUEST_RESUME_PROGRAM: 8, REQUEST_RESET_SPINDLE_OUTPUT: 9
+        REQUEST_DEFINE_AXIS_POSITION: 4, REQUEST_ABORT: 5, REQUEST_CLEAR_ABORT: 6, REQUEST_SET_SPI_OUTPUT: 7,
+        REQUEST_RESUME_PROGRAM: 8, REQUEST_RESET_SPI_OUTPUT: 9
     };
     var EVENTS = {PROGRAM_END: 1, PROGRAM_START: 2, MOVED: 3, ENTER_MANUAL_MODE: 4, EXIT_MANUAL_MODE: 5};
     var STATES = {READY: 0, RUNNING_PROGRAM: 1, MANUAL_CONTROL: 2, ABORTING_PROGRAM: 3, PAUSED_PROGRAM: 4};
@@ -37,6 +38,8 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
         clockFrequency: 200000,
         feedRate: 0,
         currentState: null,
+        spiInput: 0,
+        spiOutput: 0,
         connect: function () {
             var _this = this;
             this.get('connection').bind()
@@ -76,7 +79,7 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
         },
         askForState: function () {
             var _this = this;
-            var transfer = {request: CONTROL_COMMANDS.REQUEST_STATE, length: 8};
+            var transfer = {request: CONTROL_COMMANDS.REQUEST_STATE, length: 12};
             return this.get('connection').controlTransfer(transfer).then(
                 function (data) {
                     _this.decodeState(data);
@@ -125,13 +128,15 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
             var bitPart = dataView.getUint8(2, true);
             this.set('estop', !!(bitPart & 1));
             this.set('toolProbe', !!(bitPart & 2));
-            this.set('spindleInput', dataView.getUint8(3, true) & 31);
-            this.set('spindleRunning', !!(this.get('spindleInput') & 1));
-            this.set('spindleUpToSpeed', !!(this.get('spindleInput') & 2));
-            this.get('axes')[0].set('limit', !!(this.get('spindleInput') & 4));
-            this.get('axes')[1].set('limit', !!(this.get('spindleInput') & 8));
-            this.get('axes')[2].set('limit', !!(this.get('spindleInput') & 16));
-            this.set('programID', dataView.getUint32(4, true));
+            this.set('spiInput', dataView.getUint8(4, true));
+            this.set('spiOutput', dataView.getUint8(6, true));
+            this.set('programID', dataView.getUint32(8, true));
+            this.set('spindleRunning', !!(this.get('spiInput') & (1 << 0)));
+            this.set('spindleUpToSpeed', !!(this.get('spiInput') & (1 << 1)));
+            this.get('axes')[0].set('limit', !!(this.get('spiInput') & (1 << 2)));
+            this.get('axes')[1].set('limit', !!(this.get('spiInput') & (1 << 3)));
+            this.get('axes')[2].set('limit', !!(this.get('spiInput') & (1 << 4)));
+            this.set('socketOn', !!(this.get('spiOutput') & (1 << 6)));
             var operations = this.get('runner').programs[this.get('programID')];
             $('#webView')[0].contentWindow.postMessage({
                 type: 'current operations',
@@ -181,17 +186,31 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
         startSpindle: function () {
             this.get('connection').controlTransfer({
                 direction: 'out',
-                request: CONTROL_COMMANDS.REQUEST_SET_SPINDLE_OUTPUT,
+                request: CONTROL_COMMANDS.REQUEST_SET_SPI_OUTPUT,
                 value: 1
             });
         },
         stopSpindle: function () {
             this.get('connection').controlTransfer({
                 direction: 'out',
-                request: CONTROL_COMMANDS.REQUEST_RESET_SPINDLE_OUTPUT,
+                request: CONTROL_COMMANDS.REQUEST_RESET_SPI_OUTPUT,
                 value: 1
             });
-        }
+        },
+        toggleSocket: function () {
+            this.get('connection').controlTransfer({
+                direction: 'out',
+                request: this.get('socketOn') ?
+                    CONTROL_COMMANDS.REQUEST_RESET_SPI_OUTPUT : CONTROL_COMMANDS.REQUEST_SET_SPI_OUTPUT,
+                value: 1 << 6
+            });
+        },
+        spiInputBinary: function () {
+            return this.get('spiInput').toString(2);
+        }.property('spiInput'),
+        spiOutputBinary: function () {
+            return this.get('spiOutput').toString(2);
+        }.property('spiOutput')
     });
     CNCMachine.STATES = STATES;
     return CNCMachine;

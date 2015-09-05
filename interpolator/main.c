@@ -45,8 +45,8 @@ volatile cnc_memory_t cncMemory = {
         .state = READY,
         .lastEvent = {NULL_EVENT, 0, 0, 0},
         .tick = 0,
-        .spindleOutput ={.run = 0},
-        .spindleInput = 0,
+        .spiOutput = {.run = 0},
+        .spiInput = {.drv = 0, .upf = 0, .limitX = 0, .limitY = 0, .limitZ = 0},
         .homingAxis = 0
 };
 
@@ -256,10 +256,10 @@ __attribute__ ((noreturn)) void main(void) {
             //pause the program so that it doesn't restart when releasing the button
             if (cncMemory.state == RUNNING_PROGRAM)
                 cncMemory.state = PAUSED_PROGRAM;
-            cncMemory.spindleOutput.run = 0;
+            cncMemory.spiOutput.run = 0;
         }
         handleSPI();
-        periodicSpindleFunction();
+        periodicSpiFunction();
         copyUSBufferIfPossible();
         if ((cncMemory.state == READY || cncMemory.state == MANUAL_CONTROL) && !isEmergencyStopped())
             tryToStartProgram();
