@@ -4,10 +4,14 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
     var CONTROL_COMMANDS = {
         REQUEST_POSITION: 0, REQUEST_PARAMETERS: 1, REQUEST_STATE: 2, REQUEST_TOGGLE_MANUAL_STATE: 3,
         REQUEST_DEFINE_AXIS_POSITION: 4, REQUEST_ABORT: 5, REQUEST_CLEAR_ABORT: 6, REQUEST_SET_SPI_OUTPUT: 7,
-        REQUEST_RESUME_PROGRAM: 8, REQUEST_RESET_SPI_OUTPUT: 9, REQUEST_HOME: 10
+        REQUEST_RESUME_PROGRAM: 8, REQUEST_RESET_SPI_OUTPUT: 9, REQUEST_HOME: 10, REQUEST_WORK_OFFSET: 11
     };
     var EVENTS = {PROGRAM_END: 1, PROGRAM_START: 2, MOVED: 3, ENTER_MANUAL_MODE: 4, EXIT_MANUAL_MODE: 5};
     var STATES = {READY: 0, RUNNING_PROGRAM: 1, MANUAL_CONTROL: 2, ABORTING_PROGRAM: 3, PAUSED_PROGRAM: 4, HOMING: 5};
+    var SPI_OUTPUT_MAPPING = {RUN_SPINDLE: 1, SOCKET: 1 << 6};
+    var SPI_INPUT_MAPPING = {
+        SPINDLE_RUNNING: 1 << 0, SPINDLE_AT_SPEED: 1 << 1, LIMIT_X: 1 << 2, LIMIT_Y: 1 << 3, LIMIT_Z: 1 << 4
+    };
     var Axis = Ember.Object.extend({
         name: null,
         position: 0,
@@ -104,11 +108,11 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
                 data: data
             });
         },
+        quickControlTransfer: function (request, value) {
+            return this.get('connection').controlTransfer({direction: 'out', request: request, value: value});
+        },
         setManualMode: function () {
-            this.get('connection').controlTransfer({
-                direction: 'out',
-                request: CONTROL_COMMANDS.REQUEST_TOGGLE_MANUAL_STATE
-            });
+            this.quickControlTransfer(CONTROL_COMMANDS.REQUEST_TOGGLE_MANUAL_STATE);
         },
         decodeAxesPosition: function (data) {
             var buffer = new Int32Array(data);
@@ -135,12 +139,12 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
             this.set('spiInput', dataView.getUint8(4, true));
             this.set('spiOutput', dataView.getUint8(6, true));
             this.set('programID', dataView.getUint32(8, true));
-            this.set('spindleRunning', !!(this.get('spiInput') & (1 << 0)));
-            this.set('spindleUpToSpeed', !!(this.get('spiInput') & (1 << 1)));
-            this.get('axes')[0].set('limit', !!(this.get('spiInput') & (1 << 2)));
-            this.get('axes')[1].set('limit', !!(this.get('spiInput') & (1 << 3)));
-            this.get('axes')[2].set('limit', !!(this.get('spiInput') & (1 << 4)));
-            this.set('socketOn', !!(this.get('spiOutput') & (1 << 6)));
+            this.set('spindleRunning', !!(this.get('spiInput') & SPI_INPUT_MAPPING.SPINDLE_RUNNING));
+            this.set('spindleUpToSpeed', !!(this.get('spiInput') & SPI_INPUT_MAPPING.SPINDLE_AT_SPEED));
+            this.get('axes')[0].set('limit', !!(this.get('spiInput') & SPI_INPUT_MAPPING.LIMIT_X));
+            this.get('axes')[1].set('limit', !!(this.get('spiInput') & SPI_INPUT_MAPPING.LIMIT_Y));
+            this.get('axes')[2].set('limit', !!(this.get('spiInput') & SPI_INPUT_MAPPING.LIMIT_Z));
+            this.set('socketOn', !!(this.get('spiOutput') & SPI_OUTPUT_MAPPING.SOCKET));
             var operations = this.get('runner').programs[this.get('programID')];
             $('#webView')[0].contentWindow.postMessage({
                 type: 'current operations',
@@ -161,18 +165,12 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
         },
         abort: function () {
             var _this = this;
-            this.get('connection').controlTransfer({
-                direction: 'out',
-                request: CONTROL_COMMANDS.REQUEST_ABORT
-            })
+            this.quickControlTransfer(CONTROL_COMMANDS.REQUEST_ABORT)
                 .then(function () {
                     return _this.get('runner').stop();
                 })
                 .then(function () {
-                    return _this.get('connection').controlTransfer({
-                        direction: 'out',
-                        request: CONTROL_COMMANDS.REQUEST_CLEAR_ABORT
-                    });
+                    return _this.quickControlTransfer(CONTROL_COMMANDS.REQUEST_CLEAR_ABORT);
                 })
         },
         transmitProgram: function () {
@@ -182,38 +180,20 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
             return deferred.promise;
         },
         resumeProgram: function () {
-            this.get('connection').controlTransfer({
-                direction: 'out',
-                request: CONTROL_COMMANDS.REQUEST_RESUME_PROGRAM
-            })
+            return this.quickControlTransfer(CONTROL_COMMANDS.REQUEST_RESUME_PROGRAM);
         },
         startSpindle: function () {
-            this.get('connection').controlTransfer({
-                direction: 'out',
-                request: CONTROL_COMMANDS.REQUEST_SET_SPI_OUTPUT,
-                value: 1
-            });
+            return this.quickControlTransfer(CONTROL_COMMANDS.REQUEST_SET_SPI_OUTPUT, SPI_OUTPUT_MAPPING.RUN_SPINDLE);
         },
         stopSpindle: function () {
-            this.get('connection').controlTransfer({
-                direction: 'out',
-                request: CONTROL_COMMANDS.REQUEST_RESET_SPI_OUTPUT,
-                value: 1
-            });
+            return this.quickControlTransfer(CONTROL_COMMANDS.REQUEST_RESET_SPI_OUTPUT, SPI_OUTPUT_MAPPING.RUN_SPINDLE);
         },
         toggleSocket: function () {
-            this.get('connection').controlTransfer({
-                direction: 'out',
-                request: this.get('socketOn') ?
-                    CONTROL_COMMANDS.REQUEST_RESET_SPI_OUTPUT : CONTROL_COMMANDS.REQUEST_SET_SPI_OUTPUT,
-                value: 1 << 6
-            });
+            var request = (this.get('socketOn') ? 'REQUEST_RESET_SPI_OUTPUT' : 'REQUEST_SET_SPI_OUTPUT');
+            return this.quickControlTransfer(CONTROL_COMMANDS[request], SPI_OUTPUT_MAPPING.SOCKET);
         },
         home: function () {
-            this.get('connection').controlTransfer({
-                direction: 'out',
-                request: CONTROL_COMMANDS.REQUEST_HOME
-            })
+            return this.quickControlTransfer(CONTROL_COMMANDS.REQUEST_HOME);
         },
         spiInputBinary: function () {
             return this.get('spiInput').toString(2);

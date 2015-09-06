@@ -3,6 +3,17 @@ require(['Ember', 'templates', 'cnc/ui/views', 'cnc/controller/CNCMachine'], fun
     window.CNCController = Ember.Application.create({
         rootElement: '#body'
     });
+
+    function createCurrentStateProperty() {
+        var args = arguments;
+        return function () {
+            for (var i = 0, state = this.get('model.currentState'); i < args.length; i++)
+                if (state == CNCMachine.STATES[args[i]])
+                    return true;
+            return false;
+        }.property('model.currentState');
+    }
+
     CNCController.ApplicationController = Ember.ObjectController.extend({
         init: function () {
             this._super();
@@ -57,47 +68,27 @@ require(['Ember', 'templates', 'cnc/ui/views', 'cnc/controller/CNCMachine'], fun
             return this.get('model.feedRate').toFixed(0);
         }.property('model.feedRate'),
         displayableState: function () {
-            var state = this.get('model.currentState');
-            if (state == CNCMachine.STATES.READY)
-                return "ready";
-            if (state == CNCMachine.STATES.MANUAL_CONTROL)
-                return "manual";
-            if (state == CNCMachine.STATES.RUNNING_PROGRAM)
-                return "running";
-            if (state == CNCMachine.STATES.ABORTING_PROGRAM)
-                return "aborting";
-            if (state == CNCMachine.STATES.PAUSED_PROGRAM)
-                return "paused";
-            if (state == CNCMachine.STATES.HOMING)
-                return "homing";
-            return "unknown";
+            var map = {
+                READY: 'ready', MANUAL_CONTROL: 'manual', RUNNING_PROGRAM: 'running', ABORTING_PROGRAM: 'aborting',
+                PAUSED_PROGRAM: 'paused', HOMING: 'homing'
+            };
+            var stateToTxt = [];
+            Object.keys(map).forEach(function (key) {
+                stateToTxt[CNCMachine.STATES[key]] = map[key];
+            });
+            var val = stateToTxt[this.get('model.currentState')];
+            return val ? val : "unknown";
         }.property('model.currentState'),
         manualButtonLabel: function () {
             return this.get('model.currentState') == CNCMachine.STATES.MANUAL_CONTROL ?
                 "Stop Manual Jogging" : "Manual Jogging";
         }.property('model.currentState'),
-        isManualModeTogglable: function () {
-            return this.get('model.currentState') == CNCMachine.STATES.READY;
-        }.property('model.currentState'),
-        isProgramRunnable: function () {
-            return this.get('model.currentState') == CNCMachine.STATES.READY
-                || this.get('model.currentState') == CNCMachine.STATES.MANUAL_CONTROL;
-        }.property('model.currentState'),
-        isProgramAbortable: function () {
-            return this.get('model.currentState') == CNCMachine.STATES.RUNNING_PROGRAM
-                || this.get('model.currentState') == CNCMachine.STATES.PAUSED_PROGRAM
-                || this.get('model.currentState') == CNCMachine.STATES.HOMING;
-        }.property('model.currentState'),
-        isHomable: function () {
-            return this.get('model.currentState') == CNCMachine.STATES.READY;
-        }.property('model.currentState'),
-        isBusy: function () {
-            return this.get('model.currentState') == CNCMachine.STATES.RUNNING_PROGRAM
-                || this.get('model.currentState') == CNCMachine.STATES.HOMING;
-        }.property('model.currentState'),
-        isResumable: function () {
-            return this.get('model.currentState') == CNCMachine.STATES.PAUSED_PROGRAM;
-        }.property('model.currentState'),
+        isManualModeTogglable: createCurrentStateProperty('READY', 'MANUAL_CONTROL'),
+        isProgramRunnable: createCurrentStateProperty('READY', 'MANUAL_CONTROL'),
+        isProgramAbortable: createCurrentStateProperty('RUNNING_PROGRAM', 'PAUSED_PROGRAM', 'HOMING'),
+        isHomable: createCurrentStateProperty('READY'),
+        isBusy: createCurrentStateProperty('RUNNING_PROGRAM', 'HOMING'),
+        isResumable: createCurrentStateProperty('PAUSED_PROGRAM'),
         spindleButtonLabel: function () {
             return this.get('model.spindleRunning') ? 'Stop' : 'Start';
         }.property('model.spindleRunning'),
