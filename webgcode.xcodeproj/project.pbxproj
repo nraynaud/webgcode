@@ -260,6 +260,7 @@
 		DDAA5AC14AAD3A2C784B1419 /* yenc.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = yenc.js; path = libs/yenc.js; sourceTree = "<group>"; };
 		DDAA5B08E58D8D0CDBC74EAA /* cam.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = cam.js; sourceTree = "<group>"; };
 		DDAA5B32ABEAC29E2C09425A /* tux.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngc; path = tux.ngc; sourceTree = "<group>"; };
+		DDAA5B453A7758A947C1B962 /* loading.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = loading.hbs; sourceTree = "<group>"; };
 		DDAA5B712AE405ADF7EF281A /* CAM.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = CAM.js; sourceTree = "<group>"; };
 		DDAA5B8B36FAD3C7D762DA11 /* box.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = box.js; sourceTree = "<group>"; };
 		DDAA5B9127FD1D1D71501224 /* 3Dcomputer.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = 3Dcomputer.js; sourceTree = "<group>"; };
@@ -407,6 +408,7 @@
 				DDAA539FD93D356B58CD2E5F /* shape.hbs */,
 				DDAA5FC5CC98A3276865B59A /* 3DMilling.hbs */,
 				DDAA5C4590D198711729289B /* drilling.hbs */,
+				DDAA5B453A7758A947C1B962 /* loading.hbs */,
 			);
 			path = templates;
 			sourceTree = "<group>";
