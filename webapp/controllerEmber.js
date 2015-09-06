@@ -65,6 +65,8 @@ require(['Ember', 'templates', 'cnc/ui/views', 'cnc/controller/CNCMachine'], fun
                 return "aborting";
             if (state == CNCMachine.STATES.PAUSED_PROGRAM)
                 return "paused";
+            if (state == CNCMachine.STATES.HOMING)
+                return "homing";
             return "unknown";
         }.property('model.currentState'),
         manualButtonLabel: function () {
@@ -126,8 +128,13 @@ require(['Ember', 'templates', 'cnc/ui/views', 'cnc/controller/CNCMachine'], fun
         isEditing: false,
         bufferedPosition: 0,
         helpText: function () {
-            return this.get('isEditing') ? 'enter to validate, escape to cancel change' : 'double click to edit';
-        }.property('isEditing'),
+            var txt = this.get('isEditing') ? 'enter to validate, escape to cancel change' : 'double click to edit';
+            if (!this.get('model.homed'))
+                txt += ' | *this axis is not homed*';
+            if (this.get('model.limit'))
+                txt += ' | this axis is on the limit switch';
+            return txt;
+        }.property('isEditing', 'model.limit', 'model.homed'),
         isEditingChanged: function () {
             if (this.get('isEditing'))
                 this.set('bufferedPosition', this.get('model.position'))

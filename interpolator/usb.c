@@ -100,11 +100,11 @@ static uint8_t setPositionFromUSB(void *pdev, USB_SETUP_REQ *req, uint16_t axisM
     controlEndpointState.state = CONTROL_READY;
     if (cncMemory.state == MANUAL_CONTROL || cncMemory.state == READY) {
         if (axisMask & 0b001)
-            cncMemory.position.x = position[0];
+            cncMemory.workOffset.x = position[0] - cncMemory.position.x;
         if (axisMask & 0b010)
-            cncMemory.position.y = position[1];
+            cncMemory.workOffset.y = position[1] - cncMemory.position.y;
         if (axisMask & 0b100)
-            cncMemory.position.z = position[2];
+            cncMemory.workOffset.z = position[2] - cncMemory.position.z;
         return USBD_OK;
     } else {
         USBD_CtlError(pdev, req);
@@ -123,9 +123,14 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
             switch (parsed.direction) {
                 case IN:
                     switch (req->bRequest) {
-                        case REQUEST_POSITION:
-                            USBD_CtlSendData(pdev, (uint8_t *) &cncMemory.position, (uint16_t) sizeof(cncMemory.position));
+                        case REQUEST_POSITION: {
+                            static volatile position_t localPosition;
+                            localPosition.x = cncMemory.position.x + cncMemory.workOffset.x;
+                            localPosition.y = cncMemory.position.y + cncMemory.workOffset.y;
+                            localPosition.z = cncMemory.position.z + cncMemory.workOffset.z;
+                            USBD_CtlSendData(pdev, (uint8_t *) &localPosition, (uint16_t) sizeof(localPosition));
                             return USBD_OK;
+                        }
                         case REQUEST_PARAMETERS:
                             USBD_CtlSendData(pdev, (uint8_t *) &cncMemory.parameters, (uint16_t) sizeof(cncMemory.parameters));
                             return USBD_OK;
@@ -169,12 +174,12 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                             USBD_CtlSendStatus(pdev);
                             return USBD_OK;
                         case REQUEST_SET_SPI_OUTPUT:
-                            cncMemory.spiOutput = ((spi_output_serializer_t) {.n = (uint8_t) req->wValue
-                                    | ((spi_output_serializer_t) {.s=cncMemory.spiOutput}).n}).s;
+                            cncMemory.spiOutput = ((spi_output_serializer_t) {.n = ((spi_output_serializer_t) {.s=cncMemory.spiOutput}).n
+                                    | (uint8_t) req->wValue}).s;
                             return USBD_OK;
                         case REQUEST_RESET_SPI_OUTPUT:
-                            cncMemory.spiOutput = ((spi_output_serializer_t) {.n = ~(uint8_t) req->wValue
-                                    & ((spi_output_serializer_t) {.s=cncMemory.spiOutput}).n}).s;
+                            cncMemory.spiOutput = ((spi_output_serializer_t) {.n = ((spi_output_serializer_t) {.s=cncMemory.spiOutput}).n
+                                    & ~(uint8_t) req->wValue}).s;
                             return USBD_OK;
                         case REQUEST_ABORT:
                             cncMemory.state = ABORTING_PROGRAM;

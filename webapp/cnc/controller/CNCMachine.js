@@ -7,12 +7,13 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
         REQUEST_RESUME_PROGRAM: 8, REQUEST_RESET_SPI_OUTPUT: 9
     };
     var EVENTS = {PROGRAM_END: 1, PROGRAM_START: 2, MOVED: 3, ENTER_MANUAL_MODE: 4, EXIT_MANUAL_MODE: 5};
-    var STATES = {READY: 0, RUNNING_PROGRAM: 1, MANUAL_CONTROL: 2, ABORTING_PROGRAM: 3, PAUSED_PROGRAM: 4};
+    var STATES = {READY: 0, RUNNING_PROGRAM: 1, MANUAL_CONTROL: 2, ABORTING_PROGRAM: 3, PAUSED_PROGRAM: 4, HOMING: 5};
     var Axis = Ember.Object.extend({
         name: null,
         position: 0,
         machine: null,
         limit: false,
+        homed: false,
         definePosition: function (newPosition) {
             this.get('machine').setAxisValue(this.get('name'), newPosition);
         }
@@ -126,8 +127,11 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
             var state = dataView.getUint16(0, true);
             this.set('currentState', state);
             var bitPart = dataView.getUint8(2, true);
-            this.set('estop', !!(bitPart & 1));
-            this.set('toolProbe', !!(bitPart & 2));
+            this.set('estop', !!(bitPart & (1 << 0)));
+            this.set('toolProbe', !!(bitPart & (1 << 1)));
+            this.get('axes')[0].set('homed', !!(bitPart & (1 << 2)));
+            this.get('axes')[1].set('homed', !!(bitPart & (1 << 3)));
+            this.get('axes')[2].set('homed', !!(bitPart & (1 << 4)));
             this.set('spiInput', dataView.getUint8(4, true));
             this.set('spiOutput', dataView.getUint8(6, true));
             this.set('programID', dataView.getUint32(8, true));

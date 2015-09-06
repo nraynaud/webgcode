@@ -45,16 +45,16 @@ volatile cnc_memory_t cncMemory = {
         .state = READY,
         .lastEvent = {NULL_EVENT, 0, 0, 0},
         .tick = 0,
-        .spiOutput = {.run = 0},
+        .spiOutput = {.run = 0, .reverse = 0, .reset = 0, .sph = 0, .spm = 0, .spl = 0, .socket = 0},
         .spiInput = {.drv = 0, .upf = 0, .limitX = 0, .limitY = 0, .limitZ = 0},
         .homingAxis = 0
 };
 
 static const struct {
     //how do we increase the axis value: 0 -> dir bit must high, 1-> dir bit must be low
-    unsigned int x:1, y:1, z:1;
+    uint8_t x:1, y:1, z:1;
     //how do we get towards the limit switch: 0 -> by decreasing the axis value, 1 -> by increasing the axis value
-    unsigned int homeX:1, homeY:1, homeZ:1;
+    uint8_t homeX:1, homeY:1, homeZ:1;
 } motorDirection = {
         .x = 0,
         .homeX = 0,
@@ -124,12 +124,27 @@ static int startStep(step_t step) {
         return 0;
 }
 
+static step_t nextHomingStep() {
+    if (cncMemory.spiInput.limitX || cncMemory.spiInput.limitY | cncMemory.spiInput.limitZ) {
+        if (cncMemory.spiInput.limitZ) {
+            cncMemory.workOffset.z += cncMemory.position.z;
+            cncMemory.position.z = 0;
+            cncMemory.zHomed = 1;
+        }
+        cncMemory.state = READY;
+        return (step_t) {.duration = 0};
+    }
+    return (step_t) {.duration = 400, .axes={.zStep = 1, .zDirection = motorDirection.homeZ}};
+}
+
 //returns 1 if a step was started
 int startNextStep() {
     if (cncMemory.state == MANUAL_CONTROL)
         return startStep(nextManualStep());
     else if (cncMemory.state == RUNNING_PROGRAM)
         return startStep(nextProgramStep());
+    else if (cncMemory.state == HOMING)
+        return startStep(nextHomingStep());
     else
         cncMemory.position.speed = 0;
     return 0;

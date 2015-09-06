@@ -1,16 +1,16 @@
-<div style="display: flex;flex-direction: column;align-items:flex-start;overflow-y: scroll">
+<div style="display: flex;flex-direction: column;align-items:inherit;overflow-y: hidden">
     {{#if firebase.isAuthenticated}}
-        <h2>Jobs
+        <h2>Your Jobs
             <button title="create new job" class="btn btn-default" {{action "createJob"}}>+</button>
-            <button class="btn btn-default" {{action "createExample"}}>Create Example</button>
+            <button class="btn btn-default" {{action "createExample"}}>Create An Example</button>
         </h2>
-        <div class="list-group" style="display:inline-block;">
+        <ul class="list-inline" style="display:flex; flex-flow: column wrap; overflow-y: hidden; ">
             {{#each model}}
-                {{#link-to "job" this._data.job.id classNames="list-group-item"}}{{name}}{{/link-to}}
+                <li>{{#link-to "job" this._data.job.id classNames="list-group-item"}}{{name}}{{/link-to}}</li>
             {{else}}
                 No job yet.
             {{/each}}
-        </div>
+        </ul>
     {{else}}
         Welcome, you need to log in before anything else.
     {{/if}}

@@ -14,86 +14,88 @@
             </button>
         {{/if}}
 
+
+
+        <div class="control">
+            <div {{bind-attr class=":estopframe toolProbe"}}>Tool Probe</div>
+            <div {{bind-attr class=":estopframe estop"}}>E-STOP</div>
+            <div class="io">
+                <div {{bind-attr class=":spindle spindleRunning spindleUpToSpeed"}}>Spindle <br>
+                    <button {{action "toggleSpindle"}}>{{spindleButtonLabel}}</button>
+                </div>
+                <div {{bind-attr class=":socket socketOn"}}>Socket <br>
+                    <button {{action "toggleSocket"}}>{{socketButtonLabel}}</button>
+                </div>
+            </div>
+            <div class="position">
+                <table>
+                    <colgroup>
+                        <col>
+                        <col>
+                    </colgroup>
+                    <tbody>
+                    {{#each axes itemController="axis"}}
+                        <tr {{bind-attr title="helpText"}} {{bind-attr class=":axis limit homed"}} {{action "editAxis" on="doubleClick"}} >
+                            <th>{{name}}:</th>
+                            <td class="posAxis">
+                                {{#if isEditing}}
+                                    {{edit-axis size="6" numericValue=bufferedPosition
+                                    insert-newline="acceptChanges" escape-press="cancelChanges"}}
+                                {{else}}
+                                    <span class="pos">{{formattedPosition}}</span>
+                                {{/if}}
+                            </td>
+                        </tr>
+                    {{/each}}
+                    </tbody>
+                </table>
+            </div>
+            <div class="controlButtons">
+                <div class="xyBlock">
+                    <button class="axisButton" {{action "move" "Y+" }}><i class="fa fa-arrow-up"></i> Y+</button>
+                    <div class="centerRow">
+                        <button class="axisButton" {{action "move" "X-" }}><i class="fa fa-arrow-left"></i> X-</button>
+                        <button class="axisButton" {{action "move" "X+" }}>X+ <i class="fa fa-arrow-right"></i></button>
+                    </div>
+                    <button class="axisButton" {{action "move" "Y-" }}><i class="fa fa-arrow-down"></i> Y-</button>
+                </div>
+                <div class="zBlock">
+                    <button class="axisButton" {{action "move" "Z+" }}><i class="fa fa-arrow-circle-up"></i> Z+</button>
+                    <div>&nbsp;</div>
+                    <button class="axisButton" {{action "move" "Z-" }}><i class="fa fa-arrow-circle-down"></i> Z-
+                    </button>
+                </div>
+            </div>
+            <div class="controlParams">
+                <table>
+                    <tr title="mm">
+                        <th><label for="incrementField">increment:</label></th>
+                        <td>{{input type=number class='paramField'  min="0" max="100" step="0.01" size="4" value="10" value=increment}}</td>
+                    </tr>
+                    <tr title="mm/min">
+                        <th><label for="feedRateField">feedrate:</label></th>
+                        <td>{{input type=number class='paramField'  min="0" max="3000" step="10" size="4" value="10" value=jogFeedrate}}</td>
+                    </tr>
+                    <tr title="mm/min">
+                        <th>current speed:</th>
+                        <td><span id="currentFeedrate">{{feedrate}}</span></td>
+                    </tr>
+                    <tr title="mm/min">
+                        <th>current state:</th>
+                        <td><span>{{displayableState}}</span></td>
+                    </tr>
+                </table>
+                <div class="units">
+                    {{#if isBusy}}
+                        <div id="loader">&nbsp;</div>
+                    {{/if}}<span
+                        title="ISO units, there is no way to change it.">mm</span>
+                </div>
+            </div>
+        </div>
     {{else}}
         <button id='connect' {{action "connect"}}><i class="fa fa-plug"></i> Connect</button>
     {{/if}}
-
-    <div class="control">
-        <div {{bind-attr class=":estopframe toolProbe"}}>Tool Probe</div>
-        <div {{bind-attr class=":estopframe estop"}}>E-STOP</div>
-        <div class="io">
-            <div {{bind-attr class=":spindle spindleRunning spindleUpToSpeed"}}>Spindle <br>
-                <button {{action "toggleSpindle"}}>{{spindleButtonLabel}}</button>
-            </div>
-            <div {{bind-attr class=":socket socketOn"}}>Socket <br>
-                <button {{action "toggleSocket"}}>{{socketButtonLabel}}</button>
-            </div>
-        </div>
-        <div class="position">
-            <table>
-                <colgroup>
-                    <col>
-                    <col>
-                </colgroup>
-                <tbody>
-                {{#each axes itemController="axis"}}
-                    <tr {{bind-attr title="helpText"}} {{bind-attr class="limit"}} {{action "editAxis" on="doubleClick"}} >
-                        <th>{{name}}:</th>
-                        <td class="posAxis">
-                            {{#if isEditing}}
-                                {{edit-axis size="6" numericValue=bufferedPosition
-                                insert-newline="acceptChanges" escape-press="cancelChanges"}}
-                            {{else}}
-                                <span class="pos">{{formattedPosition}}</span>
-                            {{/if}}
-                        </td>
-                    </tr>
-                {{/each}}
-                </tbody>
-            </table>
-        </div>
-        <div class="controlButtons">
-            <div class="xyBlock">
-                <button class="axisButton" {{action "move" "Y+" }}><i class="fa fa-arrow-up"></i> Y+</button>
-                <div class="centerRow">
-                    <button class="axisButton" {{action "move" "X-" }}><i class="fa fa-arrow-left"></i> X-</button>
-                    <button class="axisButton" {{action "move" "X+" }}>X+ <i class="fa fa-arrow-right"></i></button>
-                </div>
-                <button class="axisButton" {{action "move" "Y-" }}><i class="fa fa-arrow-down"></i> Y-</button>
-            </div>
-            <div class="zBlock">
-                <button class="axisButton" {{action "move" "Z+" }}><i class="fa fa-arrow-circle-up"></i> Z+</button>
-                <div>&nbsp;</div>
-                <button class="axisButton" {{action "move" "Z-" }}><i class="fa fa-arrow-circle-down"></i> Z-</button>
-            </div>
-        </div>
-        <div class="controlParams">
-            <table>
-                <tr title="mm">
-                    <th><label for="incrementField">increment:</label></th>
-                    <td>{{input type=number class='paramField'  min="0" max="100" step="0.01" size="4" value="10" value=increment}}</td>
-                </tr>
-                <tr title="mm/min">
-                    <th><label for="feedRateField">feedrate:</label></th>
-                    <td>{{input type=number class='paramField'  min="0" max="3000" step="10" size="4" value="10" value=jogFeedrate}}</td>
-                </tr>
-                <tr title="mm/min">
-                    <th>current speed:</th>
-                    <td><span id="currentFeedrate">{{feedrate}}</span></td>
-                </tr>
-                <tr title="mm/min">
-                    <th>current state:</th>
-                    <td><span>{{displayableState}}</span></td>
-                </tr>
-            </table>
-            <div class="units">
-                {{#if isBusy}}
-                    <div id="loader">&nbsp;</div>
-                {{/if}}<span
-                    title="ISO units, there is no way to change it.">mm</span>
-            </div>
-        </div>
-    </div>
 </div>
 <div class="camPanel">
     <iframe id="webView" src="visucamTest.html"></iframe>
