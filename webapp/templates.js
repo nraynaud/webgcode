@@ -771,6 +771,15 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   return buffer;
   
 });
+Ember.TEMPLATES["loading"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data) {
+    this.compilerInfo = [4, '>= 1.0.0'];
+    helpers = this.merge(helpers, Ember.Handlebars.helpers);
+    data = data || {};
+
+
+    data.buffer.push("<h1>LOADING...</h1>");
+
+});
 Ember.TEMPLATES["operation"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
