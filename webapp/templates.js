@@ -747,6 +747,18 @@ function program22(depth0,data) {
     'type': ("checkbox"),
     'checked': ("startSpindle")
   },hashTypes:{'type': "STRING",'checked': "ID"},hashContexts:{'type': depth0,'checked': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+    data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th title=\"switch on the front socket on the controller box during the job\">Switch Socket On</th>\n            <td>");
+    data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input), options = {
+        hash: {
+            'type': ("checkbox"),
+            'checked': ("startSocket")
+        },
+        hashTypes: {'type': "STRING", 'checked': "ID"},
+        hashContexts: {'type': depth0, 'checked': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
   data.buffer.push("</td>\n        </tr>\n        <tr>\n            <th title=\"travel path is displayed in red\">Display Travel</th>\n            <td>");
   data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
     'type': ("checkbox"),

@@ -20,6 +20,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             offsetX: attr('number', {defaultValue: 0}),
             offsetY: attr('number', {defaultValue: 0}),
             startSpindle: attr('boolean', {defaultValue: true}),
+            startSocket: attr('boolean', {defaultValue: true}),
             transitionTravels: [],
             operationsOrderProperty: ['index'],
             orderedOperations: Ember.computed.sort('operations', 'operationsOrderProperty'),
