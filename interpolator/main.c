@@ -176,7 +176,8 @@ static step_t nextStepFromHomingProgram() {
             // get there slowly again
             while (!cncMemory.spiInput.limitZ)
                 crYield(homingStep(2, 1, slowTouchSpeed));
-            cncMemory.workOffset.z += cncMemory.position.z;
+            if (!cncMemory.zHomed)
+                cncMemory.workOffset.z += cncMemory.position.z;
             cncMemory.position.z = 0;
             cncMemory.zHomed = 1;
             //back up from the switch
@@ -200,7 +201,8 @@ static step_t nextStepFromHomingProgram() {
             } while (backupStepIndex);
             while (!cncMemory.spiInput.limitX)
                 crYield(homingStep(0, 1, slowTouchSpeed));
-            cncMemory.workOffset.x += cncMemory.position.x;
+            if (!cncMemory.xHomed)
+                cncMemory.workOffset.x += cncMemory.position.x;
             cncMemory.position.x = 0;
             cncMemory.xHomed = 1;
             while (cncMemory.spiInput.limitX)
@@ -223,7 +225,8 @@ static step_t nextStepFromHomingProgram() {
             } while (backupStepIndex);
             while (!cncMemory.spiInput.limitY)
                 crYield(homingStep(1, 1, slowTouchSpeed));
-            cncMemory.workOffset.y += cncMemory.position.y;
+            if (!cncMemory.yHomed)
+                cncMemory.workOffset.y += cncMemory.position.y;
             cncMemory.position.y = 0;
             cncMemory.yHomed = 1;
             while (cncMemory.spiInput.limitY)
