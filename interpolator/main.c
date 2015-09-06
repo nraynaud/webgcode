@@ -47,7 +47,7 @@ volatile cnc_memory_t cncMemory = {
         .tick = 0,
         .spiOutput = {.run = 0, .reverse = 0, .reset = 0, .sph = 0, .spm = 0, .spl = 0, .socket = 0},
         .spiInput = {.drv = 0, .upf = 0, .limitX = 0, .limitY = 0, .limitZ = 0},
-        .homingAxis = 0
+        .stopHomingFlag = 0
 };
 
 static const struct {
@@ -124,17 +124,80 @@ static int startStep(step_t step) {
         return 0;
 }
 
-static step_t nextHomingStep() {
-    if (cncMemory.spiInput.limitX || cncMemory.spiInput.limitY | cncMemory.spiInput.limitZ) {
-        if (cncMemory.spiInput.limitZ) {
+int startHoming() {
+    switch (cncMemory.state) {
+        case READY:
+            STM_EVAL_LEDOn(LED3);
+            cncMemory.state = HOMING;
+            return 1;
+        default:
+            return 0;
+    }
+};
+
+static step_t homingStep(int axis, int forwards) {
+    axes_t axes[] = {{.xStep = 1, .xDirection = motorDirection.homeX}, {.yStep = 1, .yDirection = motorDirection.homeY}, {.zStep = 1, .zDirection = motorDirection.homeZ}};
+    step_t step = {.duration = 400, .axes=axes[axis]};
+    if (!forwards) {
+        step.axes.xDirection = (uint8_t) !step.axes.xDirection;
+        step.axes.yDirection = (uint8_t) !step.axes.yDirection;
+        step.axes.zDirection = (uint8_t) !step.axes.zDirection;
+    }
+    return step;
+}
+
+static step_t nextStepFromHomingProgram() {
+    crBeginGuarded(!cncMemory.stopHomingFlag, (step_t) {.duration = 0});
+            //if we are already on a switch, move from it
+            while (cncMemory.spiInput.limitZ)
+                crYield(homingStep(2, 0));
+            while (cncMemory.spiInput.limitX)
+                crYield(homingStep(0, 0));
+            while (cncMemory.spiInput.limitY)
+                crYield(homingStep(1, 0));
+
+            //home Z first to park the tool far from the clutter on the table
+            while (!cncMemory.spiInput.limitZ)
+                crYield(homingStep(2, 1));
             cncMemory.workOffset.z += cncMemory.position.z;
             cncMemory.position.z = 0;
             cncMemory.zHomed = 1;
-        }
+            //back up from the switch
+            while (cncMemory.spiInput.limitZ)
+                crYield(homingStep(2, 0));
+
+            //home X
+            while (!cncMemory.spiInput.limitX)
+                crYield(homingStep(0, 1));
+            cncMemory.workOffset.x += cncMemory.position.x;
+            cncMemory.position.x = 0;
+            cncMemory.xHomed = 1;
+            //back up from the switch
+            while (cncMemory.spiInput.limitX)
+                crYield(homingStep(0, 0));
+
+            //home Y
+            while (!cncMemory.spiInput.limitY)
+                crYield(homingStep(1, 1));
+            cncMemory.workOffset.y += cncMemory.position.y;
+            cncMemory.position.y = 0;
+            cncMemory.yHomed = 1;
+            //back up from the switch
+            while (cncMemory.spiInput.limitY)
+                crYield(homingStep(1, 0));
+
+            cncMemory.state = READY;
+            crReturn((step_t) {.duration = 0});
+    crFinish;
+}
+
+static step_t nextHomingStep() {
+    step_t step = nextStepFromHomingProgram();
+    if (step.duration == 0) {
+        cncMemory.stopHomingFlag = 0;
         cncMemory.state = READY;
-        return (step_t) {.duration = 0};
     }
-    return (step_t) {.duration = 400, .axes={.zStep = 1, .zDirection = motorDirection.homeZ}};
+    return step;
 }
 
 //returns 1 if a step was started
@@ -196,15 +259,15 @@ static void run() {
             if (cncMemory.state == RUNNING_PROGRAM)
                 checkProgramEnd();
             while (isEmergencyStopped() || cncMemory.state == PAUSED_PROGRAM)
-                crComeBackLater;
+                crYield();
             if (startNextStep()) {
                 while (!stepTimeHasCome())
-                    crComeBackLater;
+                    crYield();
                 setStepGPIO(cncMemory.currentStep.axes);
                 updateMemoryPosition(cncMemory.currentStep);
                 clearStepTimeHasCome();
                 while (!stepIsOver())
-                    crComeBackLater;
+                    crYield();
                 clearStepIsOver();
             }
     crFinish;

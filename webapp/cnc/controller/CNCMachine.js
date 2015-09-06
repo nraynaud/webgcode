@@ -4,7 +4,7 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
     var CONTROL_COMMANDS = {
         REQUEST_POSITION: 0, REQUEST_PARAMETERS: 1, REQUEST_STATE: 2, REQUEST_TOGGLE_MANUAL_STATE: 3,
         REQUEST_DEFINE_AXIS_POSITION: 4, REQUEST_ABORT: 5, REQUEST_CLEAR_ABORT: 6, REQUEST_SET_SPI_OUTPUT: 7,
-        REQUEST_RESUME_PROGRAM: 8, REQUEST_RESET_SPI_OUTPUT: 9
+        REQUEST_RESUME_PROGRAM: 8, REQUEST_RESET_SPI_OUTPUT: 9, REQUEST_HOME: 10
     };
     var EVENTS = {PROGRAM_END: 1, PROGRAM_START: 2, MOVED: 3, ENTER_MANUAL_MODE: 4, EXIT_MANUAL_MODE: 5};
     var STATES = {READY: 0, RUNNING_PROGRAM: 1, MANUAL_CONTROL: 2, ABORTING_PROGRAM: 3, PAUSED_PROGRAM: 4, HOMING: 5};
@@ -208,6 +208,12 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
                     CONTROL_COMMANDS.REQUEST_RESET_SPI_OUTPUT : CONTROL_COMMANDS.REQUEST_SET_SPI_OUTPUT,
                 value: 1 << 6
             });
+        },
+        home: function () {
+            this.get('connection').controlTransfer({
+                direction: 'out',
+                request: CONTROL_COMMANDS.REQUEST_HOME
+            })
         },
         spiInputBinary: function () {
             return this.get('spiInput').toString(2);

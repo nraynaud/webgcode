@@ -244,7 +244,7 @@ void handleButton() {
             pressCounts = 0;
             do {
                 rawValue = GPIO_ReadInputDataBit(uiPinout.gpio, uiPinout.manualButton);
-                crComeBackLater;
+                crYield();
             }
             while (rawValue && ++pressCounts < UI_DEBOUNCE_MAX_CHECKS);
             if (rawValue)

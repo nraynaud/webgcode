@@ -37,7 +37,8 @@ enum {
     REQUEST_CLEAR_ABORT = 6,
     REQUEST_SET_SPI_OUTPUT = 7,
     REQUEST_RESUME_PROGRAM = 8,
-    REQUEST_RESET_SPI_OUTPUT = 9
+    REQUEST_RESET_SPI_OUTPUT = 9,
+    REQUEST_HOME = 10
 };
 
 typedef enum {
@@ -181,7 +182,14 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                             cncMemory.spiOutput = ((spi_output_serializer_t) {.n = ((spi_output_serializer_t) {.s=cncMemory.spiOutput}).n
                                     & ~(uint8_t) req->wValue}).s;
                             return USBD_OK;
+                        case REQUEST_HOME:
+                            startHoming();
+                            return USBD_OK;
                         case REQUEST_ABORT:
+                            if (cncMemory.state == HOMING) {
+                                cncMemory.stopHomingFlag = 1;
+                                return USBD_OK;
+                            }
                             cncMemory.state = ABORTING_PROGRAM;
                             //connect the endpoint to the /dev/null
                             DCD_EP_PrepareRx(&usbDevice, BULK_ENDPOINT, buffer, BUFFER_SIZE);
@@ -190,7 +198,6 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                             circularBuffer.writeCount = 0;
                             circularBuffer.readCount = 0;
                             circularBuffer.signaled = 0;
-                            return USBD_OK;
                         case REQUEST_RESUME_PROGRAM:
                             cncMemory.state = RUNNING_PROGRAM;
                             return USBD_OK;
@@ -256,9 +263,9 @@ void tryToStartProgram() {
                 } else if (programType == PROGRAM_START_SPINDLE) {
                     cncMemory.spiOutput.run = 1;
                     while (!(cncMemory.spiInput.drv)) {
-                        crComeBackLater;
+                        crYield();
                     }
-                    crReturn;
+                    crReturn();
                 } else if (programType == PROGRAM_STOP_SPINDLE) {
                     cncMemory.spiOutput.run = 0;
                 }
@@ -280,11 +287,11 @@ void copyUSBufferIfPossible() {
     crBegin;
             do {
                 seenSignal = circularBuffer.signaled;
-                crComeBackLater;
+                crYield();
             } while (seenSignal == lastSignal);
             count = USBD_GetRxCount(&usbDevice, BULK_ENDPOINT_NUM);
             while (fillLevel() >= CIRCULAR_BUFFER_SIZE - count) {
-                crComeBackLater;
+                crYield();
             }
             unsigned int bufferPosition = circularBuffer.writeCount % CIRCULAR_BUFFER_SIZE;
             int overflowingCount = bufferPosition + count - CIRCULAR_BUFFER_SIZE;

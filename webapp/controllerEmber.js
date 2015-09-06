@@ -46,6 +46,9 @@ require(['Ember', 'templates', 'cnc/ui/views', 'cnc/controller/CNCMachine'], fun
             },
             toggleSocket: function () {
                 this.get('model').toggleSocket();
+            },
+            home: function () {
+                this.get('model').home();
             }
         },
         increment: 10,
@@ -74,19 +77,23 @@ require(['Ember', 'templates', 'cnc/ui/views', 'cnc/controller/CNCMachine'], fun
                 "Stop Manual Jogging" : "Manual Jogging";
         }.property('model.currentState'),
         isManualModeTogglable: function () {
-            return this.get('model.currentState') != CNCMachine.STATES.RUNNING_PROGRAM
-                && this.get('model.currentState') != CNCMachine.STATES.PAUSED_PROGRAM;
+            return this.get('model.currentState') == CNCMachine.STATES.READY;
         }.property('model.currentState'),
         isProgramRunnable: function () {
-            return this.get('model.currentState') != CNCMachine.STATES.RUNNING_PROGRAM
-                && this.get('model.currentState') != CNCMachine.STATES.PAUSED_PROGRAM;
+            return this.get('model.currentState') == CNCMachine.STATES.READY
+                || this.get('model.currentState') == CNCMachine.STATES.MANUAL_CONTROL;
         }.property('model.currentState'),
         isProgramAbortable: function () {
             return this.get('model.currentState') == CNCMachine.STATES.RUNNING_PROGRAM
-                || this.get('model.currentState') == CNCMachine.STATES.PAUSED_PROGRAM;
+                || this.get('model.currentState') == CNCMachine.STATES.PAUSED_PROGRAM
+                || this.get('model.currentState') == CNCMachine.STATES.HOMING;
+        }.property('model.currentState'),
+        isHomable: function () {
+            return this.get('model.currentState') == CNCMachine.STATES.READY;
         }.property('model.currentState'),
         isBusy: function () {
-            return this.get('model.currentState') == CNCMachine.STATES.RUNNING_PROGRAM;
+            return this.get('model.currentState') == CNCMachine.STATES.RUNNING_PROGRAM
+                || this.get('model.currentState') == CNCMachine.STATES.HOMING;
         }.property('model.currentState'),
         isResumable: function () {
             return this.get('model.currentState') == CNCMachine.STATES.PAUSED_PROGRAM;

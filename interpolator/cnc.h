@@ -80,7 +80,7 @@ typedef struct {
     spi_output_t spiOutput;
     uint8_t unfilteredSpiInput;
     spi_input_t spiInput;
-    uint8_t homingAxis;
+    uint8_t stopHomingFlag;
 } cnc_memory_t;
 
 typedef enum {
@@ -110,8 +110,11 @@ enum {
 
 #define crBegin static int state=0; switch(state) { default:break; case 0:
 #define crFinish state=0;}
-#define crReturn do { state=0; return; } while (0)
-#define crComeBackLater do { state=__LINE__; return; \
+#define crReturn(x) do { state=0; return x; } while (0)
+#define crBeginGuarded(predicate, whenFalseValue) static int state=0; \
+    if (!(predicate)) {state=0; return whenFalseValue;} \
+    switch(state) { default:break; case 0:
+#define crYield(x) do { state=__LINE__; return x; \
                          case __LINE__:; } while (0)
 
 #define INTERRUPT_PACKET_SIZE         24
@@ -131,6 +134,8 @@ extern uint32_t isEmergencyStopped();
 extern uint32_t isToolProbeTripped();
 
 extern void initUSB();
+
+extern int startHoming();
 
 extern int32_t readFromProgram(uint32_t count, uint8_t *array);
 

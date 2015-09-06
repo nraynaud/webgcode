@@ -84,12 +84,12 @@ void handleSPI() {
             flashShiftRegisters();
             SPI_I2S_SendData(spiPinout.spi, ((spi_output_serializer_t) {.s=cncMemory.spiOutput}).n);
             while ((spiPinout.spi->SR & SPI_SR_TXE) == 0)
-                crComeBackLater;
+                crYield();
             while ((spiPinout.spi->SR & SPI_SR_RXNE) == 0)
-                crComeBackLater;
+                crYield();
             cncMemory.unfilteredSpiInput = (uint8_t) SPI_I2S_ReceiveData(spiPinout.spi) ^ ~((spi_input_serializer_t) {.s = spiInputPolarity}).n;
             while ((spiPinout.spi->SR & SPI_SR_BSY) != 0)
-                crComeBackLater;
+                crYield();
             flashShiftRegisters();
     crFinish;
 }
@@ -104,8 +104,8 @@ static void debounceRunbit() {
             discrepancyStartTick += cncMemory.tick;
             while (cncMemory.tick < discrepancyStartTick + 20000) {
                 if (!(cncMemory.spiOutput.run) || cncMemory.spiInput.upf)
-                    crReturn;
-                crComeBackLater;
+                    crReturn();
+                crYield();
             }
             cncMemory.spiOutput.run = 1;
     crFinish;
