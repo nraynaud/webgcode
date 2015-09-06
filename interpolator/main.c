@@ -147,10 +147,10 @@ static step_t homingStep(int axis, int forwards, uint16_t speed) {
 }
 
 static step_t nextStepFromHomingProgram() {
-    uint16_t fastApproachSpeed = 40;
-    uint16_t backupSpeed = fastApproachSpeed;
-    uint16_t slowTouchSpeed = 500;
-    int backupSteps = 700;
+    const uint16_t fastApproachSpeed = 40;
+    const uint16_t backupSpeed = fastApproachSpeed;
+    const uint16_t slowTouchSpeed = 500;
+    const int backupSteps = 700;
     static int backupStepIndex;
     crBeginGuarded(!cncMemory.stopHomingFlag, (step_t) {.duration = 0});
             //if we are already on a switch, back up
