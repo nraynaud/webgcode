@@ -110,8 +110,10 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
                             parameters: parameters,
                             toolPath: toolPath,
                             hasMore: false,
-                            startSpindleBefore: _this.get('model').get('startSpindle'),
-                            stopSpindleAfter: _this.get('model').get('startSpindle')
+                            startSpindleBefore: _this.get('model.startSpindle'),
+                            stopSpindleAfter: _this.get('model.startSpindle'),
+                            startSocketBefore: _this.get('model.startSocket'),
+                            stopSocketAfter: _this.get('model.startSocket')
                         });
                         console.timeEnd('postMessage');
                     }

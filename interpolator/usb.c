@@ -274,10 +274,13 @@ int32_t readBufferArray2(uint32_t count, uint8_t *array) {
 
 #define PROGRAM_HEADER_LENGTH 8
 
+//referenced from worker.js
 typedef enum {
     PROGRAM_STEPS = 0,
     PROGRAM_START_SPINDLE = 1,
-    PROGRAM_STOP_SPINDLE = 2
+    PROGRAM_STOP_SPINDLE = 2,
+    PROGRAM_START_SOCKET = 3,
+    PROGRAM_STOP_SOCKET = 4
 } program_type_t;
 
 void tryToStartProgram() {
@@ -295,6 +298,10 @@ void tryToStartProgram() {
                     crReturn();
                 } else if (programType == PROGRAM_STOP_SPINDLE) {
                     cncMemory.spiOutput.run = 0;
+                } else if (programType == PROGRAM_START_SOCKET) {
+                    cncMemory.spiOutput.socket = 1;
+                } else if (programType == PROGRAM_STOP_SOCKET) {
+                    cncMemory.spiOutput.socket = 0;
                 }
             }
     crFinish;

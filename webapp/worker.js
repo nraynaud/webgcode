@@ -54,21 +54,19 @@ var tasks = {
     },
     acceptProgram: function (event) {
         require(['cnc/gcode/parser', 'cnc/gcode/simulation', 'cnc/util.js'], function (parser, simulation, util) {
+            //see usb.c:tryToStartProgram()
             var PROGRAM_TYPES = {
                 PROGRAM_STEPS: 0,
                 PROGRAM_START_SPINDLE: 1,
-                PROGRAM_STOP_SPINDLE: 2
+                PROGRAM_STOP_SPINDLE: 2,
+                PROGRAM_START_SOCKET: 3,
+                PROGRAM_STOP_SOCKET: 4
             };
-            var START_SPINDLE_PACKET = {
-                program: new Uint8Array([PROGRAM_TYPES.PROGRAM_START_SPINDLE, 0, 0, 0, 0, 0, 0, 0]).buffer,
-                programID: 0,
-                operations: []
-            };
-            var STOP_SPINDLE_PACKET = {
-                program: new Uint8Array([PROGRAM_TYPES.PROGRAM_STOP_SPINDLE, 0, 0, 0, 0, 0, 0, 0]).buffer,
-                programID: 0,
-                operations: []
-            };
+
+            function createSingleFlagProgram(type) {
+                return {program: new Uint8Array([type, 0, 0, 0, 0, 0, 0, 0]).buffer, programID: 0, operations: []};
+            }
+
             var MAX_QUEUED_PROGRAMS = 10;
             var TOOLPATH_CHUNK_SIZE = 100000;
             var MAX_PROGRAM_SIZE = 300;
@@ -80,12 +78,16 @@ var tasks = {
             var inputPort = event.ports[0];
             var outputPort = event.ports[1];
             var stopSpindleAfter = false;
+            var stopSocketAfter = false;
 
             inputPort.onmessage = function (deferredEvent) {
                 pendingEvents.push(deferredEvent);
                 stopSpindleAfter |= deferredEvent.data.stopSpindleAfter;
+                stopSocketAfter |= deferredEvent.data.stopSocketAfter;
                 if (deferredEvent.data.startSpindleBefore)
-                    outputPort.postMessage(START_SPINDLE_PACKET);
+                    outputPort.postMessage(createSingleFlagProgram(PROGRAM_TYPES.PROGRAM_START_SPINDLE));
+                if (deferredEvent.data.startSocketBefore)
+                    outputPort.postMessage(createSingleFlagProgram(PROGRAM_TYPES.PROGRAM_START_SOCKET));
                 while (pendingEvents.length > 0 && sentToRunnerProgramsCount - sentToUSBProgramsCount < MAX_QUEUED_PROGRAMS) {
                     var event = pendingEvents.shift();
                     var typeConverter = {
@@ -216,9 +218,12 @@ var tasks = {
                             sentToRunnerProgramsCount++;
                         }
                         if (stopSpindleAfter)
-                            outputPort.postMessage(STOP_SPINDLE_PACKET);
+                            outputPort.postMessage(createSingleFlagProgram(PROGRAM_TYPES.PROGRAM_STOP_SPINDLE));
+                        if (stopSocketAfter)
+                            outputPort.postMessage(createSingleFlagProgram(PROGRAM_TYPES.PROGRAM_STOP_SOCKET));
                         outputPort.postMessage({program: null});
                         stopSpindleAfter = false;
+                        stopSocketAfter = false;
                         outputPort.close();
                         inputPort.close();
                     }
