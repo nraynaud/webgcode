@@ -38,7 +38,8 @@ enum {
     REQUEST_SET_SPI_OUTPUT = 7,
     REQUEST_RESUME_PROGRAM = 8,
     REQUEST_RESET_SPI_OUTPUT = 9,
-    REQUEST_HOME = 10
+    REQUEST_HOME = 10,
+    REQUEST_WORK_OFFSET = 11
 };
 
 typedef enum {
@@ -83,7 +84,8 @@ static struct {
 
 typedef enum {
     CONTROL_READY = 0,
-    CONTROL_WAITING_AXES_VALUES = 1
+    CONTROL_WAITING_AXES_VALUES = 1,
+    CONTROL_WAITING_WORK_OFFSET = 2
 } control_endpoint_mode_t;
 
 static struct {
@@ -126,9 +128,10 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                     switch (req->bRequest) {
                         case REQUEST_POSITION: {
                             static volatile position_t localPosition;
-                            localPosition.x = cncMemory.position.x + cncMemory.workOffset.x;
-                            localPosition.y = cncMemory.position.y + cncMemory.workOffset.y;
-                            localPosition.z = cncMemory.position.z + cncMemory.workOffset.z;
+                            localPosition = cncMemory.position;
+                            localPosition.x += cncMemory.workOffset.x;
+                            localPosition.y += cncMemory.workOffset.y;
+                            localPosition.z += cncMemory.workOffset.z;
                             USBD_CtlSendData(pdev, (uint8_t *) &localPosition, (uint16_t) sizeof(localPosition));
                             return USBD_OK;
                         }
@@ -152,6 +155,14 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                             USBD_CtlSendData(pdev, (uint8_t *) &state, (uint16_t) sizeof(state));
                             return USBD_OK;
                         }
+                        case REQUEST_WORK_OFFSET: {
+                            static volatile int32_t workOffset[3];
+                            workOffset[0] = cncMemory.workOffset.x;
+                            workOffset[1] = cncMemory.workOffset.y;
+                            workOffset[2] = cncMemory.workOffset.z;
+                            USBD_CtlSendData(pdev, (uint8_t *) &workOffset, (uint16_t) sizeof(workOffset));
+                            return USBD_OK;
+                        }
                         default:
                             USBD_CtlError(pdev, req);
                             break;
@@ -167,6 +178,12 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
                                 USBD_CtlError(pdev, req);
                                 return USBD_FAIL;
                             }
+                        case REQUEST_WORK_OFFSET:
+                            controlEndpointState.state = CONTROL_WAITING_WORK_OFFSET;
+                            controlEndpointState.request = *req;
+                            USBD_CtlPrepareRx(pdev, (uint8_t *) controlEndpointState.positionBuffer, sizeof(controlEndpointState.positionBuffer));
+                            USBD_CtlSendStatus(pdev);
+                            return USBD_OK;
                         case REQUEST_DEFINE_AXIS_POSITION:
                             controlEndpointState.state = CONTROL_WAITING_AXES_VALUES;
                             controlEndpointState.axesMasks = (uint8_t) req->wValue;
@@ -225,6 +242,18 @@ static uint8_t cncSetup(void *pdev, USB_SETUP_REQ *req) {
 uint8_t cncReceiveControlData(void *pdev) {
     if (controlEndpointState.state == CONTROL_WAITING_AXES_VALUES)
         return setPositionFromUSB(pdev, &(controlEndpointState.request), controlEndpointState.axesMasks, controlEndpointState.positionBuffer);
+    if (controlEndpointState.state == CONTROL_WAITING_WORK_OFFSET) {
+        controlEndpointState.state = CONTROL_READY;
+        if (cncMemory.state == MANUAL_CONTROL || cncMemory.state == READY) {
+            cncMemory.workOffset.x = controlEndpointState.positionBuffer[0];
+            cncMemory.workOffset.y = controlEndpointState.positionBuffer[1];
+            cncMemory.workOffset.z = controlEndpointState.positionBuffer[2];
+            return USBD_OK;
+        } else {
+            USBD_CtlError(pdev, &(controlEndpointState.request));
+            return USBD_FAIL;
+        }
+    }
     return USBD_FAIL;
 }
 

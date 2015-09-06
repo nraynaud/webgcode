@@ -18,8 +18,13 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
         machine: null,
         limit: false,
         homed: false,
+        offset: 0,
         definePosition: function (newPosition) {
             this.get('machine').setAxisValue(this.get('name'), newPosition);
+        },
+        defineOffset: function (newOffset) {
+            this.set('offset', newOffset);
+            this.get('machine').setWorkOffset();
         }
     });
 
@@ -54,6 +59,7 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
                 .then(function () {
                     _this.askForPosition();
                     _this.askForState();
+                    _this.askForWorkOffset();
                 });
         },
         askForConfiguration: function () {
@@ -95,6 +101,31 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
                         return _this.connect();
                     });
                 });
+        },
+        askForWorkOffset: function () {
+            var _this = this;
+            var transfer = {request: CONTROL_COMMANDS.REQUEST_WORK_OFFSET, length: 12};
+            return this.get('connection').controlTransfer(transfer).then(
+                function (data) {
+                    var buffer = new Int32Array(data);
+                    var resolution = _this.get('stepsPerMillimeter');
+                    _this.get('axes')[0].set('offset', buffer[0] / resolution);
+                    _this.get('axes')[1].set('offset', buffer[1] / resolution);
+                    _this.get('axes')[2].set('offset', buffer[2] / resolution);
+                    Ember.run.later(_this, _this.askForWorkOffset, 1000);
+                }, function () {
+                    console.error('error getting work offset', arguments);
+                });
+        },
+        setWorkOffset: function () {
+            var resolution = this.get('stepsPerMillimeter');
+            var x = this.get('axes')[0].get('offset') * resolution;
+            var y = this.get('axes')[1].get('offset') * resolution;
+            var z = this.get('axes')[2].get('offset') * resolution;
+            var data = new Int32Array([x, y, z]).buffer;
+            return this.get('connection').controlTransfer({
+                direction: 'out', request: CONTROL_COMMANDS.REQUEST_WORK_OFFSET, data: data
+            });
         },
         setAxisValue: function (axis, valueInmm) {
             var values = {X: 0, Y: 0, Z: 0};

@@ -111,34 +111,56 @@ require(['Ember', 'templates', 'cnc/ui/views', 'cnc/controller/CNCMachine'], fun
 
     CNCController.AxisController = Ember.ObjectController.extend({
         actions: {
-            editAxis: function () {
-                if (!this.get('isEditing'))
-                    this.set('isEditing', true);
+            editAxisPosition: function () {
+                this.set('isEditingOffset', false);
+                if (!this.get('isEditingPosition'))
+                    this.set('isEditingPosition', true);
             },
-            acceptChanges: function () {
+            editAxisOffset: function () {
+                this.set('isEditingPosition', false);
+                if (!this.get('isEditingOffset'))
+                    this.set('isEditingOffset', true);
+            },
+            acceptPositionChanges: function () {
                 this.get('model').definePosition(this.get('bufferedPosition'));
-                this.set('isEditing', false);
+                this.set('isEditingPosition', false);
+                this.set('isEditingOffset', false);
+            },
+            acceptOffsetChanges: function () {
+                this.get('model').defineOffset(this.get('bufferedOffset'));
+                this.set('isEditingPosition', false);
+                this.set('isEditingOffset', false);
             },
             cancelChanges: function () {
-                this.set('isEditing', false);
+                this.set('isEditingPosition', false);
+                this.set('isEditingOffset', false);
             }
         },
-        isEditing: false,
+        isEditingPosition: false,
+        isEditingOffset: false,
         bufferedPosition: 0,
+        bufferedOffset: 0,
         helpText: function () {
-            var txt = this.get('isEditing') ? 'enter to validate, escape to cancel change' : 'double click to edit';
+            var txt = this.get('isEditingPosition') ? 'enter to validate, escape to cancel change' : 'double click to edit';
             if (!this.get('model.homed'))
                 txt += ' | *this axis is not homed*';
             if (this.get('model.limit'))
                 txt += ' | this axis is on the limit switch';
             return txt;
-        }.property('isEditing', 'model.limit', 'model.homed'),
-        isEditingChanged: function () {
-            if (this.get('isEditing'))
-                this.set('bufferedPosition', this.get('model.position'))
-        }.observes('isEditing'),
+        }.property('isEditingPosition', 'model.limit', 'model.homed'),
+        isEditingPositionChanged: function () {
+            if (this.get('isEditingPosition'))
+                this.set('bufferedPosition', this.get('model.position'));
+        }.observes('isEditingPosition'),
+        isEditingOffsetChanged: function () {
+            if (this.get('isEditingOffset'))
+                this.set('bufferedOffset', this.get('model.offset'));
+        }.observes('isEditingOffset'),
         formattedPosition: function () {
             return this.get('model.position').toFixed(3);
-        }.property('model.position')
+        }.property('model.position'),
+        formattedOffset: function () {
+            return this.get('model.offset').toFixed(3);
+        }.property('model.offset')
     });
 });

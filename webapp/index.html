@@ -19,10 +19,6 @@
             margin: 0;
         }
 
-        input:invalid {
-            background-color: red;
-        }
-
         #header {
             background-color: black;
             display: flex;
@@ -54,7 +50,20 @@
 
         .posAxis {
             text-align: right;
-            width: 8ex;
+            width: 9ex;
+            font-weight: bold;
+        }
+
+        .axisOffset {
+            text-align: right;
+            width: 9ex;
+            font-size: 80%;
+        }
+
+        .positionHeader th {
+            font-size: 60%;
+            font-weight: normal;
+            text-align: center;
         }
 
         .xyBlock {
@@ -247,6 +256,11 @@
 
         .axis {
             background-color: yellow;
+        }
+
+        .axis input::-webkit-outer-spin-button,
+        .axis input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
         }
 
         .axis.homed {

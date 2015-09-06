@@ -18,7 +18,6 @@
             <button class="btn btn-default" {{action "home"}}><i class="fa fa-home"></i> Home</button>
         {{/if}}
 
-
         <div class="control">
             <div {{bind-attr class=":estopframe toolProbe"}}>Tool Probe</div>
             <div {{bind-attr class=":estopframe estop"}}>E-STOP</div>
@@ -34,19 +33,34 @@
                 <table>
                     <colgroup>
                         <col>
-                        <col>
+                        <col align="char" char=".">
+                        <col align="char" char=".">
                     </colgroup>
                     <tbody>
+                    <tr class="positionHeader">
+                        <th></th>
+                        <th>Position</th>
+                        <th>Work Offset</th>
+                    </tr>
                     {{#each axes itemController="axis"}}
-                        <tr {{bind-attr title="helpText"}} {{bind-attr class=":axis limit homed"}} {{action "editAxis" on="doubleClick"}} >
+                        <tr {{bind-attr title="helpText"}} {{bind-attr class=":axis limit homed"}} >
                             <th>{{name}}:</th>
-                            <td class="posAxis">
-                                {{#if isEditing}}
-                                    {{edit-axis size="6" numericValue=bufferedPosition
-                                    insert-newline="acceptChanges" escape-press="cancelChanges"}}
+                            <td class="posAxis" {{action "editAxisPosition" on="doubleClick"}} >
+                                {{#if isEditingPosition}}
+                                    {{edit-axis class="input-sm" size="8" numericValue=bufferedPosition
+                                    insert-newline="acceptPositionChanges" escape-press="cancelChanges"}}
                                 {{else}}
                                     <span class="pos">{{formattedPosition}}</span>
                                 {{/if}}
+                            </td>
+                            <td class="axisOffset" {{action "editAxisOffset" on="doubleClick"}} >
+                                {{#if isEditingOffset}}
+                                    {{edit-axis class="input-sm" size="!" numericValue=bufferedOffset
+                                    insert-newline="acceptOffsetChanges" escape-press="cancelChanges"}}
+                                {{else}}
+                                    <span class="pos">{{formattedOffset}}</span>
+                                {{/if}}
+
                             </td>
                         </tr>
                     {{/each}}
