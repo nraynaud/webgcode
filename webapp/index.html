@@ -3,6 +3,7 @@
 <head>
     <title>CNC driver</title>
 
+    <link rel="stylesheet" href="libs/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="libs/font-awesome-4.2.0/css/font-awesome.min.css">
     <style>
         html, body {
@@ -11,6 +12,7 @@
         }
 
         body {
+            line-height: normal;
             display: flex;
             flex-direction: column;
             padding: 0;
@@ -122,6 +124,7 @@
         }
 
         .estopframe {
+            box-sizing: initial;
             width: 100px;
             height: 61px;
             position: relative;
@@ -135,6 +138,7 @@
         }
 
         .estopframe:before {
+            box-sizing: initial;
             content: "";
             position: absolute;
             top: 0;
@@ -147,6 +151,7 @@
         }
 
         .estopframe:after {
+            box-sizing: initial;
             content: "";
             position: absolute;
             bottom: 0;
@@ -159,6 +164,7 @@
         }
 
         .estopframe.estop, .estopframe.tool-probe {
+            box-sizing: initial;
             background: orangered;
             color: black;
             -webkit-animation-name: blinker;
@@ -219,11 +225,6 @@
             flex-flow: column;
         }
 
-        .spindle {
-            border: 1px solid black;
-            background-color: #eee;
-        }
-
         .spindle.spindle-running {
             background-color: orange;
         }
@@ -233,7 +234,6 @@
         }
 
         .socket {
-            border: 1px solid black;
             margin-top: 10px;
         }
 

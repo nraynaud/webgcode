@@ -231,7 +231,7 @@ function program1(depth0,data) {
   data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
     'class': (":spindle spindleRunning spindleUpToSpeed")
   },hashTypes:{'class': "STRING"},hashContexts:{'class': depth0},contexts:[],types:[],data:data})));
-  data.buffer.push(">Spindle <br>\n                    <button ");
+    data.buffer.push(">Spindle <br>\n                    <button class=\"btn btn-sm\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "toggleSpindle", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
   data.buffer.push(">");
   stack1 = helpers._triageMustache.call(depth0, "spindleButtonLabel", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
@@ -240,7 +240,7 @@ function program1(depth0,data) {
   data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
     'class': (":socket socketOn")
   },hashTypes:{'class': "STRING"},hashContexts:{'class': depth0},contexts:[],types:[],data:data})));
-  data.buffer.push(">Socket <br>\n                    <button ");
+    data.buffer.push(">Socket <br>\n                    <button class=\"btn btn-sm\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "toggleSocket", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
   data.buffer.push(">");
   stack1 = helpers._triageMustache.call(depth0, "socketButtonLabel", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
@@ -250,19 +250,19 @@ function program1(depth0,data) {
     'itemController': ("axis")
   },hashTypes:{'itemController': "STRING"},hashContexts:{'itemController': depth0},inverse:self.noop,fn:self.program(12, program12, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n                    </tbody>\n                </table>\n            </div>\n            <div class=\"controlButtons\">\n                <div class=\"xyBlock\">\n                    <button class=\"axisButton\" ");
+    data.buffer.push("\n                    </tbody>\n                </table>\n            </div>\n            <div class=\"controlButtons\">\n                <div class=\"xyBlock\">\n                    <button class=\"axisButton btn btn-xs\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "move", "Y+", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0,depth0],types:["STRING","STRING"],data:data})));
-  data.buffer.push("><i class=\"fa fa-arrow-up\"></i> Y+</button>\n                    <div class=\"centerRow\">\n                        <button class=\"axisButton\" ");
+    data.buffer.push("><i class=\"fa fa-arrow-up\"></i> Y+\n                    </button>\n                    <div class=\"centerRow\">\n                        <button class=\"axisButton btn btn-xs\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "move", "X-", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0,depth0],types:["STRING","STRING"],data:data})));
-  data.buffer.push("><i class=\"fa fa-arrow-left\"></i> X-</button>\n                        <button class=\"axisButton\" ");
+    data.buffer.push("><i class=\"fa fa-arrow-left\"></i>\n                            X-\n                        </button>\n                        <button class=\"axisButton btn btn-xs\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "move", "X+", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0,depth0],types:["STRING","STRING"],data:data})));
-  data.buffer.push(">X+ <i class=\"fa fa-arrow-right\"></i></button>\n                    </div>\n                    <button class=\"axisButton\" ");
+    data.buffer.push(">X+ <i\n                                class=\"fa fa-arrow-right\"></i></button>\n                    </div>\n                    <button class=\"axisButton btn btn-xs\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "move", "Y-", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0,depth0],types:["STRING","STRING"],data:data})));
-  data.buffer.push("><i class=\"fa fa-arrow-down\"></i> Y-</button>\n                </div>\n                <div class=\"zBlock\">\n                    <button class=\"axisButton\" ");
+    data.buffer.push("><i class=\"fa fa-arrow-down\"></i> Y-\n                    </button>\n                </div>\n                <div class=\"zBlock\">\n                    <button class=\"axisButton btn btn-xs\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "move", "Z+", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0,depth0],types:["STRING","STRING"],data:data})));
-  data.buffer.push("><i class=\"fa fa-arrow-circle-up\"></i> Z+</button>\n                    <div>&nbsp;</div>\n                    <button class=\"axisButton\" ");
+    data.buffer.push("><i class=\"fa fa-arrow-circle-up\"></i>\n                        Z+\n                    </button>\n                    <div>&nbsp;</div>\n                    <button class=\"axisButton btn btn-xs\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "move", "Z-", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0,depth0],types:["STRING","STRING"],data:data})));
-  data.buffer.push("><i class=\"fa fa-arrow-circle-down\"></i> Z-\n                    </button>\n                </div>\n            </div>\n            <div class=\"controlParams\">\n                <table>\n                    <tr title=\"mm\">\n                        <th><label for=\"incrementField\">increment:</label></th>\n                        <td>");
+    data.buffer.push("><i\n                            class=\"fa fa-arrow-circle-down\"></i> Z-\n                    </button>\n                </div>\n            </div>\n            <div class=\"controlParams\">\n                <table>\n                    <tr title=\"mm\">\n                        <th><label for=\"incrementField\">increment:</label></th>\n                        <td>");
   data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
     'type': ("number"),
     'class': ("paramField"),
@@ -299,7 +299,7 @@ function program1(depth0,data) {
 function program2(depth0,data) {
   
   var buffer = '';
-  data.buffer.push("\n            <button ");
+    data.buffer.push("\n            <button class=\"btn btn-default\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "sendProgram", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
   data.buffer.push("><i class=\"fa fa-play\"></i> Send Program</button>\n        ");
   return buffer;
@@ -308,7 +308,7 @@ function program2(depth0,data) {
 function program4(depth0,data) {
   
   var buffer = '';
-  data.buffer.push("\n            <button ");
+    data.buffer.push("\n            <button class=\"btn btn-default\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "abort", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
   data.buffer.push("><i class=\"fa fa-eject\"></i> Abort</button>\n        ");
   return buffer;
@@ -317,7 +317,7 @@ function program4(depth0,data) {
 function program6(depth0,data) {
   
   var buffer = '';
-  data.buffer.push("\n            <button ");
+    data.buffer.push("\n            <button class=\"btn btn-default\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "resumeProgram", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
   data.buffer.push("><i class=\"fa fa-play\"></i> Resume</button>\n        ");
   return buffer;
@@ -326,9 +326,9 @@ function program6(depth0,data) {
 function program8(depth0,data) {
   
   var buffer = '', stack1;
-  data.buffer.push("\n            <button id='manualControl' ");
+    data.buffer.push("\n            <button class=\"btn btn-default\" id='manualControl' ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "setManualMode", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
-  data.buffer.push("><i class=\"fa fa-arrows-alt\"></i> ");
+    data.buffer.push("><i\n                    class=\"fa fa-arrows-alt\"></i> ");
   stack1 = helpers._triageMustache.call(depth0, "manualButtonLabel", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n            </button>\n        ");
@@ -338,7 +338,7 @@ function program8(depth0,data) {
 function program10(depth0,data) {
   
   var buffer = '';
-  data.buffer.push("\n            <button ");
+    data.buffer.push("\n            <button class=\"btn btn-default\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "home", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
   data.buffer.push("><i class=\"fa fa-home\"></i> Home</button>\n        ");
   return buffer;
@@ -403,7 +403,7 @@ function program19(depth0,data) {
   var buffer = '';
   data.buffer.push("\n        <button id='connect' ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "connect", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
-  data.buffer.push("><i class=\"fa fa-plug\"></i> Connect</button>\n    ");
+    data.buffer.push(" class=\"btn btn-default\"><i class=\"fa fa-plug\"></i> Connect</button>\n    ");
   return buffer;
   }
 

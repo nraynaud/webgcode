@@ -1,20 +1,21 @@
 <div id="header" {{bind-attr class="connection.opened:connected"}}>
     {{#if connection.opened}}
         {{#if isProgramRunnable}}
-            <button {{action "sendProgram"}}><i class="fa fa-play"></i> Send Program</button>
+            <button class="btn btn-default" {{action "sendProgram"}}><i class="fa fa-play"></i> Send Program</button>
         {{/if}}
         {{#if isProgramAbortable}}
-            <button {{action "abort"}}><i class="fa fa-eject"></i> Abort</button>
+            <button class="btn btn-default" {{action "abort"}}><i class="fa fa-eject"></i> Abort</button>
         {{/if}}
         {{#if isResumable}}
-            <button {{action "resumeProgram"}}><i class="fa fa-play"></i> Resume</button>
+            <button class="btn btn-default" {{action "resumeProgram"}}><i class="fa fa-play"></i> Resume</button>
         {{/if}}
         {{#if isManualModeTogglable}}
-            <button id='manualControl' {{action "setManualMode"}}><i class="fa fa-arrows-alt"></i> {{manualButtonLabel}}
+            <button class="btn btn-default" id='manualControl' {{action "setManualMode"}}><i
+                    class="fa fa-arrows-alt"></i> {{manualButtonLabel}}
             </button>
         {{/if}}
         {{#if isHomable}}
-            <button {{action "home"}}><i class="fa fa-home"></i> Home</button>
+            <button class="btn btn-default" {{action "home"}}><i class="fa fa-home"></i> Home</button>
         {{/if}}
 
 
@@ -23,10 +24,10 @@
             <div {{bind-attr class=":estopframe estop"}}>E-STOP</div>
             <div class="io">
                 <div {{bind-attr class=":spindle spindleRunning spindleUpToSpeed"}}>Spindle <br>
-                    <button {{action "toggleSpindle"}}>{{spindleButtonLabel}}</button>
+                    <button class="btn btn-sm" {{action "toggleSpindle"}}>{{spindleButtonLabel}}</button>
                 </div>
                 <div {{bind-attr class=":socket socketOn"}}>Socket <br>
-                    <button {{action "toggleSocket"}}>{{socketButtonLabel}}</button>
+                    <button class="btn btn-sm" {{action "toggleSocket"}}>{{socketButtonLabel}}</button>
                 </div>
             </div>
             <div class="position">
@@ -54,17 +55,25 @@
             </div>
             <div class="controlButtons">
                 <div class="xyBlock">
-                    <button class="axisButton" {{action "move" "Y+" }}><i class="fa fa-arrow-up"></i> Y+</button>
+                    <button class="axisButton btn btn-xs" {{action "move" "Y+" }}><i class="fa fa-arrow-up"></i> Y+
+                    </button>
                     <div class="centerRow">
-                        <button class="axisButton" {{action "move" "X-" }}><i class="fa fa-arrow-left"></i> X-</button>
-                        <button class="axisButton" {{action "move" "X+" }}>X+ <i class="fa fa-arrow-right"></i></button>
+                        <button class="axisButton btn btn-xs" {{action "move" "X-" }}><i class="fa fa-arrow-left"></i>
+                            X-
+                        </button>
+                        <button class="axisButton btn btn-xs" {{action "move" "X+" }}>X+ <i
+                                class="fa fa-arrow-right"></i></button>
                     </div>
-                    <button class="axisButton" {{action "move" "Y-" }}><i class="fa fa-arrow-down"></i> Y-</button>
+                    <button class="axisButton btn btn-xs" {{action "move" "Y-" }}><i class="fa fa-arrow-down"></i> Y-
+                    </button>
                 </div>
                 <div class="zBlock">
-                    <button class="axisButton" {{action "move" "Z+" }}><i class="fa fa-arrow-circle-up"></i> Z+</button>
+                    <button class="axisButton btn btn-xs" {{action "move" "Z+" }}><i class="fa fa-arrow-circle-up"></i>
+                        Z+
+                    </button>
                     <div>&nbsp;</div>
-                    <button class="axisButton" {{action "move" "Z-" }}><i class="fa fa-arrow-circle-down"></i> Z-
+                    <button class="axisButton btn btn-xs" {{action "move" "Z-" }}><i
+                            class="fa fa-arrow-circle-down"></i> Z-
                     </button>
                 </div>
             </div>
@@ -96,7 +105,7 @@
             </div>
         </div>
     {{else}}
-        <button id='connect' {{action "connect"}}><i class="fa fa-plug"></i> Connect</button>
+        <button id='connect' {{action "connect"}} class="btn btn-default"><i class="fa fa-plug"></i> Connect</button>
     {{/if}}
 </div>
 <div class="camPanel">
