@@ -291,9 +291,7 @@ void tryToStartProgram() {
                     circularBuffer.programID = array[7] << 24 | array[6] << 16 | array[5] << 8 | array[4];
                 } else if (programType == PROGRAM_START_SPINDLE) {
                     cncMemory.spiOutput.run = 1;
-                    while (!(cncMemory.spiInput.drv)) {
-                        crYield();
-                    }
+                    crYieldVoidUntil(cncMemory.spiInput.drv);
                     crReturn();
                 } else if (programType == PROGRAM_STOP_SPINDLE) {
                     cncMemory.spiOutput.run = 0;
@@ -314,14 +312,9 @@ void copyUSBufferIfPossible() {
     static uint32_t seenSignal = 0;
     static uint32_t count;
     crBegin;
-            do {
-                seenSignal = circularBuffer.signaled;
-                crYield();
-            } while (seenSignal == lastSignal);
+            crYieldVoidUntil((seenSignal = circularBuffer.signaled) != lastSignal);
             count = USBD_GetRxCount(&usbDevice, BULK_ENDPOINT_NUM);
-            while (fillLevel() >= CIRCULAR_BUFFER_SIZE - count) {
-                crYield();
-            }
+            crYieldVoidUntil(fillLevel() < CIRCULAR_BUFFER_SIZE - count);
             unsigned int bufferPosition = circularBuffer.writeCount % CIRCULAR_BUFFER_SIZE;
             int overflowingCount = bufferPosition + count - CIRCULAR_BUFFER_SIZE;
             if (overflowingCount < 0)

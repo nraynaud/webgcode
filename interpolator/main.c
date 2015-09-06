@@ -150,92 +150,60 @@ static step_t nextStepFromHomingProgram() {
     uint16_t fastApproachSpeed = 40;
     uint16_t backupSpeed = fastApproachSpeed;
     uint16_t slowTouchSpeed = 500;
-    int backupsteps = 700;
+    int backupSteps = 700;
     static int backupStepIndex;
     crBeginGuarded(!cncMemory.stopHomingFlag, (step_t) {.duration = 0});
             //if we are already on a switch, back up
-            while (cncMemory.spiInput.limitZ)
-                crYield(homingStep(2, 0, backupSpeed));
-            while (cncMemory.spiInput.limitX)
-                crYield(homingStep(0, 0, backupSpeed));
-            while (cncMemory.spiInput.limitY)
-                crYield(homingStep(1, 0, backupSpeed));
+            crYieldUntil(homingStep(2, 0, backupSpeed), !cncMemory.spiInput.limitZ);
+            crYieldUntil(homingStep(0, 0, backupSpeed), !cncMemory.spiInput.limitX);
+            crYieldUntil(homingStep(1, 0, backupSpeed), !cncMemory.spiInput.limitY);
 
             //home Z first to park the tool far from the clutter on the table
             //run fast to the switch
-            while (!cncMemory.spiInput.limitZ)
-                crYield(homingStep(2, 1, fastApproachSpeed));
+            crYieldUntil(homingStep(2, 1, fastApproachSpeed), cncMemory.spiInput.limitZ);
             //back up from the switch
-            while (cncMemory.spiInput.limitZ)
-                crYield(homingStep(2, 0, backupSpeed));
-            backupStepIndex = backupsteps;
-            do {
-                backupStepIndex--;
-                crYield(homingStep(2, 0, backupSpeed));
-            } while (backupStepIndex);
+            crYieldUntil(homingStep(2, 0, backupSpeed), !cncMemory.spiInput.limitZ);
+            backupStepIndex = backupSteps;
+            crYieldUntil(homingStep(2, 0, backupSpeed), backupStepIndex-- == 0);
             // get there slowly again
-            while (!cncMemory.spiInput.limitZ)
-                crYield(homingStep(2, 1, slowTouchSpeed));
+            crYieldUntil(homingStep(2, 1, slowTouchSpeed), cncMemory.spiInput.limitZ);
+            //when first time homing, we avoid moving the declared origin in case the axis had been zeroed before homing
             if (!cncMemory.zHomed)
                 cncMemory.workOffset.z += cncMemory.position.z;
             cncMemory.position.z = 0;
             cncMemory.zHomed = 1;
             //back up from the switch
-            while (cncMemory.spiInput.limitZ)
-                crYield(homingStep(2, 0, backupSpeed));
-            backupStepIndex = backupsteps;
-            do {
-                backupStepIndex--;
-                crYield(homingStep(2, 0, backupSpeed));
-            } while (backupStepIndex);
+            crYieldUntil(homingStep(2, 0, backupSpeed), !cncMemory.spiInput.limitZ);
+            backupStepIndex = backupSteps;
+            crYieldUntil(homingStep(2, 0, backupSpeed), backupStepIndex-- == 0);
 
             //home X
-            while (!cncMemory.spiInput.limitX)
-                crYield(homingStep(0, 1, fastApproachSpeed));
-            while (cncMemory.spiInput.limitX)
-                crYield(homingStep(0, 0, backupSpeed));
-            backupStepIndex = backupsteps;
-            do {
-                backupStepIndex--;
-                crYield(homingStep(0, 0, backupSpeed));
-            } while (backupStepIndex);
-            while (!cncMemory.spiInput.limitX)
-                crYield(homingStep(0, 1, slowTouchSpeed));
+            crYieldUntil(homingStep(0, 1, fastApproachSpeed), cncMemory.spiInput.limitX);
+            crYieldUntil(homingStep(0, 0, backupSpeed), !cncMemory.spiInput.limitX);
+            backupStepIndex = backupSteps;
+            crYieldUntil(homingStep(0, 0, backupSpeed), backupStepIndex-- == 0);
+            crYieldUntil(homingStep(0, 1, slowTouchSpeed), cncMemory.spiInput.limitX);
             if (!cncMemory.xHomed)
                 cncMemory.workOffset.x += cncMemory.position.x;
             cncMemory.position.x = 0;
             cncMemory.xHomed = 1;
-            while (cncMemory.spiInput.limitX)
-                crYield(homingStep(0, 0, backupSpeed));
-            backupStepIndex = backupsteps;
-            do {
-                backupStepIndex--;
-                crYield(homingStep(0, 0, backupSpeed));
-            } while (backupStepIndex);
+            crYieldUntil(homingStep(0, 0, backupSpeed), !cncMemory.spiInput.limitX);
+            backupStepIndex = backupSteps;
+            crYieldUntil(homingStep(0, 0, backupSpeed), backupStepIndex-- == 0);
 
             //home Y
-            while (!cncMemory.spiInput.limitY)
-                crYield(homingStep(1, 1, fastApproachSpeed));
-            while (cncMemory.spiInput.limitY)
-                crYield(homingStep(1, 0, backupSpeed));
-            backupStepIndex = backupsteps;
-            do {
-                backupStepIndex--;
-                crYield(homingStep(1, 0, backupSpeed));
-            } while (backupStepIndex);
-            while (!cncMemory.spiInput.limitY)
-                crYield(homingStep(1, 1, slowTouchSpeed));
+            crYieldUntil(homingStep(1, 1, fastApproachSpeed), cncMemory.spiInput.limitY);
+            crYieldUntil(homingStep(1, 0, backupSpeed), !cncMemory.spiInput.limitY);
+            backupStepIndex = backupSteps;
+            crYieldUntil(homingStep(1, 0, backupSpeed), backupStepIndex-- == 0);
+            crYieldUntil(homingStep(1, 1, slowTouchSpeed), cncMemory.spiInput.limitY);
             if (!cncMemory.yHomed)
                 cncMemory.workOffset.y += cncMemory.position.y;
             cncMemory.position.y = 0;
             cncMemory.yHomed = 1;
-            while (cncMemory.spiInput.limitY)
-                crYield(homingStep(1, 0, backupSpeed));
-            backupStepIndex = backupsteps;
-            do {
-                backupStepIndex--;
-                crYield(homingStep(1, 0, backupSpeed));
-            } while (backupStepIndex);
+            crYieldUntil(homingStep(1, 0, backupSpeed), !cncMemory.spiInput.limitY);
+            backupStepIndex = backupSteps;
+            crYieldUntil(homingStep(1, 0, backupSpeed), backupStepIndex-- == 0);
 
             cncMemory.state = READY;
             crReturn((step_t) {.duration = 0});
@@ -304,21 +272,18 @@ static void setStepGPIO(axes_t axes) {
     GPIO_SetBits(motorsPinout.gpio, steps);
 }
 
-
 static void run() {
     crBegin;
             if (cncMemory.state == RUNNING_PROGRAM)
                 checkProgramEnd();
-            while (isEmergencyStopped() || cncMemory.state == PAUSED_PROGRAM)
-                crYield();
+            crYieldVoidUntil(!isEmergencyStopped() && cncMemory.state != PAUSED_PROGRAM);
+
             if (startNextStep()) {
-                while (!stepTimeHasCome())
-                    crYield();
+                crYieldVoidUntil(stepTimeHasCome());
                 setStepGPIO(cncMemory.currentStep.axes);
                 updateMemoryPosition(cncMemory.currentStep);
                 clearStepTimeHasCome();
-                while (!stepIsOver())
-                    crYield();
+                crYieldVoidUntil(stepIsOver());
                 clearStepIsOver();
             }
     crFinish;

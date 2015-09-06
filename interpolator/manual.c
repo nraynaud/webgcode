@@ -242,11 +242,8 @@ void handleButton() {
     static uint8_t rawValue = 0;
     crBegin;
             pressCounts = 0;
-            do {
-                rawValue = GPIO_ReadInputDataBit(uiPinout.gpio, uiPinout.manualButton);
-                crYield();
-            }
-            while (rawValue && ++pressCounts < UI_DEBOUNCE_MAX_CHECKS);
+            crYieldVoidUntil(!(rawValue = GPIO_ReadInputDataBit(uiPinout.gpio, uiPinout.manualButton))
+                    || rawValue && ++pressCounts >= UI_DEBOUNCE_MAX_CHECKS);
             if (rawValue)
                 toggleManualMode();
     crFinish;

@@ -116,6 +116,8 @@ enum {
     switch(state) { default:break; case 0:
 #define crYield(x) do { state=__LINE__; return x; \
                          case __LINE__:; } while (0)
+#define crYieldUntil(value, predicate) while(!(predicate)) {crYield(value);}
+#define crYieldVoidUntil(predicate) while(!(predicate)) {crYield();}
 
 #define INTERRUPT_PACKET_SIZE         24
 #define INTERRUPT_ENDPOINT_NUM        1
