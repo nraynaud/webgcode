@@ -393,9 +393,9 @@ function program15(depth0,data) {
   }
 
 function program17(depth0,data) {
-  
-  
-  data.buffer.push("\n                        <div id=\"loader\">&nbsp;</div>\n                    ");
+
+
+    data.buffer.push("\n                        <div id=\"loader\"><i class=\"fa fa-spinner fa-spin\"></i></div>\n                    ");
   }
 
 function program19(depth0,data) {
@@ -777,8 +777,8 @@ Ember.TEMPLATES["loading"] = Ember.Handlebars.template(function anonymous(Handle
     data = data || {};
 
 
-    data.buffer.push("<h1>LOADING...</h1>");
-
+    data.buffer.push("<h1><i class=\"fa fa-spinner fa-spin\"></i> LOADING...</h1>");
+  
 });
 Ember.TEMPLATES["operation"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [4,'>= 1.0.0'];
