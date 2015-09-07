@@ -257,8 +257,15 @@ static void clearStepIsOver() {
     TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
 }
 
+static int emergencyStopFilter = 300;
+
 uint32_t isEmergencyStopped() {
-    return (uint32_t) !GPIO_ReadInputDataBit(eStopPinout.gpio, eStopPinout.eStopButton);
+    if (!GPIO_ReadInputDataBit(eStopPinout.gpio, eStopPinout.eStopButton)) {
+        emergencyStopFilter--;
+        return (uint32_t) (emergencyStopFilter <= 0);
+    } else
+        emergencyStopFilter = 300;
+    return 0;
 }
 
 static void setStepGPIO(axes_t axes) {
