@@ -19,6 +19,8 @@ There is a g-code simulator here: http://nraynaud.github.io/webgcode/ (that's wh
 Controller Board
 ----------------
 
+[![Controller board schematics](images/DISCOVERY_interface_thumb.png)](images/DISCOVERY_interface.png)
+
 The controller is a STM32F4-DISCOVERY board directly connected to the stepper drivers isolators (open drain configuration).
 There is a USB cable between the board and the laptop, where a Chrome application controls the machine.
 The controller is quite dumb, it gets a list of steps, direction and their timing from the computer and executes them. The interpolation is entirely done offline on the computer.
