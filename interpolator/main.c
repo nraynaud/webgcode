@@ -317,7 +317,7 @@ __attribute__ ((noreturn)) void main(void) {
                     | motorsPinout.zDirection | motorsPinout.zStep,
             .GPIO_Mode = GPIO_Mode_OUT,
             .GPIO_Speed = GPIO_Speed_2MHz,
-            .GPIO_OType = GPIO_OType_PP,
+            .GPIO_OType = GPIO_OType_OD,
             .GPIO_PuPd = GPIO_PuPd_NOPULL});
     GPIO_Init(eStopPinout.gpio, &(GPIO_InitTypeDef) {
             .GPIO_Pin = eStopPinout.eStopButton,
