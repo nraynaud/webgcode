@@ -93,13 +93,14 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 var _this = this;
                 var model = this.get('outline.meshGeometry');
                 var leaveStock = this.get('3d_leaveStock');
+                var topZ = this.get('top_Z');
+                var sliceZ = this.get('3d_slice_Z');
                 var minZ = this.get('bottom_Z');
                 var tool = this.get('tool');
                 var orientation = this.get('3d_pathOrientation');
                 var stepover = this.get('3d_diametralEngagement') * toolDiameter / 100;
                 var startRatio = this.get('3d_startPercent') / 100;
                 var stopRatio = this.get('3d_stopPercent') / 100;
-                var zigzag = this.get('3d_zigZag');
                 var computer = new Computer.ToolPathComputer();
                 var task = computer.computeHeightField(model, stepover, tool, leaveStock, orientation,
                     startRatio, stopRatio);
@@ -109,7 +110,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 });
                 task.get('promise')
                     .then(function (heightField) {
-                        return Computer.convertHeightFieldToToolPath(heightField, safetyZ, minZ, zigzag);
+                        return Computer.convertHeightFieldToToolPath(heightField, safetyZ, topZ, sliceZ, minZ);
                     })
                     .then(Ember.run.bind(this, function (result) {
                         _this.set('toolpath', result);

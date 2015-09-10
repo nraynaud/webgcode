@@ -89,7 +89,7 @@ define(['RSVP', 'THREE', 'Piecon', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/mink
                     var translationMatrix = new THREE.Matrix4().makeTranslation(minX / sampleRate, minY / sampleRate, 0);
                     var transformMatrix = new THREE.Matrix4().multiply(rotationMatrix).multiply(translationMatrix).multiply(scaleMatrix);
                     modelStage.pushZInverseProjOn(transformMatrix);
-                    var resultHeightField = new HeightField(resultBuffer, resultBufferWidth, resultBufferHeight, transformMatrix, startRatio, stopRatio);
+                    var resultHeightField = new HeightField(resultBuffer, bbox, resultBufferWidth, resultBufferHeight, transformMatrix, startRatio, stopRatio);
                     var resultTile = new Uint8Array(resultTileX * resultTileY * 4);
                     var worker = new Worker(require.toUrl('worker.js'));
                     var factor = (Math.pow(2, 24.0) - 1.0) / Math.pow(2, 24.0);
@@ -176,8 +176,9 @@ define(['RSVP', 'THREE', 'Piecon', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/mink
             }
         };
 
-        function HeightField(data, samplesX, samplesY, bufferToWorldMatrix, startRatio, stopRatio) {
+        function HeightField(data, modelbbox, samplesX, samplesY, bufferToWorldMatrix, startRatio, stopRatio) {
             this.data = data;
+            this.modelbbox = modelbbox;
             this.samplesX = samplesX;
             this.samplesY = samplesY;
             this.bufferToWorldMatrix = bufferToWorldMatrix;
@@ -194,28 +195,42 @@ define(['RSVP', 'THREE', 'Piecon', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/mink
             }
         };
 
-        function convertHeightFieldToToolPath(heightField, safetyZ, minZ, zigzag) {
+        function convertHeightFieldToToolPath(heightField, safetyZ, topZ, sliceZ, bottomZ) {
             var point = new THREE.Vector3(0, 0, 0);
+            var path = null;
             var list = [];
-            var path = new tp.GeneralPolylineToolpath();
-            for (var j = 0; j < heightField.samplesY; j++) {
-                var ratio = j / heightField.samplesY;
-                if (ratio >= heightField.startRatio && ratio <= heightField.stopRatio) {
-                    if (!zigzag)
-                        path = new tp.GeneralPolylineToolpath();
-                    for (var i = 0; i < heightField.samplesX; i++) {
-                        point.x = zigzag && j % 2 == 0 ? heightField.samplesX - 1 - i : i;
-                        point.y = j;
-                        heightField.getPoint(point);
-                        if (path.path.length == 0)
-                            path.pushPointXYZ(point.x, point.y, safetyZ);
-                        path.pushPointXYZ(point.x, point.y, Math.max(minZ, point.z));
-                    }
-                    if (!zigzag)
-                        list.push(path);
+
+            function collectPoint(x, y, z, currentMaxZ, currentMinZ) {
+                if (z > currentMaxZ || z == heightField.modelbbox.min.z) {
+                    path = null;
+                    return;
                 }
+                if (path == null) {
+                    path = new tp.GeneralPolylineToolpath();
+                    list.push(path);
+                    path.pushPointXYZ(x, y, safetyZ);
+                }
+                path.pushPointXYZ(x, y, Math.max(currentMinZ, z));
             }
-            return zigzag ? [path] : list;
+
+            var currentMaxZ = topZ;
+            while (currentMaxZ > bottomZ) {
+                var currentMinZ = Math.max(currentMaxZ - sliceZ, bottomZ);
+                for (var j = 0; j < heightField.samplesY; j++) {
+                    var ratio = j / heightField.samplesY;
+                    if (ratio >= heightField.startRatio && ratio <= heightField.stopRatio) {
+                        for (var i = 0; i < heightField.samplesX; i++) {
+                            point.x = j % 2 == 0 ? heightField.samplesX - 1 - i : i;
+                            point.y = j;
+                            heightField.getPoint(point);
+                            collectPoint(point.x, point.y, point.z, currentMaxZ, currentMinZ);
+                        }
+                    }
+                }
+                currentMaxZ -= sliceZ;
+            }
+
+            return list;
         }
 
         return {

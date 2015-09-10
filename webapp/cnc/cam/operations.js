@@ -183,6 +183,7 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util']
             specialTemplate: '3DMilling',
             properties: {
                 '3d_leaveStock': attr('number', {defaultValue: 0.5}),
+                top_Z: attr('number', {defaultValue: 0}),
                 'bottom_Z': attr('number', {defaultValue: -1000}),
                 '3d_toolType': attr('string', {defaultValue: 'cylinder'}),
                 '3d_vToolAngle': attr('number', {defaultValue: 10}),
@@ -191,7 +192,7 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util']
                 '3d_pathOrientation': attr('string', {defaultValue: 0}),
                 '3d_startPercent': attr('number', {defaultValue: 0}),
                 '3d_stopPercent': attr('number', {defaultValue: 100}),
-                '3d_zigZag': attr('boolean', {defaultValue: true})
+                '3d_slice_Z': attr('number', {defaultValue: 5})
             },
             computeToolpath: function (op) {
                 return null;

@@ -23,6 +23,16 @@
         <span class="input-group-addon">mm</span></td>
 </tr>
 <tr>
+    <th>Start Z:</th>
+    <td class="input-group input-group-sm">{{number-input numericValue=top_Z}}
+        <span class="input-group-addon">mm</span></td>
+</tr>
+<tr>
+    <th>Z slice thickness:</th>
+    <td class="input-group input-group-sm">{{number-input numericValue=3d_slice_Z}}
+        <span class="input-group-addon">mm</span></td>
+</tr>
+<tr>
     <th>Min Z:</th>
     <td class="input-group input-group-sm">{{number-input numericValue=bottom_Z}}
         <span class="input-group-addon">mm</span></td>
@@ -46,10 +56,6 @@
     <th title="to skip the end of the toolpath">Stop:</th>
     <td class="input-group input-group-sm">{{number-input numericValue=3d_stopPercent}}
         <span class="input-group-addon">%</span></td>
-</tr>
-<tr>
-    <th>zigzag:</th>
-    <td>{{input type="checkbox" checked=3d_zigZag}}</td>
 </tr>
 <tr>
     {{#if task}}
