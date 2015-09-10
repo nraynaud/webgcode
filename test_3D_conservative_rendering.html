@@ -1,0 +1,336 @@
+<!DOCTYPE html >
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1"/>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+    <title>3D conservative Rendering Test</title>
+    <script src="webapp/libs/require.js"></script>
+    <script src="webapp/config.js"></script>
+    <script>
+        requirejs.config({
+            baseUrl: 'webapp'
+        });
+    </script>
+    <link rel="shortcut icon" href="webapp/images/icon_fraise_48.png"/>
+    <link rel="stylesheet" href="webapp/twoDView.css" type="text/css">
+    <link rel="stylesheet" href="webapp/threeDView.css" type="text/css">
+    <link rel="stylesheet" href="webapp/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="webapp/libs/font-awesome-4.2.0/css/font-awesome.min.css">
+    <style>
+
+        body, html {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            background: #fafafa;
+            color: #444;
+        }
+
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        canvas {
+            flex: 1;
+        }
+
+        .moving {
+            cursor: move;
+        }
+    </style>
+    <script>
+        require(['jQuery', 'THREE', 'cnc/cam/3D/conservativeModelProjector', 'libs/threejs/STLLoader',
+                    'libs/threejs/postprocessing/ShaderPass', 'libs/threejs/OrbitControls'],
+                function ($, THREE, ModelStage, STLLoader, ShaderPass, OrbitControls) {
+                    var $container = $('body');
+                    var renderer = new THREE.WebGLRenderer({
+                        antialias: false,
+                        alpha: true,
+                        precision: 'highp',
+                        autoClear: true
+                    });
+                    renderer.autoClear = true;
+                    $container.append(renderer.domElement);
+                    var outputWidth = $container.width();
+                    var outputHeight = $container.height();
+                    renderer.sortObjects = false;
+                    renderer.setSize(outputWidth, outputHeight);
+                    renderer.setViewport(0, 0, outputWidth, outputHeight);
+                    renderer.clear();
+                    new STLLoader().load('webapp/samples/soap.stl', function (geometry) {
+                        function draw() {
+                            var geometry = new THREE.Geometry();
+                            geometry.vertices.push(
+                                    new THREE.Vector3(-50, 37, -24),
+                                    new THREE.Vector3(-50, -37, -12),
+                                    new THREE.Vector3(50, -37, -0)
+                            );
+                            geometry.faces.push(new THREE.Face3(0, 1, 2));
+                            var buffGeom = new THREE.BufferGeometry().fromGeometry(geometry);
+                            displayGeometry(buffGeom);
+                        }
+
+                        draw();
+                    });
+
+                    function TerrainStage(geometry) {
+                        function divV(v1, v2) {
+                            return v1.set(v1.x / v2.x, v1.y / v2.y);
+                        }
+
+                        this.modelStage = new ModelStage();
+                        this.modelStage.setGeometry(geometry);
+
+                        var bboxSize = this.modelStage.modelBbox.size();
+                        var modelDisplaySideMm = (bboxSize.x > bboxSize.y ? bboxSize.x : bboxSize.y) * 1.1;
+                        var modelBufferOrigin = new THREE.Vector2(0, 0).addScalar(-modelDisplaySideMm / 2);
+                        var modelBufferSize = new THREE.Vector2(modelDisplaySideMm, modelDisplaySideMm);
+                        this.modelStage.camera.left = modelBufferOrigin.x;
+                        this.modelStage.camera.right = modelBufferOrigin.x + modelBufferSize.x;
+                        this.modelStage.camera.bottom = modelBufferOrigin.y;
+                        this.modelStage.camera.top = modelBufferOrigin.y + modelBufferSize.y;
+                        this.modelStage.camera.updateProjectionMatrix();
+
+                        this.bufferOrigin = modelBufferOrigin.clone();
+                        this.bufferSize = modelBufferSize.clone();
+                        this.terrainRatio = divV(this.bufferSize.clone(), modelBufferSize);
+                        this.terrainTranslation = this.bufferOrigin.clone().sub(modelBufferOrigin).divide(modelBufferSize);
+                        this.toolRadiusMm = 2;
+                        this.toolType = 'ball';
+                        this.renderer = renderer;
+                        this.toolLeaveStockRadius = 0.5;
+
+                        this.sampleX = 20;
+                        this.sampleY = 20;
+                    }
+
+                    TerrainStage.prototype = {
+                        render: function (renderer) {
+                            if (this.modelBuffer)
+                                this.modelBuffer.dispose();
+                            console.log(this.sampleX, this.sampleY);
+                            this.modelBuffer = new THREE.WebGLRenderTarget(this.sampleX, this.sampleY,
+                                    {
+                                        minFilter: THREE.NearestFilter,
+                                        magFilter: THREE.NearestFilter,
+                                        type: THREE.FloatType
+                                    });
+                            this.modelStage.render(renderer, this.modelBuffer);
+                        },
+                        setSampleRate: function (newSampleRate) {
+
+                        }
+                    };
+
+                    function displayGeometry(geometry) {
+                        var clonedGeometry = geometry.clone();
+                        var pipeline = new TerrainStage(geometry);
+                        var scene2 = new THREE.Scene();
+                        var camera2 = new THREE.PerspectiveCamera(45, outputWidth / outputHeight, 0.1, 1500);
+                        camera2.up.set(0, 0, 1);
+                        camera2.position.z = 100;
+                        scene2.add(camera2);
+                        camera2.updateMatrixWorld();
+                        var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+                        directionalLight.position.set(1000, 1000, 1000);
+                        scene2.add(directionalLight);
+                        var directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
+                        directionalLight2.position.set(-1000, -1000, 1000);
+                        scene2.add(directionalLight2);
+                        var terrainToWorld = new THREE.Matrix4()
+                                .makeScale(pipeline.bufferSize.x, pipeline.bufferSize.y, 1)
+                                .setPosition(new THREE.Vector3(pipeline.bufferOrigin.x, pipeline.bufferOrigin.y, 0));
+                        pipeline.modelStage.pushZInverseProjOn(terrainToWorld);
+                        var terrainShader = {
+                            wireframe: false,
+                            size: 2,
+                            uniforms: {
+                                tDisplacement: {type: 't', value: null},
+                                terrainToWorld: {type: 'm4', value: terrainToWorld},
+                                sampleCount: {type: 'v2', value: null},
+                                minZ: {type: 'f', value: -7}
+                            },
+                            attributes: {vertexIndex: {type: 'f'}},
+                            vertexShader: [
+                                'uniform sampler2D tDisplacement;',
+                                'uniform mat4 terrainToWorld;',
+                                'uniform vec2 sampleCount;',
+                                'varying vec4 color;',
+                                'attribute float vertexIndex;',
+                                'highp float factor = (exp2(24.0) - 1.0) / exp2(24.0);',
+                                'highp float DecodeFloatRGB(vec3 rgb) {',
+                                '   return dot(rgb, vec3(1.0, 1.0 / 255.0, 1.0 / 255.0 / 255.0)) / factor;',
+                                '}',
+                                'void main() {',
+                                '   vec2 uv = position.xy / sampleCount * (sampleCount - 1.0) + 0.5 / sampleCount;',
+                                '   vec2 offset;',
+                                '   if (vertexIndex == 0.0) offset = vec2(-1.0, -1.0);',
+                                '   if (vertexIndex == 1.0) offset = vec2(+1.0, -1.0);',
+                                '   if (vertexIndex == 2.0) offset = vec2(+1.0, +1.0);',
+                                '   if (vertexIndex == 3.0) offset = vec2(-1.0, +1.0);',
+                                '   offset *= 0.5 / sampleCount;',
+                                '   color = texture2D(tDisplacement, vec2(uv));',
+                                '   vec3 pos = (terrainToWorld * vec4(uv + offset, DecodeFloatRGB(color.rgb), 1.0)).xyz;',
+                                '   gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);',
+                                '}'
+                            ].join('\n'),
+                            fragmentShader: [
+                                'varying vec4 color;',
+                                'void main() {',
+                                '   gl_FragColor = vec4(color.r, 0.6 - abs(color.r - 0.5), 1.0 - color.r, 1.0);',
+                                '}'].join('\n')
+                        };
+
+                        var terrainMaterial = new THREE.ShaderMaterial(terrainShader);
+                        terrainMaterial.side = THREE.DoubleSide;
+
+                        function generateGrid(xRes, yRes) {
+                            var vertices = [];
+                            var indices = [];
+
+                            function pushVertex(i, j, index) {
+                                vertices.push(i / (xRes - 1), j / (yRes - 1), 0);
+                                indices.push(index);
+                            }
+
+                            function pushRectangle(i, j) {
+                                pushVertex(i, j, 0);
+                                pushVertex(i, j, 1);
+                                pushVertex(i, j, 2);
+                                pushVertex(i, j, 0);
+                                pushVertex(i, j, 2);
+                                pushVertex(i, j, 3);
+                            }
+
+                            for (var i = 0; i < xRes; i++)
+                                for (var j = 0; j < yRes; j++)
+                                    pushRectangle(i, j);
+                            return {position: new Float32Array(vertices), vertexIndex: new Float32Array(indices)};
+                        }
+
+                        var res = generateGrid(10, 20);
+                        var gridGeometry = new THREE.BufferGeometry();
+                        gridGeometry.addAttribute('position', new THREE.BufferAttribute(res.position, 3));
+                        gridGeometry.addAttribute('vertexIndex', new THREE.BufferAttribute(res.vertexIndex, 1));
+
+                        function updateGrid(xRes, yRes) {
+                            var res = generateGrid(xRes, yRes);
+                            gridGeometry.attributes.position.array = res.position;
+                            gridGeometry.attributes.position.needsUpdate = true;
+                            gridGeometry.attributes.vertexIndex.array = res.vertexIndex;
+                            gridGeometry.attributes.vertexIndex.needsUpdate = true;
+                        }
+
+                        var grid = new THREE.Mesh(gridGeometry, terrainMaterial);
+                        grid.frustumCulled = false;
+                        scene2.add(grid);
+                        scene2.add(new THREE.Mesh(clonedGeometry, new THREE.MeshLambertMaterial({
+                            color: 0xFEEFFE,
+                            shading: THREE.SmoothShading,
+                            side: THREE.DoubleSide
+                        })));
+                        scene2.add(new THREE.PointCloud(pipeline.modelStage.inputGeometry.clone(), new THREE.ShaderMaterial({
+                            depthTest: true,
+                            sizeAttenuation: false,
+                            uniforms: pipeline.modelStage.shaderUniforms,
+                            attributes: pipeline.modelStage.shaderAttributes,
+                            vertexShader: pipeline.modelStage.vertexShader,
+                            //fragmentShader: pipeline.modelStage.fragmentShader,
+                            side: THREE.DoubleSide,
+                            linewidth: 3,
+                            size: 3
+                        })));
+
+                        scene2.add(new THREE.Line(pipeline.modelStage.inputGeometry.clone(), new THREE.ShaderMaterial({
+                            depthTest: true,
+                            sizeAttenuation: false,
+                            uniforms: pipeline.modelStage.shaderUniforms,
+                            attributes: pipeline.modelStage.shaderAttributes,
+                            vertexShader: pipeline.modelStage.vertexShader,
+                            fragmentShader: pipeline.modelStage.fragmentShader,
+                            side: THREE.DoubleSide,
+                            linewidth: 5,
+                            size: 3
+                        })));
+                        document.documentElement.addEventListener('keydown', function (event) {
+                            if (event.shiftKey === true) {
+                                document.body.classList.add('moving');
+                            }
+                        });
+
+                        document.documentElement.addEventListener('keyup', function (event) {
+                            if (event.shiftKey === false) {
+                                document.body.classList.remove('moving');
+                            }
+                        });
+
+                        var controls = new OrbitControls(camera2, renderer.domElement);
+                        controls.rotateSpeed = 1.0;
+                        controls.zoomSpeed = 1.2;
+                        controls.panSpeed = 0.8;
+                        controls.noZoom = false;
+                        controls.noPan = false;
+                        controls.staticMoving = true;
+                        controls.dynamicDampingFactor = 0.3;
+                        controls.minDistance = 3;
+                        controls.keys = [65, 83, 68];
+                        controls.addEventListener('change', function () {
+                            reRenderPipeline();
+                        });
+                        function reRender() {
+                            updateGrid(pipeline.modelBuffer.width, pipeline.modelBuffer.height);
+                            terrainMaterial.uniforms.tDisplacement.value = pipeline.modelBuffer;
+                            terrainMaterial.uniforms.sampleCount.value = new THREE.Vector2(pipeline.modelBuffer.width, pipeline.modelBuffer.height);
+                            renderer.render(scene2, camera2);
+                        }
+
+
+                        function reRenderPipeline() {
+                            console.time('complete render');
+                            pipeline.render(renderer);
+                            reRender();
+
+                            //for pessimistic computation time measure, since gl.finish() is faked.
+                            var gl = renderer.getContext();
+                            gl.flush();
+                            var pixelBuffer = new Uint8Array(4);
+                            gl.readPixels(1, 1, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixelBuffer);
+                            console.timeEnd('complete render');
+                        }
+
+                        window.setX = function (x) {
+                            $('#x').text(x);
+                            pipeline.sampleX = parseFloat(x);
+                            reRenderPipeline();
+                        };
+                        window.setY = function (y) {
+                            $('#y').text(y);
+                            pipeline.sampleY = parseFloat(y);
+                            reRenderPipeline();
+                        };
+                        //pipeline.render(renderer);
+                        reRenderPipeline();
+                    }
+                });
+    </script>
+</head>
+<body>
+<div class="btn-toolbar" role="toolbar">
+    <div class="btn-group" role="group">
+        <label>X (
+            <span id="x">20</span>
+            ): <input type="range" min="5" max="200" value="20" step="1"
+                      oninput="setX(this.value)"></label>
+        <label>Y (
+            <span id="y">20</span>
+            ): <input type="range" min="5" max="200" value="20" step="1"
+                      oninput="setY(this.value)"></label>
+    </div>
+
+</div>
+</body>
+
+</html>

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DDAA5016BC726A541DE9BAF2 /* conservativeModelProjector.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA52D3919622745654ADAD /* conservativeModelProjector.js */; };
 		DDAA502D3982345913C9385A /* pako.min.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA546068AA808773A44475 /* pako.min.js */; };
 		DDAA5056C47AB29F4BFD5D4D /* jsEditor.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA59E7DF6E04578E0F4F11 /* jsEditor.js */; };
 		DDAA505D83526CACD8BEAE28 /* SubdivisionModifier.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA58A68B3AD6541C366CEB /* SubdivisionModifier.js */; };
@@ -162,6 +163,7 @@
 		DDAA52AFFAE054B9E7D1FA72 /* cnc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cnc.h; sourceTree = "<group>"; };
 		DDAA52B1A4915275E73497A2 /* box2.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = box2.js; sourceTree = "<group>"; };
 		DDAA52CAC3926B8B4F4B829A /* threeDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = threeDView.js; path = ui/threeDView.js; sourceTree = "<group>"; };
+		DDAA52D3919622745654ADAD /* conservativeModelProjector.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = conservativeModelProjector.js; sourceTree = "<group>"; };
 		DDAA52E5A7394BAD5D0799D3 /* build-sandbox.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "build-sandbox.js"; sourceTree = "<group>"; };
 		DDAA52F3574050B6296E6814 /* test_pycam.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngc; path = test_pycam.ngc; sourceTree = "<group>"; };
 		DDAA533BF8B7D627643AC0C2 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
@@ -259,6 +261,7 @@
 		DDAA5AAFC3B9C67160FA662D /* geometry.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = geometry.js; path = gcode/geometry.js; sourceTree = "<group>"; };
 		DDAA5AC14AAD3A2C784B1419 /* yenc.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = yenc.js; path = libs/yenc.js; sourceTree = "<group>"; };
 		DDAA5B08E58D8D0CDBC74EAA /* cam.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = cam.js; sourceTree = "<group>"; };
+		DDAA5B0F761ED0B50A0D14F4 /* test_3D_conservative_rendering.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_3D_conservative_rendering.html; sourceTree = "<group>"; };
 		DDAA5B32ABEAC29E2C09425A /* tux.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngc; path = tux.ngc; sourceTree = "<group>"; };
 		DDAA5B453A7758A947C1B962 /* loading.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = loading.hbs; sourceTree = "<group>"; };
 		DDAA5B712AE405ADF7EF281A /* CAM.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = CAM.js; sourceTree = "<group>"; };
@@ -344,6 +347,7 @@
 				DDAA5699D633BDE7062A0B3B /* modelProjector.js */,
 				DDAA56084DF1239F53C2D3A8 /* minkowskiPass.js */,
 				DDAA5B9127FD1D1D71501224 /* 3Dcomputer.js */,
+				DDAA52D3919622745654ADAD /* conservativeModelProjector.js */,
 			);
 			path = 3D;
 			sourceTree = "<group>";
@@ -650,6 +654,7 @@
 				DDAA529BF8EEBE4231120887 /* test_3D_flat.html */,
 				DDAA584D3D02743E506BD4E2 /* test_3D_stream.html */,
 				DDAA56579CF2C65E1BC0ADD2 /* images */,
+				DDAA5B0F761ED0B50A0D14F4 /* test_3D_conservative_rendering.html */,
 			);
 			sourceTree = "<group>";
 		};
@@ -841,6 +846,7 @@
 				DDAA52CCCB5E5211FCE50E45 /* job.js in Sources */,
 				DDAA5BFD83B2A6D8F014E2AF /* operation.js in Sources */,
 				DDAA527F11BF37A7A90B4F67 /* spiIO.c in Sources */,
+				DDAA5016BC726A541DE9BAF2 /* conservativeModelProjector.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
