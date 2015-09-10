@@ -153,8 +153,7 @@
                                 angle: 5,
                                 tipDiameter: 0.1
                             }, pixelsOnRadius, this.modelStage.zRatio, this.toolLeaveStockRadius);
-                            var toolToPartRatio = s / this.modelStage.displaySideMm;
-                            this.minkowskiPass.setParams(samples, new THREE.Vector2(toolToPartRatio, toolToPartRatio));
+                            this.minkowskiPass.setParams(samples, new THREE.Vector2(pixelsOnRadius * 2 / this.modelBuffer.width, pixelsOnRadius * 2 / this.modelBuffer.height));
                             if (this.toolPosBuffer)
                                 this.toolPosBuffer.dispose();
                             this.toolPosBuffer = new THREE.WebGLRenderTarget(this.modelStage.displaySide, ySamples,
