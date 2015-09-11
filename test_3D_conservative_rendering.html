@@ -60,16 +60,22 @@
                     renderer.setSize(outputWidth, outputHeight);
                     renderer.setViewport(0, 0, outputWidth, outputHeight);
                     renderer.clear();
-                    new STLLoader().load('webapp/samples/soap.stl', function (geometry) {
+                    new STLLoader().load('webapp/samples/soap.stl', function (buffGeom) {
                         function draw() {
+
                             var geometry = new THREE.Geometry();
                             geometry.vertices.push(
-                                    new THREE.Vector3(-50, 37, -24),
+                                    new THREE.Vector3(-50, 37, 24),
                                     new THREE.Vector3(-50, -37, -12),
-                                    new THREE.Vector3(50, -37, -0)
+                                    new THREE.Vector3(50, -37, -0),
+
+                                    new THREE.Vector3(50, 37, -0),
+                                    new THREE.Vector3(-50, 37, -24),
+                                    new THREE.Vector3(50, -37, 12)
                             );
                             geometry.faces.push(new THREE.Face3(0, 1, 2));
-                            var buffGeom = new THREE.BufferGeometry().fromGeometry(geometry);
+                            geometry.faces.push(new THREE.Face3(3, 4, 5));
+                            buffGeom = new THREE.BufferGeometry().fromGeometry(geometry);
                             displayGeometry(buffGeom);
                         }
 
@@ -232,6 +238,7 @@
                             shading: THREE.SmoothShading,
                             side: THREE.DoubleSide
                         })));
+
                         scene2.add(new THREE.PointCloud(pipeline.modelStage.inputGeometry.clone(), new THREE.ShaderMaterial({
                             depthTest: true,
                             sizeAttenuation: false,

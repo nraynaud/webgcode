@@ -42,10 +42,10 @@
         }
     </style>
     <script>
-        require(['jQuery', 'THREE', 'Piecon', 'cnc/cam/3D/toolProfile', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/minkowskiPass',
-                    'libs/threejs/STLLoader', 'cnc/cam/3D/3Dcomputer', 'libs/threejs/postprocessing/ShaderPass',
+        require(['jQuery', 'THREE', 'Piecon', 'cnc/cam/3D/toolProfile', 'cnc/cam/3D/minkowskiPass',
+                    'libs/threejs/STLLoader', 'cnc/cam/3D/3Dcomputer', 'cnc/cam/3D/conservativeModelProjector', 'libs/threejs/postprocessing/ShaderPass',
                     'libs/threejs/postprocessing/CopyShader', 'libs/threejs/OrbitControls'],
-                function ($, THREE, Piecon, toolProfile, ModelStage, MinkowskiPass, STLLoader, Computer, ShaderPass, CopyShader, OrbitControls) {
+                function ($, THREE, Piecon, toolProfile, MinkowskiPass, STLLoader, Computer, ModelProjector, ShaderPass, CopyShader, OrbitControls) {
                     if (window['Notification'] && Notification.permission === 'default') {
                         Notification.requestPermission(function (permission) {
                             console.log('Notification.permision', permission);
@@ -81,12 +81,28 @@
 
                     loadStlFile('webapp/samples/soap.stl', function (stlData) {
                         console.log('hello');
-                        new Computer.ToolPathComputer()
-                                .computeHeightField(new STLLoader().parse(stlData), 0.1, {
-                                    type: 'cylinder',
-                                    diameter: 1
-                                }, 0.5, 0, 0, 1, renderer, true)
-                                .start();
+                        var p = new ModelProjector();
+                        var geometry = new THREE.Geometry();
+                        geometry.vertices.push(
+                                new THREE.Vector3(-50, 37, 0),
+                                new THREE.Vector3(-50, -37, -24),
+                                new THREE.Vector3(50, -37, -24)
+                        );
+                        geometry.faces.push(new THREE.Face3(0, 1, 2));
+                        //var buffGeom = new THREE.BufferGeometry().fromGeometry(geometry);
+                        var buffGeom = new STLLoader().parse(stlData);
+                        p.setGeometry(buffGeom);
+                        var modelBuffer = new THREE.WebGLRenderTarget(50, 50,
+                                {
+                                    minFilter: THREE.NearestFilter,
+                                    magFilter: THREE.NearestFilter,
+                                    type: THREE.UnsignedByteType
+                                });
+
+                        var copyPass = new ShaderPass(CopyShader);
+                        copyPass.renderToScreen = true;
+                        p.render(renderer, modelBuffer);
+                        copyPass.render(renderer, null, modelBuffer);
                     });
                 });
     </script>
