@@ -89,7 +89,7 @@ define(['RSVP', 'THREE', 'Piecon', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/mink
                     var translationMatrix = new THREE.Matrix4().makeTranslation(minX / sampleRate, minY / sampleRate, 0);
                     var transformMatrix = new THREE.Matrix4().multiply(rotationMatrix).multiply(translationMatrix).multiply(scaleMatrix);
                     modelStage.pushZInverseProjOn(transformMatrix);
-                    var resultHeightField = new HeightField(resultBuffer, bbox, resultBufferWidth, resultBufferHeight, transformMatrix, startRatio, stopRatio);
+                    var resultHeightField = new HeightField(resultBuffer, bbox, resultBufferWidth, resultBufferHeight, transformMatrix, startRatio, stopRatio, leaveStock + bbox.min.z);
                     var resultTile = new Uint8Array(resultTileX * resultTileY * 4);
                     var worker = new Worker(require.toUrl('worker.js'));
                     var factor = (Math.pow(2, 24.0) - 1.0) / Math.pow(2, 24.0);
@@ -176,7 +176,7 @@ define(['RSVP', 'THREE', 'Piecon', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/mink
             }
         };
 
-        function HeightField(data, modelbbox, samplesX, samplesY, bufferToWorldMatrix, startRatio, stopRatio) {
+        function HeightField(data, modelbbox, samplesX, samplesY, bufferToWorldMatrix, startRatio, stopRatio, noModelValue) {
             this.data = data;
             this.modelbbox = modelbbox;
             this.samplesX = samplesX;
@@ -184,6 +184,7 @@ define(['RSVP', 'THREE', 'Piecon', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/mink
             this.bufferToWorldMatrix = bufferToWorldMatrix;
             this.startRatio = startRatio;
             this.stopRatio = stopRatio;
+            this.noModelValue = noModelValue + (modelbbox.max.z - modelbbox.min.z) * 0.000001;
         }
 
         HeightField.prototype = {
@@ -201,7 +202,7 @@ define(['RSVP', 'THREE', 'Piecon', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/mink
             var list = [];
 
             function collectPoint(x, y, z, currentMaxZ, currentMinZ) {
-                if (z > currentMaxZ || z == heightField.modelbbox.min.z) {
+                if (z > currentMaxZ || z <= heightField.noModelValue) {
                     path = null;
                     return;
                 }
