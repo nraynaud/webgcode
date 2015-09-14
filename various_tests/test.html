@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>webgcode test</title>
+    <link rel="stylesheet" href="../webapp/libs/qunit.css">
+</head>
+<body>
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
+<script src="../webapp/libs/qunit.js"></script>
+<script src="../webapp/libs/jquery-1.11.1.min.js"></script>
+<script src="../webapp/libs/jquery.flot.min.js"></script>
+<script src="../webapp/libs/require.js"></script>
+<script src="../webapp/config.js"></script>
+<script>
+    requirejs.config({
+        baseUrl: '../webapp'
+    });
+</script>
+
+<script src="../webapp/cnc/elliptic.js"></script>
+<script src="tests.js"></script>
+
+</body>
+</html>

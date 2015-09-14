@@ -4,18 +4,18 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1"/>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <title>3D conservative Rendering Test</title>
-    <script src="webapp/libs/require.js"></script>
-    <script src="webapp/config.js"></script>
+    <script src="../webapp/libs/require.js"></script>
+    <script src="../webapp/config.js"></script>
     <script>
         requirejs.config({
-            baseUrl: 'webapp'
+            baseUrl: '../webapp'
         });
     </script>
-    <link rel="shortcut icon" href="webapp/images/icon_fraise_48.png"/>
-    <link rel="stylesheet" href="webapp/twoDView.css" type="text/css">
-    <link rel="stylesheet" href="webapp/threeDView.css" type="text/css">
-    <link rel="stylesheet" href="webapp/libs/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="webapp/libs/font-awesome-4.2.0/css/font-awesome.min.css">
+    <link rel="shortcut icon" href="../webapp/images/icon_fraise_48.png"/>
+    <link rel="stylesheet" href="../webapp/twoDView.css" type="text/css">
+    <link rel="stylesheet" href="../webapp/threeDView.css" type="text/css">
+    <link rel="stylesheet" href="../webapp/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../webapp/libs/font-awesome-4.2.0/css/font-awesome.min.css">
     <style>
 
         body, html {
@@ -42,7 +42,7 @@
         }
     </style>
     <script>
-        require(['jQuery', 'THREE', 'cnc/cam/3D/conservativeModelProjector', 'libs/threejs/STLLoader',
+        require(['jQuery', 'THREE', 'cnc/cam/3D/modelProjector', 'libs/threejs/STLLoader',
                     'libs/threejs/postprocessing/ShaderPass', 'libs/threejs/OrbitControls'],
                 function ($, THREE, ModelStage, STLLoader, ShaderPass, OrbitControls) {
                     var $container = $('body');
@@ -60,7 +60,7 @@
                     renderer.setSize(outputWidth, outputHeight);
                     renderer.setViewport(0, 0, outputWidth, outputHeight);
                     renderer.clear();
-                    new STLLoader().load('webapp/samples/soap.stl', function (buffGeom) {
+                    new STLLoader().load('../webapp/samples/soap.stl', function (buffGeom) {
                         function draw() {
 
                             var geometry = new THREE.Geometry();

@@ -4,18 +4,18 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1"/>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <title>Visual CAM</title>
-    <script src="webapp/libs/require.js"></script>
-    <script src="webapp/config.js"></script>
+    <script src="../webapp/libs/require.js"></script>
+    <script src="../webapp/config.js"></script>
     <script>
         requirejs.config({
-            baseUrl: 'webapp'
+            baseUrl: '../webapp'
         });
     </script>
-    <link rel="shortcut icon" href="webapp/images/icon_fraise_48.png"/>
-    <link rel="stylesheet" href="webapp/twoDView.css" type="text/css">
-    <link rel="stylesheet" href="webapp/threeDView.css" type="text/css">
-    <link rel="stylesheet" href="webapp/libs/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="webapp/libs/font-awesome-4.2.0/css/font-awesome.min.css">
+    <link rel="shortcut icon" href="../webapp/images/icon_fraise_48.png"/>
+    <link rel="stylesheet" href="../webapp/twoDView.css" type="text/css">
+    <link rel="stylesheet" href="../webapp/threeDView.css" type="text/css">
+    <link rel="stylesheet" href="../webapp/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../webapp/libs/font-awesome-4.2.0/css/font-awesome.min.css">
     <style>
 
         body, html {
@@ -60,7 +60,7 @@
                     renderer.setSize(outputWidth, outputHeight);
                     renderer.setViewport(0, 0, outputWidth, outputHeight);
                     renderer.clear();
-                    new STLLoader().load('webapp/samples/soap.stl', function (geometry) {
+                    new STLLoader().load('../webapp/samples/soap.stl', function (geometry) {
                         function draw() {
                             displayGeometry(geometry);
                         }
@@ -124,25 +124,9 @@
                                     });
                         },
                         updateToolShape: function () {
-                            var totalPixels = 20000000;
                             var ySamples = 10;
-                            var ds = this.modelStage.displaySideMm;
+                            var newPixelsOnRadius = 30;
                             var s = this.toolRadiusMm + this.toolLeaveStockRadius;
-                            var y = ySamples;
-                            var z = totalPixels;
-                            var pw = Math.pow;
-
-                            function crt(x) {
-                                return pw(x, 1 / 3);
-                            }
-
-                            //http://www.wolframalpha.com/input/?i=solve+4*r%5E2*y*d*r%2Fs%2Bd%5E2*r%5E2%2Fs%5E2+%3D+z+for+r
-                            var bigSquareRoot = Math.sqrt(108 * pw(ds, 4) * pw(s, 8) * pw(y, 4) * pw(z, 2) - pw(ds, 8) * pw(s, 4) * pw(y, 2) * z);
-                            var bigCubicRoot = crt(-pw(ds, 6) + 216 * pw(ds, 2) * pw(s, 4) * pw(y, 2) * z + 12 * Math.sqrt(3) * bigSquareRoot);
-                            var estimatePixels = (bigCubicRoot / (ds * s * y) + pw(ds, 3) / ((s * y * bigCubicRoot)) - ds / (s * y)) / 12;
-                            var newPixelsOnRadius = isNaN(estimatePixels) ? 1 : Math.floor(estimatePixels) + 1;
-                            console.log('s', s, 'radialSamples', newPixelsOnRadius);
-                            console.log('estimated pixel count (millions): ', 4 * pw(newPixelsOnRadius, 2) * ySamples * ds * (newPixelsOnRadius / s) / 1000000);
                             var pixelsOnRadius = newPixelsOnRadius;
                             this.setSampleRate(pixelsOnRadius / s);
                             var pixelCount = (pixelsOnRadius * 2) * (pixelsOnRadius * 2) * ySamples * this.modelStage.displaySide + this.modelStage.displaySide * this.modelStage.displaySide;
@@ -153,7 +137,9 @@
                                 angle: 5,
                                 tipDiameter: 0.1
                             }, pixelsOnRadius, this.modelStage.zRatio, this.toolLeaveStockRadius);
-                            this.minkowskiPass.setParams(samples, new THREE.Vector2(pixelsOnRadius * 2 / this.modelBuffer.width, pixelsOnRadius * 2 / this.modelBuffer.height));
+                            this.minkowskiPass.setParams(samples
+                                    , new THREE.Vector2(pixelsOnRadius * 2 / this.modelBuffer.width, pixelsOnRadius * 2 / this.modelBuffer.height)
+                                    , -Infinity);
                             if (this.toolPosBuffer)
                                 this.toolPosBuffer.dispose();
                             this.toolPosBuffer = new THREE.WebGLRenderTarget(this.modelStage.displaySide, ySamples,

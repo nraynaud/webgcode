@@ -18,7 +18,7 @@
         }
     </style>
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&libraries=drawing,geometry"></script>
-    <link rel="stylesheet" href="webapp/threeDView.css" type="text/css">
+    <link rel="stylesheet" href="../webapp/threeDView.css" type="text/css">
 </head>
 <body>
 
@@ -27,13 +27,13 @@
 <a id="downloadLink" href='#'>Download .stl</a>
 
 </body>
-<script src="webapp/cnc/delaunay.js"></script>
-<script src="webapp/cnc/contour.js"></script>
-<script src="webapp/libs/require.js"></script>
-<script src="webapp/config.js"></script>
+<script src="../webapp/cnc/delaunay.js"></script>
+<script src="../webapp/cnc/contour.js"></script>
+<script src="../webapp/libs/require.js"></script>
+<script src="../webapp/config.js"></script>
 <script>
     requirejs.config({
-        baseUrl: 'webapp'
+        baseUrl: '../webapp'
     });
 </script>
 <script type="text/javascript">
@@ -79,7 +79,7 @@
         return result;
     }
 
-    require(['jQuery', 'cnc/ui/threeDView'], function ($, threeDView) {
+    require(['../webapp/libs/jquery-1.11.1.min', 'cnc/ui/threeDView'], function ($, threeDView) {
         var view = new threeDView.ThreeDView($('#container'));
         var elevator;
         var map;

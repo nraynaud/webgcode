@@ -1,5 +1,9 @@
 "use strict";
-require(['libs/jsparse', 'cnc/gcode/parser', 'cnc/gcode/simulation'], function (jp, parser, simulation) {
+require(['libs/jsparse', 'cnc/gcode/parser', 'cnc/gcode/simulation', 'cnc/util'], function (jp, parser, simulation, u) {
+    function p(obj) {
+        return new u.Point(obj.x, obj.y, obj.z);
+    }
+
     test("G0 evaluation", function () {
         var code = 'G0 X10';
         var result = parser.evaluate(code);
@@ -8,9 +12,10 @@ require(['libs/jsparse', 'cnc/gcode/parser', 'cnc/gcode/simulation'], function (
             feedRate: 3000,
             lineNo: 0,
             speedTag: "rapid",
-            from: {x: 0, y: 0, z: 0},
-            to: {x: 10, y: 0, z: 0},
-            type: "line"}, '"' + code + '" second component check');
+            from: p({x: 0, y: 0, z: 0}),
+            to: p({x: 10, y: 0, z: 0}),
+            type: "line"
+        }, '"' + code + '" second component check');
     });
     test("G0 evaluation with expression", function () {
         var code = 'G0 X[5+5]';
@@ -20,9 +25,10 @@ require(['libs/jsparse', 'cnc/gcode/parser', 'cnc/gcode/simulation'], function (
             feedRate: 3000,
             lineNo: 0,
             speedTag: "rapid",
-            from: {x: 0, y: 0, z: 0},
-            to: {x: 10, y: 0, z: 0},
-            type: "line"}, '"' + code + '" second component check');
+            from: p({x: 0, y: 0, z: 0}),
+            to: p({x: 10, y: 0, z: 0}),
+            type: "line"
+        }, '"' + code + '" second component check');
     });
     test("G1 evaluation", function () {
         var code = 'G1 X10';
@@ -32,9 +38,10 @@ require(['libs/jsparse', 'cnc/gcode/parser', 'cnc/gcode/simulation'], function (
             feedRate: 200,
             lineNo: 0,
             speedTag: "normal",
-            from: {x: 0, y: 0, z: 0},
-            to: {x: 10, y: 0, z: 0},
-            type: "line"}, '"' + code + '" second component check');
+            from: p({x: 0, y: 0, z: 0}),
+            to: p({x: 10, y: 0, z: 0}),
+            type: "line"
+        }, '"' + code + '" second component check');
     });
     test("G2 evaluation", function () {
         var code = 'G2 X10 Y0 Z0 I5 J0 F200';
@@ -49,8 +56,7 @@ require(['libs/jsparse', 'cnc/gcode/parser', 'cnc/gcode/simulation'], function (
             feedRate: 200,
             lineNo: 0,
             speedTag: "normal",
-            from: { x: 0, y: 0, z: 0
-            },
+            from: p({x: 0, y: 0, z: 0}),
             fromAngle: -Math.PI,
             plane: {
                 firstCenterCoord: "i",
@@ -60,7 +66,7 @@ require(['libs/jsparse', 'cnc/gcode/parser', 'cnc/gcode/simulation'], function (
                 secondCoord: "y"
             },
             radius: 5,
-            to: {x: 10, y: 0, z: 0},
+            to: p({x: 10, y: 0, z: 0}),
             type: "arc"
         }, '"' + code + '" second component check');
     });
@@ -77,8 +83,7 @@ require(['libs/jsparse', 'cnc/gcode/parser', 'cnc/gcode/simulation'], function (
             feedRate: 200,
             lineNo: 0,
             speedTag: "normal",
-            from: { x: 0, y: 0, z: 0
-            },
+            from: p({x: 0, y: 0, z: 0}),
             fromAngle: -Math.PI,
             plane: {
                 firstCenterCoord: "i",
@@ -88,7 +93,7 @@ require(['libs/jsparse', 'cnc/gcode/parser', 'cnc/gcode/simulation'], function (
                 secondCoord: "y"
             },
             radius: 5,
-            to: {x: 5, y: 5, z: 0},
+            to: p({x: 5, y: 5, z: 0}),
             type: "arc"
         }, '"' + code + '" second component check');
     });
@@ -211,16 +216,19 @@ require(['libs/jsparse', 'cnc/gcode/parser', 'cnc/gcode/simulation'], function (
         deepEqual(parser.createParser().parseLine("#4 = 4.000000 #5 = 5.000000 G1 X10 F[3000] X [12+#4]"), {
             f: [3000],
             g: [1],
-            x: [10, 12]});
+            x: [10, 12]
+        });
         deepEqual(parser.createParser().parseLine('G02X10Y30R10 '), {
             g: [2],
             r: [10],
             x: [10],
-            y: [30]});
+            y: [30]
+        });
         deepEqual(parser.createParser().parseLine('G01Z[-1.000000*#7+#10]F#4 '), {
             g: [1],
             f: [0],
-            z: [0]});
+            z: [0]
+        });
     });
     test("simple speed planning", function () {
         var data = [
@@ -236,29 +244,35 @@ require(['libs/jsparse', 'cnc/gcode/parser', 'cnc/gcode/simulation'], function (
             originalSpeed: 4,
             squaredSpeed: 16,
             fragments: [
-                {duration: 0.5,
+                {
+                    duration: 0.5,
                     fromSqSpeed: 0,
                     length: 1,
                     segment: null,
                     startX: 0,
                     stopX: 1,
                     toSqSpeed: 16,
-                    type: "acceleration"},
-                {duration: 0.25,
+                    type: "acceleration"
+                },
+                {
+                    duration: 0.25,
                     length: 1,
                     segment: null,
                     startX: 1,
                     stopX: 2,
                     squaredSpeed: 16,
-                    type: "constant"},
-                {duration: 0.5,
+                    type: "constant"
+                },
+                {
+                    duration: 0.5,
                     fromSqSpeed: 16,
                     length: 1,
                     segment: null,
                     startX: 2,
                     stopX: 3,
                     toSqSpeed: 0,
-                    type: "deceleration"}
+                    type: "deceleration"
+                }
             ]
         };
         $.each(segment.fragments, function (_, fragment) {
@@ -280,22 +294,26 @@ require(['libs/jsparse', 'cnc/gcode/parser', 'cnc/gcode/simulation'], function (
             originalSpeed: 5,
             squaredSpeed: 16,
             fragments: [
-                {duration: 0.5,
+                {
+                    duration: 0.5,
                     fromSqSpeed: 0,
                     length: 1,
                     segment: null,
                     startX: 0,
                     stopX: 1,
                     toSqSpeed: 16,
-                    type: "acceleration"},
-                {duration: 0.5,
+                    type: "acceleration"
+                },
+                {
+                    duration: 0.5,
                     fromSqSpeed: 16,
                     length: 1,
                     segment: null,
                     startX: 1,
                     stopX: 2,
                     toSqSpeed: 0,
-                    type: "deceleration"}
+                    type: "deceleration"
+                }
             ]
         };
         $.each(segment.fragments, function (_, fragment) {
@@ -318,21 +336,25 @@ require(['libs/jsparse', 'cnc/gcode/parser', 'cnc/gcode/simulation'], function (
             originalSpeed: 4,
             squaredSpeed: 16,
             fragments: [
-                {duration: 0.5,
+                {
+                    duration: 0.5,
                     fromSqSpeed: 0,
                     length: 1,
                     segment: null,
                     startX: 0,
                     stopX: 1,
                     toSqSpeed: 16,
-                    type: "acceleration"},
-                {duration: 0.5,
+                    type: "acceleration"
+                },
+                {
+                    duration: 0.5,
                     squaredSpeed: 16,
                     length: 2,
                     segment: null,
                     startX: 1,
                     stopX: 3,
-                    type: "constant"}
+                    type: "constant"
+                }
             ]
         };
         $.each(segment1.fragments, function (_, fragment) {
@@ -347,21 +369,25 @@ require(['libs/jsparse', 'cnc/gcode/parser', 'cnc/gcode/simulation'], function (
             originalSpeed: 4,
             squaredSpeed: 16,
             fragments: [
-                {duration: 0.5,
+                {
+                    duration: 0.5,
                     length: 2,
                     segment: null,
                     startX: 0,
                     stopX: 2,
                     squaredSpeed: 16,
-                    type: "constant"},
-                {duration: 0.5,
+                    type: "constant"
+                },
+                {
+                    duration: 0.5,
                     fromSqSpeed: 16,
                     toSqSpeed: 0,
                     length: 1,
                     segment: null,
                     startX: 2,
                     stopX: 3,
-                    type: "deceleration"}
+                    type: "deceleration"
+                }
             ]
         };
         $.each(segment2.fragments, function (_, fragment) {

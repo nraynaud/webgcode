@@ -4,16 +4,16 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1"/>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <title>CNC Text Tool</title>
-    <script src="webapp/libs/require.js"></script>
-    <script src="webapp/config.js"></script>
+    <script src="../webapp/libs/require.js"></script>
+    <script src="../webapp/config.js"></script>
     <script>
         requirejs.config({
-            baseUrl: 'webapp'
+            baseUrl: '../webapp'
         });
     </script>
 
-    <link rel="shortcut icon" href="webapp/images/icon_fraise_48.png"/>
-    <link rel="stylesheet" href="webapp/twoDView.css" type="text/css">
+    <link rel="shortcut icon" href="../webapp/images/icon_fraise_48.png"/>
+    <link rel="stylesheet" href="../webapp/twoDView.css" type="text/css">
     <style>
         * {
             -webkit-box-sizing: border-box;
@@ -108,7 +108,7 @@
                     }
                 });
                 TextApplication.Router.reopen({
-                    rootURL: '/webgcode/'
+                    rootURL: '../webgcode/'
                 });
                 TextApplication.Router.map(function () {
                     this.resource('text', {path: '/'});
