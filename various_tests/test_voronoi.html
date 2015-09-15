@@ -233,7 +233,7 @@
         if (partMesh == null)
             return;
         if (floodPlaneZ != null) {
-            var floodPlane = new THREE.PlaneGeometry(vWidth, vHeight, 1, 1);
+            var floodPlane = new THREE.PlaneBufferGeometry(vWidth, vHeight, 1, 1);
             floodPlane.dynamic = true;
             var floodMesh = new THREE.Mesh(floodPlane, new THREE.MeshBasicMaterial({color: 0x0000FF}));
             floodPlane.applyMatrix(new THREE.Matrix4().makeTranslation(vWidth / 2, vHeight / 2, floodPlaneZ));
@@ -318,7 +318,10 @@
 
             function pushFace(v1, v2, v3, v4) {
                 faceCount++;
-                var face = new THREE.Face4(v1, v2, v3, v4);
+                var face = new THREE.Face3(v1, v2, v3);
+                face.color.setStyle(indexColor(previousPoint.index + 1));
+                geometry.faces.push(face);
+                face = new THREE.Face3(v3, v2, v4);
                 face.color.setStyle(indexColor(previousPoint.index + 1));
                 geometry.faces.push(face);
             }
