@@ -184,6 +184,7 @@
 		DDAA5453F941FAED7073FAF6 /* modelProjector.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = modelProjector.js; path = 3D/modelProjector.js; sourceTree = "<group>"; };
 		DDAA546068AA808773A44475 /* pako.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = pako.min.js; path = libs/pako.min.js; sourceTree = "<group>"; };
 		DDAA54613393642E5474B2DC /* simulation.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = simulation.js; path = gcode/simulation.js; sourceTree = "<group>"; };
+		DDAA5479264CEDD3A05DBA83 /* contour.html */ = {isa = PBXFileReference; lastKnownFileType = file.htl; path = contour.html; sourceTree = "<group>"; };
 		DDAA54B37F49D0A2AC135D5A /* util.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = util.js; path = webapp/cnc/util.js; sourceTree = "<group>"; };
 		DDAA54B87A480F458CED26C3 /* models.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = models.js; sourceTree = "<group>"; };
 		DDAA54C02B65138BA2BC4D67 /* bezier.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = bezier.js; path = webapp/cnc/bezier.js; sourceTree = "<group>"; };
@@ -513,6 +514,7 @@
 				DDAA5EB61DFCC2BB7CFE8DA0 /* text.html */,
 				DDAA5F1FE345E1887B17F30E /* test_3D_stream.html */,
 				DDAA50E05857779781B5F4A2 /* test_3D_conservative_rendering.html */,
+				DDAA5479264CEDD3A05DBA83 /* contour.html */,
 			);
 			path = various_tests;
 			sourceTree = "<group>";

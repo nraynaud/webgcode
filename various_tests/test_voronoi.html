@@ -12,6 +12,7 @@
     <script src="../webapp/libs/svg.draggable.js"></script>
     <script src="../webapp/libs/svg.memory.js"></script>
     <script src="../webapp/cnc/elliptic.js"></script>
+    <script src="../webapp/cnc/morphology.js"></script>
     <style>
         * {
             -webkit-box-sizing: border-box;
@@ -36,6 +37,8 @@
         }
 
 
+
+
     </script>
 
     <script type="x-shader/x-fragment" id="fragmentshader">
@@ -49,6 +52,8 @@
         else
         gl_FragColor = vec4(gl_FragCoord.z,gl_FragCoord.z/256.0,0.0,1.0);
         }
+
+
 
 
     </script>
@@ -104,7 +109,7 @@
     var puzzlePath = group.path(puzzle, true).translate(puzzleTranslation.x, puzzleTranslation.y);
     puzzlePath.attr({fill: 'none', stroke: '#F0F0F0', 'stroke-width': 3});
     var puzzleBBOX = puzzlePath.node.getBBox();
-    var path = group.path('', true).attr({fill: 'none', stroke: 'grey' });
+    var path = group.path('', true).attr({fill: 'none', stroke: 'grey'});
     var pointCount = 200;
     var totalLength = puzzlePath.node.getTotalLength();
     var index = 0;
@@ -121,7 +126,13 @@
             segment = path.node.createSVGPathSegLinetoAbs(point.x, point.y);
         path.node.pathSegList.appendItem(segment);
         var vertex = group.circle(5);
-        vertex.attr({cx: point.x, cy: point.y, 'vector-effect': 'non-scaling-stroke', stroke: 'black', fill: point.color});
+        vertex.attr({
+            cx: point.x,
+            cy: point.y,
+            'vector-effect': 'non-scaling-stroke',
+            stroke: 'black',
+            fill: point.color
+        });
         vertex.remember('segment', segment);
         vertex.remember('index', index);
         vertex.draggable();
@@ -143,7 +154,7 @@
     graphContext.save();
     var sharedBuffer = graphContext.createImageData(vWidth, vHeight);
     var medialContext = $('#depth')[0].getContext('2d');
-    var graphRenderer = new THREE.WebGLRenderer({ antialias: false, alpha: false, devicePixelRatio: 1 });
+    var graphRenderer = new THREE.WebGLRenderer({antialias: false, alpha: false, devicePixelRatio: 1});
     graphRenderer.setViewport(0, 0, vWidth, vHeight);
     graphRenderer.setSize(vWidth, vHeight);
     var medialElement = $('#depth');
@@ -356,6 +367,7 @@
     }
 
     function drawContour(contour) {
+
         var path = group.path().attr({fill: 'none'});
         var pathNode = path.node;
         pathNode.pathSegList.appendItem(pathNode.createSVGPathSegMovetoAbs(contour[0][0], contour[0][1]));
@@ -370,7 +382,8 @@
     console.log(contours);
     var contourPaths = [];
     $.each(contours, function (_, contour) {
-        contourPaths.push($(drawContour(contour)).attr({stroke: '#F0F0F0', 'stroke-width': 3, 'pathLength': 1})[0]);
+        if (contour.length)
+            contourPaths.push($(drawContour(contour)).attr({stroke: '#F0F0F0', 'stroke-width': 3, 'pathLength': 1})[0]);
     });
     $.each(contourPaths, function (index, path) {
         if (index > 0) {
@@ -390,7 +403,8 @@
                 }
                 spiral.push([(1 - i) * prev.x + i * point.x, (1 - i) * prev.y + i * point.y]);
             }
-            drawContour(spiral);
+            if (spiral.length)
+                drawContour(spiral);
         }
     });
 
