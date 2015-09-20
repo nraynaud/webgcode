@@ -1,10 +1,20 @@
-<div style="display: flex;flex-direction: column;align-items:inherit;overflow-y: hidden">
+<div style="display: flex; display:-webkit-flex;flex-direction: column;-webkit-flex-direction: column;
+        align-items:inherit;
+        overflow-y: hidden;
+            flex-basis: 320px;
+            flex-grow: 1;
+            flex-shrink: 0;
+            height: 100vh;
+            -webkit-flex-basis: 320px;
+            -webkit-flex-grow: 1;
+            -webkit-flex-shrink: 0;">
     {{#if firebase.isAuthenticated}}
-        <h2>Your Jobs
+        <h2 style="position: relative; height: 90px;">Your Jobs
             <button title="create new job" class="btn btn-default" {{action "createJob"}}>+</button>
             <button class="btn btn-default" {{action "createExample"}}>Create An Example</button>
         </h2>
-        <ul class="list-inline" style="display:flex; flex-flow: column wrap; overflow-y: hidden; ">
+        <ul class="list-inline"
+            style="display:flex; flex-flow: column wrap; display:-webkit-flex; -webkit-flex-flow: column wrap; overflow-y: hidden; ">
             {{#each model}}
                 <li>{{#link-to "job" this._data.job.id classNames="list-group-item"}}{{name}}{{/link-to}}</li>
             {{else}}

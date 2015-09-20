@@ -503,11 +503,11 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
 function program1(depth0,data) {
   
   var buffer = '', stack1;
-  data.buffer.push("\n        <h2>Your Jobs\n            <button title=\"create new job\" class=\"btn btn-default\" ");
+    data.buffer.push("\n        <h2 style=\"position: relative; height: 90px;\">Your Jobs\n            <button title=\"create new job\" class=\"btn btn-default\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "createJob", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
   data.buffer.push(">+</button>\n            <button class=\"btn btn-default\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "createExample", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
-  data.buffer.push(">Create An Example</button>\n        </h2>\n        <ul class=\"list-inline\" style=\"display:flex; flex-flow: column wrap; overflow-y: hidden; \">\n            ");
+    data.buffer.push(">Create An Example</button>\n        </h2>\n        <ul class=\"list-inline\"\n            style=\"display:flex; flex-flow: column wrap; display:-webkit-flex; -webkit-flex-flow: column wrap; overflow-y: hidden; \">\n            ");
   stack1 = helpers.each.call(depth0, "model", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(5, program5, data),fn:self.program(2, program2, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n        </ul>\n    ");
@@ -544,7 +544,7 @@ function program7(depth0,data) {
   data.buffer.push("\n        Welcome, you need to log in before anything else.\n    ");
   }
 
-  data.buffer.push("<div style=\"display: flex;flex-direction: column;align-items:inherit;overflow-y: hidden\">\n    ");
+    data.buffer.push("<div style=\"display: flex; display:-webkit-flex;flex-direction: column;-webkit-flex-direction: column;\n        align-items:inherit;\n        overflow-y: hidden;\n            flex-basis: 320px;\n            flex-grow: 1;\n            flex-shrink: 0;\n            height: 100vh;\n            -webkit-flex-basis: 320px;\n            -webkit-flex-grow: 1;\n            -webkit-flex-shrink: 0;\">\n    ");
   stack1 = helpers['if'].call(depth0, "firebase.isAuthenticated", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(7, program7, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n</div>");
