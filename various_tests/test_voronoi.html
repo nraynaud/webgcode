@@ -10,6 +10,7 @@
             baseUrl: '../webapp'
         });
     </script>
+    <link rel="shortcut icon" href="../webapp/images/icon_fraise_48.png"/>
     <style>
         * {
             -webkit-box-sizing: border-box;
@@ -25,8 +26,6 @@
         void main() {
             gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
         }
-
-
 
     </script>
 
@@ -115,10 +114,6 @@
             vertexShader: $('#derivativeVertexShader').text(),
             fragmentShader: $('#derivativeFragmentshader').text()
         }, 'modelHeight');
-        var bufferSize = medialAxisPass.material.uniforms.gridSize.value;
-        var medialAxisBuffer = new THREE.WebGLRenderTarget(bufferSize.x, bufferSize.y,
-                {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.UnsignedByteType});
-
         function indexColor(index) {
             // add one to avoid black;
             index++;
@@ -127,13 +122,6 @@
             //reserve some colors for extra
             var blueVal = (index >> 16) & 0xF;
             return "rgb(" + redVal + "," + greenVal + "," + blueVal + ")";
-        }
-
-        function colorToIndex(r, g, b) {
-            var val = (r + (g << 8) + (b << 16)) - 1;
-            if (val == 16777214)
-                console.log(r, g, b, val);
-            return (r + (g << 8) + (b << 16)) - 1;
         }
 
         //stolen here: http://www.clker.com/inc/svgedit/svg-editor.html?paramurl=/inc/clean.html?id=162595
@@ -232,12 +220,10 @@
             partMesh = newMesh;
             if (newMesh)
                 scene.add(newMesh);
-            render(1, -1000);
+            render();
         }
 
-        var contours = [];
-
-        function render(openingRadius, floodPlaneZ) {
+        function render() {
             if (partMesh == null)
                 return;
 
