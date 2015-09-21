@@ -16,7 +16,6 @@ define(['RSVP', 'THREE', 'Piecon', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/mink
 
         ToolPathComputer.prototype = {
             computeHeightField: function (geometry, stepover, tool, leaveStock, angle, startRatio, stopRatio, renderer, displayResult) {
-                var _this = this;
 
                 function work(task, resolve, reject) {
                     console.log('preparation');
@@ -69,13 +68,19 @@ define(['RSVP', 'THREE', 'Piecon', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/mink
                     };
                     var resultBufferWidth = tileXCount * resultTileX;
                     var resultBufferHeight = tileYCount * resultTileY;
-                    var modelBuffer = new THREE.WebGLRenderTarget(modelTileX, modelTileY,
-                        {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.UnsignedByteType});
+                    var depthTexture = new THREE.DepthTexture(modelTileX, modelTileY, false);
+                    depthTexture.wrapS = THREE.ClampToEdgeWrapping;
+                    depthTexture.wrapT = THREE.ClampToEdgeWrapping;
+                    depthTexture.minFilter = THREE.LinearFilter;
+                    depthTexture.generateMipmaps = false;
+                    var modelBuffer = new THREE.WebGLRenderTarget(modelTileX, modelTileY, {
+                        stencilBuffer: false,
+                        generateMipmaps: false,
+                        depthTexture: depthTexture
+                    });
+                    modelBuffer.texture.minFilter = THREE.LinearFilter;
 
                     var minkowskiPass = new MinkowskiPass();
-                    minkowskiPass.setParams(profile, new THREE.Vector2(toolSamples / modelBuffer.width, toolSamples / modelBuffer.height));
-                    var minkowskiBuffer = new THREE.WebGLRenderTarget(resultTileX, resultTileY,
-                        {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.UnsignedByteType});
                     renderer.autoClear = false;
 
                     var sequence = [];
@@ -90,24 +95,70 @@ define(['RSVP', 'THREE', 'Piecon', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/mink
                     var transformMatrix = new THREE.Matrix4().multiply(rotationMatrix).multiply(translationMatrix).multiply(scaleMatrix);
                     modelStage.pushZInverseProjOn(transformMatrix);
                     var resultHeightField = new HeightField(resultBuffer, bbox, resultBufferWidth, resultBufferHeight, transformMatrix, startRatio, stopRatio, leaveStock + bbox.min.z);
-                    var resultTile = new Uint8Array(resultTileX * resultTileY * 4);
+
                     var worker = new Worker(require.toUrl('worker.js'));
-                    var factor = (Math.pow(2, 24.0) - 1.0) / Math.pow(2, 24.0);
+                    var gl = renderer.getContext();
+                    var minkowskiBuffer = new THREE.WebGLRenderTarget(resultTileX, resultTileY, {
+                        stencilBuffer: false, generateMipmaps: false,
+                        texture: new THREE.Texture(null, THREE.Texture.DEFAULT_MAPPING, THREE.ClampToEdgeWrapping,
+                            THREE.ClampToEdgeWrapping, THREE.LinearFilter, THREE.LinearFilter, THREE.RGBFormat,
+                            THREE.FloatType)
+                    });
+                    minkowskiBuffer.texture.generateMipmaps = false;
+                    console.log('testing minkowskiBuffer');
+                    renderer.setRenderTarget(minkowskiBuffer);
+                    var isFloatREadPixelSupported = gl.getParameter(gl['IMPLEMENTATION_COLOR_READ_FORMAT']) == gl.RGB
+                        && gl.getParameter(gl['IMPLEMENTATION_COLOR_READ_TYPE']) == gl.FLOAT;
+                    renderer.setRenderTarget(null);
+                    console.log('testing minkowskiBuffer done');
+                    var tileColorComponents, readPixels, outputFloats = false;
+                    //only chrome seems to support readPixel on RGB/Float, we'll encode in RGBA/Uint8 for the others.
+                    if (isFloatREadPixelSupported) {
+                        console.log('using float buffer');
+                        outputFloats = true;
+                        tileColorComponents = 3;
+                        var resultTileFloat = new Float32Array(resultTileX * resultTileY * tileColorComponents);
+                        readPixels = function (x, y) {
+                            gl.readPixels(0, 0, resultTileX, resultTileY, gl.RGB, gl.FLOAT, resultTileFloat);
 
-                    function decodeHeight(r, g, b) {
-                        return (r / 255 + g / 255 / 255 + b / 255 / 255 / 255 ) / factor;
-                    }
-
-                    function copyResultTileToResultBuffer(x, y) {
-                        for (var j = 0; j < resultTileY; j++)
-                            for (var i = 0; i < resultTileX; i++) {
-                                if (y + j < resultBufferHeight && i + x < resultBufferWidth) {
-                                    var pixIndex = ((j * resultTileX + i) * 4);
-                                    resultBuffer[(y + j) * resultBufferWidth + i + x] =
-                                        decodeHeight(resultTile[pixIndex], resultTile[pixIndex + 1], resultTile[pixIndex + 2]);
+                            //by keeping this loop in the main thread, I think we are leaving some time for the GPU to breathe.
+                            for (var j = 0; j < resultTileY; j++)
+                                for (var i = 0; i < resultTileX; i++) {
+                                    if (y + j < resultBufferHeight && i + x < resultBufferWidth) {
+                                        var pixIndex = (j * resultTileX + i) * tileColorComponents;
+                                        resultBuffer[(y + j) * resultBufferWidth + i + x] = resultTileFloat[pixIndex];
+                                    }
                                 }
-                            }
+                        };
+                    } else {
+                        minkowskiBuffer.dispose();
+                        minkowskiBuffer = new THREE.WebGLRenderTarget(resultTileX, resultTileY, {
+                            stencilBuffer: false, generateMipmaps: false,
+                            texture: new THREE.Texture(null, THREE.Texture.DEFAULT_MAPPING, THREE.ClampToEdgeWrapping,
+                                THREE.ClampToEdgeWrapping, THREE.LinearFilter, THREE.LinearFilter, THREE.RGBAFormat,
+                                THREE.UnsignedByteType)
+                        });
+                        minkowskiBuffer.texture.generateMipmaps = false;
+                        tileColorComponents = 4;
+                        var resultTile = new Uint8Array(resultTileX * resultTileY * tileColorComponents);
+                        var factor = (Math.pow(2, 24.0) - 1.0) / Math.pow(2, 24.0);
+                        var decodeHeight = function (r, g, b) {
+                            return (r / 255 + g / 255 / 255 + b / 255 / 255 / 255 ) / factor;
+                        };
+                        readPixels = function (x, y) {
+                            gl.readPixels(0, 0, resultTileX, resultTileY, gl.RGBA, gl.UNSIGNED_BYTE, resultTile);
+                            //by keeping this loop in the main thread, I think we are leaving some time for the GPU to breathe.
+                            for (var j = 0; j < resultTileY; j++)
+                                for (var i = 0; i < resultTileX; i++) {
+                                    if (y + j < resultBufferHeight && i + x < resultBufferWidth) {
+                                        var pixIndex = ((j * resultTileX + i) * 4);
+                                        resultBuffer[(y + j) * resultBufferWidth + i + x] =
+                                            decodeHeight(resultTile[pixIndex], resultTile[pixIndex + 1], resultTile[pixIndex + 2]);
+                                    }
+                                }
+                        };
                     }
+                    minkowskiPass.setParams(profile, new THREE.Vector2(toolSamples / modelBuffer.width, toolSamples / modelBuffer.height), null, outputFloats);
 
                     function setTilePos(x, y) {
                         setCameraPix(minX + x - toolSamples, minX + x + resultTileX + toolSamples, minY + y - toolSamples, minY + y + resultTileY + toolSamples);
@@ -139,17 +190,18 @@ define(['RSVP', 'THREE', 'Piecon', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/mink
                             var x = sequence[sequenceIndex][0];
                             var y = sequence[sequenceIndex][1];
                             setTilePos(x * xPeriod, y * yPeriod);
-                            var gl = renderer.getContext();
+                            //we are removing the color rendering because we'll just read the depth texture
+                            //the WEBGL_depth_texture seems largely supported.
+                            gl.colorMask(false, false, false, false);
                             modelStage.render(renderer, modelBuffer);
-                            minkowskiPass.render(renderer, minkowskiBuffer, modelBuffer, terrainRatio, terrainTranslation);
+                            gl.colorMask(true, true, true, true);
+                            minkowskiPass.render(renderer, minkowskiBuffer, depthTexture, terrainRatio, terrainTranslation);
                             copyPass.quad.position.x = x;
                             copyPass.quad.position.y = y;
                             if (displayResult)
                                 copyPass.render(renderer, null, minkowskiBuffer);
                             renderer.setRenderTarget(minkowskiBuffer);
-                            gl.readPixels(0, 0, resultTileX, resultTileY, gl.RGBA, gl.UNSIGNED_BYTE, resultTile);
-                            //by keeping this loop in the main thread, I think we are leaving some time for the GPU to breathe.
-                            copyResultTileToResultBuffer(x * resultTileX, y * resultTileY);
+                            readPixels(x, y);
                             renderer.setRenderTarget(null);
                             //setTimeout is not throttled in workers
                             $(worker).one('message', drawTile);

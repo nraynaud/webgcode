@@ -212,7 +212,9 @@ function eachPixel(image, handler, withValue) {
         }
 }
 
-function extractContour(imageData) {
+function extractContour(imageData, predicate) {
+    if (predicate == null)
+        predicate = pix2Boolean;
     var NORTH = {x: 0, y: -1};
     var NE = {x: 1, y: -1};
     var EAST = {x: 1, y: 0};
@@ -232,13 +234,12 @@ function extractContour(imageData) {
     $.extend(NW, {cw: NORTH, ccw: WEST, cwDir: NORTH, ccwDir: EAST});
     var list = [];
     eachPixel(imageData, function (x, y, pix) {
-        if (pix2Boolean(pix)) {
+        if (predicate(pix)) {
             list.push([x, y]);
             return false;
         }
         return true;
     }, true);
-
     function turnAroundPixel(centerX, centerY, direction) {
         var pos = direction.backwards;
         do {
@@ -251,7 +252,8 @@ function extractContour(imageData) {
         } while (pos != direction.backwards);
         return null;
     }
-
+    if (!list.length)
+        return list;
     var initialState = {direction: EAST, x: list[0][0], y: list[0][1]};
     var state = initialState;
     do {

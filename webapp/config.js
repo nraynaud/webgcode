@@ -7,7 +7,7 @@ requirejs.config({
         EmberFire: "libs/emberfire",
         Handlebars: "libs/handlebars-v1.3.0",
         jQuery: "libs/jquery-1.11.1.min",
-        THREE: 'libs/threejs/three',
+        THREE: 'libs/threejs/three-depthtextures',
         TWEEN: 'libs/threejs/tween.min',
         ace: 'libs/ace/src-noconflict/ace',
         RSVP: 'libs/rsvp-latest',
@@ -16,7 +16,8 @@ requirejs.config({
         bootstrap: 'libs/bootstrap/js/bootstrap.min',
         base64: 'libs/deflate/base64',
         Piecon: 'libs/piecon.min',
-        Sortable: 'libs/Sortable.min'
+        Sortable: 'libs/Sortable.min',
+        SVG: 'libs/svg'
     },
     shim: {
         jQuery: {exports: '$'},
@@ -49,6 +50,7 @@ requirejs.config({
         ace: {exports: 'ace'},
         'libs/svg-parser': {deps: ['libs/svg']},
         'libs/svg-import': {deps: ['libs/svg', 'libs/svg-parser']},
+        'libs/svg.draggable': {deps: ['libs/svg', 'libs/svg.draggable']},
         RSVP: {exports: 'RSVP'},
         templates: {deps: ['Ember']},
         clipper: {exports: 'ClipperLib'},

@@ -5,7 +5,17 @@ define([], function () {
         var scene = new THREE.Scene();
         this.scene = scene;
         this.angle = 0;
+        this.normalVertexShader = [
+            'attribute vec3 prevPoint;',
+            'attribute vec3 nextPoint;',
+            'void main() {',
+            '    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);',
+            '}'].join('\n');
 
+        this.normalFragmentShader = [
+            'void main() {',
+            '    gl_FragData[0] = vec4(1.0 - gl_FragCoord.z, 0.0, 0.0, 1.0);',
+            '}'].join('\n');
         this.vertexShader = [
             'attribute vec3 prevPoint;',
             'attribute vec3 nextPoint;',
@@ -66,7 +76,7 @@ define([], function () {
             '}'].join('\n');
 
         this.fragmentShader = [
-            '#extension GL_EXT_frag_depth : enable',
+            '#extension GL_EXT_frag_depth : require',
             'varying vec3 AABB_min;',
             'varying vec3 AABB_max;',
             'varying vec3 positionK;',
@@ -94,9 +104,9 @@ define([], function () {
             '    z =  (0.5 * z + 0.5);',
             // update the depth buffer, since what was a nice triangle is now a triangle with 2 bent corners (flattened by the Z clamp).
             '    gl_FragDepthEXT = z;',
-            '    gl_FragData[0] = vec4(EncodeFloatRGB(1.0 - z), 1.0);',
+            '    gl_FragData[0] = vec4(1.0 - z, 0.0, 0.0, 1.0);',
             '}'].join('\n');
-        this.shaderAttributes = {prevPoint: {type: 'v3', value: null}, nextPoint: {type: 'v3', value: null}};
+        this.shaderAttributes = {prevPoint: {type: 'v3', value: []}, nextPoint: {type: 'v3', value: []}};
         this.shaderUniforms = {hPixel: {type: 'v2'}, hPixelWorld: {type: 'v2'}};
         this.meshMaterial = new THREE.ShaderMaterial({
             doublesided: true,
@@ -108,16 +118,18 @@ define([], function () {
             vertexShader: this.vertexShader,
             fragmentShader: this.fragmentShader
         });
-        this.displaySide = 1024;
         this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1);
         scene.add(this.camera);
-        this.modelBuffer = new THREE.WebGLRenderTarget(this.displaySide, this.displaySide,
-            {minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, type: THREE.FloatType});
     }
 
     Projector.prototype = {
         render: function (renderer, buffer) {
-            renderer.getContext().getExtension('EXT_frag_depth');
+            var extension = renderer.getContext().getExtension('EXT_frag_depth');
+            if (!extension && this.meshMaterial.vertexShader != this.normalVertexShader) {
+                console.log('EXT_frag_depth webgl extension is not supported, the projection won\'t be conservative');
+                this.meshMaterial.vertexShader = this.normalVertexShader;
+                this.meshMaterial.fragmentShader = this.normalFragmentShader;
+            }
             this.meshMaterial.uniforms.hPixel.value = new THREE.Vector2(1 / buffer.width, 1 / buffer.height);
             var w = (this.camera.right - this.camera.left) / buffer.width;
             var h = (this.camera.top - this.camera.bottom) / buffer.height;

@@ -108,6 +108,7 @@
 		DDAA5DA0D277F5FFA1371DC2 /* CNCMachine.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA56A071D2C1C48771DF86 /* CNCMachine.js */; };
 		DDAA5DBA9CD987F8FBD3D0DD /* box.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5B8B36FAD3C7D762DA11 /* box.js */; };
 		DDAA5DCBA91442683AAE42AE /* manual.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA564BD4990327507E01D0 /* manual.c */; };
+		DDAA5DDD9B52552DF2402A67 /* morphology.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA531F684874FDE40B5CDE /* morphology.js */; };
 		DDAA5DE55277ED7870D14EDE /* bezier.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54C02B65138BA2BC4D67 /* bezier.js */; };
 		DDAA5DFEF913DE182DD53320 /* toolProfile.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5029D05055DF40E03C55 /* toolProfile.js */; };
 		DDAA5E22BC07E6E31ADB9B99 /* worker.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA55BC4AF31055E9F8A697 /* worker.js */; };
@@ -167,6 +168,7 @@
 		DDAA52D3919622745654ADAD /* conservativeModelProjector.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = conservativeModelProjector.js; sourceTree = "<group>"; };
 		DDAA52E5A7394BAD5D0799D3 /* build-sandbox.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "build-sandbox.js"; sourceTree = "<group>"; };
 		DDAA52F3574050B6296E6814 /* test_pycam.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngc; path = test_pycam.ngc; sourceTree = "<group>"; };
+		DDAA531F684874FDE40B5CDE /* morphology.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = morphology.js; sourceTree = "<group>"; };
 		DDAA533BF8B7D627643AC0C2 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		DDAA533DF299518744B4F61A /* icon_fraise.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; path = icon_fraise.svg; sourceTree = "<group>"; };
 		DDAA5367902362964A0915C2 /* elliptic.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = elliptic.js; sourceTree = "<group>"; };
@@ -463,6 +465,7 @@
 				DDAA588F9FE71EEF0F8A0791 /* gerberImporter.js */,
 				DDAA5F43806C94E0CB22BFF4 /* excellonImporter.js */,
 				DDAA5F8FF34A16D06AB0A58E /* hilbert.js */,
+				DDAA531F684874FDE40B5CDE /* morphology.js */,
 			);
 			path = cnc;
 			sourceTree = "<group>";
@@ -859,6 +862,7 @@
 				DDAA5016BC726A541DE9BAF2 /* conservativeModelProjector.js in Sources */,
 				DDAA5FDA1C24C12701412BF3 /* contourExtractor.js in Sources */,
 				DDAA5CD9970A58D18AB5F581 /* tests.js in Sources */,
+				DDAA5DDD9B52552DF2402A67 /* morphology.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

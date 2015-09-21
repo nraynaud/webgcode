@@ -79,7 +79,7 @@
         return result;
     }
 
-    require(['../webapp/libs/jquery-1.11.1.min', 'cnc/ui/threeDView'], function ($, threeDView) {
+    require(['jQuery', 'cnc/ui/threeDView'], function ($, threeDView) {
         var view = new threeDView.ThreeDView($('#container'));
         var elevator;
         var map;
@@ -157,7 +157,7 @@
             if (mesh != null)
                 view.drawing.remove(mesh);
             mesh = new THREE.Mesh(delaunayGeom, new THREE.MeshBasicMaterial({
-                wireframe: true,
+                wireframe: false,
                 color: 0xAA0000,
                 side: THREE.DoubleSide
             }));

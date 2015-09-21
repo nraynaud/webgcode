@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="X-UA-Compatible" content="chrome=1"/>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
-    <title>Visual CAM</title>
+    <title>3D computing demo</title>
     <script src="../webapp/libs/require.js"></script>
     <script src="../webapp/config.js"></script>
     <script>
@@ -30,11 +30,13 @@
         body {
             font-family: sans-serif;
             display: flex;
-            flex-direction: column;
+            display: -webkit-flex;
+            -webkit-flex-direction: column;
         }
 
         canvas {
             flex: 1;
+            -webkit-flex: 1;
         }
 
         .moving {
@@ -106,7 +108,7 @@
                                 this.minkowskiPassClean = false;
                             }
                             if (!this.minkowskiPassClean) {
-                                this.minkowskiPass.render(renderer, this.toolPosBuffer, this.modelBuffer, this.terrainRatio, this.terrainTranslation);
+                                this.minkowskiPass.render(renderer, this.toolPosBuffer, this.modelBuffer.depthTexture, this.terrainRatio, this.terrainTranslation);
                                 this.minkowskiPassClean = true;
                             }
                         },
@@ -116,12 +118,17 @@
                                 this.modelBuffer.dispose();
                             var bboxSize = this.modelStage.modelBbox.size();
                             var displaySide = (this.modelStage.aspectRatio >= 1 ? bboxSize.x : bboxSize.y) * newSampleRate;
-                            this.modelBuffer = new THREE.WebGLRenderTarget(displaySide, displaySide,
-                                    {
-                                        minFilter: THREE.NearestFilter,
-                                        magFilter: THREE.NearestFilter,
-                                        type: THREE.FloatType
-                                    });
+                            var depthTexture = new THREE.DepthTexture(displaySide, displaySide, false);
+                            depthTexture.wrapS = THREE.ClampToEdgeWrapping;
+                            depthTexture.wrapT = THREE.ClampToEdgeWrapping;
+                            depthTexture.minFilter = THREE.LinearFilter;
+                            var modelBuffer = new THREE.WebGLRenderTarget(displaySide, displaySide, {
+                                stencilBuffer: false,
+                                generateMipmaps: false,
+                                depthTexture: depthTexture
+                            });
+                            modelBuffer.texture.minFilter = THREE.LinearFilter;
+                            this.modelBuffer = modelBuffer;
                         },
                         updateToolShape: function () {
                             var ySamples = 10;
@@ -129,7 +136,8 @@
                             var s = this.toolRadiusMm + this.toolLeaveStockRadius;
                             var pixelsOnRadius = newPixelsOnRadius;
                             this.setSampleRate(pixelsOnRadius / s);
-                            var pixelCount = (pixelsOnRadius * 2) * (pixelsOnRadius * 2) * ySamples * this.modelStage.displaySide + this.modelStage.displaySide * this.modelStage.displaySide;
+                            var side = this.modelBuffer.width;
+                            var pixelCount = (pixelsOnRadius * 2) * (pixelsOnRadius * 2) * ySamples * side + side * side;
                             console.log('actual pixel count (millions): ', pixelCount / 1000000);
                             var samples = toolProfile.createTool({
                                 type: this.toolType,
@@ -142,12 +150,13 @@
                                     , -Infinity);
                             if (this.toolPosBuffer)
                                 this.toolPosBuffer.dispose();
-                            this.toolPosBuffer = new THREE.WebGLRenderTarget(this.modelStage.displaySide, ySamples,
-                                    {
-                                        minFilter: THREE.NearestFilter,
-                                        magFilter: THREE.NearestFilter,
-                                        type: THREE.FloatType
-                                    });
+                            this.toolPosBuffer = new THREE.WebGLRenderTarget(side, ySamples, {
+                                stencilBuffer: false, generateMipmaps: false,
+                                texture: new THREE.Texture(null)
+                            });
+                            this.toolPosBuffer.texture.minFilter = THREE.LinearFilter;
+                            this.toolPosBuffer.texture.format = THREE.RGBFormat;
+                            this.toolPosBuffer.texture.type = THREE.FloatType;
                             this.modelStageClean = false;
                         },
                         setToolType: function (type) {
@@ -201,15 +210,11 @@
                                 'uniform vec2 sampleCount;',
                                 'uniform float minZ;',
                                 'varying vec4 color;',
-                                'highp float factor = (exp2(24.0) - 1.0) / exp2(24.0);',
-                                'highp float DecodeFloatRGB(vec3 rgb) {',
-                                '   return dot(rgb, vec3(1.0, 1.0 / 255.0, 1.0 / 255.0 / 255.0)) / factor;',
-                                '}',
                                 'void main() {',
                                 '   vec2 uv = position.xy / sampleCount * (sampleCount - 1.0) + 0.5 / sampleCount;',
                                 '   color = texture2D(tDisplacement, vec2(uv));',
-                                '   vec3 pos = (terrainToWorld * vec4(uv, DecodeFloatRGB(color.rgb), 1.0)).xyz;',
-                                '   pos.z = max(minZ, pos.z);',
+                                '   vec3 pos = (terrainToWorld * vec4(uv, color.r, 1.0)).xyz;',
+                                '   pos.z =  max(minZ, pos.z);',
                                 '   gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);',
                                 '}'
                             ].join('\n'),
@@ -288,7 +293,7 @@
                             reRenderPipeline();
                         });
                         function reRender() {
-                            terrainMaterial.uniforms.tDisplacement.value = pipeline.toolPosBuffer;
+                            terrainMaterial.uniforms.tDisplacement.value = pipeline.toolPosBuffer.texture;
                             terrainMaterial.uniforms.sampleCount.value = new THREE.Vector2(pipeline.toolPosBuffer.width, pipeline.toolPosBuffer.height);
                             renderer.render(scene2, camera2);
                         }
