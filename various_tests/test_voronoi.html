@@ -27,12 +27,14 @@
             gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
         }
 
+
     </script>
 
     <script type="x-shader/x-fragment" id="fragmentshader">
         void main() {
             gl_FragColor = vec4(gl_FragCoord.z * 5.0, 0.0, 0.0, 1.0);
         }
+
 
 
 
@@ -44,6 +46,7 @@
             vUv = uv;
             gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
         }
+
 
 
 
@@ -79,16 +82,13 @@
             gl_FragColor = vec4(height <=0.002 ? 1.0 : red * height, 0.5 * red * (1.0 - height),  height <=0.002 ? 1.0 : red * (1.0 - height) ,1.0);
         }
 
+
     </script>
 </head>
 <body>
 <div id="drawing" style="border:solid; width:500px; height: 400px; float:left;">
     SVG
 </div>
-
-<canvas id="3Ddrawing" width="500" height="400"
-        style="background-color: #000000;border:solid; width:500px; height: 400px; float:right; position: relative">
-</canvas>
 <canvas id="depth" width="500" height="400"
         style="background-color: #000000;border:solid; float:right; position: relative">
 </canvas>
@@ -98,11 +98,9 @@
 <script>
 
     require(['jQuery', 'THREE', 'libs/threejs/postprocessing/ShaderPass', 'libs/svg'], function ($, THREE, ShaderPass, SVG) {
-        var toolTexture = new THREE.DataTexture(new Float32Array(1), 1, 1, THREE.LuminanceFormat, THREE.FloatType);
         var medialAxisPass = new ShaderPass({
             uniforms: {
                 modelHeight: {type: 't'},
-                toolProfile: {type: 't', value: toolTexture},
                 toolToPartRatio: {type: 'v2', value: null},
                 terrainRatio: {type: 'v2', value: null},
                 gridSize: {type: 'v2', value: new THREE.Vector2(1000, 800)},
@@ -114,6 +112,7 @@
             vertexShader: $('#derivativeVertexShader').text(),
             fragmentShader: $('#derivativeFragmentshader').text()
         }, 'modelHeight');
+
         function indexColor(index) {
             // add one to avoid black;
             index++;
@@ -128,7 +127,18 @@
         var puzzle = 'M232.64845275878906,52.628318786621094 C216.02122497558594,53.22764205932617 197.37046813964844,58.68354797363281 187.4209747314453,70.36833953857422 C172.94898986816406,100.56008911132812 208.10482788085938,86.6199722290039 212.23968505859375,107.52195739746094 C216.37452697753906,128.42393493652344 191.5574188232422,129.579833984375 191.5574188232422,129.579833984375 L191.5574188232422,129.579833984375 L84.6250228881836,129.579833984375 C84.6250228881836,129.579833984375 84.76176452636719,233.40914916992188 84.76176452636719,233.4091339111328 C84.76176452636719,233.4091339111328 85.94230651855469,257.7080383300781 107.2900390625,253.65953063964844 C124.63508605957031,250.3701171875 118.48403930664062,227.0127716064453 132.10874938964844,225.97840881347656 C135.25291442871094,225.73971557617188 139.45431518554688,226.7022247314453 145.2360076904297,229.3590545654297 C157.16998291015625,239.10079956054688 162.74224853515625,257.36212158203125 163.35433959960938,273.64215087890625 C163.58030700683594,279.65203857421875 163.04443359375,285.3041687011719 161.98692321777344,290.244140625 C161.95977783203125,290.4633483886719 161.91331481933594,290.69415283203125 161.88436889648438,290.91357421875 C160.03134155273438,304.9603576660156 154.4873809814453,319.20953369140625 144.41554260253906,327.43121337890625 C113.5799331665039,341.6010437011719 127.81732940673828,307.17926025390625 106.46958923339844,303.1307373046875 C90.91576385498047,300.1810302734375 86.11091613769531,312.21185302734375 84.6250228881836,318.996337890625 L84.6250228881836,429.21875 C84.6250228881836,429.21875 191.93348693847656,428.3819580078125 191.9334716796875,428.3819580078125 C191.9334716796875,428.3819580078125 216.7505645751953,427.2260437011719 212.61572265625,406.3240966796875 C208.4808807373047,385.4220886230469 173.3592071533203,399.3621826171875 187.83119201660156,369.17047119140625 C197.78070068359375,357.48565673828125 216.3972625732422,352.02978515625 233.0244903564453,351.4304504394531 C239.16253662109375,351.2091979980469 244.9352264404297,351.73388671875 249.98052978515625,352.7693176269531 C250.20443725585938,352.7958984375 250.44017028808594,352.8414001464844 250.66424560546875,352.8697204589844 C265.0105895996094,354.68408203125 279.5978698730469,360.11224365234375 287.994873046875,369.9737854003906 C302.46685791015625,400.1655578613281 267.3110046386719,386.2254333496094 263.1761474609375,407.1274108886719 C259.0412902832031,428.0293884277344 283.8583984375,429.1852722167969 283.8583984375,429.1852722167969 L390.17547607421875,429.21875 L390.17547607421875,319.8666076660156 C391.692138671875,313.0628967285156 396.5233154296875,301.16900634765625 411.9858703613281,304.1014099121094 C433.3335876464844,308.1499328613281 419.09619140625,342.57171630859375 449.93182373046875,328.4018859863281 C460.0036315917969,320.18023681640625 465.547607421875,305.8975524902344 467.400634765625,291.85076904296875 C467.4295654296875,291.6313781738281 467.4760437011719,291.4340515136719 467.5032043457031,291.2148132324219 C468.5606689453125,286.27484130859375 469.0965881347656,280.6227111816406 468.87060546875,274.6128234863281 C468.2585144042969,258.3327941894531 462.686279296875,240.07147216796875 450.75225830078125,230.32972717285156 C419.9166259765625,216.15992736816406 434.154052734375,250.58169555664062 412.8063049316406,254.6302032470703 C391.45855712890625,258.6787414550781 390.2780456542969,234.3798065185547 390.2780456542969,234.3798065185547 L390.17547607421875,129.579833984375 L278.42291259765625,129.579833984375 C271.4156188964844,127.9925308227539 259.8650817871094,123.16194915771484 262.80010986328125,108.32527923583984 C266.9349670410156,87.42329406738281 302.056640625,101.36341094970703 287.5846252441406,71.17166137695312 C279.1876220703125,61.31014633178711 264.6345520019531,55.8819580078125 250.28819274902344,54.067604064941406 C250.06411743164062,54.03927230834961 249.82839965820312,53.9937629699707 249.6044921875,53.96718978881836 C244.55918884277344,52.9317626953125 238.7864990234375,52.40707778930664 232.64845275878906,52.628318786621094 z';
         //var puzzle = "m235.12163,288.70404c-0.4189,-69.36761 65.69643,-125.90895 147.73921,-126.34552c82.04279,-0.43655 148.83673,55.39758 149.25568,124.76517c0.41895,69.36761 -65.69641,125.90894 -147.7392,126.34552c-82.04279,0.43655 -148.83678,-55.39758 -149.25569,-124.76517z"
         //var puzzle = 'M100, 100L100,300L550, 300L550, 200L250, 200L250,100z';
-        var points = [];
+
+        function polygonizePath(puzzlePath, pointCount) {
+            var points = [];
+            var totalLength = puzzlePath.node.getTotalLength();
+            var index = 0;
+            for (var l = 0; l <= totalLength; l += totalLength / pointCount) {
+                index++;
+                var p = puzzlePath.node.getPointAtLength(l);
+                points.push({x: p.x + puzzleTranslation.x, y: p.y + puzzleTranslation.y, index: index * 2});
+            }
+            return points;
+        }
 
         function hyp(x, y) {
             return Math.sqrt(x * x + y * y);
@@ -142,40 +152,10 @@
         var puzzleTranslation = {x: -70, y: -50};
         var puzzlePath = group.path(puzzle, true).translate(puzzleTranslation.x, puzzleTranslation.y);
         puzzlePath.attr({fill: 'none', stroke: '#F0F0F0', 'stroke-width': 3});
-        var puzzleBBOX = puzzlePath.node.getBBox();
-        var path = group.path('', true).attr({fill: 'none', stroke: 'grey'});
-        var pointCount = 2000;
-        var totalLength = puzzlePath.node.getTotalLength();
-        var index = 0;
-        for (var l = 0; l <= totalLength; l += totalLength / pointCount) {
-            index++;
-            var p = puzzlePath.node.getPointAtLength(l);
-            points.push({x: p.x + puzzleTranslation.x, y: p.y + puzzleTranslation.y, index: index * 2});
-        }
-        $.each(points, function (index, point) {
-            var segment;
-            if (index == 0)
-                segment = path.node.createSVGPathSegMovetoAbs(point.x, point.y);
-            else
-                segment = path.node.createSVGPathSegLinetoAbs(point.x, point.y);
-            path.node.pathSegList.appendItem(segment);
-            var vertex = group.circle(5);
-            vertex.attr({
-                cx: point.x,
-                cy: point.y,
-                'vector-effect': 'non-scaling-stroke',
-                stroke: 'black',
-                fill: point.color
-            });
-            vertex.remember('segment', segment);
-            vertex.remember('index', index);
-        });
-        path.node.pathSegList.appendItem(path.node.createSVGPathSegClosePath());
+        var points = polygonizePath(puzzlePath, 2000);
 
         var vWidth = 1000;
         var vHeight = 800;
-        var graphContext = $('#3Ddrawing')[0].getContext('2d');
-        graphContext.save();
         var graphRenderer = new THREE.WebGLRenderer({
             antialias: false,
             alpha: false,
@@ -196,9 +176,10 @@
                 }
         );
         graphRenderer.autoClear = false;
-        var extension = graphRenderer.context.getExtension('OES_standard_derivatives');
         graphRenderer.setViewport(0, 0, vWidth, vHeight);
         graphRenderer.setSize(vWidth, vHeight);
+
+        var puzzleBBOX = puzzlePath.node.getBBox();
         var coneDepth = hyp(puzzleBBOX.width, puzzleBBOX.height) * 40;
         console.log('coneDepth', coneDepth);
         var coneSegments = 2000;
@@ -330,9 +311,6 @@
 
             var geometry = new THREE.Geometry();
             geometry.dynamic = true;
-            graphContext.restore();
-            graphContext.save();
-            graphContext.beginPath();
             function toWebglCoord(point) {
                 return {x: point.x, y: -point.y + vHeight, index: point.index, original: point};
             }
@@ -341,6 +319,7 @@
                 return Math.abs(p1.x * (p2.y - p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y)) < 0.001;
             }
 
+            var previousPoint = points[0];
             $.each(points, function (i, point) {
                 var p2 = toWebglCoord(point);
                 if (i > 0 && i + 1 < points.length && areColinear(previousPoint, p2, toWebglCoord(points[i + 1])))
@@ -349,13 +328,9 @@
                 pushCone(geometry, p2.x, p2.y, indexColor(p2.index));
                 if (i != 0) {
                     pushTent(geometry, previousPoint, p2);
-                    //graphContext.lineTo(point.x, point.y)
                 }
-                /* else
-                 graphContext.moveTo(point.x, point.y);*/
                 previousPoint = p2;
             });
-            graphContext.clip();
             pushTent(geometry, previousPoint, toWebglCoord(points[0]));
             geometry.computeBoundingSphere();
             updateMesh(new THREE.Mesh(geometry, null));
