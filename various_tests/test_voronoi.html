@@ -79,7 +79,7 @@
             else
                 if ( factor != 1.0 || height >= 0.002)
                     discard;
-            gl_FragColor = vec4(height <=0.002 ? 1.0 : red * height, 0.5 * red * (1.0 - height),  height <=0.002 ? 1.0 : red * (1.0 - height) ,1.0);
+            gl_FragColor = vec4( red * height * 2.0, height <=0.002 ? 1.0 : 0.5 * red * (1.0 - height),  height <=0.002 ? 1.0 : red * (1.0 - height) ,1.0);
         }
 
 
