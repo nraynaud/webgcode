@@ -93,8 +93,7 @@ define([], function () {
             'void main() {',
             '    vec2 pos = positionK.xy;',
             //let's destroy the fragments that are really out there between the input corner and the dilated corner
-            '    if( pos.x < AABB_min.x || pos.y < AABB_min.y ',
-            '            || pos.x > AABB_max.x || pos.y > AABB_max.y)',
+            '    if(any(bvec4(lessThan(pos, AABB_min.xy), greaterThan(pos, AABB_max.xy))))',
             '        discard;',
             // ok, we were pessimistic, but one thing still holds:
             // the true Z value can never ever be higher or lower than any Z value of the input vertices,
