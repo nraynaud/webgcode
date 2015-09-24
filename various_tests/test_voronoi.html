@@ -41,10 +41,11 @@
                 var vWidth = 1000;
                 var vHeight = 800;
                 //this pass receives a float texture named 'points' where the X is encoded in luminance and Y is in alpha
-                //it generates a map of the distance field of all the segments to the points
+                //it generates a map of the distance field of all the segments scaled by textureScale or distanceScale
                 var distancePass = new ShaderPass({
                     uniforms: {
                         points: {type: 't', value: null},
+                        textureScale: {type: 't', value: null},
                         distanceScale: {type: 'f', value: 1},
                         gridSize: {type: 'v2', value: new THREE.Vector2(vWidth, vHeight)},
                         projectionMatrix2: {type: 'm4'},
@@ -72,13 +73,17 @@
                     fragmentShader: medialAxisShader
                 }, 'modelHeight');
 
+                //receives a modelHeight and returns the max of the texture.
+                //need only to be called on one fragment, it will sample the whole modelHeight in for each fragment
+                //the result will be multiplied by scale
                 var maxPass = new ShaderPass({
                     defines: {
                         gridX: null,
                         gridY: null
                     },
                     uniforms: {
-                        modelHeight: {type: 't'}
+                        modelHeight: {type: 't'},
+                        scale: {type: 'f', value: 1}
                     },
                     vertexShader: defaultVUvShader,
                     fragmentShader: maxFragmentShader
@@ -124,14 +129,16 @@
                             depthTexture: depthTexture, texture: colorDepthTexture
                         }
                 );
+                var maxTexture = new THREE.DataTexture(new Float32Array([1.0, 0.0, 0.0, 0.0]), 1, 1, THREE.RGBAFormat, THREE.FloatType,
+                        THREE.Texture.DEFAULT_MAPPING, THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping, THREE.NearestFilter, THREE.NearestFilter);
+                maxTexture.generateMipmaps = false;
                 var maxRT = new THREE.WebGLRenderTarget(1, 1, {
-                            stencilBuffer: false, generateMipmaps: false, type: THREE.FloatType
+                            stencilBuffer: false, generateMipmaps: false, texture: maxTexture
                         }
                 );
                 graphRenderer.autoClear = false;
                 graphRenderer.setViewport(0, 0, vWidth, vHeight);
                 graphRenderer.setSize(vWidth, vHeight);
-
                 var puzzleBBOX = puzzlePath.node.getBBox();
                 console.log(puzzleBBOX);
                 var bboxBiggestDim = Math.max(puzzleBBOX.width, puzzleBBOX.height);
@@ -167,7 +174,6 @@
                     distancePass.material.uniforms.projectionMatrix2.value = camera.projectionMatrix;
                     distancePass.material.uniforms.viewMatrix2.value = camera.matrixWorldInverse;
                     distancePass.material.uniforms.distanceScale.value = bboxSmallestDim / 2 / bboxBiggestDim;
-                    console.log('scale', distancePass.material.uniforms.distanceScale.value);
                     distancePass.renderToScreen = false;
                     distancePass.material.needsUpdate = true;
                     distancePass.clear = true;
@@ -175,34 +181,19 @@
 
                     maxPass.material.defines.gridX = depthRT.width;
                     maxPass.material.defines.gridY = depthRT.height;
+                    maxPass.material.uniforms.scale.value = distancePass.material.uniforms.distanceScale.value;
                     maxPass.material.needsUpdate = true;
-                    console.log(maxPass.material.defines.gridX, maxPass.material.defines.gridY);
                     maxRT.renderToScreen = false;
                     maxPass.render(graphRenderer, maxRT, colorDepthTexture);
-                    var readBuffer = new Float32Array(4);
-                    graphRenderer.readRenderTargetPixels(maxRT, 0, 0, 1, 1, readBuffer);
-                    var max = decodeHeight(readBuffer[0], readBuffer[1], readBuffer[2]);
-                    console.log('max found', max, readBuffer);
 
                     distancePass.material.uniforms.projectionMatrix2.value = camera.projectionMatrix;
                     distancePass.material.uniforms.viewMatrix2.value = camera.matrixWorldInverse;
-                    distancePass.material.uniforms.distanceScale.value = distancePass.material.uniforms.distanceScale.value * max;
-                    console.log('scale', distancePass.material.uniforms.distanceScale.value);
+                    distancePass.material.uniforms.distanceScale.value = 0.0;
+                    distancePass.material.uniforms.textureScale.value = maxTexture;
                     distancePass.renderToScreen = false;
                     distancePass.material.needsUpdate = true;
                     distancePass.clear = true;
                     distancePass.render(graphRenderer, depthRT, pointsTexture);
-
-                    maxPass.material.defines.gridX = depthRT.width;
-                    maxPass.material.defines.gridY = depthRT.height;
-                    maxPass.material.needsUpdate = true;
-                    console.log(maxPass.material.defines.gridX, maxPass.material.defines.gridY);
-                    maxRT.renderToScreen = false;
-                    maxPass.render(graphRenderer, maxRT, colorDepthTexture);
-                    var readBuffer2 = new Float32Array(4);
-                    graphRenderer.readRenderTargetPixels(maxRT, 0, 0, 1, 1, readBuffer2);
-                    var max2 = decodeHeight(readBuffer2[0], readBuffer2[1], readBuffer2[2]);
-                    console.log('max found', max2, readBuffer2);
 
                     medialAxisPass.material.uniforms.gridSize.value.setX(depthRT.width);
                     medialAxisPass.material.uniforms.gridSize.value.setY(depthRT.height);

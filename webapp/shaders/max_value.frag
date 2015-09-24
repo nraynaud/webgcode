@@ -3,6 +3,8 @@ highp float encodingFactor = (exp2(24.0) - 1.0) / exp2(24.0);
 const vec2 gridSize = vec2(gridX, gridY);
 
 uniform sampler2D modelHeight;
+//we will scale the result by that value, it helps for chaining renderers
+uniform float scale;
 
 highp float DecodeFloatRGB(vec3 rgb) {
     return dot(rgb, vec3(1.0, 1.0 / 255.0, 1.0 / 255.0 / 255.0)) / encodingFactor;
@@ -31,5 +33,5 @@ void main() {
     for(int i = 0; i < gridX; i++)
         for(int j = 0; j < gridY; j++)
             maxValue = max(maxValue, readValue(i, j));
-    gl_FragColor = vec4(FakeEncodeFloatRGB(maxValue), 1.0);
+    gl_FragColor = vec4(FakeEncodeFloatRGB(maxValue * scale), 1.0);
 }

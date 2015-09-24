@@ -5,9 +5,14 @@ uniform sampler2D points;
 uniform vec2 gridSize;
 uniform mat4 projectionMatrix2;
 uniform mat4 viewMatrix2;
+//we receive the scale either by distanceScale or by the textureScale
+//if distanceScale is 0.0 then we go fetch it in the texture
 uniform float distanceScale;
+uniform sampler2D textureScale;
 
 varying vec2 vUv;
+
+float readScale;
 
 vec3 EncodeFloatRGB(highp float v) {
     vec3 enc = fract(vec3(1.0, 255.0, 255.0 * 255.0) * encodingFactor * v);
@@ -26,11 +31,12 @@ vec2 getPoint(int index) {
 float lineDist(vec2 p, vec2 a, vec2 b) {
     vec2 pa = p - a, ba = b - a;
     float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
-    return distance(pa, ba * h) / distanceScale;
+    return distance(pa, ba * h) / readScale;
 }
 
 void main() {
-    float dist = distance(getPoint(0),  vUv.xy) / distanceScale;
+    readScale = distanceScale == 0.0 ? texture2D(textureScale, vec2(0.5, 0.5)).r : distanceScale;
+    float dist = distance(getPoint(0),  vUv.xy) / readScale;
     float intersectionCount = 0.0;
     for (int i = 1; i < pointCount; i++) {
         vec2 prev = getPoint(i - 1);
