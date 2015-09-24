@@ -150,6 +150,7 @@
 		DDAA513A9EE7AC2438C9E111 /* runner.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = runner.js; path = controller/runner.js; sourceTree = "<group>"; };
 		DDAA5141D73409AE9F8FF6D9 /* contour.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = contour.js; sourceTree = "<group>"; };
 		DDAA516825B68A6E2F8C8BF2 /* rampingContour.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.handlebars; path = rampingContour.hbs; sourceTree = "<group>"; };
+		DDAA5176D23D94DAB08162AD /* shaders */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = folder; path = shaders; sourceTree = "<group>"; };
 		DDAA518A65DC4269AC7A31E2 /* simulation.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = simulation.js; sourceTree = "<group>"; };
 		DDAA51A93DCA76CF68CA69AA /* firebase.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = firebase.js; path = libs/firebase.js; sourceTree = "<group>"; };
 		DDAA51DE17B96DCF612B22D5 /* contour.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = contour.js; path = webapp/cnc/contour.js; sourceTree = "<group>"; };
@@ -176,6 +177,7 @@
 		DDAA53AA7C3A8E851F307E47 /* usbdesc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = usbdesc.c; sourceTree = "<group>"; };
 		DDAA53B8DAE05E27A375FE9B /* config.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = config.js; sourceTree = "<group>"; };
 		DDAA53C9FA100E05C62C575E /* views.js */ = {isa = PBXFileReference; lastKnownFileType = file.j; name = views.js; path = ui/views.js; sourceTree = "<group>"; };
+		DDAA53CBCFE5DFFC2B401675 /* simple.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = simple.frag; path = shaders/simple.frag; sourceTree = "<group>"; };
 		DDAA53D0D9AE21EE52463EAE /* manual.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = manual.c; path = interpolator/manual.c; sourceTree = "<group>"; };
 		DDAA53F77ADBB124F31E26D6 /* text.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = text.js; sourceTree = "<group>"; };
 		DDAA5407DEE90E0E2A589DCE /* wabble.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = wabble.js; sourceTree = "<group>"; };
@@ -202,6 +204,7 @@
 		DDAA55BC4AF31055E9F8A697 /* worker.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = worker.js; path = webapp/worker.js; sourceTree = "<group>"; };
 		DDAA55C1BC3E322FEB4DDDDE /* contourExtractor.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = contourExtractor.js; sourceTree = "<group>"; };
 		DDAA55C35AFE6514E4CC086D /* make_zip.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = make_zip.sh; sourceTree = "<group>"; };
+		DDAA55F3A85B6FDBC03F92FA /* max_value.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = max_value.frag; path = shaders/max_value.frag; sourceTree = "<group>"; };
 		DDAA55F97E8D9015119CC503 /* wabble.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = wabble.js; path = cad/wabble.js; sourceTree = "<group>"; };
 		DDAA56084DF1239F53C2D3A8 /* minkowskiPass.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = minkowskiPass.js; sourceTree = "<group>"; };
 		DDAA560A454AFC2E09FD860F /* elliptic.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = elliptic.js; sourceTree = "<group>"; };
@@ -270,6 +273,7 @@
 		DDAA5B9127FD1D1D71501224 /* 3Dcomputer.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = 3Dcomputer.js; sourceTree = "<group>"; };
 		DDAA5B9DC9B92B70673AA0BE /* bezier.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = bezier.js; sourceTree = "<group>"; };
 		DDAA5BD4D3436F114AB6921D /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = file.json; path = manifest.json; sourceTree = "<group>"; };
+		DDAA5BFCED9419518BAD691A /* medial_axis.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = medial_axis.frag; path = shaders/medial_axis.frag; sourceTree = "<group>"; };
 		DDAA5C0499B85D85B809052F /* templates.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = templates.js; sourceTree = "<group>"; };
 		DDAA5C0935B9A14147485CB2 /* threeDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = threeDView.js; sourceTree = "<group>"; };
 		DDAA5C1795288A876C637870 /* TrackballControls.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = TrackballControls.js; path = webapp/libs/threejs/TrackballControls.js; sourceTree = "<group>"; };
@@ -317,6 +321,7 @@
 		DDAA5FB75EA37BF204AB17BA /* index.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = index.hbs; sourceTree = "<group>"; };
 		DDAA5FC5CC98A3276865B59A /* 3DMilling.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = 3DMilling.hbs; sourceTree = "<group>"; };
 		DDAA5FD621B8DA11F0ECD11B /* js_sandbox.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = js_sandbox.js; sourceTree = "<group>"; };
+		DDAA5FEE74356C8E82100AB8 /* default_vUv.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = default_vUv.vert; path = shaders/default_vUv.vert; sourceTree = "<group>"; };
 		DDAA5FFAC7F227AF3A40874C /* box2.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = box2.js; path = webapp/samples/box2.js; sourceTree = "<group>"; };
 		DDAA5FFBD0843DCB15BE40A2 /* parser.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = parser.js; sourceTree = "<group>"; };
 		EE861323172A0232008B2029 /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = ../STM32F4.platform/Developer/SDKs/STM34F4.sdk/usr/include; sourceTree = "<group>"; };
@@ -620,6 +625,11 @@
 				DDAA5AC14AAD3A2C784B1419 /* yenc.js */,
 				DDAA5CA206006D8E2D7FCDB5 /* flatten.js */,
 				DDAA55C35AFE6514E4CC086D /* make_zip.sh */,
+				DDAA5176D23D94DAB08162AD /* shaders */,
+				DDAA5FEE74356C8E82100AB8 /* default_vUv.vert */,
+				DDAA5BFCED9419518BAD691A /* medial_axis.frag */,
+				DDAA53CBCFE5DFFC2B401675 /* simple.frag */,
+				DDAA55F3A85B6FDBC03F92FA /* max_value.frag */,
 			);
 			path = webapp;
 			sourceTree = "<group>";
