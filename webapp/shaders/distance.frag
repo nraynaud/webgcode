@@ -28,15 +28,15 @@ vec2 getPoint(int index) {
     return vec2(0.5, 0.5) + vec2(0.5, 0.5) * (projectionMatrix2 * viewMatrix2 * coords).xy;
 }
 //http://www.iquilezles.org/www/articles/distfunctions/distfunctions.htm
-float lineDist(vec2 p, vec2 a, vec2 b) {
-    vec2 pa = p - a, ba = b - a;
-    float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+highp float lineDist(vec2 p, vec2 a, vec2 b) {
+    highp vec2 pa = p - a, ba = b - a;
+    highp float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
     return distance(pa, ba * h) / readScale;
 }
 
 void main() {
     readScale = distanceScale == 0.0 ? texture2D(textureScale, vec2(0.5, 0.5)).r : distanceScale;
-    float dist = distance(getPoint(0),  vUv.xy) / readScale;
+    highp float dist = distance(getPoint(0),  vUv.xy) / readScale;
     float intersectionCount = 0.0;
     for (int i = 1; i < pointCount; i++) {
         vec2 prev = getPoint(i - 1);
