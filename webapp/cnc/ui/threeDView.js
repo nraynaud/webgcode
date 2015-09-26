@@ -74,7 +74,7 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                     var res = earcut(rawVertices, [], 3);
                     var bufferedGeometry = new THREE.BufferGeometry();
                     bufferedGeometry.addAttribute('position', new THREE.BufferAttribute(rawVertices, 3));
-                    bufferedGeometry.addAttribute('index', new THREE.BufferAttribute(new Uint16Array(res), 1));
+                    bufferedGeometry.setIndex(new THREE.BufferAttribute(new Uint16Array(res), 1));
                     this.node.add(new THREE.Mesh(bufferedGeometry, this.meshMaterial));
                 }
             },
@@ -113,14 +113,14 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                 if (this.bufferedGeometry == null) {
                     this.bufferedGeometry = new THREE.BufferGeometry();
                     this.bufferedGeometry.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
-                    this.bufferedGeometry.addAttribute('index', new THREE.BufferAttribute(newIndices, 1));
-                    this.node.add(new THREE.Line(this.bufferedGeometry, this.lineMaterial, THREE.LinePieces));
+                    this.bufferedGeometry.setIndex(new THREE.BufferAttribute(newIndices, 1));
+                    this.node.add(new THREE.LineSegments(this.bufferedGeometry, this.lineMaterial));
                 } else {
                     var attributes = this.bufferedGeometry.attributes;
                     attributes.position.array = typedArrayConcat(attributes.position.array, vertices, Float32Array);
-                    attributes.index.array = typedArrayConcat(attributes.index.array, newIndices, Uint16Array);
+                    this.bufferedGeometry.index.array = typedArrayConcat(this.bufferedGeometry.index.array, newIndices, Uint16Array);
                     attributes.position.needsUpdate = true;
-                    attributes.index.needsUpdate = true;
+                    this.bufferedGeometry.index.needsUpdate = true;
                 }
             }
         };
@@ -247,7 +247,7 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             this.requestAnimationFrameCallback = this.actuallyRender.bind(this);
             $container.prepend(cubeManipulator(this));
             $container.prepend($('<div class="3DWarning" title="maybe one day" style="position:absolute; top:0; right: 0;">Sorry, there is no mouse selection in this view.</div>'));
-            this.rapidToolpathNode = this.createDrawingNode(this.rapidMaterial);
+            this.rapidToolpathNode = this.createOverlayNode(this.rapidMaterial);
             this.normalToolpathNode = this.createDrawingNode(this.normalMaterial, new THREE.MeshBasicMaterial({
                 color: 0x6622BB,
                 opacity: 0.5,

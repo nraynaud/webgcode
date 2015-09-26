@@ -256,15 +256,14 @@
                             if (points)
                                 return new THREE.PointCloud(geometry, terrainMaterial);
                             else
-                                return new THREE.Line(geometry, terrainMaterial, THREE.LinePieces);
+                                return new THREE.LineSegments(geometry, terrainMaterial);
                         }
 
                         var grid = createGrid(pipeline.toolPosBuffer.width, pipeline.toolPosBuffer.height, false, false, true);
                         grid.frustumCulled = false;
                         scene2.add(grid);
                         scene2.add(new THREE.Mesh(clonedGeometry, new THREE.MeshLambertMaterial({
-                            color: 0xFEEFFE,
-                            shading: THREE.SmoothShading
+                            color: 0xFEEFFE
                         })));
 
                         document.documentElement.addEventListener('keydown', function (event) {

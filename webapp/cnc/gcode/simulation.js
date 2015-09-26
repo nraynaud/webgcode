@@ -241,8 +241,6 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
 
         function discretize(segment) {
             var type = COMPONENT_TYPES[segment.type];
-
-            console.log(segment.type, type);
             var steps = type.simulationSteps(segment);
             var startTime = currentTime;
             for (var j = 1; j <= steps; j++) {

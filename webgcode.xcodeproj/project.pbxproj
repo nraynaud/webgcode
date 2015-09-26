@@ -165,6 +165,7 @@
 		DDAA52AFFAE054B9E7D1FA72 /* cnc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cnc.h; sourceTree = "<group>"; };
 		DDAA52B1A4915275E73497A2 /* box2.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = box2.js; sourceTree = "<group>"; };
 		DDAA52CAC3926B8B4F4B829A /* threeDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = threeDView.js; path = ui/threeDView.js; sourceTree = "<group>"; };
+		DDAA52DF37746F4522541880 /* median.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = median.frag; path = shaders/median.frag; sourceTree = "<group>"; };
 		DDAA52E5A7394BAD5D0799D3 /* build-sandbox.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "build-sandbox.js"; sourceTree = "<group>"; };
 		DDAA52F3574050B6296E6814 /* test_pycam.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngc; path = test_pycam.ngc; sourceTree = "<group>"; };
 		DDAA531F684874FDE40B5CDE /* morphology.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = morphology.js; sourceTree = "<group>"; };
@@ -200,6 +201,7 @@
 		DDAA5583FA74E90180E93A59 /* jobView.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.handlebars; path = jobView.hbs; sourceTree = "<group>"; };
 		DDAA558DB0228EB233245972 /* cam.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = cam.js; path = cam/cam.js; sourceTree = "<group>"; };
 		DDAA55AE23998F53B255B243 /* visucamTest.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = visucamTest.html; sourceTree = "<group>"; };
+		DDAA55B32FE868406218682F /* model_proj.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = model_proj.vert; path = shaders/model_proj.vert; sourceTree = "<group>"; };
 		DDAA55B330007C9773B22298 /* palette.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = palette.png; sourceTree = "<group>"; };
 		DDAA55BC4AF31055E9F8A697 /* worker.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = worker.js; path = webapp/worker.js; sourceTree = "<group>"; };
 		DDAA55C1BC3E322FEB4DDDDE /* contourExtractor.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = contourExtractor.js; sourceTree = "<group>"; };
@@ -265,6 +267,7 @@
 		DDAA5A99ECD28BC66706A677 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = file.json; name = manifest.json; path = webapp/manifest.json; sourceTree = "<group>"; };
 		DDAA5AAFC3B9C67160FA662D /* geometry.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = geometry.js; path = gcode/geometry.js; sourceTree = "<group>"; };
 		DDAA5AC14AAD3A2C784B1419 /* yenc.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = yenc.js; path = libs/yenc.js; sourceTree = "<group>"; };
+		DDAA5ADCFC9042BDEE4DA768 /* conservative_model_proj.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = conservative_model_proj.frag; path = shaders/conservative_model_proj.frag; sourceTree = "<group>"; };
 		DDAA5B08E58D8D0CDBC74EAA /* cam.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = cam.js; sourceTree = "<group>"; };
 		DDAA5B32ABEAC29E2C09425A /* tux.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngc; path = tux.ngc; sourceTree = "<group>"; };
 		DDAA5B453A7758A947C1B962 /* loading.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = loading.hbs; sourceTree = "<group>"; };
@@ -293,6 +296,7 @@
 		DDAA5DA7202D3250BD94C922 /* contour.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = contour.js; sourceTree = "<group>"; };
 		DDAA5DAA497AA174431D8606 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = index.html; path = webapp/index.html; sourceTree = "<group>"; };
 		DDAA5DADF1563A99CFD20E6D /* geometry.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = geometry.js; sourceTree = "<group>"; };
+		DDAA5DBBB429009377B8802F /* conservative_model_proj.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = conservative_model_proj.vert; path = shaders/conservative_model_proj.vert; sourceTree = "<group>"; };
 		DDAA5DBED23BB93B2FA59786 /* util.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = util.js; sourceTree = "<group>"; };
 		DDAA5DFFCA6C2A31934FF748 /* job.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = job.js; sourceTree = "<group>"; };
 		DDAA5E122DE608E329B07F71 /* compile_ember.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = compile_ember.sh; sourceTree = "<group>"; };
@@ -307,6 +311,7 @@
 		DDAA5F0312AAB5E2ACBE6A7A /* view.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = view.js; sourceTree = "<group>"; };
 		DDAA5F0C5AECEECBCBD8D9E4 /* icon_fraise_128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_fraise_128.png; sourceTree = "<group>"; };
 		DDAA5F11D1C935F6D795348A /* test_3D.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_3D.html; sourceTree = "<group>"; };
+		DDAA5F16C318EC66400EED7E /* model_proj.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = model_proj.frag; path = shaders/model_proj.frag; sourceTree = "<group>"; };
 		DDAA5F1FE345E1887B17F30E /* test_3D_stream.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_3D_stream.html; sourceTree = "<group>"; };
 		DDAA5F329B72AC25F4AAA0F4 /* toolpath.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = toolpath.js; sourceTree = "<group>"; };
 		DDAA5F376DB68FEFFF7FC133 /* CAM.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = CAM.html; path = webapp/CAM.html; sourceTree = "<group>"; };
@@ -630,6 +635,11 @@
 				DDAA5BFCED9419518BAD691A /* medial_axis.frag */,
 				DDAA53CBCFE5DFFC2B401675 /* simple.frag */,
 				DDAA55F3A85B6FDBC03F92FA /* max_value.frag */,
+				DDAA52DF37746F4522541880 /* median.frag */,
+				DDAA55B32FE868406218682F /* model_proj.vert */,
+				DDAA5DBBB429009377B8802F /* conservative_model_proj.vert */,
+				DDAA5ADCFC9042BDEE4DA768 /* conservative_model_proj.frag */,
+				DDAA5F16C318EC66400EED7E /* model_proj.frag */,
 			);
 			path = webapp;
 			sourceTree = "<group>";

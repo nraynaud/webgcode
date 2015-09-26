@@ -221,16 +221,13 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter'
                 });
                 this.set('nativeComponent', threeDView);
                 this.set('travelDisplay', threeDView.createDrawingNode(threeDView.rapidMaterial, new THREE.MeshLambertMaterial({
-                    color: 0xFEEFFE,
-                    shading: THREE.SmoothShading
+                    color: 0xFEEFFE
                 })));
                 this.set('outlinesDisplay', threeDView.createDrawingNode(threeDView.outlineMaterial, new THREE.MeshLambertMaterial({
-                    color: 0xFEEFFE,
-                    shading: THREE.SmoothShading
+                    color: 0xFEEFFE
                 })));
                 this.set('highlightDisplay', threeDView.createOverlayNode(threeDView.highlightMaterial, new THREE.MeshLambertMaterial({
-                    color: 0xdd4c2f, opacity: 0.5,
-                    shading: THREE.SmoothShading
+                    color: 0xdd4c2f, opacity: 0.5
                 })));
 
                 this.synchronizeCurrentOperation();
@@ -241,8 +238,7 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter'
                     return ShapeWrapper.create({
                         shape: shape,
                         outlineDisplay: threeDView.createDrawingNode(threeDView.outlineMaterial, new THREE.MeshLambertMaterial({
-                            color: 0xFEEFFE,
-                            shading: THREE.SmoothShading
+                            color: 0xFEEFFE
                         }))
                     });
                 }

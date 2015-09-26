@@ -235,13 +235,11 @@
                         scene2.add(grid);
                         scene2.add(new THREE.Mesh(clonedGeometry, new THREE.MeshLambertMaterial({
                             color: 0xFEEFFE,
-                            shading: THREE.SmoothShading,
                             side: THREE.DoubleSide
                         })));
 
                         scene2.add(new THREE.PointCloud(pipeline.modelStage.inputGeometry.clone(), new THREE.ShaderMaterial({
                             depthTest: true,
-                            sizeAttenuation: false,
                             uniforms: pipeline.modelStage.shaderUniforms,
                             attributes: pipeline.modelStage.shaderAttributes,
                             vertexShader: pipeline.modelStage.vertexShader,
@@ -253,7 +251,6 @@
 
                         scene2.add(new THREE.Line(pipeline.modelStage.inputGeometry.clone(), new THREE.ShaderMaterial({
                             depthTest: true,
-                            sizeAttenuation: false,
                             uniforms: pipeline.modelStage.shaderUniforms,
                             attributes: pipeline.modelStage.shaderAttributes,
                             vertexShader: pipeline.modelStage.vertexShader,
