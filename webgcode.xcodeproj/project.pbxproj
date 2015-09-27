@@ -210,7 +210,6 @@
 		DDAA55F97E8D9015119CC503 /* wabble.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = wabble.js; path = cad/wabble.js; sourceTree = "<group>"; };
 		DDAA56084DF1239F53C2D3A8 /* minkowskiPass.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = minkowskiPass.js; sourceTree = "<group>"; };
 		DDAA560A454AFC2E09FD860F /* elliptic.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = elliptic.js; sourceTree = "<group>"; };
-		DDAA5612EBDD75ED97026C74 /* draftApp.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.handlebars; path = draftApp.hbs; sourceTree = "<group>"; };
 		DDAA561E868824DA17BCB9AA /* delaunay.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = delaunay.js; sourceTree = "<group>"; };
 		DDAA5622C29CE547B513B64F /* worker.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = worker.js; sourceTree = "<group>"; };
 		DDAA564612DF5D10C28D01FB /* gcodeSimulation.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = gcodeSimulation.js; sourceTree = "<group>"; };
@@ -234,7 +233,6 @@
 		DDAA57993DC17F9A33414D80 /* controllerEmber.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = controllerEmber.js; sourceTree = "<group>"; };
 		DDAA57A1B65CDC501D4100D6 /* pocket.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = pocket.js; sourceTree = "<group>"; };
 		DDAA57A5978ED5B2812A75EF /* job.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = job.js; path = models/job.js; sourceTree = "<group>"; };
-		DDAA57EC5BF49CA63E23EA57 /* draft.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = draft.html; sourceTree = "<group>"; };
 		DDAA5825769A005C1F8AFA15 /* job.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = job.hbs; sourceTree = "<group>"; };
 		DDAA58422CF9EADC8397599D /* background.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = background.js; path = webapp/background.js; sourceTree = "<group>"; };
 		DDAA584BFDA15E844B048D27 /* usb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = usb.c; sourceTree = "<group>"; };
@@ -407,7 +405,6 @@
 			isa = PBXGroup;
 			children = (
 				DDAA5D0CF378287552FFC123 /* textApp.hbs */,
-				DDAA5612EBDD75ED97026C74 /* draftApp.hbs */,
 				DDAA51F34BDB532649B2A0E7 /* camApp.hbs */,
 				DDAA571C07D4352852D807BF /* controllerPanel.hbs */,
 				DDAA5583FA74E90180E93A59 /* jobView.hbs */,
@@ -678,7 +675,6 @@
 				DDAA5C1795288A876C637870 /* TrackballControls.js */,
 				DDAA5F87EF557AAB66F5CF3F /* webapp */,
 				DDAA5C3962D61ED70B454815 /* cnc */,
-				DDAA57EC5BF49CA63E23EA57 /* draft.html */,
 				DDAA54F3B578CC3FCC5E03A2 /* main.c */,
 				DDAA5F4033A35CFACA352CEE /* Makefile */,
 				DDAA59271DF6A4EFEC26F9A7 /* .gitignore */,
