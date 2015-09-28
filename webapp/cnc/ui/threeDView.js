@@ -115,12 +115,7 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                     this.bufferedGeometry.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
                     this.bufferedGeometry.setIndex(new THREE.BufferAttribute(newIndices, 1));
                     this.node.add(new THREE.LineSegments(this.bufferedGeometry, this.lineMaterial));
-                } else {
-                    var attributes = this.bufferedGeometry.attributes;
-                    attributes.position.array = typedArrayConcat(attributes.position.array, vertices, Float32Array);
-                    this.bufferedGeometry.index.array = typedArrayConcat(this.bufferedGeometry.index.array, newIndices, Uint16Array);
-                    attributes.position.needsUpdate = true;
-                    this.bufferedGeometry.index.needsUpdate = true;
+                    this.bufferedGeometry = null;
                 }
             }
         };

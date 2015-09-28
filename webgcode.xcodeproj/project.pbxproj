@@ -121,7 +121,6 @@
 		DDAA5F939B8D9099BE918948 /* simulation.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA564C2FBE78706409C739 /* simulation.js */; };
 		DDAA5FA9BD2B2F4586ADBFFC /* controller.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA59EA70480E724659BF78 /* controller.js */; };
 		DDAA5FC42305B4290E9C0612 /* simulation.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54613393642E5474B2DC /* simulation.js */; };
-		DDAA5FDA1C24C12701412BF3 /* contourExtractor.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA55C1BC3E322FEB4DDDDE /* contourExtractor.js */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -187,7 +186,6 @@
 		DDAA5453F941FAED7073FAF6 /* modelProjector.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = modelProjector.js; path = 3D/modelProjector.js; sourceTree = "<group>"; };
 		DDAA546068AA808773A44475 /* pako.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = pako.min.js; path = libs/pako.min.js; sourceTree = "<group>"; };
 		DDAA54613393642E5474B2DC /* simulation.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = simulation.js; path = gcode/simulation.js; sourceTree = "<group>"; };
-		DDAA5479264CEDD3A05DBA83 /* contour.html */ = {isa = PBXFileReference; lastKnownFileType = file.htl; path = contour.html; sourceTree = "<group>"; };
 		DDAA54B37F49D0A2AC135D5A /* util.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = util.js; path = webapp/cnc/util.js; sourceTree = "<group>"; };
 		DDAA54B87A480F458CED26C3 /* models.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = models.js; sourceTree = "<group>"; };
 		DDAA54C02B65138BA2BC4D67 /* bezier.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = bezier.js; path = webapp/cnc/bezier.js; sourceTree = "<group>"; };
@@ -204,7 +202,6 @@
 		DDAA55B32FE868406218682F /* model_proj.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = model_proj.vert; path = shaders/model_proj.vert; sourceTree = "<group>"; };
 		DDAA55B330007C9773B22298 /* palette.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = palette.png; sourceTree = "<group>"; };
 		DDAA55BC4AF31055E9F8A697 /* worker.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = worker.js; path = webapp/worker.js; sourceTree = "<group>"; };
-		DDAA55C1BC3E322FEB4DDDDE /* contourExtractor.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = contourExtractor.js; sourceTree = "<group>"; };
 		DDAA55C35AFE6514E4CC086D /* make_zip.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = make_zip.sh; sourceTree = "<group>"; };
 		DDAA55F3A85B6FDBC03F92FA /* max_value.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = max_value.frag; path = shaders/max_value.frag; sourceTree = "<group>"; };
 		DDAA55F97E8D9015119CC503 /* wabble.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = wabble.js; path = cad/wabble.js; sourceTree = "<group>"; };
@@ -266,6 +263,7 @@
 		DDAA5AAFC3B9C67160FA662D /* geometry.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = geometry.js; path = gcode/geometry.js; sourceTree = "<group>"; };
 		DDAA5AC14AAD3A2C784B1419 /* yenc.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = yenc.js; path = libs/yenc.js; sourceTree = "<group>"; };
 		DDAA5ADCFC9042BDEE4DA768 /* conservative_model_proj.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = conservative_model_proj.frag; path = shaders/conservative_model_proj.frag; sourceTree = "<group>"; };
+		DDAA5AF7F6C4C1A660DC74E8 /* minkowski.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = minkowski.vert; path = shaders/minkowski.vert; sourceTree = "<group>"; };
 		DDAA5B08E58D8D0CDBC74EAA /* cam.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = cam.js; sourceTree = "<group>"; };
 		DDAA5B32ABEAC29E2C09425A /* tux.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngc; path = tux.ngc; sourceTree = "<group>"; };
 		DDAA5B453A7758A947C1B962 /* loading.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = loading.hbs; sourceTree = "<group>"; };
@@ -304,6 +302,7 @@
 		DDAA5E5BE56C40B964FEF1B4 /* cam.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = cam.js; path = webapp/cnc/cam/cam.js; sourceTree = "<group>"; };
 		DDAA5E5FA216F4DFA9FD2521 /* index.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = index.hbs; sourceTree = "<group>"; };
 		DDAA5EB61DFCC2BB7CFE8DA0 /* text.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = text.html; sourceTree = "<group>"; };
+		DDAA5EC6D28D2B92CB12F762 /* minkowski.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = minkowski.frag; path = shaders/minkowski.frag; sourceTree = "<group>"; };
 		DDAA5EE2867F451CC9A90B32 /* build-app.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "build-app.js"; sourceTree = "<group>"; };
 		DDAA5EFD373F700DB1829F53 /* toolProfile.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = toolProfile.js; path = 3D/toolProfile.js; sourceTree = "<group>"; };
 		DDAA5F0312AAB5E2ACBE6A7A /* view.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = view.js; sourceTree = "<group>"; };
@@ -357,7 +356,6 @@
 				DDAA5699D633BDE7062A0B3B /* modelProjector.js */,
 				DDAA56084DF1239F53C2D3A8 /* minkowskiPass.js */,
 				DDAA5B9127FD1D1D71501224 /* 3Dcomputer.js */,
-				DDAA55C1BC3E322FEB4DDDDE /* contourExtractor.js */,
 			);
 			path = 3D;
 			sourceTree = "<group>";
@@ -521,7 +519,6 @@
 				DDAA5EB61DFCC2BB7CFE8DA0 /* text.html */,
 				DDAA5F1FE345E1887B17F30E /* test_3D_stream.html */,
 				DDAA50E05857779781B5F4A2 /* test_3D_conservative_rendering.html */,
-				DDAA5479264CEDD3A05DBA83 /* contour.html */,
 			);
 			path = various_tests;
 			sourceTree = "<group>";
@@ -637,6 +634,8 @@
 				DDAA5DBBB429009377B8802F /* conservative_model_proj.vert */,
 				DDAA5ADCFC9042BDEE4DA768 /* conservative_model_proj.frag */,
 				DDAA5F16C318EC66400EED7E /* model_proj.frag */,
+				DDAA5AF7F6C4C1A660DC74E8 /* minkowski.vert */,
+				DDAA5EC6D28D2B92CB12F762 /* minkowski.frag */,
 			);
 			path = webapp;
 			sourceTree = "<group>";
@@ -872,7 +871,6 @@
 				DDAA52CCCB5E5211FCE50E45 /* job.js in Sources */,
 				DDAA5BFD83B2A6D8F014E2AF /* operation.js in Sources */,
 				DDAA527F11BF37A7A90B4F67 /* spiIO.c in Sources */,
-				DDAA5FDA1C24C12701412BF3 /* contourExtractor.js in Sources */,
 				DDAA5CD9970A58D18AB5F581 /* tests.js in Sources */,
 				DDAA5DDD9B52552DF2402A67 /* morphology.js in Sources */,
 			);
