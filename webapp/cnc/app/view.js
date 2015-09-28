@@ -211,8 +211,7 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter'
                 });
                 threeDView.rapidMaterial = new THREE.LineBasicMaterial({
                     linewidth: 1.2,
-                    color: 0xdd4c2f,
-                    depthWrite: false
+                    color: 0xdd4c2f
                 });
                 threeDView.outlineMaterial = new THREE.LineBasicMaterial({linewidth: 1.2, color: 0x000000});
                 threeDView.highlightMaterial = new THREE.LineBasicMaterial({
