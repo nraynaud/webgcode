@@ -16,12 +16,6 @@ THREE.CSS3DObject = function (element) {
 
             this.element.parentNode.removeChild(this.element);
 
-            for (var i = 0, l = this.children.length; i < l; i++) {
-
-                this.children[ i ].dispatchEvent(event);
-
-            }
-
         }
 
     });
@@ -29,6 +23,7 @@ THREE.CSS3DObject = function (element) {
 };
 
 THREE.CSS3DObject.prototype = Object.create(THREE.Object3D.prototype);
+THREE.CSS3DObject.prototype.constructor = THREE.CSS3DObject;
 
 THREE.CSS3DSprite = function (element) {
 
@@ -37,6 +32,7 @@ THREE.CSS3DSprite = function (element) {
 };
 
 THREE.CSS3DSprite.prototype = Object.create(THREE.CSS3DObject.prototype);
+THREE.CSS3DSprite.prototype.constructor = THREE.CSS3DSprite;
 
 //
 
@@ -48,6 +44,11 @@ THREE.CSS3DRenderer = function () {
     var _widthHalf, _heightHalf;
 
     var matrix = new THREE.Matrix4();
+
+    var cache = {
+        camera: {fov: 0, style: ''},
+        objects: {}
+    };
 
     var domElement = document.createElement('div');
     domElement.style.overflow = 'hidden';
@@ -69,6 +70,14 @@ THREE.CSS3DRenderer = function () {
     domElement.appendChild(cameraElement);
 
     this.setClearColor = function () {
+    };
+
+    this.getSize = function () {
+
+        return {
+            width: _width,
+            height: _height
+        };
 
     };
 
@@ -99,22 +108,22 @@ THREE.CSS3DRenderer = function () {
         var elements = matrix.elements;
 
         return 'matrix3d(' +
-            epsilon(elements[ 0 ]) + ',' +
-            epsilon(-elements[ 1 ]) + ',' +
-            epsilon(elements[ 2 ]) + ',' +
-            epsilon(elements[ 3 ]) + ',' +
-            epsilon(elements[ 4 ]) + ',' +
-            epsilon(-elements[ 5 ]) + ',' +
-            epsilon(elements[ 6 ]) + ',' +
-            epsilon(elements[ 7 ]) + ',' +
-            epsilon(elements[ 8 ]) + ',' +
-            epsilon(-elements[ 9 ]) + ',' +
-            epsilon(elements[ 10 ]) + ',' +
-            epsilon(elements[ 11 ]) + ',' +
-            epsilon(elements[ 12 ]) + ',' +
-            epsilon(-elements[ 13 ]) + ',' +
-            epsilon(elements[ 14 ]) + ',' +
-            epsilon(elements[ 15 ]) +
+            epsilon(elements[0]) + ',' +
+            epsilon(-elements[1]) + ',' +
+            epsilon(elements[2]) + ',' +
+            epsilon(elements[3]) + ',' +
+            epsilon(elements[4]) + ',' +
+            epsilon(-elements[5]) + ',' +
+            epsilon(elements[6]) + ',' +
+            epsilon(elements[7]) + ',' +
+            epsilon(elements[8]) + ',' +
+            epsilon(-elements[9]) + ',' +
+            epsilon(elements[10]) + ',' +
+            epsilon(elements[11]) + ',' +
+            epsilon(elements[12]) + ',' +
+            epsilon(-elements[13]) + ',' +
+            epsilon(elements[14]) + ',' +
+            epsilon(elements[15]) +
             ')';
 
     };
@@ -124,22 +133,22 @@ THREE.CSS3DRenderer = function () {
         var elements = matrix.elements;
 
         return 'translate3d(-50%,-50%,0) matrix3d(' +
-            epsilon(elements[ 0 ]) + ',' +
-            epsilon(elements[ 1 ]) + ',' +
-            epsilon(elements[ 2 ]) + ',' +
-            epsilon(elements[ 3 ]) + ',' +
-            epsilon(-elements[ 4 ]) + ',' +
-            epsilon(-elements[ 5 ]) + ',' +
-            epsilon(-elements[ 6 ]) + ',' +
-            epsilon(-elements[ 7 ]) + ',' +
-            epsilon(elements[ 8 ]) + ',' +
-            epsilon(elements[ 9 ]) + ',' +
-            epsilon(elements[ 10 ]) + ',' +
-            epsilon(elements[ 11 ]) + ',' +
-            epsilon(elements[ 12 ]) + ',' +
-            epsilon(elements[ 13 ]) + ',' +
-            epsilon(elements[ 14 ]) + ',' +
-            epsilon(elements[ 15 ]) +
+            epsilon(elements[0]) + ',' +
+            epsilon(elements[1]) + ',' +
+            epsilon(elements[2]) + ',' +
+            epsilon(elements[3]) + ',' +
+            epsilon(-elements[4]) + ',' +
+            epsilon(-elements[5]) + ',' +
+            epsilon(-elements[6]) + ',' +
+            epsilon(-elements[7]) + ',' +
+            epsilon(elements[8]) + ',' +
+            epsilon(elements[9]) + ',' +
+            epsilon(elements[10]) + ',' +
+            epsilon(elements[11]) + ',' +
+            epsilon(elements[12]) + ',' +
+            epsilon(elements[13]) + ',' +
+            epsilon(elements[14]) + ',' +
+            epsilon(elements[15]) +
             ')';
 
     };
@@ -173,11 +182,18 @@ THREE.CSS3DRenderer = function () {
             }
 
             var element = object.element;
+            var cachedStyle = cache.objects[object.id];
 
-            element.style.WebkitTransform = style;
-            element.style.MozTransform = style;
-            element.style.oTransform = style;
-            element.style.transform = style;
+            if (cachedStyle === undefined || cachedStyle !== style) {
+
+                element.style.WebkitTransform = style;
+                element.style.MozTransform = style;
+                element.style.oTransform = style;
+                element.style.transform = style;
+
+                cache.objects[object.id] = style;
+
+            }
 
             if (element.parentNode !== cameraElement) {
 
@@ -189,7 +205,7 @@ THREE.CSS3DRenderer = function () {
 
         for (var i = 0, l = object.children.length; i < l; i++) {
 
-            renderObject(object.children[ i ], camera);
+            renderObject(object.children[i], camera);
 
         }
 
@@ -199,24 +215,36 @@ THREE.CSS3DRenderer = function () {
 
         var fov = 0.5 / Math.tan(THREE.Math.degToRad(camera.fov * 0.5)) * _height;
 
-        domElement.style.WebkitPerspective = fov + "px";
-        domElement.style.MozPerspective = fov + "px";
-        domElement.style.oPerspective = fov + "px";
-        domElement.style.perspective = fov + "px";
+        if (cache.camera.fov !== fov) {
+
+            domElement.style.WebkitPerspective = fov + "px";
+            domElement.style.MozPerspective = fov + "px";
+            domElement.style.oPerspective = fov + "px";
+            domElement.style.perspective = fov + "px";
+
+            cache.camera.fov = fov;
+
+        }
 
         scene.updateMatrixWorld();
 
-        if (camera.parent === undefined) camera.updateMatrixWorld();
+        if (camera.parent === null) camera.updateMatrixWorld();
 
         camera.matrixWorldInverse.getInverse(camera.matrixWorld);
 
         var style = "translate3d(0,0," + fov + "px)" + getCameraCSSMatrix(camera.matrixWorldInverse) +
             " translate3d(" + _widthHalf + "px," + _heightHalf + "px, 0)";
 
-        cameraElement.style.WebkitTransform = style;
-        cameraElement.style.MozTransform = style;
-        cameraElement.style.oTransform = style;
-        cameraElement.style.transform = style;
+        if (cache.camera.style !== style) {
+
+            cameraElement.style.WebkitTransform = style;
+            cameraElement.style.MozTransform = style;
+            cameraElement.style.oTransform = style;
+            cameraElement.style.transform = style;
+
+            cache.camera.style = style;
+
+        }
 
         renderObject(scene, camera);
 

@@ -1,5 +1,5 @@
 "use strict";
-define(['libs/threejs/CSS3DRenderer', 'libs/threejs/OrbitControls'], function (CSS3DRenderer, OrbitControls) {
+define(['THREE', 'libs/threejs/CSS3DRenderer', 'libs/threejs/OrbitControls'], function (THREE, CSS3DRenderer, OrbitControls) {
     function createCubeManipulator(view) {
         var renderer = new CSS3DRenderer();
         var width = 100;
