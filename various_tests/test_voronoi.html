@@ -43,7 +43,7 @@
                 var vWidth = 512;
                 var vHeight = 512;
                 //this pass receives a float texture named 'points' where the X is encoded in luminance and Y is in alpha
-                //it generates a map of the distance field of all the segments scaled by textureScale or distanceScale
+                //it generates a map of the square distance field of all the segments scaled by textureScale or distanceScale
                 var distancePass = new ShaderPass({
                     uniforms: {
                         points: {type: 't', value: null},
@@ -150,8 +150,8 @@
                     stencil: false,
                     preserveDrawingBuffer: true
                 });
-                var renderTargetWidth = 100;
-                var renderTargetHeight = 100;
+                var renderTargetWidth = 200;
+                var renderTargetHeight = 200;
                 var colorDepthTexture = new THREE.Texture(undefined, THREE.Texture.DEFAULT_MAPPING,
                         THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping, THREE.NearestFilter, THREE.NearestFilter,
                         THREE.RGBFormat, THREE.FloatType);
