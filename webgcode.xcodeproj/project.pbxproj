@@ -241,6 +241,7 @@
 		DDAA58A68B3AD6541C366CEB /* SubdivisionModifier.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = SubdivisionModifier.js; path = libs/threejs/SubdivisionModifier.js; sourceTree = "<group>"; };
 		DDAA58BB5F7B2688475369C7 /* soap.stl */ = {isa = PBXFileReference; lastKnownFileType = file.stl; path = soap.stl; sourceTree = "<group>"; };
 		DDAA58C1C0B782FE90795713 /* js_sandbox.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = js_sandbox.html; sourceTree = "<group>"; };
+		DDAA58D64DDC38836667CB90 /* polyborder.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = polyborder.frag; path = shaders/polyborder.frag; sourceTree = "<group>"; };
 		DDAA58E6C11B529BB5B59083 /* runner.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = runner.js; sourceTree = "<group>"; };
 		DDAA58FBD65B40549EC27922 /* elliptic.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = elliptic.js; path = webapp/cnc/elliptic.js; sourceTree = "<group>"; };
 		DDAA59240776C46200C93D09 /* delaunay.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = delaunay.js; sourceTree = "<group>"; };
@@ -301,6 +302,7 @@
 		DDAA5E4E5A44413C0E0942C6 /* test_pycam.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngc; name = test_pycam.ngc; path = webapp/samples/test_pycam.ngc; sourceTree = "<group>"; };
 		DDAA5E5BE56C40B964FEF1B4 /* cam.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = cam.js; path = webapp/cnc/cam/cam.js; sourceTree = "<group>"; };
 		DDAA5E5FA216F4DFA9FD2521 /* index.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = index.hbs; sourceTree = "<group>"; };
+		DDAA5EA82C3012A7BC575952 /* reconstruction_from_ma.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = reconstruction_from_ma.frag; path = shaders/reconstruction_from_ma.frag; sourceTree = "<group>"; };
 		DDAA5EB61DFCC2BB7CFE8DA0 /* text.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = text.html; sourceTree = "<group>"; };
 		DDAA5EC6D28D2B92CB12F762 /* minkowski.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = minkowski.frag; path = shaders/minkowski.frag; sourceTree = "<group>"; };
 		DDAA5EE2867F451CC9A90B32 /* build-app.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "build-app.js"; sourceTree = "<group>"; };
@@ -636,6 +638,8 @@
 				DDAA5F16C318EC66400EED7E /* model_proj.frag */,
 				DDAA5AF7F6C4C1A660DC74E8 /* minkowski.vert */,
 				DDAA5EC6D28D2B92CB12F762 /* minkowski.frag */,
+				DDAA5EA82C3012A7BC575952 /* reconstruction_from_ma.frag */,
+				DDAA58D64DDC38836667CB90 /* polyborder.frag */,
 			);
 			path = webapp;
 			sourceTree = "<group>";

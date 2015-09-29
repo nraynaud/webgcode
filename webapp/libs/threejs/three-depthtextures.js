@@ -24807,6 +24807,7 @@ THREE.WebGLRenderer = function ( parameters ) {
 		var texture = properties.get( renderTarget.texture ).__webglTexture;
 
 		state.bindTexture( target, texture );
+        console.log('updateRenderTargetMipmap');
 		_gl.generateMipmap( target );
 		state.bindTexture( target, null );
 
@@ -25133,8 +25134,8 @@ THREE.WebGLRenderTarget.prototype = {
 
 		this.depthBuffer = source.depthBuffer;
 		this.stencilBuffer = source.stencilBuffer;
-		this.texture = this.texture.clone();
-    if (this.depthTexture) this.depthTexture = this.depthTexture.clone();
+        this.texture = source.texture.clone();
+        if (source.depthTexture) this.depthTexture = source.depthTexture.clone();
 
 		this.generateMipmaps = source.generateMipmaps;
 

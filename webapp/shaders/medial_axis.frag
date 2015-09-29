@@ -1,17 +1,9 @@
-highp float encodingFactor = (exp2(24.0) - 1.0) / exp2(24.0);
-
 uniform sampler2D modelHeight;
 uniform vec2 gridSize;
 varying vec2 vUv;
 
-highp float DecodeFloatRGB(vec3 rgb) {
-    return dot(rgb, vec3(1.0, 1.0 / 255.0, 1.0 / 255.0 / 255.0)) / encodingFactor;
-}
-highp float FakeDecodeFloatRGB(vec3 rgb) {
-    return rgb.r;
-}
 float readValue(float dx,float dy) {
-    return FakeDecodeFloatRGB(texture2D(modelHeight, vUv +  vec2(dx, dy) / gridSize).rgb);
+    return texture2D(modelHeight, vUv +  vec2(dx, dy) / gridSize).r;
 }
 
 void main() {
@@ -34,5 +26,5 @@ void main() {
     vec2 diff2 = min(min(clr, ctb), min(diag1, diag2));
     float diff = height - min(diff2.x, diff2.y);
 
-    gl_FragColor = vec4(ridge * height * 2.0, 0.5 * ridge * (1.0 - height), ridge * (1.0 - height) ,1.0);
+    gl_FragColor = vec4(height, 0.0, 0.0, 1.0);
 }
