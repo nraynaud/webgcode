@@ -18,7 +18,7 @@ void main() {
             radius -= 0.05;
             if(radius <= 0.0)
                 continue;
-            radius = max(radius, 0.02);
+            radius = max(radius, 0.01);
             sqRadius = radius * radius;
             float sqDist = myDist(pos, vUv);
             if (sqDist <= sqRadius && sqRadius > 0.0) {

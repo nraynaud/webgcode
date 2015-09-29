@@ -34,11 +34,11 @@
 </canvas>
 <script>
 
-    require(['jQuery', 'THREE', 'libs/threejs/postprocessing/ShaderPass', 'libs/svg', 'cnc/cam/cam',
+    require(['jQuery', 'THREE', 'RSVP', 'libs/threejs/postprocessing/ShaderPass', 'libs/svg', 'cnc/cam/cam',
                 'text!shaders/default_vUv.vert', 'text!shaders/distance.frag', 'text!shaders/medial_axis.frag',
                 'text!shaders/max_value.frag', 'text!shaders/median.frag', 'text!shaders/reconstruction_from_ma.frag',
                 'text!shaders/polyborder.frag'],
-            function ($, THREE, ShaderPass, SVG, cam, defaultVUvShader, distanceShader, medialAxisShader, maxFragmentShader,
+            function ($, THREE, RSVP, ShaderPass, SVG, cam, defaultVUvShader, distanceShader, medialAxisShader, maxFragmentShader,
                       medianFragmentShader, reconstructionShader, polyBorderShader) {
                 var vWidth = 512;
                 var vHeight = 512;
@@ -150,8 +150,8 @@
                     stencil: false,
                     preserveDrawingBuffer: true
                 });
-                var renderTargetWidth = 200;
-                var renderTargetHeight = 200;
+                var renderTargetWidth = 300;
+                var renderTargetHeight = 300;
                 var colorDepthTexture = new THREE.Texture(undefined, THREE.Texture.DEFAULT_MAPPING,
                         THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping, THREE.NearestFilter, THREE.NearestFilter,
                         THREE.RGBFormat, THREE.FloatType);
@@ -172,7 +172,6 @@
                 );
                 maxRT.generateMipmaps = false;
                 graphRenderer.autoClear = false;
-                graphRenderer.setViewport(0, 0, vWidth, vHeight);
                 graphRenderer.setSize(vWidth, vHeight);
                 var puzzleBBOX = puzzlePath.node.getBBox();
                 var bboxBiggestDim = Math.max(puzzleBBOX.width, puzzleBBOX.height);
@@ -196,6 +195,32 @@
                     return (r + g / 255 + b / 255 / 255 ) / factor;
                 }
 
+                var workFile = [];
+
+                function sliceRendering(pass, renderer, target, inputTexture) {
+                    var useScreen = !target || target.renderToScreen;
+                    var w = useScreen ? renderer.getSize().width : target.width;
+                    var h = useScreen ? renderer.getSize().height : target.height;
+                    var slices = 50;
+                    var hHeight = Math.floor(h / slices);
+
+                    function createWork(index) {
+                        return function () {
+                            //console.log(0, index * hHeight, w, hHeight);
+                            renderer.enableScissorTest(true);
+                            console.log(h, hHeight, index * hHeight, h - index * hHeight);
+                            renderer.setScissor(0, index * hHeight, w, Math.min(hHeight, h - index * hHeight));
+                            pass.render(renderer, target, inputTexture);
+                            renderer.enableScissorTest(false);
+                            graphRenderer.context.getError();
+                        }
+                    }
+
+                    for (var i = 0; i * hHeight < h; i++) {
+                        workFile.push(createWork(i));
+                    }
+                }
+
                 function render(textureData) {
                     textureData.push(textureData[0], textureData[1]);
                     var pointCount = textureData.length / 2;
@@ -215,48 +240,51 @@
                     distancePass.renderToScreen = false;
                     distancePass.material.needsUpdate = true;
                     distancePass.clear = true;
-                    distancePass.render(graphRenderer, depthRT, pointsTexture);
-
-                    console.log(graphRenderer.context.getError());
+                    sliceRendering(distancePass, graphRenderer, depthRT, pointsTexture);
 
                     medialAxisPass.material.uniforms.gridSize.value.setX(depthRT.width);
                     medialAxisPass.material.uniforms.gridSize.value.setY(depthRT.height);
                     medialAxisPass.material.needsUpdate = true;
                     medialAxisPass.renderToScreen = false;
                     medialAxisPass.clear = true;
-                    medialAxisPass.render(graphRenderer, depthRT2, depthRT.texture);
-                    console.log(graphRenderer.context.getError());
-                    setTimeout(function () {
+                    sliceRendering(medialAxisPass, graphRenderer, depthRT2, depthRT.texture);
 
-                        console.log('borderPass');
-                        borderPass.material.defines.pointCount = pointCount;
-                        borderPass.material.uniforms.projectionMatrix2.value = camera.projectionMatrix;
-                        borderPass.material.uniforms.viewMatrix2.value = camera.matrixWorldInverse;
-                        borderPass.renderToScreen = true;
-                        borderPass.material.needsUpdate = true;
-                        borderPass.clear = true;
-                        borderPass.render(graphRenderer, null, pointsTexture);
-                        console.log(graphRenderer.context.getError());
-                        setTimeout(function () {
-                            console.log('reconstructionPass');
-                            reconstructionPass.material.defines.gridX = depthRT.width;
-                            reconstructionPass.material.defines.gridY = depthRT.height;
-                            reconstructionPass.material.needsUpdate = true;
-                            reconstructionPass.renderToScreen = true;
-                            reconstructionPass.clear = false;
-                            reconstructionPass.render(graphRenderer, null, depthRT2.texture);
-                            console.log(graphRenderer.context.getError());
-                            setTimeout(function () {
-                                console.log('medialAxisPass');
-                                medialAxisPass.material.uniforms.gridSize.value.setX(depthRT.width);
-                                medialAxisPass.material.uniforms.gridSize.value.setY(depthRT.height);
-                                medialAxisPass.material.needsUpdate = true;
-                                medialAxisPass.renderToScreen = true;
-                                medialAxisPass.clear = false;
-                                medialAxisPass.render(graphRenderer, depthRT2, depthRT.texture);
-                            }, 10);
-                        }, 10);
-                    }, 10);
+                    console.log(graphRenderer.context.getError());
+                    console.log('borderPass');
+                    borderPass.material.defines.pointCount = pointCount;
+                    borderPass.material.uniforms.projectionMatrix2.value = camera.projectionMatrix;
+                    borderPass.material.uniforms.viewMatrix2.value = camera.matrixWorldInverse;
+                    borderPass.renderToScreen = true;
+                    borderPass.material.needsUpdate = true;
+                    borderPass.clear = true;
+                    sliceRendering(borderPass, graphRenderer, null, pointsTexture);
+                    console.log('reconstructionPass');
+                    reconstructionPass.material.defines.gridX = depthRT2.width;
+                    reconstructionPass.material.defines.gridY = depthRT2.height;
+                    reconstructionPass.material.needsUpdate = true;
+                    reconstructionPass.renderToScreen = true;
+                    reconstructionPass.clear = false;
+                    sliceRendering(reconstructionPass, graphRenderer, null, depthRT2.texture);
+                    /*
+                     console.log('medial axis');
+                     medialAxisPass.material.uniforms.gridSize.value.setX(depthRT.width);
+                     medialAxisPass.material.uniforms.gridSize.value.setY(depthRT.height);
+                     medialAxisPass.material.needsUpdate = true;
+                     medialAxisPass.renderToScreen = true;
+                     medialAxisPass.clear = false;
+                     sliceRendering(medialAxisPass, graphRenderer, null, depthRT.texture);
+                     */
+                    function doWork() {
+                        if (!workFile.length) {
+                            console.log('done!');
+                            return;
+                        }
+                        var work = workFile.shift();
+                        work();
+                        setTimeout(doWork, 100);
+                    }
+
+                    setTimeout(doWork, 100);
 
                 }
 
