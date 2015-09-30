@@ -193,7 +193,8 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
                 });
             }
 
-            var Times = operator_action('x', function (lhs, rhs) {
+            // uppercase X is forbidden, but Eagle generates it.
+            var Times = operator_action(jp.choice('x', 'X'), function (lhs, rhs) {
                 return lhs * rhs;
             });
             var Divides = operator_action('/', function (lhs, rhs) {
@@ -293,7 +294,7 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
                             var obj = decomposition[j];
                             values.push(computeValue(obj, args));
                         }
-                        console.log('**', instruction, ' ==>', values.join(','));
+                        console.log('**', instruction, ' ==>', values);
                         var unitShape = macroShapeDict[decomposition[0]](values, shape);
                         if (parseInt(values[1]))
                             shape.push(unitShape);
@@ -337,6 +338,9 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
                 };
             },
             G: parseMove,
+            I: function () {
+                //ignore
+            },
             L: function (command) {
                 if (command[1] == 'N')
                     return;
@@ -351,6 +355,9 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
                 if (result.length <= 1 && result != 'M02')
                     throw new Error('unrecognized file');
                 unitFactor = result[1] == 'MM' ? cam.CLIPPER_SCALE : 25.4 * cam.CLIPPER_SCALE;
+            },
+            O: function () {
+                //ignore
             },
             S: function (command) {
                 var result = command.split(new RegExp('SR(?:X(\\d+)Y(\\d+)I(' + decimalRegex + ')J(' + decimalRegex + '))'));
@@ -559,7 +566,6 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
                 var res = fragment.split(extendedInstructionRegex);
                 //ok, now res is a mix of [normalInst*normalInst*, %extended, %extended, normalInst*normalInst*]
                 for (var j = 0; j < res.length; j++) {
-                    console.log(res[j]);
                     var fragment2 = res[j];
                     if (fragment2 == undefined || fragment2.length == 0)
                         continue;
@@ -568,7 +574,6 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
                         commands = [fragment2.substring(1)];
                     else
                         commands = fragment2.split('*');
-                    console.log(commands);
                     for (var k = 0; k < commands.length; k++)
                         if (commands[k].length) {
                             var items = parseCommand(commands[k]);
