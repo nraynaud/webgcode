@@ -1,7 +1,8 @@
 "use strict";
 define(['cnc/util', 'cnc/cam/cam'], function (util) {
     return function (excellonText) {
-        var unitFactor = null;
+        //inch by default
+        var unitFactor = 25.4 / 10000;
         var toolDict = {};
         var toolDefs = {};
         var currentTool;
