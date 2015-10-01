@@ -46,6 +46,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                             offsetY: this.get('job.offsetY')
                         },
                         outline: {
+                            flipped: this.get('outline.flipped'),
                             clipperPolyline: this.get('outline.clipperPolyline'),
                             point: {
                                 x: this.get('outline.manualDefinition.x'),

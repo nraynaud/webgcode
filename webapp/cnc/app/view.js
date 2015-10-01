@@ -28,24 +28,24 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter'
                 var currentSwap2 = null;
                 /*
                  //sadly removed because drag/drop doesn't work in chrome applications.
-                Sortable.create(this.$('#operationList')[0], {
-                    draggable: ".list-group-item",
-                    filter: "script",
-                    animation: 150,
-                    scroll: this.$('.jobDetail')[0],
-                    handle: ".arrow-panel",
-                    ghostClass: 'drag-ghost',
-                    onEnd: function (evt) {
-                        var tmp = currentSwap1.get('index');
-                        currentSwap1.set('index', currentSwap2.get('index'));
-                        currentSwap2.set('index', tmp);
-                    },
-                    onMove: function (evt) {
-                        currentSwap1 = Ember.View.views[$(evt.dragged).attr('id')].get('parameters.context.model');
-                        var view = Ember.View.views[$(evt.related).attr('id')];
-                        if (view)
-                            currentSwap2 = view.get('parameters.context.model');
-                    }
+                 Sortable.create(this.$('#operationList')[0], {
+                 draggable: ".list-group-item",
+                 filter: "script",
+                 animation: 150,
+                 scroll: this.$('.jobDetail')[0],
+                 handle: ".arrow-panel",
+                 ghostClass: 'drag-ghost',
+                 onEnd: function (evt) {
+                 var tmp = currentSwap1.get('index');
+                 currentSwap1.set('index', currentSwap2.get('index'));
+                 currentSwap2.set('index', tmp);
+                 },
+                 onMove: function (evt) {
+                 currentSwap1 = Ember.View.views[$(evt.dragged).attr('id')].get('parameters.context.model');
+                 var view = Ember.View.views[$(evt.related).attr('id')];
+                 if (view)
+                 currentSwap2 = view.get('parameters.context.model');
+                 }
                  });*/
             },
             dragEnter: function (event) {
@@ -88,6 +88,8 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter'
                                 console.log('unrecognized gerber, trying excellon');
                                 var res2 = excellonImporter(e.target.result);
                                 var keys = Object.keys(res2.holes);
+                                if (keys.length)
+                                    console.log('found holes in excellon file', res2);
                                 var shapes = [];
                                 for (var i = 0; i < keys.length; i++) {
                                     var k = keys[i];

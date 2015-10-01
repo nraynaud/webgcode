@@ -222,12 +222,13 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util']
 
                     if (op.outline.drillData) {
                         var result = [];
+                        var xFactor = op.outline.flipped ? -1 : 1;
                         var data = JSON.parse(op.outline.drillData);
                         var keys = Object.keys(data.holes);
                         for (var i = 0; i < keys.length; i++) {
                             var points = data.holes[keys[i]];
                             for (var j = 0; j < points.length; j++)
-                                result.push(points[j]);
+                                result.push(new util.Point(points[j].x * xFactor, points[j].y));
                         }
 
                         result.sort(pointComparison);
