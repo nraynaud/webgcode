@@ -443,10 +443,12 @@ define(['cnc/util', 'cnc/cam/cam', 'clipper', 'libs/jsparse'], function (util, c
                 if (!isInRegion) {
                     //there is a strange behavior in clipper, if the start and end pattern overlap (very short segment), it makes a lens hole in the track
                     //so we re-unionize the ends.
-                    tracks.pushObjects(union(clipper.Clipper.MinkowskiSum(currentAperture.poly[0], [currentPath], clipper.PolyFillType.pftEvenOdd, false)
-                        .concat(currentPath.map(function (point) {
-                            return currentApertureAtPoint(point)[0];
-                        })), clipper.PolyFillType.pftNonZero));
+                    //check that there are points in the aperture polygon, because some people (Eagle) push empty apertures in the table and use them
+                    if (currentAperture.poly.length)
+                        tracks.pushObjects(union(clipper.Clipper.MinkowskiSum(currentAperture.poly[0], [currentPath], clipper.PolyFillType.pftEvenOdd, false)
+                            .concat(currentPath.map(function (point) {
+                                return currentApertureAtPoint(point)[0];
+                            })), clipper.PolyFillType.pftNonZero));
                 } else
                     areas.pushObjects(fixOrientations([currentPath]));
             currentPath = [currentPoint.round()];
