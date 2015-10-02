@@ -175,7 +175,6 @@
                 graphRenderer.setSize(vWidth, vHeight);
                 var puzzleBBOX = puzzlePath.node.getBBox();
                 var bboxBiggestDim = Math.max(puzzleBBOX.width, puzzleBBOX.height);
-                var bboxSmallestDim = Math.min(puzzleBBOX.width, puzzleBBOX.height);
                 var centerX = puzzleBBOX.x + puzzleBBOX.width / 2;
                 var centerY = puzzleBBOX.y + puzzleBBOX.height / 2;
                 var cameraHalfSide = bboxBiggestDim / 2;
@@ -189,11 +188,6 @@
                 camera.position.z = 10;
                 camera.lookAt(camera.position.clone().setZ(0));
                 camera.updateProjectionMatrix();
-                var factor = (Math.pow(2, 24.0) - 1.0) / Math.pow(2, 24.0);
-
-                function decodeHeight(r, g, b) {
-                    return (r + g / 255 + b / 255 / 255 ) / factor;
-                }
 
                 var workFile = [];
 
