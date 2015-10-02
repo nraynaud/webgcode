@@ -248,6 +248,7 @@
 		DDAA59271DF6A4EFEC26F9A7 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = file.gitignore; path = .gitignore; sourceTree = "<group>"; };
 		DDAA593347EC813B12F6ABB6 /* background.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = background.js; sourceTree = "<group>"; };
 		DDAA594E8EF545C3CD0D0873 /* geometry.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = geometry.js; path = gcode/geometry.js; sourceTree = "<group>"; };
+		DDAA594F63FF6FAA8D1CC466 /* import */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = folder; path = import; sourceTree = "<group>"; };
 		DDAA5950A619B90125653E97 /* fontExample.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = fontExample.js; sourceTree = "<group>"; };
 		DDAA5957E406CDDA9E6840E6 /* svg.marker.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svg.marker.js; sourceTree = "<group>"; };
 		DDAA595DBB4D5BAE939717CF /* pocket.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = pocket.js; path = cam/pocket.js; sourceTree = "<group>"; };
@@ -470,6 +471,7 @@
 				DDAA5F43806C94E0CB22BFF4 /* excellonImporter.js */,
 				DDAA5F8FF34A16D06AB0A58E /* hilbert.js */,
 				DDAA531F684874FDE40B5CDE /* morphology.js */,
+				DDAA594F63FF6FAA8D1CC466 /* import */,
 			);
 			path = cnc;
 			sourceTree = "<group>";

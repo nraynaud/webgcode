@@ -1,5 +1,6 @@
 'use strict';
-define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter', 'cnc/ui/threeDView', 'THREE', 'cnc/util', 'cnc/cam/3D/toolProfile', 'Sortable'],
+define(['Ember', 'cnc/import/svgImporter', 'cnc/import/gerberImporter', 'cnc/import/excellonImporter', 'cnc/ui/threeDView', 'THREE',
+        'cnc/util', 'cnc/cam/3D/toolProfile', 'Sortable'],
     function (Ember, svgImporter, gerberImporter, excellonImporter, TreeDView, THREE, util, toolProfile, Sortable) {
         var ApplicationView = Ember.View.extend({
             classNames: ['rootview']
