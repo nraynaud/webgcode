@@ -77,6 +77,11 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter'
                 }
 
                 function loadGerber(file) {
+                    Number.isInteger = Number.isInteger || function (value) {
+                        return typeof value === "number" &&
+                            isFinite(value) &&
+                            Math.floor(value) === value;
+                    };
                     _this.set('isBusy', true);
                     var reader = new FileReader();
                     reader.onload = function (e) {
@@ -90,8 +95,8 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter'
                                 var keys = Object.keys(res2.holes);
                                 if (keys.length)
                                     console.log('found holes in excellon file', res2);
-                                var shapes = [];
                                 for (var i = 0; i < keys.length; i++) {
+                                    var shapes = [];
                                     var k = keys[i];
                                     var diameter = res2.defs[k];
                                     var positions = res2.holes[k];
@@ -102,8 +107,16 @@ define(['Ember', 'cnc/svgImporter', 'cnc/gerberImporter', 'cnc/excellonImporter'
                                         shapes.push('M' + pos.sub(right).svg() + 'L' + pos.add(right).svg());
                                         shapes.push('M' + pos.sub(top).svg() + 'L' + pos.add(top).svg());
                                     }
+
+                                    var diameterString = Number.isInteger(diameter) ? diameter.toString() : diameter.toFixed(3);
+                                    _this.get('controller').addShapes([shapes], file.name + ' D' + diameterString + 'mm', {
+                                        drillData: JSON.stringify({
+                                            defs: res2.defs,
+                                            holes: {k: positions}
+                                        })
+                                    });
                                 }
-                                _this.get('controller').addShapes([shapes], file.name, {drillData: JSON.stringify(res2)});
+
                             }
                             else
                                 throw new Error(error.message + error.stack);
