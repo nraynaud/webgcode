@@ -262,7 +262,7 @@ function program1(depth0,data) {
   data.buffer.push(">");
   stack1 = helpers._triageMustache.call(depth0, "socketButtonLabel", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("</button>\n                </div>\n            </div>\n            <div class=\"position\">\n                <table>\n                    <colgroup>\n                        <col>\n                        <col align=\"char\" char=\".\">\n                        <col align=\"char\" char=\".\">\n                    </colgroup>\n                    <tbody>\n                    <tr class=\"positionHeader\">\n                        <th></th>\n                        <th>Position</th>\n                        <th>Work Offset</th>\n                    </tr>\n                    ");
+    data.buffer.push("</button>\n                </div>\n            </div>\n            <div class=\"position\">\n                <table>\n                    <colgroup>\n                        <col>\n                        <col align=\"char\" char=\".\">\n                        <col align=\"char\" char=\".\">\n                    </colgroup>\n                    <tbody>\n                    <tr class=\"positionHeader\">\n                        <th></th>\n                        <th title=\"Position\">Position</th>\n                        <th title=\"Work Offset\">Work Offset</th>\n                    </tr>\n                    ");
   stack1 = helpers.each.call(depth0, "axes", {hash:{
     'itemController': ("axis")
   },hashTypes:{'itemController': "STRING"},hashContexts:{'itemController': depth0},inverse:self.noop,fn:self.program(12, program12, data),contexts:[depth0],types:["ID"],data:data});
@@ -466,15 +466,6 @@ function program23(depth0,data) {
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n</div>\n<div class=\"camPanel\">\n    <iframe id=\"webView\" src=\"visucamTest.html\"></iframe>\n</div>");
   return buffer;
-  
-});
-Ember.TEMPLATES["draftApp"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
-this.compilerInfo = [4,'>= 1.0.0'];
-helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
-  var escapeExpression=this.escapeExpression;
-
-
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "App.TwoDView", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data})));
   
 });
 Ember.TEMPLATES["drilling"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
