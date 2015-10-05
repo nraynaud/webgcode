@@ -240,6 +240,18 @@ var tasks = {
         setTimeout(function () {
             postMessage('pong');
         }, 10);
+    },
+    uiPreparePolylines: function (event) {
+        require(['cnc/ui/asyncUI'], function (async) {
+            var res = async.preparePolylines(event.data.polylines);
+            self.postMessage({id: event.data.id, result: res.result}, res.transferable);
+        });
+    },
+    uiPreparePolygons: function (event) {
+        require(['cnc/ui/asyncUI'], function (async) {
+            var res = async.preparePolygons(event.data.polygons);
+            self.postMessage({id: event.data.id, result: res.result}, res.transferable);
+        });
     }
 };
 

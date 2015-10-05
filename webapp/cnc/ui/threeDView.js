@@ -1,6 +1,27 @@
 "use strict";
-define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cubeManipulator', 'libs/earcut.min'],
-    function (THREE, TWEEN, util, OrbitControls, cubeManipulator, earcut) {
+define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cubeManipulator', 'require'],
+    function (THREE, TWEEN, util, OrbitControls, cubeManipulator, require) {
+//stolen from http://stackoverflow.com/a/8809472/72637
+        function generateUUID() {
+            var d = performance.now();
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = (d + Math.random() * 16) % 16 | 0;
+                d = Math.floor(d / 16);
+                return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+            });
+        }
+
+        var worker = new Worker(require.toUrl('worker.js'));
+
+        var resultMap = {};
+
+        worker.onmessage = function (event) {
+            var callback = resultMap[event.data.id];
+            if (callback) {
+                delete resultMap[event.data.id];
+                callback(event.data);
+            }
+        };
 
         function webglSupported() {
             try {
@@ -51,71 +72,105 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                 this.node.add(new THREE.Mesh(meshGeometry, this.meshMaterial));
             },
             addPolyLines: function (polylines) {
-                for (var i = 0; i < polylines.length; i++) {
-                    var poly = polylines[i];
-                    var rawVertices = new Float32Array(poly.length * 3);
-                    for (var j = 0; j < poly.length; j++) {
-                        rawVertices[j * 3 + 0] = poly[j].x;
-                        rawVertices[j * 3 + 1] = poly[j].y;
-                        rawVertices[j * 3 + 2] = poly[j].z;
+                if (!polylines.length)
+                    return;
+                var id = generateUUID();
+                var _this = this;
+                resultMap[id] = function (data) {
+                    for (var i = 0; i < data.result.length; i++) {
+                        var buffer = data.result[i].position;
+                        var indexBuffer = data.result[i].index;
+                        var bufferedGeometry = new THREE.BufferGeometry();
+                        bufferedGeometry.addAttribute('position', new THREE.BufferAttribute(buffer, 3));
+                        bufferedGeometry.setIndex(new THREE.BufferAttribute(indexBuffer, 1));
+                        bufferedGeometry.clearGroups();
+                        bufferedGeometry.addGroup(0, data.result[i].count * 2);
+                        console.log('count', data.result[i].count);
+                        _this.node.add(new THREE.LineSegments(bufferedGeometry, new THREE.MultiMaterial([_this.lineMaterial])));
                     }
-                    this.addCollated(rawVertices);
-                }
+                    _this.view.reRender();
+                };
+                worker.postMessage({id: id, operation: 'uiPreparePolylines', polylines: polylines});
             },
             addPolygons: function (polygons) {
-                for (var i = 0; i < polygons.length; i++) {
-                    var poly = polygons[i];
-                    var rawVertices = new Float32Array(poly.length * 3);
-                    for (var j = 0; j < poly.length; j++) {
-                        rawVertices[j * 3 + 0] = poly[j].x;
-                        rawVertices[j * 3 + 1] = poly[j].y;
-                        rawVertices[j * 3 + 2] = poly[j].z;
+                if (!polygons.length)
+                    return;
+                var id = generateUUID();
+                var _this = this;
+                resultMap[id] = function (data) {
+                    for (var i = 0; i < data.result.length; i++) {
+                        var buffer = data.result[i].position;
+                        var indexBuffer = data.result[i].index;
+                        var bufferedGeometry = new THREE.BufferGeometry();
+                        bufferedGeometry.addAttribute('position', new THREE.BufferAttribute(buffer, 3));
+                        bufferedGeometry.setIndex(new THREE.BufferAttribute(indexBuffer, 1));
+                        bufferedGeometry.clearGroups();
+                        bufferedGeometry.addGroup(0, data.result[i].count * 3);
+                        console.log('polygon count', data.result[i].count);
+                        _this.node.add(new THREE.Mesh(bufferedGeometry, new THREE.MultiMaterial([_this.meshMaterial])));
+
                     }
-                    var res = earcut(rawVertices, [], 3);
-                    var bufferedGeometry = new THREE.BufferGeometry();
-                    bufferedGeometry.addAttribute('position', new THREE.BufferAttribute(rawVertices, 3));
-                    bufferedGeometry.setIndex(new THREE.BufferAttribute(new Uint16Array(res), 1));
-                    this.node.add(new THREE.Mesh(bufferedGeometry, this.meshMaterial));
-                }
+                    _this.view.reRender();
+                };
+                worker.postMessage({id: id, operation: 'uiPreparePolygons', polygons: polygons});
             },
             addCollated: function (rawVertices) {
-                var maxPoints = 10000;
-
-                function typedArrayConcat(first, second, constructor) {
-                    var firstLength = first.length,
-                        result = new constructor(firstLength + second.length);
-                    result.set(first);
-                    result.set(second, firstLength);
-                    return result;
-                }
+                var maxPoints = 20000;
 
                 var vertices = rawVertices instanceof Float32Array ? rawVertices : new Float32Array(rawVertices);
                 var pointsAdded = vertices.length / 3;
 
-                if (pointsAdded > maxPoints) {
-                    for (var i = 0; i < vertices.length; i += (maxPoints - 1) * 3) {
-                        var group = vertices.subarray(i, i + maxPoints * 3);
-                        this.addCollated(group);
-                    }
-                    return;
-                }
-                var currentPoints = this.bufferedGeometry ? this.bufferedGeometry.attributes.position.array.length / 3 : 0;
-                if (this.bufferedGeometry && (pointsAdded + currentPoints > maxPoints)) {
-                    this.bufferedGeometry = null;
-                    currentPoints = 0;
-                }
-                var startIndex = currentPoints;
-                var newIndices = new Uint16Array((pointsAdded - 1) * 2);
-                for (i = 0; i < pointsAdded - 1; i++) {
-                    newIndices[i * 2] = startIndex + i;
-                    newIndices[i * 2 + 1] = startIndex + i + 1;
-                }
+                var startIndex = 0;
+                var buffer;
+                var indexBuffer;
                 if (this.bufferedGeometry == null) {
+                    buffer = new Float32Array(maxPoints * 3);
+                    indexBuffer = new Uint16Array(maxPoints * 2);
                     this.bufferedGeometry = new THREE.BufferGeometry();
-                    this.bufferedGeometry.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
-                    this.bufferedGeometry.setIndex(new THREE.BufferAttribute(newIndices, 1));
-                    this.node.add(new THREE.LineSegments(this.bufferedGeometry, this.lineMaterial));
+                    var posAtt = new THREE.BufferAttribute(buffer, 3);
+                    posAtt.dynamic = true;
+                    this.bufferedGeometry.addAttribute('position', posAtt);
+                    var indexAtt = new THREE.BufferAttribute(indexBuffer, 1);
+                    indexAtt.dynamic = true;
+                    this.bufferedGeometry.setIndex(indexAtt);
+                    this.bufferedGeometry.dynamic = true;
+                    this.node.add(new THREE.LineSegments(this.bufferedGeometry, new THREE.MultiMaterial([this.lineMaterial])));
+                } else {
+                    var lastGroup = this.bufferedGeometry.groups[this.bufferedGeometry.groups.length - 1];
+                    startIndex = lastGroup.start / 2 + lastGroup.count / 2 + 1;
+                    buffer = this.bufferedGeometry.attributes.position.array;
+                    indexBuffer = this.bufferedGeometry.index.array;
+                }
+
+                var choppedPointAdded = Math.min(startIndex + pointsAdded, maxPoints) - startIndex;
+                var segmentsAdded = choppedPointAdded - 1;
+                buffer.set(vertices.subarray(0, choppedPointAdded * 3), startIndex * 3);
+
+                for (var i = startIndex; i < startIndex + segmentsAdded; i++) {
+                    indexBuffer[i * 2] = i;
+                    indexBuffer[i * 2 + 1] = i + 1;
+                }
+                this.bufferedGeometry.clearGroups();
+                this.bufferedGeometry.addGroup(0, (startIndex + segmentsAdded ) * 2);
+                this.bufferedGeometry.groupsNeedUpdate = true;
+
+                var updateRange = this.bufferedGeometry.attributes.position.updateRange;
+                /*
+                 if (updateRange.count <= 0) {
+                 updateRange.offset = startIndex * 2;
+                 updateRange.count = segmentsAdded * 2;
+                 } else {
+                 var min = Math.min(updateRange.offset, startIndex * 2);
+                 var max = Math.max(updateRange.offset + updateRange.count, startIndex * 2 + segmentsAdded * 2);
+                 updateRange.offset = min;
+                 updateRange.count = max - min;
+                 }*/
+                this.bufferedGeometry.index.needsUpdate = true;
+                this.bufferedGeometry.attributes.position.needsUpdate = true;
+                if (choppedPointAdded < pointsAdded) {
+                    console.log('splitting');
                     this.bufferedGeometry = null;
+                    return this.addCollated(vertices.subarray((choppedPointAdded - 1) * 3));
                 }
             }
         };

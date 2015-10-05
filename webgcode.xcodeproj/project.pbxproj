@@ -87,6 +87,7 @@
 		DDAA5BFD83B2A6D8F014E2AF /* operation.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA511818C5D1141E7619BB /* operation.js */; };
 		DDAA5C08E864DE4AE70AD325 /* threeDView.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C0935B9A14147485CB2 /* threeDView.js */; };
 		DDAA5C2080793E5D20E60388 /* threeDView.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53A88FF1511A72FDAAE0 /* threeDView.js */; };
+		DDAA5C4FD5DCD51EEF0581B4 /* asyncUI.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA59388472AD3810D56666 /* asyncUI.js */; };
 		DDAA5CA52329A23DE4500854 /* usbdesc.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA56B90C5F7FBE9FC0A534 /* usbdesc.c */; };
 		DDAA5CB4375378EBA86C5C36 /* cam.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5646268DBD0C1FEF3018 /* cam.js */; };
 		DDAA5CD9970A58D18AB5F581 /* tests.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5869D1F854193900175F /* tests.js */; };
@@ -247,6 +248,7 @@
 		DDAA59240776C46200C93D09 /* delaunay.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = delaunay.js; sourceTree = "<group>"; };
 		DDAA59271DF6A4EFEC26F9A7 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = file.gitignore; path = .gitignore; sourceTree = "<group>"; };
 		DDAA593347EC813B12F6ABB6 /* background.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = background.js; sourceTree = "<group>"; };
+		DDAA59388472AD3810D56666 /* asyncUI.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = asyncUI.js; sourceTree = "<group>"; };
 		DDAA594E8EF545C3CD0D0873 /* geometry.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = geometry.js; path = gcode/geometry.js; sourceTree = "<group>"; };
 		DDAA594F63FF6FAA8D1CC466 /* import */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = folder; path = import; sourceTree = "<group>"; };
 		DDAA5950A619B90125653E97 /* fontExample.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = fontExample.js; sourceTree = "<group>"; };
@@ -508,6 +510,7 @@
 				DDAA59E7DF6E04578E0F4F11 /* jsEditor.js */,
 				DDAA5235379E9AD793E3FF71 /* cubeManipulator.js */,
 				DDAA5C8A7830C1829BD88573 /* graphicView.js */,
+				DDAA59388472AD3810D56666 /* asyncUI.js */,
 			);
 			path = ui;
 			sourceTree = "<group>";
@@ -879,6 +882,7 @@
 				DDAA527F11BF37A7A90B4F67 /* spiIO.c in Sources */,
 				DDAA5CD9970A58D18AB5F581 /* tests.js in Sources */,
 				DDAA5DDD9B52552DF2402A67 /* morphology.js in Sources */,
+				DDAA5C4FD5DCD51EEF0581B4 /* asyncUI.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
