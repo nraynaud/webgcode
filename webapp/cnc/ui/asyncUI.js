@@ -35,7 +35,6 @@ define(['libs/earcut.min'], function (earcut) {
     }
 
     function preparePolygons(polygons) {
-        var transferableArray = [];
         var result = [];
         var totalCount = 0;
         for (var i = 0; i < polygons.length; i++) {
@@ -47,14 +46,25 @@ define(['libs/earcut.min'], function (earcut) {
                 rawVertices[j * 3 + 2] = poly[j].z;
             }
             var res = earcut(rawVertices, [], 3);
-            var indices = new Uint16Array(res);
-            var positions = rawVertices;
-            transferableArray.push(indices.buffer, positions.buffer);
-            result.push({count: res.length / 3, position: positions, index: indices});
+            result.push({count: res.length / 3, position: rawVertices, index: res});
             totalCount += res.length / 3;
         }
-        console.log('totalCount', totalCount);
-        return {result: result, transferable: transferableArray};
+        var indices = [];
+        var positions = [];
+        var positionsOffset = 0;
+        for (i = 0; i < result.length; i++) {
+            for (j = 0; j < result[i].position.length; j++)
+                positions.push(result[i].position[j]);
+            for (j = 0; j < result[i].index.length; j++)
+                indices.push(result[i].index[j] + positionsOffset);
+            positionsOffset += result[i].position.length / 3;
+        }
+        indices = new Uint16Array(indices);
+        positions = new Float32Array(positions);
+        return {
+            result: [{count: indices.length / 3, position: positions, index: indices}],
+            transferable: [indices.buffer, positions.buffer]
+        };
     }
 
     return {preparePolylines: preparePolylines, preparePolygons: preparePolygons};

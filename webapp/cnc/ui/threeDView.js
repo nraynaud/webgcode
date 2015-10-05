@@ -85,7 +85,6 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                         bufferedGeometry.setIndex(new THREE.BufferAttribute(indexBuffer, 1));
                         bufferedGeometry.clearGroups();
                         bufferedGeometry.addGroup(0, data.result[i].count * 2);
-                        console.log('count', data.result[i].count);
                         _this.node.add(new THREE.LineSegments(bufferedGeometry, new THREE.MultiMaterial([_this.lineMaterial])));
                     }
                     _this.view.reRender();
@@ -106,9 +105,7 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                         bufferedGeometry.setIndex(new THREE.BufferAttribute(indexBuffer, 1));
                         bufferedGeometry.clearGroups();
                         bufferedGeometry.addGroup(0, data.result[i].count * 3);
-                        console.log('polygon count', data.result[i].count);
                         _this.node.add(new THREE.Mesh(bufferedGeometry, new THREE.MultiMaterial([_this.meshMaterial])));
-
                     }
                     _this.view.reRender();
                 };
