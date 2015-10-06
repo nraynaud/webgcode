@@ -188,9 +188,9 @@ define(['Ember', 'cnc/import/svgImporter', 'cnc/import/gerberImporter', 'cnc/imp
         function collectVertices(toolpath, defaultZ) {
             var res = [];
             toolpath.forEachPoint(function (x, y, z, _) {
-                res.push(x, y, z);
+                res.push(new util.Point(x, y, z));
             }, defaultZ);
-            return new Float32Array(res);
+            return res;
         }
 
         var ShapeWrapper = Ember.Object.extend({
@@ -284,16 +284,17 @@ define(['Ember', 'cnc/import/svgImporter', 'cnc/import/gerberImporter', 'cnc/imp
                     var node = operation.get('enabled') ? threeDView.normalToolpathNode : threeDView.disabledToolpathNode;
                     var toolpath2 = operation.get('toolpath');
                     if (toolpath2)
-                        toolpath2.forEach(function (toolpath) {
-                            node.addCollated(collectVertices(toolpath, operation.get('contourZ')));
-                        });
+                        node.addPolyLines(toolpath2.map(function (toolpath) {
+                            return collectVertices(toolpath, operation.get('contourZ'));
+                        }));
                     var missedArea = operation.get('missedArea');
                     if (missedArea)
-                        missedArea.forEach(function (area) {
-                            node.addPolygons(area);
-                        });
+                        node.addPolygons(missedArea);
                 }
                 threeDView.reRender();
+            },
+            observeCurrentOp: function () {
+                Ember.run.debounce(this, 'synchronizeCurrentOperation', 100);
             }.observes('controller.currentOperation', 'controller.currentOperation.toolpath.@each', 'controller.currentOperation.toolpath', 'controller.currentOperation.missedArea', 'controller.currentOperation.enabled'),
             synchronizeCurrentShape: function () {
                 var highlightDisplay = this.get('highlightDisplay');

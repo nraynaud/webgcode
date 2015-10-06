@@ -37,9 +37,10 @@ define(['libs/earcut.min'], function (earcut) {
     function preparePolygons(polygons) {
         var result = [];
         var totalCount = 0;
-        for (var i = 0; i < polygons.length; i++) {
-            var poly = polygons[i];
-            var rawVertices = new Float32Array(poly.length * 3);
+        for (var k = 0; k < polygons.length; k++)
+            for (var i = 0; i < polygons[k].length; i++) {
+                var poly = polygons[k][i];
+                var rawVertices = [];
             for (var j = 0; j < poly.length; j++) {
                 rawVertices[j * 3 + 0] = poly[j].x;
                 rawVertices[j * 3 + 1] = poly[j].y;
