@@ -52,6 +52,20 @@ var tasks = {
                 });
         });
     },
+    computeLeaveStockPolygon: function (event) {
+        require(['cnc/cam/operations', 'cnc/util'], function (operations, util) {
+            event.data.params.outline.clipperPolyline = event.data.params.outline.clipperPolyline.map(function (polygon) {
+                return polygon.map(function (point) {
+                    return new util.Point(point.x, point.y, point.z);
+                });
+            });
+            var res = operations[event.data.params.type].computeLeaveStockPolygon(event.data.params);
+            self.postMessage({
+                id: event.data.id,
+                result: res
+            });
+        });
+    },
     acceptProgram: function (event) {
         require(['cnc/gcode/parser', 'cnc/gcode/simulation', 'cnc/util.js'], function (parser, simulation, util) {
             //see usb.c:tryToStartProgram()

@@ -116,6 +116,27 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                 };
                 worker.postMessage({id: id, operation: 'uiPreparePolygons', polygons: polygons});
             },
+            computeLeaveStockPolygon: function (params) {
+                var _this = this;
+
+                var id = generateUUID();
+                resultMap[id] = function (data) {
+                    var res = data.result;
+                    for (var i = 0; i < res.length; i++) {
+                        var bufferedGeometry = new THREE.BufferGeometry();
+                        bufferedGeometry.addAttribute('position', new THREE.BufferAttribute(res[i].positions, 3));
+                        bufferedGeometry.setIndex(new THREE.BufferAttribute(res[i].indices, 1));
+                        _this.node.add(new THREE.Mesh(bufferedGeometry, new THREE.MeshBasicMaterial({
+                            opacity: 0.15,
+                            side: THREE.DoubleSide,
+                            transparent: true,
+                            color: 0x66aa66
+                        })));
+                    }
+                    _this.view.reRender();
+                };
+                worker.postMessage({id: id, operation: 'computeLeaveStockPolygon', params: params});
+            },
             addCollated: function (rawVertices) {
                 var maxPoints = 20000;
 

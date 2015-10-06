@@ -17,19 +17,19 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             job: DS.belongsTo('job'),
             task: null,
             installObservers: function () {
-                var properties = Operations[this.get('type')].properties;
+                var properties = this.get('operationComputer').properties;
                 var _this = this;
                 Object.keys(properties).forEach(function (key) {
                     _this.addObserver(key, _this, _this.computeToolpathObeserved)
                 });
-            }.observes('type').on('didLoad'),
+            }.observes('operationComputer').on('didLoad'),
             uninstallObservers: function () {
-                var properties = Operations[this.get('type')].properties;
+                var properties = this.get('operationComputer').properties;
                 var _this = this;
                 Object.keys(properties).forEach(function (key) {
                     _this.removeObserver(key, _this, _this.computeToolpathObeserved)
                 });
-            }.observesBefore('type'),
+            }.observesBefore('operationComputer'),
             computeToolpathObeserved: function () {
                 if (this.get('outline.definition') && this.get('type') != '3DlinearOperation')
                     Ember.run.debounce(this, this.computeToolpath, 100);
@@ -37,28 +37,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             computeToolpath: function () {
                 var _this = this;
                 if (this.get('type')) {
-                    var operation = Operations[this.get('type')];
-                    var params = {
-                        job: {
-                            safetyZ: this.get('job.safetyZ'),
-                            toolDiameter: this.get('job.toolDiameter'),
-                            offsetX: this.get('job.offsetX'),
-                            offsetY: this.get('job.offsetY')
-                        },
-                        outline: {
-                            flipped: this.get('outline.flipped'),
-                            clipperPolyline: this.get('outline.clipperPolyline'),
-                            point: {
-                                x: this.get('outline.manualDefinition.x'),
-                                y: this.get('outline.manualDefinition.y')
-                            },
-                            drillData: this.get('outline.drillData')
-                        },
-                        type: this.get('type')
-                    };
-                    Object.keys(operation.properties).forEach(function (key) {
-                        params[key] = _this.get(key);
-                    });
+                    var params = this.getComputingParameters();
                     var previousWorker = _this.get('toolpathWorker');
                     if (previousWorker)
                         previousWorker.terminate();
@@ -138,7 +117,36 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     var f = this.get('feedrate');
                     return f == 0 ? this.get('job.feedrate') : f;
                 } else return this.get('job.feedrate');
-            }.property('feedrate', 'job.feedrate', 'feedrateOverride')
+            }.property('feedrate', 'job.feedrate', 'feedrateOverride'),
+            operationComputer: function () {
+                return Operations[this.get('type')];
+            }.property('type'),
+            getComputingParameters: function () {
+                var operation = this.get('operationComputer');
+                var params = {
+                    job: {
+                        safetyZ: this.get('job.safetyZ'),
+                        toolDiameter: this.get('job.toolDiameter'),
+                        offsetX: this.get('job.offsetX'),
+                        offsetY: this.get('job.offsetY')
+                    },
+                    outline: {
+                        flipped: this.get('outline.flipped'),
+                        clipperPolyline: this.get('outline.clipperPolyline'),
+                        point: {
+                            x: this.get('outline.manualDefinition.x'),
+                            y: this.get('outline.manualDefinition.y')
+                        },
+                        drillData: this.get('outline.drillData')
+                    },
+                    type: this.get('type')
+                };
+                var _this = this;
+                Object.keys(operation.properties).forEach(function (key) {
+                    params[key] = _this.get(key);
+                });
+                return params;
+            }
         };
 
 //add all the attributes from all the operations types

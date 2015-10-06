@@ -217,6 +217,7 @@ define(['Ember', 'cnc/import/svgImporter', 'cnc/import/gerberImporter', 'cnc/imp
             init: function () {
                 this.set('toolPathNode', this.get('threeDNode').createChild());
                 this.set('missedAreaNode', this.get('threeDNode').createChild());
+                this.set('leftStock', this.get('threeDNode').createChild());
             },
             willDestroy: function () {
                 this._super();
@@ -246,6 +247,15 @@ define(['Ember', 'cnc/import/svgImporter', 'cnc/import/gerberImporter', 'cnc/imp
             observer2: function () {
                 Ember.run.debounce(this, 'syncMissedArea', 1);
             }.observes('operation.missedArea').on('init'),
+            syncLeaveStock: function () {
+                var params = this.get('operation').getComputingParameters();
+                var node = this.get('leftStock');
+                node.clear();
+                node.computeLeaveStockPolygon(params);
+            },
+            observer3: function () {
+                Ember.run.debounce(this, 'syncLeaveStock', 1);
+            }.observes('operation.operationComputer', 'operation.outline.polyline', 'operation.contour_leaveStock').on('init'),
             visibleChanged: function () {
                 this.get('threeDNode').setVisibility(this.get('controller.currentOperation') == this.get('operation'));
             }.observes('controller.currentOperation').on('init')
