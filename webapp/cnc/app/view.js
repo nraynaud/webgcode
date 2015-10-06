@@ -214,26 +214,38 @@ define(['Ember', 'cnc/import/svgImporter', 'cnc/import/gerberImporter', 'cnc/imp
         });
 
         var OperationWrapper = Ember.Object.extend({
+            init: function () {
+                this.set('toolPathNode', this.get('threeDNode').createChild());
+                this.set('missedAreaNode', this.get('threeDNode').createChild());
+            },
             willDestroy: function () {
                 this._super();
                 this.get('threeDNode').remove();
             },
             syncView: function () {
                 var operation = this.get('operation');
-                var node = this.get('threeDNode');
+                var node = this.get('toolPathNode');
                 node.clear();
                 var toolpath2 = operation.get('toolpath');
                 if (toolpath2)
                     node.addPolyLines(toolpath2.map(function (toolpath) {
                         return collectVertices(toolpath, operation.get('contourZ'));
                     }));
+            },
+            observer: function () {
+                Ember.run.debounce(this, 'syncView', 1);
+            }.observes('operation.toolpath.@each', 'operation.toolpath', 'operation.missedArea').on('init'),
+            syncMissedArea: function () {
+                var operation = this.get('operation');
+                var node = this.get('missedAreaNode');
+                node.clear();
                 var missedArea = operation.get('missedArea');
                 if (missedArea)
                     node.addPolygons(missedArea);
             },
-            observer: function () {
-                Ember.run.debounce(this, 'syncView', 100);
-            }.observes('operation.toolpath.@each', 'operation.toolpath', 'operation.missedArea', 'operation.enabled').on('init'),
+            observer2: function () {
+                Ember.run.debounce(this, 'syncMissedArea', 1);
+            }.observes('operation.missedArea').on('init'),
             visibleChanged: function () {
                 this.get('threeDNode').setVisibility(this.get('controller.currentOperation') == this.get('operation'));
             }.observes('controller.currentOperation').on('init')
@@ -291,7 +303,6 @@ define(['Ember', 'cnc/import/svgImporter', 'cnc/import/gerberImporter', 'cnc/imp
                     color: 0xdd4c2f, opacity: 0.5
                 })));
 
-                this.synchronizeCurrentOperation();
                 this.synchronizeJob();
                 wrapModelCollection(this.get('controller.shapes'), function (shape) {
                     return ShapeWrapper.create({
