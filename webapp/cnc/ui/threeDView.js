@@ -51,6 +51,11 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                 });
                 this.view.reRender();
             },
+            createChild: function () {
+                var node = new THREE.Object3D();
+                this.node.add(node);
+                return new OutlineNode(node, this.lineMaterial, this.meshMaterial, this.view);
+            },
             remove: function () {
                 var node = this.node;
                 for (var i = 0; i < node.children.length; i++)

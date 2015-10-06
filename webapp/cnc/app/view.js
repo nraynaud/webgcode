@@ -213,6 +213,52 @@ define(['Ember', 'cnc/import/svgImporter', 'cnc/import/gerberImporter', 'cnc/imp
             }.observes('shape.visible')
         });
 
+        var OperationWrapper = Ember.Object.extend({
+            willDestroy: function () {
+                this._super();
+                this.get('threeDNode').remove();
+            },
+            syncView: function () {
+                var operation = this.get('operation');
+                var node = this.get('threeDNode');
+                node.clear();
+                var toolpath2 = operation.get('toolpath');
+                if (toolpath2)
+                    node.addPolyLines(toolpath2.map(function (toolpath) {
+                        return collectVertices(toolpath, operation.get('contourZ'));
+                    }));
+                var missedArea = operation.get('missedArea');
+                if (missedArea)
+                    node.addPolygons(missedArea);
+            },
+            observer: function () {
+                Ember.run.debounce(this, 'syncView', 100);
+            }.observes('operation.toolpath.@each', 'operation.toolpath', 'operation.missedArea', 'operation.enabled').on('init'),
+            visibleChanged: function () {
+                this.get('threeDNode').setVisibility(this.get('controller.currentOperation') == this.get('operation'));
+            }.observes('controller.currentOperation').on('init')
+        });
+
+        function wrapModelCollection(collection, wrapElement) {
+            var views = [];
+            collection.get('content').addArrayObserver({
+                arrayWillChange: function (observedObj, start, removeCount, addCount) {
+                    for (var i = start; i < start + removeCount; i++)
+                        views[i].destroy();
+                    views.replace(start, removeCount, []);
+                },
+                arrayDidChange: function (observedObj, start, removeCount, addCount) {
+                    var newItems = [];
+                    for (var i = start; i < start + addCount; i++)
+                        newItems.push(wrapElement(observedObj[i]));
+                    views.replace(start, 0, newItems);
+                }
+            });
+            collection.forEach(function (shape) {
+                views.push(wrapElement(shape));
+            });
+        }
+
         var ThreeDView = Ember.View.extend({
             classNames: ['ThreeDView'],
             didInsertElement: function () {
@@ -247,55 +293,24 @@ define(['Ember', 'cnc/import/svgImporter', 'cnc/import/gerberImporter', 'cnc/imp
 
                 this.synchronizeCurrentOperation();
                 this.synchronizeJob();
-                var outlinesViews = [];
-
-                function wrapShape(shape) {
+                wrapModelCollection(this.get('controller.shapes'), function (shape) {
                     return ShapeWrapper.create({
                         shape: shape,
                         outlineDisplay: threeDView.createDrawingNode(threeDView.outlineMaterial, new THREE.MeshLambertMaterial({
                             color: 0xFEEFFE
                         }))
                     });
-                }
-
-                this.get('controller.shapes.content').addArrayObserver({
-                    arrayWillChange: function (observedObj, start, removeCount, addCount) {
-                        for (var i = start; i < start + removeCount; i++)
-                            outlinesViews[i].destroy();
-                        outlinesViews.replace(start, removeCount, []);
-                    },
-                    arrayDidChange: function (observedObj, start, removeCount, addCount) {
-                        var newItems = [];
-                        for (var i = start; i < start + addCount; i++)
-                            newItems.push(wrapShape(observedObj[i]));
-                        outlinesViews.replace(start, 0, newItems);
-                    }
                 });
-                this.get('controller.shapes').forEach(function (shape) {
-                    outlinesViews.push(wrapShape(shape));
+                var _this = this;
+                wrapModelCollection(this.get('controller.operations'), function (operation) {
+                    return OperationWrapper.create({
+                        operation: operation,
+                        threeDNode: threeDView.normalToolpathNode.createChild(),
+                        controller: _this.get('controller')
+                    });
                 });
                 this.synchronizeCurrentShape();
             },
-            synchronizeCurrentOperation: function () {
-                var threeDView = this.get('nativeComponent');
-                threeDView.clearToolpath();
-                var operation = this.get('controller.currentOperation');
-                if (operation) {
-                    var node = operation.get('enabled') ? threeDView.normalToolpathNode : threeDView.disabledToolpathNode;
-                    var toolpath2 = operation.get('toolpath');
-                    if (toolpath2)
-                        node.addPolyLines(toolpath2.map(function (toolpath) {
-                            return collectVertices(toolpath, operation.get('contourZ'));
-                        }));
-                    var missedArea = operation.get('missedArea');
-                    if (missedArea)
-                        node.addPolygons(missedArea);
-                }
-                threeDView.reRender();
-            },
-            observeCurrentOp: function () {
-                Ember.run.debounce(this, 'synchronizeCurrentOperation', 100);
-            }.observes('controller.currentOperation', 'controller.currentOperation.toolpath.@each', 'controller.currentOperation.toolpath', 'controller.currentOperation.missedArea', 'controller.currentOperation.enabled'),
             synchronizeCurrentShape: function () {
                 var highlightDisplay = this.get('highlightDisplay');
                 highlightDisplay.clear();
