@@ -43,20 +43,21 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                         previousWorker.terminate();
                     _this.set('toolpath', null);
                     _this.set('missedArea', null);
+                    _this.set('leftStock', null);
                     var worker = new Worker(require.toUrl('worker.js'));
                     worker.onmessage = Ember.run.bind(this, function (event) {
-                        _this.get('toolpathWorker').terminate();
-                        _this.set('toolpathWorker', null);
-                        _this.set('toolpath', event.data.toolpath.map(function (p) {
-                            return tp.decodeToolPath(p)
-                        }));
-                        _this.set('missedArea', event.data.missedArea.map(function (polys) {
-                            return polys.map(function (poly) {
-                                return poly.map(function (point) {
-                                    return new util.Point(point.x, point.y, 0);
-                                });
-                            });
-                        }));
+                        if (event.data.terminate) {
+                            _this.get('toolpathWorker').terminate();
+                            _this.set('toolpathWorker', null);
+                        }
+                        if (event.data.toolpath)
+                            _this.set('toolpath', event.data.toolpath.map(function (p) {
+                                return tp.decodeToolPath(p)
+                            }));
+                        if (event.data.missedArea)
+                            _this.set('missedArea', event.data.missedArea);
+                        if (event.data.leftStock)
+                            _this.set('leftStock', event.data.leftStock);
                     });
                     worker.onerror = Ember.run.bind(this, function (error) {
                         _this.set('toolpathWorker', null);

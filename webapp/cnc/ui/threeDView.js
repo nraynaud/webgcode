@@ -96,46 +96,14 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                 };
                 worker.postMessage({id: id, operation: 'uiPreparePolylines', polylines: polylines});
             },
-            addPolygons: function (polygons) {
-                if (!polygons.length)
-                    return;
-                var id = generateUUID();
-                var _this = this;
-                resultMap[id] = function (data) {
-                    for (var i = 0; i < data.result.length; i++) {
-                        var buffer = data.result[i].position;
-                        var indexBuffer = data.result[i].index;
-                        var bufferedGeometry = new THREE.BufferGeometry();
-                        bufferedGeometry.addAttribute('position', new THREE.BufferAttribute(buffer, 3));
-                        bufferedGeometry.setIndex(new THREE.BufferAttribute(indexBuffer, 1));
-                        bufferedGeometry.clearGroups();
-                        bufferedGeometry.addGroup(0, data.result[i].count * 3);
-                        _this.node.add(new THREE.Mesh(bufferedGeometry, new THREE.MultiMaterial([_this.meshMaterial])));
-                    }
-                    _this.view.reRender();
-                };
-                worker.postMessage({id: id, operation: 'uiPreparePolygons', polygons: polygons});
-            },
-            computeLeaveStockPolygon: function (params) {
-                var _this = this;
-
-                var id = generateUUID();
-                resultMap[id] = function (data) {
-                    var res = data.result;
-                    for (var i = 0; i < res.length; i++) {
-                        var bufferedGeometry = new THREE.BufferGeometry();
-                        bufferedGeometry.addAttribute('position', new THREE.BufferAttribute(res[i].positions, 3));
-                        bufferedGeometry.setIndex(new THREE.BufferAttribute(res[i].indices, 1));
-                        _this.node.add(new THREE.Mesh(bufferedGeometry, new THREE.MeshBasicMaterial({
-                            opacity: 0.15,
-                            side: THREE.DoubleSide,
-                            transparent: true,
-                            color: 0x66aa66
-                        })));
-                    }
-                    _this.view.reRender();
-                };
-                worker.postMessage({id: id, operation: 'computeLeaveStockPolygon', params: params});
+            displayMeshData: function (result) {
+                for (var i = 0; i < result.length; i++) {
+                    var bufferedGeometry = new THREE.BufferGeometry();
+                    bufferedGeometry.addAttribute('position', new THREE.BufferAttribute(result[i].positions, 3));
+                    bufferedGeometry.setIndex(new THREE.BufferAttribute(result[i].indices, 1));
+                    this.node.add(new THREE.Mesh(bufferedGeometry, this.meshMaterial));
+                }
+                this.view.reRender();
             },
             addCollated: function (rawVertices) {
                 var maxPoints = 20000;

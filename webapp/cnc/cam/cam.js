@@ -185,15 +185,9 @@ define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util'
                 return reorderPolytreeForContour(polyOp(clipperContour, [], clipper.ClipType.ctUnion, true));
             }
 
-            var sign = inside ? -1 : 1;
             clipperPolygon = this.polyOp(clipperPolygon, [], clipper.ClipType.ctUnion);
-            var shape = this.offsetPolygon(clipperPolygon, sign * leaveStock);
-            var toolpath = this.offsetPolygon(clipperPolygon, sign * (leaveStock + toolRadius));
-            var polygons = [shape, this.offsetPolygon(toolpath, -sign * toolRadius)];
-            if (!inside)
-                polygons.reverse();
-            var missed = this.polyOp(polygons[0], polygons[1], clipper.ClipType.ctDifference);
-            return {toolpath: orderContourInside2Outside(toolpath), missedArea: missed};
+            var toolpath = this.offsetPolygon(clipperPolygon, (inside ? -1 : 1) * (leaveStock + toolRadius));
+            return {toolpath: orderContourInside2Outside(toolpath), rawToolpath: toolpath};
         },
         registerToolPath: function (toolpath) {
             this.operations.push(toolpath);

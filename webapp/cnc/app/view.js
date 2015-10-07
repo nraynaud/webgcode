@@ -217,7 +217,19 @@ define(['Ember', 'cnc/import/svgImporter', 'cnc/import/gerberImporter', 'cnc/imp
             init: function () {
                 this.set('toolPathNode', this.get('threeDNode').createChild());
                 this.set('missedAreaNode', this.get('threeDNode').createChild());
+                this.get('missedAreaNode').meshMaterial = new THREE.MeshBasicMaterial({
+                    opacity: 0.35,
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    color: 0x660000
+                });
                 this.set('leftStock', this.get('threeDNode').createChild());
+                this.get('leftStock').meshMaterial = new THREE.MeshBasicMaterial({
+                    opacity: 0.15,
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    color: 0x660aa66
+                });
             },
             willDestroy: function () {
                 this._super();
@@ -237,25 +249,25 @@ define(['Ember', 'cnc/import/svgImporter', 'cnc/import/gerberImporter', 'cnc/imp
                 Ember.run.debounce(this, 'syncView', 1);
             }.observes('operation.toolpath.@each', 'operation.toolpath', 'operation.missedArea').on('init'),
             syncMissedArea: function () {
-                var operation = this.get('operation');
                 var node = this.get('missedAreaNode');
                 node.clear();
-                var missedArea = operation.get('missedArea');
+                var missedArea = this.get('operation.missedArea');
                 if (missedArea)
-                    node.addPolygons(missedArea);
+                    node.displayMeshData(missedArea);
             },
             observer2: function () {
                 Ember.run.debounce(this, 'syncMissedArea', 1);
             }.observes('operation.missedArea').on('init'),
             syncLeaveStock: function () {
-                var params = this.get('operation').getComputingParameters();
                 var node = this.get('leftStock');
                 node.clear();
-                node.computeLeaveStockPolygon(params);
+                var leftStock = this.get('operation.leftStock');
+                if (leftStock)
+                    node.displayMeshData(leftStock);
             },
             observer3: function () {
                 Ember.run.debounce(this, 'syncLeaveStock', 1);
-            }.observes('operation.operationComputer', 'operation.outline.polyline', 'operation.contour_leaveStock').on('init'),
+            }.observes('operation.leftStock').on('init'),
             visibleChanged: function () {
                 this.get('threeDNode').setVisibility(this.get('controller.currentOperation') == this.get('operation'));
             }.observes('controller.currentOperation').on('init')

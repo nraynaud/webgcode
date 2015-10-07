@@ -11,66 +11,91 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
 
         function contour(params, machine) {
             var result = machine.contourAndMissedArea(params.outline.clipperPolyline, parseFloat(params.job.toolDiameter) / 2,
-                parseFloat(params.contour_leaveStock), params.contour_inside);
+                parseFloat(params.leaveStock), params.contour_inside);
             return {
                 contours: machine.fromClipper(result.toolpath, true, machine.contourAreaPositive(params.contour_inside, params.contour_climbMilling)),
-                missedArea: [machine.fromClipper(result.missedArea).map(function (poly) {
-                    return poly.asGeneralToolpath(0).path;
-                })]
+                rawClipperToolPath: result.rawToolpath
             };
         }
 
-        function computeLeaveStockContourPolygon(params) {
-            var poly = params.outline.clipperPolyline;
-            var machine = new cam.Machine(null);
-            if (!poly)
-                return null;
-            var offset = machine.offsetPolygon(poly, (params.contour_inside ? -1 : 1) * parseFloat(params.contour_leaveStock));
-            var result = params.contour_inside
-                ? machine.polyOp(poly, offset, clipper.ClipType.ctDifference)
-                : machine.polyOp(offset, poly, clipper.ClipType.ctDifference);
-
-            function flattenClipperHierarchy(polytree, result) {
-                if (result == null)
-                    result = [];
-                var outerStack = polytree.Childs();
-                for (var j = 0; j < outerStack.length; j++) {
-                    var outerNode = outerStack[j];
-                    var holes = outerNode.Childs();
-                    var islands = [];
-                    for (var i = 0; i < holes.length; i++) {
-                        flattenClipperHierarchy(holes[i], result);
-                        islands.push(holes[i].Contour());
-                    }
-                    result.push({contour: outerNode.Contour(), holes: islands});
-                }
-                return result;
+        function computeContourDisplayData(params, machine, rawClipperToolPath, missedAreaCallback, leaveStockCallback) {
+            if (!missedAreaCallback && !leaveStockCallback)
+                return;
+            var sign = params.contour_inside ? -1 : 1;
+            var toolRadius = parseFloat(params.job.toolDiameter) / 2;
+            var offset = machine.offsetPolygon(params.outline.clipperPolyline, sign * parseFloat(params.leaveStock));
+            if (missedAreaCallback) {
+                var polygons = [offset, machine.offsetPolygon(rawClipperToolPath, -sign * toolRadius)];
+                if (!params.contour_inside)
+                    polygons.reverse();
+                var missed = machine.polyOp(polygons[0], polygons[1], clipper.ClipType.ctDifference);
+                missedAreaCallback(clipperPolygonToThreeJS(missed, machine.clipperScale));
             }
-
-            function clipperPolygonToThreeJS(polygon, scale) {
-                var polytree = cam.polyOp(polygon, [], clipper.ClipType.ctUnion, true);
-                var polygons = flattenClipperHierarchy(polytree);
-                var result = [];
-                for (var i = 0; i < polygons.length; i++) {
-                    var poly = polygons[i];
-                    var currentPositions = [];
-                    var currentHoleIndices = [];
-                    for (var j = 0; j < poly.contour.length; j++)
-                        currentPositions.push(poly.contour[j].X / scale, poly.contour[j].Y / scale, 0);
-                    for (j = 0; j < poly.holes.length; j++) {
-                        currentHoleIndices.push(currentPositions.length / 3);
-                        for (var k = 0; k < poly.holes[j].length; k++)
-                            currentPositions.push(poly.holes[j][k].X / scale, poly.holes[j][k].Y / scale, 0);
-                    }
-                    result.push({
-                        positions: new Float32Array(currentPositions),
-                        indices: new Uint16Array(earcut(currentPositions, currentHoleIndices, 3))
-                    });
-                }
-                return result;
+            if (leaveStockCallback) {
+                var leftStock = params.contour_inside
+                    ? machine.polyOp(params.outline.clipperPolyline, offset, clipper.ClipType.ctDifference)
+                    : machine.polyOp(offset, params.outline.clipperPolyline, clipper.ClipType.ctDifference);
+                leaveStockCallback(clipperPolygonToThreeJS(leftStock, machine.clipperScale));
             }
+        }
 
-            return clipperPolygonToThreeJS(result, machine.clipperScale);
+        function flattenClipperHierarchy(polytree, result) {
+            if (result == null)
+                result = [];
+            var outerStack = polytree.Childs();
+            for (var j = 0; j < outerStack.length; j++) {
+                var outerNode = outerStack[j];
+                var holes = outerNode.Childs();
+                var islands = [];
+                for (var i = 0; i < holes.length; i++) {
+                    flattenClipperHierarchy(holes[i], result);
+                    islands.push(holes[i].Contour());
+                }
+                result.push({contour: outerNode.Contour(), holes: islands});
+            }
+            return result;
+        }
+
+        function clipperPolygonToThreeJS(polygon, scale) {
+            var polytree = cam.polyOp(polygon, [], clipper.ClipType.ctUnion, true);
+            var polygons = flattenClipperHierarchy(polytree);
+            var result = [];
+            var transferableResults = [];
+            var currentOffset = 0;
+            var indices = [];
+            var positions = [];
+            for (var i = 0; i < polygons.length; i++) {
+                var poly = polygons[i];
+                var currentPositions = [];
+                var currentHoleIndices = [];
+                for (var j = 0; j < poly.contour.length; j++)
+                    currentPositions.push(poly.contour[j].X / scale, poly.contour[j].Y / scale, 0);
+                for (j = 0; j < poly.holes.length; j++) {
+                    currentHoleIndices.push(currentPositions.length / 3);
+                    for (var k = 0; k < poly.holes[j].length; k++)
+                        currentPositions.push(poly.holes[j][k].X / scale, poly.holes[j][k].Y / scale, 0);
+                }
+                positions = positions.concat(currentPositions);
+                var currentIndices = earcut(currentPositions, currentHoleIndices, 3);
+                for (j = 0; j < currentIndices.length; j++)
+                    currentIndices[j] += currentOffset;
+                indices = indices.concat(currentIndices);
+                currentOffset = positions.length / 3;
+            }
+            positions = new Float32Array(positions);
+            console.log(positions.length);
+            indices = new Uint16Array(indices);
+            transferableResults.push(positions.buffer, indices.buffer);
+            result.push({
+                positions: positions,
+                indices: indices
+            });
+            return {result: result, transferable: transferableResults};
+        }
+
+        function noExtraPolys(missedAreaCallback, leaveStockCallback) {
+            missedAreaCallback([]);
+            leaveStockCallback([]);
         }
 
         return {
@@ -80,7 +105,8 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
                 properties: {
                     bottom_Z: attr('number', {defaultValue: -5})
                 },
-                computeToolpath: function (op) {
+                computeToolpath: function (op, missedAreaCallback, leaveStockCallback) {
+                    noExtraPolys(missedAreaCallback, leaveStockCallback);
                     return new RSVP.Promise(function (resolve, reject) {
                         var z = op.bottom_Z;
                         var safetyZ = op.job.safetyZ;
@@ -100,9 +126,6 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
                         });
                         resolve({toolpath: toolpath});
                     });
-                },
-                computeLeaveStockPolygon: function (op) {
-                    return [];
                 }
             },
             'SimpleContourOperation': {
@@ -111,16 +134,15 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
                 properties: {
                     bottom_Z: attr('number', {defaultValue: -5}),
                     contour_inside: attr('boolean', {defaultValue: true}),
-                    contour_leaveStock: attr('number', {defaultValue: 0}),
+                    leaveStock: attr('number', {defaultValue: 0}),
                     contour_climbMilling: attr('boolean', {defaultValue: false})
                 },
-                computeToolpath: function (params) {
+                computeToolpath: function (params, missedAreaCallback, leaveStockCallback) {
                     return new RSVP.Promise(function (resolve, reject) {
                         var machine = new cam.Machine(null);
                         machine.setParams(params.bottom_Z, 10, 100);
                         var result = contour(params, machine);
                         resolve({
-                            missedArea: result.missedArea,
                             toolpath: result.contours.map(function (path) {
                                 var startPoint = path.getStartPoint();
                                 var generalPath = path.asGeneralToolpath(params.bottom_Z);
@@ -131,9 +153,9 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
                                 return generalPath;
                             })
                         });
+                        computeContourDisplayData(params, machine, result.rawClipperToolPath, missedAreaCallback, leaveStockCallback);
                     });
-                },
-                computeLeaveStockPolygon: computeLeaveStockContourPolygon
+                }
             },
             'RampingContourOperation': {
                 label: 'Ramping Contour',
@@ -143,10 +165,10 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
                     bottom_Z: attr('number', {defaultValue: -5}),
                     ramping_turns: attr('number', {defaultValue: 5}),
                     contour_inside: attr('boolean', {defaultValue: true}),
-                    contour_leaveStock: attr('number', {defaultValue: 0}),
+                    leaveStock: attr('number', {defaultValue: 0}),
                     contour_climbMilling: attr('boolean', {defaultValue: false})
                 },
-                computeToolpath: function (op) {
+                computeToolpath: function (op, missedAreaCallback, leaveStockCallback) {
                     return new RSVP.Promise(function (resolve, reject) {
                         var machine = new cam.Machine(null);
                         machine.setParams(op.top_Z, 10, 100);
@@ -157,9 +179,9 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
                             path.pushPointInFront(startPoint.x, startPoint.y, op.job.safetyZ);
                         });
                         resolve({missedArea: result.missedArea, toolpath: toolpath});
+                        computeContourDisplayData(op, machine, result.rawClipperToolPath, missedAreaCallback, leaveStockCallback);
                     });
-                },
-                computeLeaveStockPolygon: computeLeaveStockContourPolygon
+                }
             },
             'PocketOperation': {
                 label: 'Pocket',
@@ -167,16 +189,16 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
                 properties: {
                     bottom_Z: attr('number', {defaultValue: -5}),
                     pocket_engagement: attr('number', {defaultValue: 50}),
-                    pocket_leaveStock: attr('number', {defaultValue: 0.1}),
+                    leaveStock: attr('number', {defaultValue: 0.1}),
                     pocket_ramping_entry: attr('boolean', {defaultValue: true}),
                     ramping_turns: attr('number', {defaultValue: 2}),
                     top_Z: attr('number', {defaultValue: 0})
                 },
-                computeToolpath: function (op) {
+                computeToolpath: function (op, missedAreaCallback, leaveStockCallback) {
                     return new RSVP.Promise(function (resolve, reject) {
                         var clipperPolygon = op.outline.clipperPolyline;
                         var machine = new cam.Machine(null);
-                        var leaveStock = op.pocket_leaveStock;
+                        var leaveStock = op.leaveStock;
                         if (leaveStock)
                             clipperPolygon = machine.offsetPolygon(clipperPolygon, -leaveStock);
                         var scaledToolRadius = parseFloat(op.job.toolDiameter) / 2 * cam.CLIPPER_SCALE;
@@ -230,13 +252,14 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
                                         toolpath.push(generalPath);
                                     });
                                 });
-                                missedArea.push(result.undercut);
                             });
-                            return {toolpath: toolpath, missedArea: missedArea};
+                            return {toolpath: toolpath};
                         }));
+                        op.contour_inside = true;
+                        var lastTurn = machine.offsetPolygon(op.outline.clipperPolyline, -(leaveStock + parseFloat(op.job.toolDiameter) / 2));
+                        computeContourDisplayData(op, machine, lastTurn, missedAreaCallback, leaveStockCallback);
                     });
-                },
-                computeLeaveStockPolygon: computeLeaveStockContourPolygon
+                }
             },
             '3DlinearOperation': {
                 label: '3D linear milling',
@@ -254,11 +277,9 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
                     '3d_stopPercent': attr('number', {defaultValue: 100}),
                     '3d_slice_Z': attr('number', {defaultValue: 5})
                 },
-                computeToolpath: function (op) {
+                computeToolpath: function (op, missedAreaCallback, leaveStockCallback) {
+                    noExtraPolys(missedAreaCallback, leaveStockCallback);
                     return null;
-                },
-                computeLeaveStockPolygon: function (op) {
-                    return [];
                 }
             },
             'DrillOperation': {
@@ -268,7 +289,8 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
                     top_Z: attr('number', {defaultValue: 0}),
                     bottom_Z: attr('number', {defaultValue: -5})
                 },
-                computeToolpath: function (op) {
+                computeToolpath: function (op, missedAreaCallback, leaveStockCallback) {
+                    noExtraPolys(missedAreaCallback, leaveStockCallback);
                     return new RSVP.Promise(function (resolve, reject) {
                         var start = op.top_Z;
                         var stop = op.bottom_Z;
@@ -303,9 +325,6 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
                         } else
                             resolve({toolpath: [tpForPoint(point)]});
                     });
-                },
-                computeLeaveStockPolygon: function (op) {
-                    return [];
                 }
             }
         };

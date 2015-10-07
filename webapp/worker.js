@@ -33,37 +33,41 @@ var tasks = {
     },
     computeToolpath: function (event) {
         require(['cnc/cam/operations', 'cnc/util'], function (operations, util) {
+
+            var sentMessages = 0;
+
+            function sendMessage(message, transferable) {
+                sentMessages++;
+                if (sentMessages >= 3)
+                    message.terminate = true;
+                self.postMessage(message, transferable);
+            }
+
+            function handleMissedArea(missedArea) {
+                sendMessage({missedArea: missedArea.result}, missedArea.transferable);
+            }
+
+            function handleLeftStock(leftStock) {
+                sendMessage({leftStock: leftStock.result}, leftStock.transferable);
+            }
+
             event.data.params.outline.clipperPolyline = event.data.params.outline.clipperPolyline.map(function (polygon) {
                 return polygon.map(function (point) {
                     return new util.Point(point.x, point.y, point.z);
                 });
             });
+
             operations[event.data.params.type]
-                .computeToolpath(event.data.params).then(function (toolpath) {
-                    self.postMessage({
+                .computeToolpath(event.data.params, handleMissedArea, handleLeftStock).then(function (toolpath) {
+                    sendMessage({
                         toolpath: toolpath.toolpath.map(function (p) {
                             return p.toJSON()
-                        }),
-                        missedArea: toolpath.missedArea ? toolpath.missedArea : []
+                        })
                     });
                 }).catch(function (e) {
                     console.log('error ', e);
                     throw e;
                 });
-        });
-    },
-    computeLeaveStockPolygon: function (event) {
-        require(['cnc/cam/operations', 'cnc/util'], function (operations, util) {
-            event.data.params.outline.clipperPolyline = event.data.params.outline.clipperPolyline.map(function (polygon) {
-                return polygon.map(function (point) {
-                    return new util.Point(point.x, point.y, point.z);
-                });
-            });
-            var res = operations[event.data.params.type].computeLeaveStockPolygon(event.data.params);
-            self.postMessage({
-                id: event.data.id,
-                result: res
-            });
         });
     },
     acceptProgram: function (event) {
