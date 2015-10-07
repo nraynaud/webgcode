@@ -72,8 +72,6 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                 }
             },
             addMesh: function (meshGeometry) {
-                meshGeometry.computeFaceNormals();
-                meshGeometry.computeVertexNormals();
                 this.node.add(new THREE.Mesh(meshGeometry, this.meshMaterial));
             },
             addPolyLines: function (polylines) {
@@ -101,7 +99,7 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                     var bufferedGeometry = new THREE.BufferGeometry();
                     bufferedGeometry.addAttribute('position', new THREE.BufferAttribute(result[i].positions, 3));
                     bufferedGeometry.setIndex(new THREE.BufferAttribute(result[i].indices, 1));
-                    this.node.add(new THREE.Mesh(bufferedGeometry, this.meshMaterial));
+                    this.addMesh(bufferedGeometry);
                 }
                 this.view.reRender();
             },
@@ -145,17 +143,6 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                 this.bufferedGeometry.addGroup(0, (startIndex + segmentsAdded ) * 2);
                 this.bufferedGeometry.groupsNeedUpdate = true;
 
-                var updateRange = this.bufferedGeometry.attributes.position.updateRange;
-                /*
-                 if (updateRange.count <= 0) {
-                 updateRange.offset = startIndex * 2;
-                 updateRange.count = segmentsAdded * 2;
-                 } else {
-                 var min = Math.min(updateRange.offset, startIndex * 2);
-                 var max = Math.max(updateRange.offset + updateRange.count, startIndex * 2 + segmentsAdded * 2);
-                 updateRange.offset = min;
-                 updateRange.count = max - min;
-                 }*/
                 this.bufferedGeometry.index.needsUpdate = true;
                 this.bufferedGeometry.attributes.position.needsUpdate = true;
                 if (choppedPointAdded < pointsAdded) {
