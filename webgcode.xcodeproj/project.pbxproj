@@ -62,6 +62,7 @@
 		DDAA580B449779665EC9B1BB /* elliptic.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5367902362964A0915C2 /* elliptic.js */; };
 		DDAA58BE9DBD78082FD48E01 /* yenc.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5AC14AAD3A2C784B1419 /* yenc.js */; };
 		DDAA58D07301B2E75AC0C420 /* firebase-debug.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5785A33DF48AE7C33AE2 /* firebase-debug.js */; };
+		DDAA591C40FE60A702BEE272 /* jobView.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5D5993F80C624276438C /* jobView.js */; };
 		DDAA592CE143F93F5D214920 /* delaunay.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA59240776C46200C93D09 /* delaunay.js */; };
 		DDAA59B0F8FA43BFF1934F05 /* minkowskiPass.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA56084DF1239F53C2D3A8 /* minkowskiPass.js */; };
 		DDAA59DDAACDD4A61B30F37E /* wabble.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA55F97E8D9015119CC503 /* wabble.js */; };
@@ -294,6 +295,7 @@
 		DDAA5CE2FE1C0B27B819EAC7 /* spinner.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; path = spinner.svg; sourceTree = "<group>"; };
 		DDAA5D0CF378287552FFC123 /* textApp.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = textApp.hbs; sourceTree = "<group>"; };
 		DDAA5D362B64EEE93DE54810 /* views.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = views.js; sourceTree = "<group>"; };
+		DDAA5D5993F80C624276438C /* jobView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jobView.js; path = job/jobView.js; sourceTree = "<group>"; };
 		DDAA5D77A5D9B547BFD9190D /* operation.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.handebars; path = operation.hbs; sourceTree = "<group>"; };
 		DDAA5DA5227AB2B1DD67F20A /* test_threejs.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_threejs.html; sourceTree = "<group>"; };
 		DDAA5DA7202D3250BD94C922 /* contour.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = contour.js; sourceTree = "<group>"; };
@@ -544,6 +546,7 @@
 				DDAA5D67C526F2A6ABFC2230 /* models */,
 				DDAA569CAFF09F361D4ED55E /* job */,
 				DDAA5AAD668C70B3538AF7C4 /* jobController.js */,
+				DDAA5D5993F80C624276438C /* jobView.js */,
 			);
 			path = app;
 			sourceTree = "<group>";
@@ -889,6 +892,7 @@
 				DDAA5DDD9B52552DF2402A67 /* morphology.js in Sources */,
 				DDAA5C4FD5DCD51EEF0581B4 /* asyncUI.js in Sources */,
 				DDAA5F7EF723353669BB7D59 /* jobController.js in Sources */,
+				DDAA591C40FE60A702BEE272 /* jobView.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
