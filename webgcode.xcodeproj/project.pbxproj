@@ -21,7 +21,6 @@
 		DDAA524E6774021C15E7F044 /* background.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA58422CF9EADC8397599D /* background.js */; };
 		DDAA527F11BF37A7A90B4F67 /* spiIO.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA59BA108DAA54889DD24E /* spiIO.c */; };
 		DDAA52913C0A0E6F56B49AF9 /* usb.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA584BFDA15E844B048D27 /* usb.c */; };
-		DDAA52CCCB5E5211FCE50E45 /* job.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5DFFCA6C2A31934FF748 /* job.js */; };
 		DDAA52D5F1369521819B4C9E /* background.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA593347EC813B12F6ABB6 /* background.js */; };
 		DDAA52E155F43FEF754302E3 /* cam.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5E5BE56C40B964FEF1B4 /* cam.js */; };
 		DDAA533472A073F79FA82002 /* connection.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA529E27A076D6E269389A /* connection.js */; };
@@ -95,6 +94,7 @@
 		DDAA5CDD5DCBC168FB293986 /* jquery.flot.resize.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5518BC9939B7C36FE0B9 /* jquery.flot.resize.js */; };
 		DDAA5CE0C0CD524CDC51CC86 /* gerberImporter.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA588F9FE71EEF0F8A0791 /* gerberImporter.js */; };
 		DDAA5D0B161CD906FAD9253F /* config.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53B8DAE05E27A375FE9B /* config.js */; };
+		DDAA5D160D704CDD765C1897 /* jobModel.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA599DAABEA114C2481F30 /* jobModel.js */; };
 		DDAA5D2F75F04489F197A80C /* contour.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5141D73409AE9F8FF6D9 /* contour.js */; };
 		DDAA5D38B3BF7B2FC43F4851 /* fontExample.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5950A619B90125653E97 /* fontExample.js */; };
 		DDAA5D3E4B6B0860793CF993 /* modelProjector.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5453F941FAED7073FAF6 /* modelProjector.js */; };
@@ -120,7 +120,6 @@
 		DDAA5EE058BB441CC4362AC1 /* runner.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA543BCEF47183F5DDA70F /* runner.js */; };
 		DDAA5F486F34FA71AFAF3B94 /* firebase.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA51A93DCA76CF68CA69AA /* firebase.js */; };
 		DDAA5F7EF723353669BB7D59 /* jobController.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5AAD668C70B3538AF7C4 /* jobController.js */; };
-		DDAA5F829DA328E442EA745B /* job.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA57A5978ED5B2812A75EF /* job.js */; };
 		DDAA5F939B8D9099BE918948 /* simulation.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA564C2FBE78706409C739 /* simulation.js */; };
 		DDAA5FA9BD2B2F4586ADBFFC /* controller.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA59EA70480E724659BF78 /* controller.js */; };
 		DDAA5FC42305B4290E9C0612 /* simulation.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54613393642E5474B2DC /* simulation.js */; };
@@ -233,7 +232,6 @@
 		DDAA578CF1A78A375FB0D041 /* twoDView.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = twoDView.css; sourceTree = "<group>"; };
 		DDAA57993DC17F9A33414D80 /* controllerEmber.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = controllerEmber.js; sourceTree = "<group>"; };
 		DDAA57A1B65CDC501D4100D6 /* pocket.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = pocket.js; sourceTree = "<group>"; };
-		DDAA57A5978ED5B2812A75EF /* job.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = job.js; path = models/job.js; sourceTree = "<group>"; };
 		DDAA5825769A005C1F8AFA15 /* job.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = job.hbs; sourceTree = "<group>"; };
 		DDAA58422CF9EADC8397599D /* background.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = background.js; path = webapp/background.js; sourceTree = "<group>"; };
 		DDAA584BFDA15E844B048D27 /* usb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = usb.c; sourceTree = "<group>"; };
@@ -258,6 +256,7 @@
 		DDAA5957E406CDDA9E6840E6 /* svg.marker.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svg.marker.js; sourceTree = "<group>"; };
 		DDAA595DBB4D5BAE939717CF /* pocket.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = pocket.js; path = cam/pocket.js; sourceTree = "<group>"; };
 		DDAA59854CED3DBBCA224A7B /* simpleContour.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.handlebars; path = simpleContour.hbs; sourceTree = "<group>"; };
+		DDAA599DAABEA114C2481F30 /* jobModel.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jobModel.js; path = job/jobModel.js; sourceTree = "<group>"; };
 		DDAA59BA108DAA54889DD24E /* spiIO.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = spiIO.c; sourceTree = "<group>"; };
 		DDAA59E3CD1BC8E48FD71658 /* textApp.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; name = textApp.hbs; path = templates/textApp.hbs; sourceTree = "<group>"; };
 		DDAA59E7DF6E04578E0F4F11 /* jsEditor.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jsEditor.js; sourceTree = "<group>"; };
@@ -303,7 +302,6 @@
 		DDAA5DADF1563A99CFD20E6D /* geometry.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = geometry.js; sourceTree = "<group>"; };
 		DDAA5DBBB429009377B8802F /* conservative_model_proj.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = conservative_model_proj.vert; path = shaders/conservative_model_proj.vert; sourceTree = "<group>"; };
 		DDAA5DBED23BB93B2FA59786 /* util.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = util.js; sourceTree = "<group>"; };
-		DDAA5DFFCA6C2A31934FF748 /* job.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = job.js; sourceTree = "<group>"; };
 		DDAA5E122DE608E329B07F71 /* compile_ember.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = compile_ember.sh; sourceTree = "<group>"; };
 		DDAA5E1979B9A72E31B3FBFE /* box.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = box.js; path = webapp/samples/box.js; sourceTree = "<group>"; };
 		DDAA5E3A977BABE01A9F3E78 /* CNCMachine.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = CNCMachine.js; sourceTree = "<group>"; };
@@ -542,11 +540,11 @@
 				DDAA5F0312AAB5E2ACBE6A7A /* view.js */,
 				DDAA59EA70480E724659BF78 /* controller.js */,
 				DDAA5A32F9D205231BDF381E /* task.js */,
-				DDAA57A5978ED5B2812A75EF /* job.js */,
 				DDAA5D67C526F2A6ABFC2230 /* models */,
 				DDAA569CAFF09F361D4ED55E /* job */,
 				DDAA5AAD668C70B3538AF7C4 /* jobController.js */,
 				DDAA5D5993F80C624276438C /* jobView.js */,
+				DDAA599DAABEA114C2481F30 /* jobModel.js */,
 			);
 			path = app;
 			sourceTree = "<group>";
@@ -580,7 +578,6 @@
 		DDAA5D67C526F2A6ABFC2230 /* models */ = {
 			isa = PBXGroup;
 			children = (
-				DDAA5DFFCA6C2A31934FF748 /* job.js */,
 				DDAA511818C5D1141E7619BB /* operation.js */,
 			);
 			path = models;
@@ -884,8 +881,6 @@
 				DDAA5CE0C0CD524CDC51CC86 /* gerberImporter.js in Sources */,
 				DDAA5D53FDA3835E9E30C7FA /* excellonImporter.js in Sources */,
 				DDAA562BD5757A9BECFECBE2 /* hilbert.js in Sources */,
-				DDAA5F829DA328E442EA745B /* job.js in Sources */,
-				DDAA52CCCB5E5211FCE50E45 /* job.js in Sources */,
 				DDAA5BFD83B2A6D8F014E2AF /* operation.js in Sources */,
 				DDAA527F11BF37A7A90B4F67 /* spiIO.c in Sources */,
 				DDAA5CD9970A58D18AB5F581 /* tests.js in Sources */,
@@ -893,6 +888,7 @@
 				DDAA5C4FD5DCD51EEF0581B4 /* asyncUI.js in Sources */,
 				DDAA5F7EF723353669BB7D59 /* jobController.js in Sources */,
 				DDAA591C40FE60A702BEE272 /* jobView.js in Sources */,
+				DDAA5D160D704CDD765C1897 /* jobModel.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

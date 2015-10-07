@@ -1,7 +1,7 @@
 "use strict";
 
 define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', 'cnc/cam/toolpath', 'cnc/cam/3D/3Dcomputer',
-        'require', 'libs/pako.min', 'base64', 'THREE', 'libs/threejs/STLLoader', 'cnc/cam/text', 'cnc/app/models/job',
+        'require', 'libs/pako.min', 'base64', 'THREE', 'libs/threejs/STLLoader', 'cnc/cam/text', 'cnc/app/job/jobModel',
         'cnc/app/models/operation'],
     function (Ember, DS, cam, util, Operations, tp, Computer, require, pako, base64, THREE, STLLoader, Text, Job, Operation) {
         var attr = DS.attr;
