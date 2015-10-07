@@ -118,6 +118,7 @@
 		DDAA5EBCB176CFEDF9E2B1F8 /* pocket.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA57A1B65CDC501D4100D6 /* pocket.js */; };
 		DDAA5EE058BB441CC4362AC1 /* runner.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA543BCEF47183F5DDA70F /* runner.js */; };
 		DDAA5F486F34FA71AFAF3B94 /* firebase.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA51A93DCA76CF68CA69AA /* firebase.js */; };
+		DDAA5F7EF723353669BB7D59 /* jobController.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5AAD668C70B3538AF7C4 /* jobController.js */; };
 		DDAA5F829DA328E442EA745B /* job.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA57A5978ED5B2812A75EF /* job.js */; };
 		DDAA5F939B8D9099BE918948 /* simulation.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA564C2FBE78706409C739 /* simulation.js */; };
 		DDAA5FA9BD2B2F4586ADBFFC /* controller.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA59EA70480E724659BF78 /* controller.js */; };
@@ -218,6 +219,7 @@
 		DDAA565B87C730ABFFB31DCA /* parser.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = parser.js; path = gcode/parser.js; sourceTree = "<group>"; };
 		DDAA568D3480E5D010BB2D93 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		DDAA5699D633BDE7062A0B3B /* modelProjector.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = modelProjector.js; sourceTree = "<group>"; };
+		DDAA569CAFF09F361D4ED55E /* job */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = folder; path = job; sourceTree = "<group>"; };
 		DDAA56A071D2C1C48771DF86 /* CNCMachine.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = CNCMachine.js; path = controller/CNCMachine.js; sourceTree = "<group>"; };
 		DDAA56A96A84A867D1FB119B /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		DDAA56B90C5F7FBE9FC0A534 /* usbdesc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = usbdesc.c; path = interpolator/usbdesc.c; sourceTree = "<group>"; };
@@ -264,6 +266,7 @@
 		DDAA5A4300864DA095799734 /* visucamApp.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.handelbars; path = visucamApp.hbs; sourceTree = "<group>"; };
 		DDAA5A55C036357C8CD5193C /* twoDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = twoDView.js; sourceTree = "<group>"; };
 		DDAA5A99ECD28BC66706A677 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = file.json; name = manifest.json; path = webapp/manifest.json; sourceTree = "<group>"; };
+		DDAA5AAD668C70B3538AF7C4 /* jobController.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jobController.js; path = job/jobController.js; sourceTree = "<group>"; };
 		DDAA5AAFC3B9C67160FA662D /* geometry.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = geometry.js; path = gcode/geometry.js; sourceTree = "<group>"; };
 		DDAA5AC14AAD3A2C784B1419 /* yenc.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = yenc.js; path = libs/yenc.js; sourceTree = "<group>"; };
 		DDAA5ADCFC9042BDEE4DA768 /* conservative_model_proj.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = conservative_model_proj.frag; path = shaders/conservative_model_proj.frag; sourceTree = "<group>"; };
@@ -539,6 +542,8 @@
 				DDAA5A32F9D205231BDF381E /* task.js */,
 				DDAA57A5978ED5B2812A75EF /* job.js */,
 				DDAA5D67C526F2A6ABFC2230 /* models */,
+				DDAA569CAFF09F361D4ED55E /* job */,
+				DDAA5AAD668C70B3538AF7C4 /* jobController.js */,
 			);
 			path = app;
 			sourceTree = "<group>";
@@ -883,6 +888,7 @@
 				DDAA5CD9970A58D18AB5F581 /* tests.js in Sources */,
 				DDAA5DDD9B52552DF2402A67 /* morphology.js in Sources */,
 				DDAA5C4FD5DCD51EEF0581B4 /* asyncUI.js in Sources */,
+				DDAA5F7EF723353669BB7D59 /* jobController.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
