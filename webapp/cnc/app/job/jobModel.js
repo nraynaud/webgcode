@@ -10,7 +10,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             toolFlutes: attr('number', {defaultValue: 2}),
             surfaceSpeed: attr('number', {defaultValue: 200}),
             chipLoad: attr('number', {defaultValue: 0.01}),
-            computeSpeedFeed: attr('boolean', {defaultValue: true}),
+            computeSpeedFeed: attr('boolean', {defaultValue: false}),
             userFeedrate: attr('number', {defaultValue: 100}),
             speed: attr('number', {defaultValue: 24000}),
             startPoint: attr('point', {defaultValue: new util.Point(0, 0, 10)}),
