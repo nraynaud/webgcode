@@ -130,6 +130,21 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             feedrate: function () {
                 return this.get('computeSpeedFeed') ? this.get('computedFeedrate') : this.get('userFeedrate');
             }.property('computedFeedrate', 'userFeedrate', 'computeSpeedFeed'),
+            canSendProgram: function () {
+                var operations = this.get('operations');
+                if (operations.length == 0)
+                    return false;
+                var oneIsComputing = false;
+                var oneIsEnabled = false;
+                operations.forEach(function (op) {
+                    if (op.get('enabled')) {
+                        oneIsEnabled = true;
+                        if (op.get('computing'))
+                            oneIsComputing = true;
+                    }
+                });
+                return oneIsEnabled && !oneIsComputing;
+            }.property('operations', 'operations.@each.enabled', 'operations.@each.computing'),
             computeCompactToolPath: function () {
                 console.log('computeCompactToolPath');
                 var operations = this.get('enabledOperations');

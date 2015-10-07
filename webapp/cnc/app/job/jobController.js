@@ -1,6 +1,6 @@
 "use strict";
 
-define(['Ember'], function (Ember) {
+define(['Ember', 'cnc/util'], function (Ember, util) {
 
     var JobController = Ember.ObjectController.extend({
         init: function () {
@@ -90,7 +90,10 @@ define(['Ember'], function (Ember) {
                 && this.get('model.operations').every(function (operation) {
                     return !operation.get('isDirty');
                 });
-        }.property('model.isDirty', 'model.shapes.@each.isDirty', 'model.operations.@each.isDirty')
+        }.property('model.isDirty', 'model.shapes.@each.isDirty', 'model.operations.@each.isDirty'),
+        syncCanSendProgram: function () {
+            window.postMessage({canSendProgram: this.get('model.canSendProgram')}, '*');
+        }.observes('model.canSendProgram', 'model').on('init')
     });
 
     return JobController;

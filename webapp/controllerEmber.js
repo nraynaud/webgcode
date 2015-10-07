@@ -62,6 +62,7 @@ require(['Ember', 'templates', 'cnc/ui/views', 'cnc/controller/CNCMachine'], fun
                 this.get('model').home();
             }
         },
+        camCanSendProgram: false,
         increment: 10,
         jogFeedrate: 200,
         feedrate: function () {
@@ -84,7 +85,9 @@ require(['Ember', 'templates', 'cnc/ui/views', 'cnc/controller/CNCMachine'], fun
                 "Stop Manual Jogging" : "Manual Jogging";
         }.property('model.currentState'),
         isManualModeTogglable: createCurrentStateProperty('READY', 'MANUAL_CONTROL'),
-        isProgramRunnable: createCurrentStateProperty('READY', 'MANUAL_CONTROL'),
+        canInterpolatorReceiveProgram: createCurrentStateProperty('READY', 'MANUAL_CONTROL'),
+        isProgramRunnable: Ember.computed.and('canInterpolatorReceiveProgram', 'camCanSendProgram'),
+        isNotProgramRunnable: Ember.computed.not('isProgramRunnable'),
         isProgramAbortable: createCurrentStateProperty('RUNNING_PROGRAM', 'PAUSED_PROGRAM', 'HOMING'),
         isHomable: createCurrentStateProperty('READY'),
         isBusy: createCurrentStateProperty('RUNNING_PROGRAM', 'HOMING'),
@@ -98,7 +101,13 @@ require(['Ember', 'templates', 'cnc/ui/views', 'cnc/controller/CNCMachine'], fun
     });
     CNCController.ApplicationView = Ember.View.extend({
         templateName: 'controllerPanel',
-        classNames: ['mainDiv']
+        classNames: ['mainDiv'],
+        didInsertElement: function () {
+            this.$('#webView')[0].contentWindow.addEventListener("message", Ember.run.bind(this, function (event) {
+                if (event.data['canSendProgram'] !== undefined)
+                    this.set('controller.camCanSendProgram', event.data['canSendProgram']);
+            }));
+        }
     });
 
     CNCController.EditAxisView = views.NumberField.extend({

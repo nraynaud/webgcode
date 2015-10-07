@@ -1,8 +1,8 @@
 <div id="header" {{bind-attr class="connection.opened:connected"}}>
     {{#if connection.opened}}
-        {{#if isProgramRunnable}}
-            <button class="btn btn-default" {{action "sendProgram"}}><i class="fa fa-play"></i> Send Program</button>
-        {{/if}}
+        <button class="btn btn-default" {{action "sendProgram"}} {{bind-attr disabled="isNotProgramRunnable"}}><i
+                class="fa fa-play"></i> Send Program
+        </button>
         {{#if isProgramAbortable}}
             <button class="btn btn-default" {{action "abort"}}><i class="fa fa-eject"></i> Abort</button>
         {{/if}}

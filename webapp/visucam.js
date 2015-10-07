@@ -149,6 +149,14 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
             templateName: 'loading'
         });
         Visucam.JobRoute = Ember.Route.extend({
+            actions: {
+                willTransition: function (transition) {
+                    window.postMessage({canSendProgram: false}, '*');
+                },
+                didTransition: function (transition) {
+                    this.controllerFor('job').syncCanSendProgram();
+                }
+            },
             model: function (params) {
                 var _this = this;
                 return this.store.find('job', params.job_id).then(null, function (error) {
