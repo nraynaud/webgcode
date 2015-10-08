@@ -1,9 +1,8 @@
 "use strict";
 
-define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', 'cnc/cam/toolpath', 'cnc/cam/3D/3Dcomputer',
-        'require', 'libs/pako.min', 'base64', 'THREE', 'libs/threejs/STLLoader', 'cnc/cam/text', 'cnc/app/job/jobModel',
-        'cnc/app/models/operation'],
-    function (Ember, DS, cam, util, Operations, tp, Computer, require, pako, base64, THREE, STLLoader, Text, Job, Operation) {
+define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', 'libs/pako.min', 'base64', 'THREE',
+        'libs/threejs/STLLoader', 'cnc/cam/text', 'cnc/app/job/jobModel', 'cnc/app/models/operation', 'cnc/contour'],
+    function (Ember, DS, cam, util, Operations, pako, base64, THREE, STLLoader, Text, Job, Operation, contour) {
         var attr = DS.attr;
 
         var PointTransform = DS.Transform.extend({
@@ -32,23 +31,52 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             fontSize: attr('number', {defaultValue: 30}),
             fontName: attr('string', {defaultValue: 'Seymour One'}),
             fontFile: attr('string', {defaultValue: 'http://fonts.gstatic.com/s/seymourone/v4/HrdG2AEG_870Xb7xBVv6C6CWcynf_cDxXwCLxiixG1c.ttf'}),
+            threeDmodelID: attr('string', {defaultValue: null}),
+            sliceZ: attr('number', {defaultValue: 0}),
             svgRepresentation: function () {
                 var x = this.get('x');
                 var y = this.get('y');
-                if (this.get('type') == 'rectangle') {
-                    var w = this.get('width');
-                    var h = this.get('height');
-                    return 'M' + x + ',' + y + 'L' + x + ',' + (y + h) + 'L' + (x + w)
-                        + ',' + (y + h) + 'L' + (x + w) + ',' + y + 'Z';
-                } else if (this.get('type') == 'circle')
-                    return cam.geom.createCircle(x, y, this.get('radius'));
-                else if (this.get('type') == 'text')
-                    return Text.getTextFromFile(this.get('fontFile'), this.get('text'), this.get('fontSize'), x, y);
-                else if (this.get('type') == 'point') {
-                    return 'M' + (x - 5) + ',' + y + 'L' + (x + 5) + ',' + y
-                        + 'M' + x + ',' + (y - 5) + 'L' + x + ',' + (y + 5);
+                switch (this.get('type')) {
+                    case 'rectangle':
+                        var w = this.get('width');
+                        var h = this.get('height');
+                        return 'M' + x + ',' + y + 'L' + x + ',' + (y + h) + 'L' + (x + w)
+                            + ',' + (y + h) + 'L' + (x + w) + ',' + y + 'Z';
+                    case 'circle':
+                        return cam.geom.createCircle(x, y, this.get('radius'));
+                    case 'text':
+                        return Text.getTextFromFile(this.get('fontFile'), this.get('text'), this.get('fontSize'), x, y);
+                    case 'point':
+                        return 'M' + (x - 5) + ',' + y + 'L' + (x + 5) + ',' + y
+                            + 'M' + x + ',' + (y - 5) + 'L' + x + ',' + (y + 5);
+                    case 'slice':
+                        var model = this.get('threeDmodel.meshGeometry');
+                        if (model) {
+                            var geom = new THREE.Geometry();
+                            geom.fromBufferGeometry(model);
+                            var result = contour(-5, geom);
+                            console.log(result);
+                            for (var i = 0; i < result.)
+                                }
+                            return '';
                 }
-            }.property('type', 'width', 'height', 'x', 'y', 'radius', 'text', 'fontSize', 'fontName', 'fontFile')
+                }
+                .
+                property('type', 'width', 'height', 'x', 'y', 'radius', 'text', 'fontSize', 'fontName', 'fontFile', 'threeDmodel', 'sliceZ'),
+                    updatethreeDmodel
+                :
+                function () {
+                    var id = this.get('threeDmodelID');
+                    var _this = this;
+                    if (id)
+                        this.store.find('shape', id).then(function (model) {
+                            _this.set('threeDmodel', model);
+                        });
+
+                }
+
+                .
+                observes('threeDmodelID').on('didLoad')
         });
 
         var Shape = DS.Model.extend({

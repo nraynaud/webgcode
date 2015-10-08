@@ -103,7 +103,7 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
                     _this.set('fonts', list);
                 });
             },
-            shapeTypes: ['rectangle', 'circle', 'text', 'point'],
+            shapeTypes: ['rectangle', 'circle', 'text', 'point', 'slice'],
             isManual: function () {
                 return this.get('type') == 'manual';
             }.property('type'),
@@ -119,11 +119,17 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
             isPoint: function () {
                 return this.get('isManual') && this.get('manualDefinition.type') == 'point';
             }.property('isManual', 'manualDefinition.type'),
+            isSlice: function () {
+                return this.get('isManual') && this.get('manualDefinition.type') == 'slice';
+            }.property('isManual', 'manualDefinition.type'),
             fonts: null,
             fontChanged: function () {
                 if (this.get('isText') && this.get('fonts'))
                     this.set('model.manualDefinition.fontFile', text.searchFontInList(this.get('fonts'), this.get('manualDefinition.fontName')).files['regular']);
-            }.observes('manualDefinition.fontName')
+            }.observes('manualDefinition.fontName'),
+            stlShapes: Ember.computed.filter('job.shapes', function (shape) {
+                return shape.get('stlModel') != null;
+            })
         });
 
         var OperationController = Ember.ObjectController.extend({

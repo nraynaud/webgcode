@@ -80,7 +80,7 @@
         return result;
     }
 
-    require(['jQuery', 'cnc/ui/threeDView'], function ($, threeDView) {
+    require(['jQuery', 'cnc/ui/threeDView', 'cnc/contour'], function ($, threeDView, contour) {
         var view = new threeDView.ThreeDView($('#container'));
         var elevator;
         var map;

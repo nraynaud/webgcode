@@ -87,6 +87,27 @@
                                 <td class="input-group input-group-sm">{{number-input numericValue=manualDefinition.y}}
                                     <span class="input-group-addon">mm</span></td>
                             </tr>
+                        {{else}}
+                            {{#if isSlice}}
+                                <tr>
+                                    <th>Outline:</th>
+                                    <td class="input-group input-group-sm">{{view Ember.Select
+                                    value=manualDefinition.threeDmodelID content=stlShapes optionValuePath="content.id"
+                                    optionLabelPath="content.name"}}</td>
+                                </tr>
+                                <tr>
+                                    <th>slice Z:</th>
+                                    <td class="input-group input-group-sm">{{number-input numericValue=manualDefinition.sliceZ}}
+                                        <span class="input-group-addon">mm</span></td>
+                                </tr>
+                            {{else}}
+                                <tr>
+                                    <th>well well well</th>
+                                    <td>
+                                        {{manualDefinition.type}}
+                                    </td>
+                                </tr>
+                            {{/if}}
                         {{/if}}
                     {{/if}}
                 {{/if}}
