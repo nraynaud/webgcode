@@ -407,20 +407,21 @@ define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util'
         return bezier.pathToPolygons(R.path2curve(pathDef), {a: 1, b: 0, c: 0, d: 1, e: 0, f: 0}, 0.0001);
     }
 
+    function polygonsToClipper(polygons) {
+        return polygons.map(function (poly) {
+            return poly.map(function (point) {
+                return new util.Point(Math.round(CLIPPER_SCALE * point.x), Math.round(CLIPPER_SCALE * point.y));
+            });
+        });
+    }
+
     /**
      *
      * @param pathDef a SVG path
      * @returns a Clipper polygon array
      */
     function pathDefToClipper(pathDef) {
-        var polygons = pathDefToPolygons(pathDef);
-        $.each(polygons, function (_, poly) {
-            $.each(poly, function (_, point) {
-                point.X = Math.round(CLIPPER_SCALE * point.x);
-                point.Y = Math.round(CLIPPER_SCALE * point.y);
-            });
-        });
-        return polygons;
+        return polygonsToClipper(pathDefToPolygons(pathDef));
     }
 
     function clipperToPathDef(clipperPoly) {
@@ -516,6 +517,7 @@ define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util'
         decomposePolytreeInTopLevelPolygons: decomposePolytreeInTopLevelPolygons,
         polyOp: polyOp,
         simplifyPolygons: simplifyPolygons,
+        polygonsToClipper: polygonsToClipper,
         pathDefToPolygons: pathDefToPolygons,
         pathDefToClipper: pathDefToClipper,
         clipperToPathDef: clipperToPathDef,

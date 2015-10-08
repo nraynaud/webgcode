@@ -1,8 +1,8 @@
 "use strict";
 
 define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', 'libs/pako.min', 'base64', 'THREE',
-        'libs/threejs/STLLoader', 'cnc/cam/text', 'cnc/app/job/jobModel', 'cnc/app/models/operation', 'cnc/contour'],
-    function (Ember, DS, cam, util, Operations, pako, base64, THREE, STLLoader, Text, Job, Operation, contour) {
+        'libs/threejs/STLLoader', 'cnc/cam/text', 'cnc/app/job/jobModel', 'cnc/app/models/operation', 'cnc/contour', 'clipper'],
+    function (Ember, DS, cam, util, Operations, pako, base64, THREE, STLLoader, Text, Job, Operation, contour, clipper) {
         var attr = DS.attr;
 
         var PointTransform = DS.Transform.extend({
@@ -55,17 +55,8 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                             var geom = new THREE.Geometry();
                             geom.fromBufferGeometry(model);
                             geom.mergeVertices();
-                            var contours = contour(parseFloat(this.get('sliceZ')), geom).contours;
-                            var result = [];
-                            for (var i = 0; i < contours.length; i++) {
-                                var ring = contours[i];
-                                if (i % 2 == 0)
-                                    ring.reverse();
-                                for (var j = 0; j < ring.length; j++)
-                                    result.push(j == 0 ? 'M' : 'L', ' ', ring[j].x, ',', ring[j].y);
-                                result.push('Z');
-                            }
-                            return result.join('');
+                            var contours = cam.polygonsToClipper(contour(this.get('sliceZ'), geom).contours);
+                            return cam.clipperToPathDef(cam.polyOp(contours, [], clipper.ClipType.ctUnion));
                         }
                         return '';
                 }
