@@ -154,7 +154,7 @@
                 var renderTargetHeight = 300;
                 var colorDepthTexture = new THREE.Texture(undefined, THREE.Texture.DEFAULT_MAPPING,
                         THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping, THREE.NearestFilter, THREE.NearestFilter,
-                        THREE.RGBFormat, THREE.FloatType);
+                        THREE.RGBAFormat, THREE.FloatType);
                 colorDepthTexture.generateMipmaps = false;
 
                 var depthRT = new THREE.WebGLRenderTarget(renderTargetWidth, renderTargetHeight, {
@@ -259,6 +259,8 @@
                     reconstructionPass.renderToScreen = true;
                     reconstructionPass.clear = false;
                     sliceRendering(reconstructionPass, graphRenderer, null, depthRT2.texture);
+                    var res = new Float32Array([12, 12, 12, 12]);
+                    console.log(res);
                     /*
                      console.log('medial axis');
                      medialAxisPass.material.uniforms.gridSize.value.setX(depthRT.width);
@@ -275,6 +277,7 @@
                         }
                         var work = workFile.shift();
                         work();
+                        graphRenderer.readRenderTargetPixels(depthRT2, 0, 0, 1, 1, res);
                         setTimeout(doWork, 100);
                     }
 
