@@ -54,29 +54,31 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                         if (model) {
                             var geom = new THREE.Geometry();
                             geom.fromBufferGeometry(model);
-                            var result = contour(-5, geom);
-                            console.log(result);
-                            for (var i = 0; i < result.)
-                                }
-                            return '';
+                            geom.mergeVertices();
+                            var contours = contour(parseFloat(this.get('sliceZ')), geom).contours;
+                            var result = [];
+                            for (var i = 0; i < contours.length; i++) {
+                                var ring = contours[i];
+                                if (i % 2 == 0)
+                                    ring.reverse();
+                                for (var j = 0; j < ring.length; j++)
+                                    result.push(j == 0 ? 'M' : 'L', ' ', ring[j].x, ',', ring[j].y);
+                                result.push('Z');
+                            }
+                            return result.join('');
+                        }
+                        return '';
                 }
-                }
-                .
-                property('type', 'width', 'height', 'x', 'y', 'radius', 'text', 'fontSize', 'fontName', 'fontFile', 'threeDmodel', 'sliceZ'),
-                    updatethreeDmodel
-                :
-                function () {
-                    var id = this.get('threeDmodelID');
-                    var _this = this;
-                    if (id)
-                        this.store.find('shape', id).then(function (model) {
-                            _this.set('threeDmodel', model);
-                        });
+            }.property('type', 'width', 'height', 'x', 'y', 'radius', 'text', 'fontSize', 'fontName', 'fontFile', 'threeDmodel', 'sliceZ'),
+            updatethreeDmodel: function () {
+                var id = this.get('threeDmodelID');
+                var _this = this;
+                if (id)
+                    this.store.find('shape', id).then(function (model) {
+                        _this.set('threeDmodel', model);
+                    });
 
-                }
-
-                .
-                observes('threeDmodelID').on('didLoad')
+            }.observes('threeDmodelID').on('didLoad')
         });
 
         var Shape = DS.Model.extend({
