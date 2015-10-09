@@ -374,12 +374,14 @@ define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util'
             return fromClipper(polygon, this.clipperScale, reorder, areaPositive);
         },
 
-        polyOp: function (clipperP1, clippreP2, clipperOp) {
+        polyOp: function (clipperP1, clippreP2, clipperOp, fillType) {
+            if (fillType == null)
+                fillType = clipper.PolyFillType.pftNonZero;
             var cpr = new clipper.Clipper();
             var result = [];
             cpr.AddPaths(clipperP1, clipper.PolyType.ptSubject, true);
             cpr.AddPaths(clippreP2, clipper.PolyType.ptClip, true);
-            cpr.Execute(clipperOp, result, clipper.PolyFillType.pftNonZero, clipper.PolyFillType.pftNonZero);
+            cpr.Execute(clipperOp, result, fillType, fillType);
             return result;
         },
 
