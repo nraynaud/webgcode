@@ -158,7 +158,7 @@ define(['cnc/maths/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc
             return this.offsetPolygon(clipperPolygon, toolRadius);
         },
 
-        contourAndMissedArea: function (clipperPolygon, toolRadius, leaveStock, inside) {
+        contourToolpath: function (clipperPolygon, signedDistance) {
 
             function sortedChildren(polygon) {
                 return polygon.Childs().slice().sort(function polygonDifference(p1, p2) {
@@ -186,7 +186,7 @@ define(['cnc/maths/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc
             }
 
             clipperPolygon = this.polyOp(clipperPolygon, [], clipper.ClipType.ctUnion);
-            var toolpath = this.offsetPolygon(clipperPolygon, (inside ? -1 : 1) * (leaveStock + toolRadius));
+            var toolpath = this.offsetPolygon(clipperPolygon, signedDistance);
             return {toolpath: orderContourInside2Outside(toolpath), rawToolpath: toolpath};
         },
         registerToolPath: function (toolpath) {
@@ -449,7 +449,7 @@ define(['cnc/maths/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc
     }
 
     function polyOp(op1, op2, operation, treeResult, fillType) {
-        if(fillType == null)
+        if (fillType == null)
             fillType = clipper.PolyFillType.pftNonZero;
         var cpr = new clipper.Clipper();
         var result = treeResult ? new clipper.PolyTree() : [];

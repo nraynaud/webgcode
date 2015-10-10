@@ -945,7 +945,7 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
     'optionLabelPath': ("content.name"),
     'classNames': ("form-control")
   },hashTypes:{'selection': "ID",'content': "ID",'optionValuePath': "STRING",'optionLabelPath': "STRING",'classNames': "STRING"},hashContexts:{'selection': depth0,'content': depth0,'optionValuePath': depth0,'optionLabelPath': depth0,'classNames': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("\n            </td>\n        </tr>\n        <tr>\n            <th title=\"Check the box and set a value for an operation specific feedrate. Otherwise the job feed rate will be used.\">\n                Feed Rate\n                Over.:\n            </th>\n            <td class=\"input-group input-group-sm\"><span class=\"input-group-addon\">\n                ");
+    data.buffer.push("\n            </td>\n        </tr>\n        <tr>\n            <th title=\"Check the box and set a value for an operation specific feedrate. Otherwise the job feed rate will be used.\">\n                Feedrate\n                Over.:\n            </th>\n            <td class=\"input-group input-group-sm\"><span class=\"input-group-addon\">\n                ");
   data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
     'type': ("checkbox"),
     'checked': ("feedrateOverride")
@@ -1361,8 +1361,51 @@ function program13(depth0,data) {
 Ember.TEMPLATES["simpleContour"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
-  var buffer = '', helper, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression;
+    var buffer = '', stack1, helper, options, helperMissing = helpers.helperMissing, escapeExpression = this.escapeExpression, self = this;
 
+    function program1(depth0, data) {
+
+        var buffer = '', helper, options;
+        data.buffer.push("\n    <tr>\n        <th title=\"Engagement in %\">Radial<br>Engagement:</th>\n        <td class=\"input-group input-group-sm\">");
+        data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+            hash: {
+                'numericValue': ("pocket_engagement"),
+                'min': ("0"),
+                'increment': ("1"),
+                'max': ("100")
+            },
+            hashTypes: {'numericValue': "ID", 'min': "STRING", 'increment': "STRING", 'max': "STRING"},
+            hashContexts: {'numericValue': depth0, 'min': depth0, 'increment': depth0, 'max': depth0},
+            contexts: [],
+            types: [],
+            data: data
+        }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+        data.buffer.push("\n            <span class=\"input-group-addon\">%</span></td>\n    </tr>\n    <tr>\n        <th>Up to Distance:</th>\n        <td class=\"input-group input-group-sm\">");
+        data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+            hash: {
+                'numericValue': ("contour_upTo")
+            },
+            hashTypes: {'numericValue': "ID"},
+            hashContexts: {'numericValue': depth0},
+            contexts: [],
+            types: [],
+            data: data
+        }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+        data.buffer.push(" <span\n                class=\"input-group-addon\">mm</span></td>\n    </tr>\n    <tr>\n        <th title=\"Direction of cut: from outside towards the final line or from the final line towards outside\">Towards Contour:</th>\n        <td class=\"input-group input-group-sm\">");
+        data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input), options = {
+            hash: {
+                'type': ("checkbox"),
+                'checked': ("contour_towardsFinal")
+            },
+            hashTypes: {'type': "STRING", 'checked': "ID"},
+            hashContexts: {'type': depth0, 'checked': depth0},
+            contexts: [],
+            types: [],
+            data: data
+        }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+        data.buffer.push("</td>\n    </tr>\n");
+        return buffer;
+    }
 
   data.buffer.push("<tr>\n    <th>Inside Shape</th>\n    <td>");
   data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
@@ -1383,7 +1426,32 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
     'numericValue': ("bottom_Z")
   },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-  data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n");
+    data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Multiple Passes:</th>\n    <td class=\"input-group input-group-sm\">");
+    data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input), options = {
+        hash: {
+            'type': ("checkbox"),
+            'checked': ("contour_multipass")
+        },
+        hashTypes: {'type': "STRING", 'checked': "ID"},
+        hashContexts: {'type': depth0, 'checked': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+    data.buffer.push("</td>\n</tr>\n");
+    stack1 = helpers['if'].call(depth0, "contour_multipass", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        inverse: self.noop,
+        fn: self.program(1, program1, data),
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    });
+    if (stack1 || stack1 === 0) {
+        data.buffer.push(stack1);
+    }
   return buffer;
   
 });

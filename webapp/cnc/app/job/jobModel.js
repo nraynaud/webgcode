@@ -25,6 +25,9 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             operationsOrderProperty: ['index'],
             orderedOperations: Ember.computed.sort('operations', 'operationsOrderProperty'),
             enabledOperations: Ember.computed.filterBy('orderedOperations', 'enabled', true),
+            toolRadius: function () {
+                return parseFloat(this.get('toolDiameter')) / 2;
+            }.property('toolDiameter'),
             didLoad: function () {
                 //re-number operations, because some of them were serialized before the index field existed.
                 var i = 0;

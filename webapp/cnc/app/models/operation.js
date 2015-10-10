@@ -33,7 +33,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             computeToolpathObeserved: function () {
                 if (this.get('outline.definition') && this.get('type') != '3DlinearOperation')
                     Ember.run.debounce(this, this.computeToolpath, 100);
-            }.observes('type', 'outline.polyline', 'job.toolDiameter', 'job.safetyZ', 'outline.manualDefinition.x', 'outline.manualDefinition.y').on('init'),
+            }.observes('type', 'outline.polyline', 'job.toolRadius', 'job.safetyZ', 'outline.manualDefinition.x', 'outline.manualDefinition.y').on('init'),
             computeToolpath: function () {
                 var _this = this;
                 if (this.get('type')) {
@@ -127,7 +127,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 var params = {
                     job: {
                         safetyZ: this.get('job.safetyZ'),
-                        toolDiameter: this.get('job.toolDiameter'),
+                        toolRadius: this.get('job.toolRadius'),
                         offsetX: this.get('job.offsetX'),
                         offsetY: this.get('job.offsetY')
                     },
