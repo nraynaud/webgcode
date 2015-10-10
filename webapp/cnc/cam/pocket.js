@@ -126,16 +126,6 @@ define(['RSVP', 'clipper', 'cnc/cam/cam', 'require', 'cnc/util'], function (RSVP
         });
     }
 
-    function computeUndercut(shapePoly, outlineAtToolCenter, scaledToolRadius, tolerance) {
-        co.ArcTolerance = tolerance;
-        var undercut = offsetPolygon(outlineAtToolCenter, scaledToolRadius + tolerance);
-        return cam.polyOp(shapePoly, undercut, clipper.ClipType.ctDifference, false).map(function (poly) {
-            return poly.map(function (point) {
-                return new util.Point(point.X, point.Y).scale(1 / cam.CLIPPER_SCALE);
-            });
-        });
-    }
-
     function polyToPocketLayer(poly) {
         return {contour: poly, children: []};
     }
@@ -155,13 +145,12 @@ define(['RSVP', 'clipper', 'cnc/cam/cam', 'require', 'cnc/util'], function (RSVP
         return stack;
     }
 
-    function doCreatePocket(shapePoly, scaledToolRadius, radialEngagementRatio, resolveUndercut) {
+    function doCreatePocket(shapePoly, scaledToolRadius, radialEngagementRatio) {
         var step = scaledToolRadius * radialEngagementRatio;
         var tolerance = step / 1000;
         var outlineAtToolCenter = offsetPolygon(shapePoly, -scaledToolRadius, true);
         var polygon = clipper.Clipper.ClosedPathsFromPolyTree(outlineAtToolCenter);
         var polygon2 = cam.simplifyPolygons(polygon, tolerance);
-        resolveUndercut(computeUndercut(shapePoly, polygon2, scaledToolRadius, tolerance));
         var stack = createOffsetStack(tolerance, polygon2, outlineAtToolCenter, step);
         do {
             var children = stack.pop();
@@ -178,17 +167,10 @@ define(['RSVP', 'clipper', 'cnc/cam/cam', 'require', 'cnc/util'], function (RSVP
     }
 
     function createPocketWorkerSide(event) {
-        function resolveUndercut(polygon) {
-            self.postMessage({
-                operation: 'displayUndercutPoly',
-                polygon: polygon
-            });
-        }
-
         var data = event.data;
         self.postMessage({
             finished: true,
-            result: doCreatePocket(data.poly, data.scaledToolRadius, data.radialEngagementRatio, resolveUndercut)
+            result: doCreatePocket(data.poly, data.scaledToolRadius, data.radialEngagementRatio)
         });
     }
 
@@ -244,7 +226,6 @@ define(['RSVP', 'clipper', 'cnc/cam/cam', 'require', 'cnc/util'], function (RSVP
 
     function createWork(polygon, scaledToolRadius, radialEngagementRatio) {
         var deferred = RSVP.defer();
-        var undercutDeferred = RSVP.defer();
         return {
             message: {
                 operation: 'createPocket',
@@ -256,12 +237,10 @@ define(['RSVP', 'clipper', 'cnc/cam/cam', 'require', 'cnc/util'], function (RSVP
                 if (data['finished']) {
                     deferred.resolve(data['result']);
                     return true;
-                } else if (data['operation'] == 'displayUndercutPoly')
-                    undercutDeferred.resolve(data['polygon']);
+                }
                 return false;
             },
             promise: deferred.promise,
-            undercutPromise: undercutDeferred.promise,
             polygon: polygon
         };
     }
@@ -285,10 +264,9 @@ define(['RSVP', 'clipper', 'cnc/cam/cam', 'require', 'cnc/util'], function (RSVP
     function createPocketImmediately(polygons, scaledToolRadius, radialEngagementRatio) {
         return {
             workArray: polygons.map(function (poly) {
-                var undercutDeferred = RSVP.defer();
                 var deferred = RSVP.defer();
-                deferred.resolve(doCreatePocket(poly, scaledToolRadius, radialEngagementRatio, undercutDeferred.resolve));
-                return {promise: deferred.promise, undercutPromise: undercutDeferred.promise, polygon: poly};
+                deferred.resolve(doCreatePocket(poly, scaledToolRadius, radialEngagementRatio));
+                return {promise: deferred.promise, polygon: poly};
             }),
             abort: function () {
             }

@@ -204,9 +204,8 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
                         var scaledToolRadius = parseFloat(op.job.toolDiameter) / 2 * cam.CLIPPER_SCALE;
                         var result = pocket.createPocket(clipperPolygon, scaledToolRadius, op.pocket_engagement / 100, self['Worker'] == undefined);
                         var toolpath = [];
-                        var missedArea = [];
                         var promises = result.workArray.map(function (unit) {
-                            return RSVP.hash({result: unit.promise, undercut: unit.undercutPromise});
+                            return RSVP.hash({result: unit.promise});
                         });
                         resolve(RSVP.all(promises).then(function (workResult) {
                             workResult.forEach(function (result) {
