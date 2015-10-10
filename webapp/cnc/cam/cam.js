@@ -375,14 +375,7 @@ define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util'
         },
 
         polyOp: function (clipperP1, clippreP2, clipperOp, fillType) {
-            if (fillType == null)
-                fillType = clipper.PolyFillType.pftNonZero;
-            var cpr = new clipper.Clipper();
-            var result = [];
-            cpr.AddPaths(clipperP1, clipper.PolyType.ptSubject, true);
-            cpr.AddPaths(clippreP2, clipper.PolyType.ptClip, true);
-            cpr.Execute(clipperOp, result, fillType, fillType);
-            return result;
+            return polyOp(clipperP1, clippreP2, clipperOp, false, fillType);
         },
 
         /**
@@ -455,12 +448,14 @@ define(['cnc/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc/util'
         return result;
     }
 
-    function polyOp(op1, op2, operation, treeResult) {
+    function polyOp(op1, op2, operation, treeResult, fillType) {
+        if(fillType == null)
+            fillType = clipper.PolyFillType.pftNonZero;
         var cpr = new clipper.Clipper();
         var result = treeResult ? new clipper.PolyTree() : [];
         cpr.AddPaths(op1, clipper.PolyType.ptSubject, true);
         cpr.AddPaths(op2, clipper.PolyType.ptClip, true);
-        cpr.Execute(operation, result, clipper.PolyFillType.pftNonZero, clipper.PolyFillType.pftNonZero);
+        cpr.Execute(operation, result, fillType, fillType);
         return result;
     }
 
