@@ -252,6 +252,7 @@ function extractContour(imageData, predicate) {
         } while (pos != direction.backwards);
         return null;
     }
+
     if (!list.length)
         return list;
     var initialState = {direction: EAST, x: list[0][0], y: list[0][1]};

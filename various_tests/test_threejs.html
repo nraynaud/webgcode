@@ -28,7 +28,7 @@
 <a id="downloadLink" href='#'>Download .stl</a>
 
 </body>
-<script src="../webapp/cnc/delaunay.js"></script>
+<script src="../webapp/cnc/maths/delaunay.js"></script>
 <script src="../webapp/libs/require.js"></script>
 <script src="../webapp/config.js"></script>
 <script>
@@ -79,7 +79,7 @@
         return result;
     }
 
-    require(['jQuery', 'cnc/ui/threeDView', 'cnc/contour'], function ($, threeDView, contour) {
+    require(['jQuery', 'cnc/ui/threeDView', 'cnc/maths/contour'], function ($, threeDView, contour) {
         var view = new threeDView.ThreeDView($('#container'));
         var elevator;
         var map;
