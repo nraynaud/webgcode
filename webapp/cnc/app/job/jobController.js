@@ -85,12 +85,12 @@ define(['Ember', 'cnc/util'], function (Ember, util) {
         saveDisabled: function () {
             return !this.get('model.isDirty')
                 && this.get('model.shapes').every(function (shape) {
-                    return !shape.get('isDirty');
+                    return !(shape.get('isDirty') || shape.get('manualDefinition.isDirty'));
                 })
                 && this.get('model.operations').every(function (operation) {
                     return !operation.get('isDirty');
                 });
-        }.property('model.isDirty', 'model.shapes.@each.isDirty', 'model.operations.@each.isDirty'),
+        }.property('model.isDirty', 'model.shapes.@each.isDirty', 'model.shapes.@each.manualDefinition.isDirty', 'model.operations.@each.isDirty'),
         syncCanSendProgram: function () {
             window.postMessage({canSendProgram: this.get('model.canSendProgram')}, '*');
         }.observes('model.canSendProgram', 'model').on('init')
