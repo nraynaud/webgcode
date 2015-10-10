@@ -1,6 +1,6 @@
 "use strict";
-define([], function () {
-    return function contour(altitude, geom) {
+define(['THREE', 'clipper', 'cnc/cam/cam'], function (THREE, clipper, cam) {
+    function contour(altitude, geom, withoutTriangles) {
         var verticesCount = geom.vertices.length;
         var triangles = [];
 
@@ -45,7 +45,8 @@ define([], function () {
                 });
                 pushEdge(edges[0], edges[1]);
                 pushEdge(edges[1], edges[0]);
-                triangles.push(face);
+                if (!withoutTriangles)
+                    triangles.push(face);
             }
         });
 
@@ -103,6 +104,18 @@ define([], function () {
                 contourEdges = res.remainingGraph;
             }
         } while (start !== null);
-        return {contours: contours, triangles: triangles};
+        return {contours: contours, triangles: !withoutTriangles ? triangles : undefined};
     }
+
+    function polygonCorrectedContourAsSvg(altitude, model) {
+        var geom = new THREE.Geometry();
+        geom.fromBufferGeometry(model);
+        geom.mergeVertices();
+        var polygons = contour(altitude, geom, true).contours;
+        var cleanPolys = cam.polygonsToClipper(polygons);
+        cleanPolys = cam.polyOp(cleanPolys, [], clipper.ClipType.ctUnion, false, clipper.PolyFillType.pftEvenOdd);
+        return cam.clipperToPathDef(cleanPolys);
+    }
+
+    return {contour: contour, polygonCorrectedContourAsSvg: polygonCorrectedContourAsSvg}
 });

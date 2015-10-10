@@ -1,8 +1,8 @@
 "use strict";
 
 define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', 'libs/pako.min', 'base64', 'THREE',
-        'libs/threejs/STLLoader', 'cnc/cam/text', 'cnc/app/job/jobModel', 'cnc/app/models/operation', 'cnc/maths/contour', 'clipper'],
-    function (Ember, DS, cam, util, Operations, pako, base64, THREE, STLLoader, Text, Job, Operation, contour, clipper) {
+        'libs/threejs/STLLoader', 'cnc/cam/text', 'cnc/app/job/jobModel', 'cnc/app/models/operation', 'cnc/maths/contour'],
+    function (Ember, DS, cam, util, Operations, pako, base64, THREE, STLLoader, Text, Job, Operation, contour) {
         var attr = DS.attr;
 
         var PointTransform = DS.Transform.extend({
@@ -51,15 +51,8 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                             + 'M' + x + ',' + (y - 5) + 'L' + x + ',' + (y + 5);
                     case 'slice':
                         var model = this.get('threeDmodel.meshGeometry');
-                        if (model) {
-                            var geom = new THREE.Geometry();
-                            geom.fromBufferGeometry(model);
-                            geom.mergeVertices();
-                            var polygons = contour(this.get('sliceZ'), geom).contours;
-                            var cleanPolys = cam.polygonsToClipper(polygons);
-                            cleanPolys = cam.polyOp(cleanPolys, [], clipper.ClipType.ctUnion, false, clipper.PolyFillType.pftEvenOdd);
-                            return cam.clipperToPathDef(cleanPolys);
-                        }
+                        if (model)
+                            return contour.polygonCorrectedContourAsSvg(this.get('sliceZ'), model);
                         return '';
                 }
             }.property('type', 'width', 'height', 'x', 'y', 'radius', 'text', 'fontSize', 'fontName', 'fontFile', 'threeDmodel', 'sliceZ'),

@@ -104,7 +104,7 @@
                 });
                 contourLines = [];
             }
-            var res = contour(altitude, geom);
+            var res = contour.contour(altitude, geom);
             var geom2 = new THREE.Geometry();
             geom2.vertices = geom.vertices.concat();
             $.each(res.triangles, function (_, triangle) {
