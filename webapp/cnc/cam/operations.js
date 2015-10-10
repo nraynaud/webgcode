@@ -101,7 +101,7 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
         return {
             'SimpleEngravingOperation': {
                 label: 'Simple Engraving',
-                specialTemplate: 'simpleEngraving',
+                specialTemplate: 'operationSimpleEngraving',
                 properties: {
                     bottom_Z: attr('number', {defaultValue: -5})
                 },
@@ -130,7 +130,7 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
             },
             'SimpleContourOperation': {
                 label: 'Simple Contour',
-                specialTemplate: 'simpleContour',
+                specialTemplate: 'operationSimpleContour',
                 properties: {
                     bottom_Z: attr('number', {defaultValue: -5}),
                     contour_inside: attr('boolean', {defaultValue: true}),
@@ -180,7 +180,7 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
             },
             'RampingContourOperation': {
                 label: 'Ramping Contour',
-                specialTemplate: 'rampingContour',
+                specialTemplate: 'operationRampingContour',
                 properties: {
                     top_Z: attr('number', {defaultValue: 0}),
                     bottom_Z: attr('number', {defaultValue: -5}),
@@ -283,7 +283,7 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
             },
             '3DlinearOperation': {
                 label: '3D linear milling',
-                specialTemplate: '3DMilling',
+                specialTemplate: 'operation3DMilling',
                 properties: {
                     '3d_leaveStock': attr('number', {defaultValue: 0.5}),
                     top_Z: attr('number', {defaultValue: 0}),
@@ -304,7 +304,7 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
             },
             'DrillOperation': {
                 label: 'Drilling',
-                specialTemplate: 'drilling',
+                specialTemplate: 'operationDrilling',
                 properties: {
                     top_Z: attr('number', {defaultValue: 0}),
                     bottom_Z: attr('number', {defaultValue: -5})
