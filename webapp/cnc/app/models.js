@@ -55,8 +55,10 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                             var geom = new THREE.Geometry();
                             geom.fromBufferGeometry(model);
                             geom.mergeVertices();
-                            var contours = cam.polygonsToClipper(contour(this.get('sliceZ'), geom).contours);
-                            return cam.clipperToPathDef(cam.polyOp(contours, [], clipper.ClipType.ctUnion));
+                            var polygons = contour(this.get('sliceZ'), geom).contours;
+                            var cleanPolys = cam.polygonsToClipper(polygons);
+                            cleanPolys = cam.polyOp(cleanPolys, [], clipper.ClipType.ctUnion, false, clipper.PolyFillType.pftEvenOdd);
+                            return cam.clipperToPathDef(cleanPolys);
                         }
                         return '';
                 }
