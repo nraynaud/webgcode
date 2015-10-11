@@ -104,7 +104,7 @@ define(['THREE', 'clipper', 'cnc/cam/cam'], function (THREE, clipper, cam) {
                 contourEdges = res.remainingGraph;
             }
         } while (start !== null);
-        return {contours: contours, triangles: !withoutTriangles ? triangles : undefined};
+        return {contours: contours, triangles: withoutTriangles ? undefined : triangles};
     }
 
     function polygonCorrectedContourAsSvg(altitude, model) {
