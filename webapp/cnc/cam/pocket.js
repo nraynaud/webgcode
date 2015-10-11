@@ -55,7 +55,6 @@ define(['RSVP', 'clipper', 'cnc/cam/cam', 'require', 'cnc/util'], function (RSVP
     }
 
     function chainOneStagePocketRing(pocket) {
-        console.log(pocket);
         //the contour.length == 1 ensures that the contour doesn't have secondary "hole" toolpaths
         if (pocket.children.length == 1 && pocket.contour.length == 1) {
             var child = pocket.children[0];
