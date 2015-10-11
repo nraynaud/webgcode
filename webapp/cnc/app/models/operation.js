@@ -31,9 +31,9 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 });
             }.observesBefore('operationComputer'),
             computeToolpathObeserved: function () {
-                if (this.get('outline.definition') && this.get('type') != '3DlinearOperation')
+                if (this.get('outline.definition') && this.get('type') != '3DlinearOperation' && !this.get('outline.computing'))
                     Ember.run.debounce(this, this.computeToolpath, 100);
-            }.observes('type', 'outline.polyline', 'job.toolRadius', 'job.safetyZ', 'outline.manualDefinition.x', 'outline.manualDefinition.y').on('init'),
+            }.observes('type', 'outline.polyline', 'job.toolRadius', 'job.safetyZ', 'outline.manualDefinition.x', 'outline.manualDefinition.y', 'outline.computing').on('init'),
             computeToolpath: function () {
                 var _this = this;
                 if (this.get('type')) {
@@ -99,8 +99,8 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 task.start();
             },
             computing: function () {
-                return (this.get('task') && !this.get('task.isDone')) || this.get('toolpathWorker');
-            }.property('task', 'task.isDone', 'toolpathWorker'),
+                return (this.get('task') && !this.get('task.isDone')) || this.get('toolpathWorker') || this.get('outline.computing');
+            }.property('task', 'task.isDone', 'toolpathWorker', 'outline.computing'),
             paused: function () {
                 console.log('computing', this.get('task') && !this.get('task.isDone'));
                 return this.get('task.isPaused');

@@ -1,8 +1,8 @@
 "use strict";
 
 define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', 'libs/pako.min', 'base64', 'THREE',
-        'libs/threejs/STLLoader', 'cnc/cam/text', 'cnc/app/job/jobModel', 'cnc/app/models/operation', 'cnc/maths/contour'],
-    function (Ember, DS, cam, util, Operations, pako, base64, THREE, STLLoader, Text, Job, Operation, contour) {
+        'libs/threejs/STLLoader', 'cnc/cam/text', 'cnc/app/job/jobModel', 'cnc/app/models/operation', 'require', 'cnc/maths/contour'],
+    function (Ember, DS, cam, util, Operations, pako, base64, THREE, STLLoader, Text, Job, Operation, require, contour) {
         var attr = DS.attr;
 
         var PointTransform = DS.Transform.extend({
@@ -50,9 +50,27 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                         return 'M' + (x - 5) + ',' + y + 'L' + (x + 5) + ',' + y
                             + 'M' + x + ',' + (y - 5) + 'L' + x + ',' + (y + 5);
                     case 'slice':
-                        var model = this.get('threeDmodel.meshGeometry');
-                        if (model)
-                            return contour.polygonCorrectedContourAsSvg(this.get('sliceZ'), model);
+                        var model = this.get('threeDmodel.jsonModel');
+                        if (model) {
+                            var _this = this;
+                            return new Promise(function (resolve) {
+                                var worker = _this.get('svgWorker');
+                                if (worker)
+                                    worker.terminate();
+                                worker = new Worker(require.toUrl('worker.js'));
+                                _this.set('svgWorker', worker);
+                                worker.onmessage = function (event) {
+                                    _this.set('svgWorker', null);
+                                    resolve(event.data.result);
+                                    worker.terminate();
+                                };
+                                worker.postMessage({
+                                    operation: 'extractContour',
+                                    altitude: _this.get('sliceZ'),
+                                    model: model
+                                });
+                            });
+                        }
                         return '';
                 }
             }.property('type', 'width', 'height', 'x', 'y', 'radius', 'text', 'fontSize', 'fontName', 'fontFile', 'threeDmodel', 'sliceZ'),
@@ -81,6 +99,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             repetitionY: attr('number', {defaultValue: 1}),
             repetitionSpacingX: attr('number', {defaultValue: 1}),
             repetitionSpacingY: attr('number', {defaultValue: 1}),
+            computing: false,
             rawPolyline: function () {
                 return cam.pathDefToPolygons(this.get('definition'));
             }.property('definition'),
@@ -146,11 +165,14 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             }.property('encodedStlModel'),
             manualDefinitionChanged: function () {
                 var _this = this;
-                if (this.get('type') == 'manual')
+                if (this.get('type') == 'manual') {
+                    this.set('computing', true);
                     Ember.RSVP.resolve(this.get('manualDefinition.svgRepresentation'))
                         .then(function (result) {
                             _this.set('definition', result);
+                            _this.set('computing', false);
                         });
+                }
             }.observes('manualDefinition', 'manualDefinition.svgRepresentation').on('init'),
             meshGeometry: function () {
                 var stlModel = this.get('stlModel');
@@ -161,6 +183,14 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     geometry = new THREE.BufferGeometry().fromGeometry(geometry);
                 return geometry;
             }.property('stlModel'),
+            jsonModel: function () {
+                var model = this.get('meshGeometry');
+                if (model == null)
+                    return null;
+                model = model.clone();
+                model.removeAttribute('normal');
+                return model.toJSON();
+            }.property('meshGeometry'),
             shapeType: function () {
                 var isManual = this.get('type') == 'manual';
                 if (isManual && this.get('manualDefinition.type') == 'point'

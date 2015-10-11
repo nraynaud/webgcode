@@ -82,6 +82,7 @@
                     title="Toggle Visibility" class="visibility-button"><i
                     class="fa fa-eye"></i></span>
                 <span {{bind-attr class="visible:shape-visible:shape-hidden"}}>{{name}}</span>
+                {{#if computing}}<i class="fa fa-cog fa-spin" title="computing..."></i> {{/if}}
                 <span class="delete" {{action "delete"}} title="Delete Shape" style="float:right"><i
                         class="fa fa-times"></i></span>{{/link-to}}
         {{else}}

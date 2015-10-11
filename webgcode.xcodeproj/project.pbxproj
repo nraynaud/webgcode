@@ -257,7 +257,6 @@
 		DDAA59854CED3DBBCA224A7B /* operationSimpleContour.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.handlebars; path = operationSimpleContour.hbs; sourceTree = "<group>"; };
 		DDAA599DAABEA114C2481F30 /* jobModel.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jobModel.js; path = job/jobModel.js; sourceTree = "<group>"; };
 		DDAA59BA108DAA54889DD24E /* spiIO.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = spiIO.c; sourceTree = "<group>"; };
-		DDAA59E3CD1BC8E48FD71658 /* textApp.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; name = textApp.hbs; path = templates/textApp.hbs; sourceTree = "<group>"; };
 		DDAA59E7DF6E04578E0F4F11 /* jsEditor.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = jsEditor.js; sourceTree = "<group>"; };
 		DDAA59EA70480E724659BF78 /* controller.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = controller.js; sourceTree = "<group>"; };
 		DDAA59FEF17A22C1216B27DD /* .nojekyll */ = {isa = PBXFileReference; lastKnownFileType = file.nojekyll; path = .nojekyll; sourceTree = "<group>"; };
@@ -291,7 +290,6 @@
 		DDAA5C9FEE3CFFBDD4F6E9D2 /* visucam.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = visucam.js; sourceTree = "<group>"; };
 		DDAA5CA206006D8E2D7FCDB5 /* flatten.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = flatten.js; path = libs/flatten.js; sourceTree = "<group>"; };
 		DDAA5CE2FE1C0B27B819EAC7 /* spinner.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; path = spinner.svg; sourceTree = "<group>"; };
-		DDAA5D0CF378287552FFC123 /* textApp.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = textApp.hbs; sourceTree = "<group>"; };
 		DDAA5D362B64EEE93DE54810 /* views.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = views.js; sourceTree = "<group>"; };
 		DDAA5D5993F80C624276438C /* jobView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jobView.js; path = job/jobView.js; sourceTree = "<group>"; };
 		DDAA5D77A5D9B547BFD9190D /* operation.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.handebars; path = operation.hbs; sourceTree = "<group>"; };
@@ -408,7 +406,6 @@
 		DDAA54E2136E795D172E250D /* templates */ = {
 			isa = PBXGroup;
 			children = (
-				DDAA5D0CF378287552FFC123 /* textApp.hbs */,
 				DDAA51F34BDB532649B2A0E7 /* camApp.hbs */,
 				DDAA571C07D4352852D807BF /* controllerPanel.hbs */,
 				DDAA5583FA74E90180E93A59 /* jobView.hbs */,
@@ -608,7 +605,6 @@
 				DDAA593347EC813B12F6ABB6 /* background.js */,
 				DDAA5BD4D3436F114AB6921D /* manifest.json */,
 				DDAA578CF1A78A375FB0D041 /* twoDView.css */,
-				DDAA59E3CD1BC8E48FD71658 /* textApp.hbs */,
 				DDAA54E2136E795D172E250D /* templates */,
 				DDAA5E107A0690EF14F64382 /* samples */,
 				DDAA53B8DAE05E27A375FE9B /* config.js */,

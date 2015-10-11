@@ -265,10 +265,12 @@ var tasks = {
             self.postMessage({id: event.data.id, result: res.result}, res.transferable);
         });
     },
-    uiPreparePolygons: function (event) {
-        require(['cnc/ui/asyncUI'], function (async) {
-            var res = async.preparePolygons(event.data.polygons);
-            self.postMessage({id: event.data.id, result: res.result}, res.transferable);
+    extractContour: function (event) {
+        require(['THREE', 'cnc/maths/contour'], function (THREE, contour) {
+            self.postMessage({
+                result: contour.polygonCorrectedContourAsSvg(event.data.altitude,
+                    new THREE.BufferGeometryLoader().parse(event.data.model))
+            });
         });
     }
 };
