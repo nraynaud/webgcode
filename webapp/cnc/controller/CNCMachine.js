@@ -10,7 +10,7 @@ define(['RSVP', 'jQuery', 'Ember', 'cnc/controller/connection', 'cnc/controller/
     var STATES = {READY: 0, RUNNING_PROGRAM: 1, MANUAL_CONTROL: 2, ABORTING_PROGRAM: 3, PAUSED_PROGRAM: 4, HOMING: 5};
     var SPI_OUTPUT_MAPPING = {RUN_SPINDLE: 1, SOCKET: 1 << 6};
     var SPI_INPUT_MAPPING = {
-        SPINDLE_RUNNING: 1 << 0, SPINDLE_AT_SPEED: 1 << 1, LIMIT_X: 1 << 2, LIMIT_Y: 1 << 3, LIMIT_Z: 1 << 4
+        SPINDLE_RUNNING: 1 << 0, SPINDLE_AT_SPEED: 1 << 1, LIMIT_Z: 1 << 2, LIMIT_X: 1 << 3, LIMIT_Y: 1 << 4
     };
     var Axis = Ember.Object.extend({
         name: null,

@@ -56,9 +56,9 @@ typedef union {
 typedef struct {
     int upf: 1;
     int drv: 1;
+    int limitZ: 1;
     int limitX: 1;
     int limitY: 1;
-    int limitZ: 1;
 } __attribute__((packed)) spi_input_t;
 
 typedef union {
