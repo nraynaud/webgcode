@@ -1077,7 +1077,7 @@ Ember.TEMPLATES["operation3DMilling"] = Ember.Handlebars.template(function anony
     }
     data.buffer.push("\n</tr>");
     return buffer;
-
+  
 });
 Ember.TEMPLATES["operationDrilling"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data) {
     this.compilerInfo = [4, '>= 1.0.0'];
@@ -1110,7 +1110,7 @@ Ember.TEMPLATES["operationDrilling"] = Ember.Handlebars.template(function anonym
     }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
     data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n");
     return buffer;
-
+  
 });
 Ember.TEMPLATES["operationPocket"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [4,'>= 1.0.0'];
@@ -1319,7 +1319,7 @@ Ember.TEMPLATES["operationSimpleContour"] = Ember.Handlebars.template(function a
         data.buffer.push(stack1);
     }
     return buffer;
-
+  
 });
 Ember.TEMPLATES["operationSimpleEngraving"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data) {
     this.compilerInfo = [4, '>= 1.0.0'];
@@ -1341,7 +1341,7 @@ Ember.TEMPLATES["operationSimpleEngraving"] = Ember.Handlebars.template(function
     }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
     data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n");
     return buffer;
-
+  
 });
 Ember.TEMPLATES["shape"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [4,'>= 1.0.0'];
@@ -1651,108 +1651,6 @@ function program13(depth0,data) {
   data.buffer.push("</td>\n                        <td title=\"span\">[");
   data.buffer.push(escapeExpression((helper = helpers.number || (depth0 && depth0.number),options={hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data},helper ? helper.call(depth0, "boundingBox.z.range", options) : helperMissing.call(depth0, "number", "boundingBox.z.range", options))));
   data.buffer.push("]</td>\n                    </tr>\n                    </tbody>\n                </table>\n            </td>\n        </tr>\n        </tbody>\n    </table>\n\n</div>");
-  return buffer;
-  
-});
-Ember.TEMPLATES["textApp"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
-this.compilerInfo = [4,'>= 1.0.0'];
-helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
-  var buffer = '', stack1, helper, options, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing, self=this;
-
-function program1(depth0,data) {
-  
-  var buffer = '';
-  data.buffer.push("\n                ");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Ember.Select", {hash:{
-    'content': ("font.variants"),
-    'value': ("fontVariant")
-  },hashTypes:{'content': "ID",'value': "ID"},hashContexts:{'content': depth0,'value': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("\n            ");
-  return buffer;
-  }
-
-function program3(depth0,data) {
-  
-  var buffer = '', stack1;
-  data.buffer.push("\n                ");
-  stack1 = helpers._triageMustache.call(depth0, "font.variants", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
-  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n            ");
-  return buffer;
-  }
-
-  data.buffer.push("<div class=\"controls\">\n    <div class=\"controlPanel\">\n        <h3><label for=\"text\">Text</label></h3>\n\n        <div class=\"controlPanelContent\">\n            ");
-  data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
-    'type': ("text"),
-    'id': ("text"),
-    'valueBinding': ("text"),
-    'title': ("your text")
-  },hashTypes:{'type': "STRING",'id': "STRING",'valueBinding': "STRING",'title': "STRING"},hashContexts:{'type': depth0,'id': depth0,'valueBinding': depth0,'title': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
-  data.buffer.push("\n        </div>\n    </div>\n    <div class=\"controlPanel\">\n        <h3>Font</h3>\n\n        <div class=\"controlPanelContent\">\n            <label for=\"fontSize\">Size:</label><br>\n            ");
-  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
-    'id': ("fontSize"),
-    'placeholder': ("Font Size"),
-    'numericValue': ("fontSize"),
-    'min': ("0.01"),
-    'max': ("500")
-  },hashTypes:{'id': "STRING",'placeholder': "STRING",'numericValue': "ID",'min': "STRING",'max': "STRING"},hashContexts:{'id': depth0,'placeholder': depth0,'numericValue': depth0,'min': depth0,'max': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-  data.buffer.push("\n            <br>\n            ");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Ember.Select", {hash:{
-    'content': ("controllers.fonts"),
-    'value': ("fontName"),
-    'optionLabelPath': ("content.family"),
-    'optionValuePath': ("content.family")
-  },hashTypes:{'content': "ID",'value': "ID",'optionLabelPath': "STRING",'optionValuePath': "STRING"},hashContexts:{'content': depth0,'value': depth0,'optionLabelPath': depth0,'optionValuePath': depth0},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("\n            <br>\n            ");
-  stack1 = helpers['if'].call(depth0, "hasFontVariants", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],data:data});
-  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n        </div>\n    </div>\n\n    <div class=\"controlPanel\">\n        <h3>Tool</h3>\n\n        <div class=\"controlPanelContent\">\n            <label for=\"toolDiameter\" title=\"in mm\">Tool Diameter:</label><br>\n            ");
-  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
-    'id': ("toolDiameter"),
-    'placeholder': ("tool diameter"),
-    'numericValueBinding': ("toolDiameter"),
-    'min': ("0"),
-    'action': ("launchComputationImmediately")
-  },hashTypes:{'id': "STRING",'placeholder': "STRING",'numericValueBinding': "STRING",'min': "STRING",'action': "STRING"},hashContexts:{'id': depth0,'placeholder': depth0,'numericValueBinding': depth0,'min': depth0,'action': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-  data.buffer.push("\n            <br>\n            <label for=\"radialEngagement\" title=\"ratio ]0-1]\">Radial Engagement:</label><br>\n            ");
-  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
-    'id': ("radialEngagement"),
-    'placeholder': ("radial engagement"),
-    'numericValueBinding': ("radialEngagementRatio"),
-    'min': ("0"),
-    'max': ("1"),
-    'step': ("0.05"),
-    'action': ("launchComputationImmediately")
-  },hashTypes:{'id': "STRING",'placeholder': "STRING",'numericValueBinding': "STRING",'min': "STRING",'max': "STRING",'step': "STRING",'action': "STRING"},hashContexts:{'id': depth0,'placeholder': depth0,'numericValueBinding': depth0,'min': depth0,'max': depth0,'step': depth0,'action': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-  data.buffer.push("\n            <br>\n\n            <div class=\"controlPanel\">\n                <h3>Pocket</h3>\n\n                <div class=\"controlPanelContent\">\n                    <label for=\"workZ\" title=\"in mm\">Work Z:</label><br>\n                    ");
-  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
-    'id': ("workZ"),
-    'placeholder': ("workZ"),
-    'numericValueBinding': ("workZ"),
-    'action': ("computeGCode")
-  },hashTypes:{'id': "STRING",'placeholder': "STRING",'numericValueBinding': "STRING",'action': "STRING"},hashContexts:{'id': depth0,'placeholder': depth0,'numericValueBinding': depth0,'action': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-  data.buffer.push("\n                    <br>\n                    <label for=\"travelZ\" title=\"in mm\">Travel Z:</label><br>\n                    ");
-  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
-    'id': ("travelZ"),
-    'placeholder': ("travelZ"),
-    'numericValueBinding': ("travelZ"),
-    'action': ("computeGCode")
-  },hashTypes:{'id': "STRING",'placeholder': "STRING",'numericValueBinding': "STRING",'action': "STRING"},hashContexts:{'id': depth0,'placeholder': depth0,'numericValueBinding': depth0,'action': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-  data.buffer.push("\n                    <br>\n                    <label for=\"feedRate\" title=\"in mm/min\">Feed Rate:</label><br>\n                    ");
-  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
-    'id': ("feedRate"),
-    'placeholder': ("feedRate"),
-    'numericValueBinding': ("feedRate"),
-    'action': ("computeGCode")
-  },hashTypes:{'id': "STRING",'placeholder': "STRING",'numericValueBinding': "STRING",'action': "STRING"},hashContexts:{'id': depth0,'placeholder': depth0,'numericValueBinding': depth0,'action': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-  data.buffer.push("\n                </div>\n            </div>\n        </div>\n    </div>\n</div>\n<div id=\"drawing\">\n    ");
-  data.buffer.push(escapeExpression(helpers.view.call(depth0, "TextApplication.OperationView", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data})));
-  data.buffer.push("\n</div>\n");
-  data.buffer.push(escapeExpression((helper = helpers.textarea || (depth0 && depth0.textarea),options={hash:{
-    'id': ("code"),
-    'value': ("code"),
-    'rows': ("400")
-  },hashTypes:{'id': "STRING",'value': "ID",'rows': "STRING"},hashContexts:{'id': depth0,'value': depth0,'rows': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "textarea", options))));
   return buffer;
   
 });
