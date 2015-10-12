@@ -38,19 +38,16 @@
 		DDAA54D76ECEC7A8B4F7AB6B /* twoDView.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5A55C036357C8CD5193C /* twoDView.js */; };
 		DDAA54F4DB4A58224EE863F6 /* text.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53F77ADBB124F31E26D6 /* text.js */; };
 		DDAA55509B103F05A9CE94E3 /* CNCMachine.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5E3A977BABE01A9F3E78 /* CNCMachine.js */; };
-		DDAA55540BD64EEFE07C6C79 /* build-cam.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5F7F528A51ECF8A211B8 /* build-cam.js */; };
 		DDAA56105E019F8318F45B2F /* geometry.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5AAFC3B9C67160FA662D /* geometry.js */; };
 		DDAA5627DFA975E3CFD1372C /* models.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54B87A480F458CED26C3 /* models.js */; };
 		DDAA562BD5757A9BECFECBE2 /* hilbert.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5F8FF34A16D06AB0A58E /* hilbert.js */; };
 		DDAA563B30809A928E04C41B /* toolProfile.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5EFD373F700DB1829F53 /* toolProfile.js */; };
-		DDAA5647D1988D2672299EA5 /* js_sandbox.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5FD621B8DA11F0ECD11B /* js_sandbox.js */; };
 		DDAA5654909C5FCF3844108D /* parser.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA524C2453225E6A0DEB24 /* parser.js */; };
 		DDAA566CEFB8F071A326DA0A /* cubeManipulator.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5235379E9AD793E3FF71 /* cubeManipulator.js */; };
 		DDAA567630AE1A676F5E3913 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54F3B578CC3FCC5E03A2 /* main.c */; };
 		DDAA567F81C6F3DC888C2653 /* bezier.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5B9DC9B92B70673AA0BE /* bezier.js */; };
 		DDAA5697D8F7684366F24018 /* util.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA523D7A9109D74C7BA499 /* util.js */; };
 		DDAA569FBDD72F64A3F26A03 /* parser.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA565B87C730ABFFB31DCA /* parser.js */; };
-		DDAA56CD13934EDB4AD46B3D /* CAM.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5B712AE405ADF7EF281A /* CAM.js */; };
 		DDAA572BA7617C54EEA6AA7D /* usbdesc.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53AA7C3A8E851F307E47 /* usbdesc.c */; };
 		DDAA572DAF73F1DDEE6E8B16 /* operations.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C7C2C93424ED58CED62 /* operations.js */; };
 		DDAA5748456A3971A5DA31C8 /* controllerEmber.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA57993DC17F9A33414D80 /* controllerEmber.js */; };
@@ -146,7 +143,6 @@
 		DDAA518A65DC4269AC7A31E2 /* simulation.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = simulation.js; sourceTree = "<group>"; };
 		DDAA51A93DCA76CF68CA69AA /* firebase.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = firebase.js; path = libs/firebase.js; sourceTree = "<group>"; };
 		DDAA51DE17B96DCF612B22D5 /* contour.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = contour.js; path = webapp/cnc/contour.js; sourceTree = "<group>"; };
-		DDAA51F34BDB532649B2A0E7 /* camApp.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.handlebars; path = camApp.hbs; sourceTree = "<group>"; };
 		DDAA5223044005BFC70BD5DE /* usb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = usb.c; path = interpolator/usb.c; sourceTree = "<group>"; };
 		DDAA5235379E9AD793E3FF71 /* cubeManipulator.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = cubeManipulator.js; sourceTree = "<group>"; };
 		DDAA523D7A9109D74C7BA499 /* util.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = util.js; sourceTree = "<group>"; };
@@ -188,7 +184,6 @@
 		DDAA54F3B578CC3FCC5E03A2 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = main.c; path = interpolator/main.c; sourceTree = "<group>"; };
 		DDAA5518BC9939B7C36FE0B9 /* jquery.flot.resize.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = jquery.flot.resize.js; path = assets/jquery.flot.resize.js; sourceTree = "<group>"; };
 		DDAA5526562DE2F5D309F976 /* webgcode.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngc; path = webgcode.ngc; sourceTree = "<group>"; };
-		DDAA555C548B8E40C2B7D38F /* CAM.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = CAM.html; sourceTree = "<group>"; };
 		DDAA557E11AAA24C9679FF7B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = file.md; path = README.md; sourceTree = "<group>"; };
 		DDAA5583FA74E90180E93A59 /* jobView.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.handlebars; path = jobView.hbs; sourceTree = "<group>"; };
 		DDAA558DB0228EB233245972 /* cam.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = cam.js; path = cam/cam.js; sourceTree = "<group>"; };
@@ -235,7 +230,6 @@
 		DDAA58A5DFBAB23556EC309E /* operationPocket.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = operationPocket.hbs; sourceTree = "<group>"; };
 		DDAA58A68B3AD6541C366CEB /* SubdivisionModifier.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = SubdivisionModifier.js; path = libs/threejs/SubdivisionModifier.js; sourceTree = "<group>"; };
 		DDAA58BB5F7B2688475369C7 /* soap.stl */ = {isa = PBXFileReference; lastKnownFileType = file.stl; path = soap.stl; sourceTree = "<group>"; };
-		DDAA58C1C0B782FE90795713 /* js_sandbox.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = js_sandbox.html; sourceTree = "<group>"; };
 		DDAA58D64DDC38836667CB90 /* polyborder.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = polyborder.frag; path = shaders/polyborder.frag; sourceTree = "<group>"; };
 		DDAA58E6C11B529BB5B59083 /* runner.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = runner.js; sourceTree = "<group>"; };
 		DDAA58FBD65B40549EC27922 /* elliptic.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = elliptic.js; path = webapp/cnc/elliptic.js; sourceTree = "<group>"; };
@@ -265,7 +259,6 @@
 		DDAA5B08E58D8D0CDBC74EAA /* cam.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = cam.js; sourceTree = "<group>"; };
 		DDAA5B32ABEAC29E2C09425A /* tux.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngc; path = tux.ngc; sourceTree = "<group>"; };
 		DDAA5B453A7758A947C1B962 /* loading.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = loading.hbs; sourceTree = "<group>"; };
-		DDAA5B712AE405ADF7EF281A /* CAM.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = CAM.js; sourceTree = "<group>"; };
 		DDAA5B9127FD1D1D71501224 /* 3Dcomputer.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = 3Dcomputer.js; sourceTree = "<group>"; };
 		DDAA5B9DC9B92B70673AA0BE /* bezier.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = bezier.js; sourceTree = "<group>"; };
 		DDAA5BD4D3436F114AB6921D /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = file.json; path = manifest.json; sourceTree = "<group>"; };
@@ -305,17 +298,14 @@
 		DDAA5F16C318EC66400EED7E /* model_proj.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = model_proj.frag; path = shaders/model_proj.frag; sourceTree = "<group>"; };
 		DDAA5F1FE345E1887B17F30E /* test_3D_stream.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_3D_stream.html; sourceTree = "<group>"; };
 		DDAA5F329B72AC25F4AAA0F4 /* toolpath.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = toolpath.js; sourceTree = "<group>"; };
-		DDAA5F376DB68FEFFF7FC133 /* CAM.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = CAM.html; path = webapp/CAM.html; sourceTree = "<group>"; };
 		DDAA5F4033A35CFACA352CEE /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; name = Makefile; path = interpolator/Makefile; sourceTree = "<group>"; };
 		DDAA5F43806C94E0CB22BFF4 /* excellonImporter.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = excellonImporter.js; sourceTree = "<group>"; };
 		DDAA5F7BC2F729E4D954E307 /* threeDView.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = threeDView.css; sourceTree = "<group>"; };
-		DDAA5F7F528A51ECF8A211B8 /* build-cam.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "build-cam.js"; sourceTree = "<group>"; };
 		DDAA5F8E872CAF0D98D72C3D /* icon_fraise_48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_fraise_48.png; sourceTree = "<group>"; };
 		DDAA5F8FF34A16D06AB0A58E /* hilbert.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = hilbert.js; sourceTree = "<group>"; };
 		DDAA5F9065BDDAC8C08A000D /* icon_fraise_48.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_fraise_48.png; sourceTree = "<group>"; };
 		DDAA5FB75EA37BF204AB17BA /* index.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = index.hbs; sourceTree = "<group>"; };
 		DDAA5FC5CC98A3276865B59A /* operation3DMilling.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = operation3DMilling.hbs; sourceTree = "<group>"; };
-		DDAA5FD621B8DA11F0ECD11B /* js_sandbox.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = js_sandbox.js; sourceTree = "<group>"; };
 		DDAA5FEE74356C8E82100AB8 /* default_vUv.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = default_vUv.vert; path = shaders/default_vUv.vert; sourceTree = "<group>"; };
 		DDAA5FFBD0843DCB15BE40A2 /* parser.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = parser.js; sourceTree = "<group>"; };
 		EE861323172A0232008B2029 /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = ../STM32F4.platform/Developer/SDKs/STM34F4.sdk/usr/include; sourceTree = "<group>"; };
@@ -394,7 +384,6 @@
 		DDAA54E2136E795D172E250D /* templates */ = {
 			isa = PBXGroup;
 			children = (
-				DDAA51F34BDB532649B2A0E7 /* camApp.hbs */,
 				DDAA571C07D4352852D807BF /* controllerPanel.hbs */,
 				DDAA5583FA74E90180E93A59 /* jobView.hbs */,
 				DDAA5A4300864DA095799734 /* visucamApp.hbs */,
@@ -583,7 +572,6 @@
 			children = (
 				DDAA583A61983C47EBEC4003 /* cnc */,
 				DDAA52265177156924CC4FB5 /* images */,
-				DDAA555C548B8E40C2B7D38F /* CAM.html */,
 				DDAA543BCEF47183F5DDA70F /* runner.js */,
 				DDAA5622C29CE547B513B64F /* worker.js */,
 				DDAA54D6E2B749291B054589 /* index.html */,
@@ -596,14 +584,10 @@
 				DDAA5F7BC2F729E4D954E307 /* threeDView.css */,
 				DDAA5C0499B85D85B809052F /* templates.js */,
 				DDAA533BF8B7D627643AC0C2 /* README */,
-				DDAA5B712AE405ADF7EF281A /* CAM.js */,
-				DDAA58C1C0B782FE90795713 /* js_sandbox.html */,
 				DDAA57993DC17F9A33414D80 /* controllerEmber.js */,
 				DDAA55AE23998F53B255B243 /* visucamTest.html */,
 				DDAA5EE2867F451CC9A90B32 /* build-app.js */,
-				DDAA5F7F528A51ECF8A211B8 /* build-cam.js */,
 				DDAA52E5A7394BAD5D0799D3 /* build-sandbox.js */,
-				DDAA5FD621B8DA11F0ECD11B /* js_sandbox.js */,
 				DDAA5E122DE608E329B07F71 /* compile_ember.sh */,
 				DDAA5C9FEE3CFFBDD4F6E9D2 /* visucam.js */,
 				DDAA51A93DCA76CF68CA69AA /* firebase.js */,
@@ -648,7 +632,6 @@
 				DDAA51DE17B96DCF612B22D5 /* contour.js */,
 				DDAA53D0D9AE21EE52463EAE /* manual.c */,
 				DDAA58FBD65B40549EC27922 /* elliptic.js */,
-				DDAA5F376DB68FEFFF7FC133 /* CAM.html */,
 				DDAA53A88FF1511A72FDAAE0 /* threeDView.js */,
 				DDAA59FEF17A22C1216B27DD /* .nojekyll */,
 				DDAA557E11AAA24C9679FF7B /* README.md */,
@@ -797,7 +780,6 @@
 				DDAA5056C47AB29F4BFD5D4D /* jsEditor.js in Sources */,
 				DDAA567630AE1A676F5E3913 /* main.c in Sources */,
 				DDAA54852E03FAA2BCD78712 /* Makefile in Sources */,
-				DDAA56CD13934EDB4AD46B3D /* CAM.js in Sources */,
 				DDAA5748456A3971A5DA31C8 /* controllerEmber.js in Sources */,
 				DDAA52913C0A0E6F56B49AF9 /* usb.c in Sources */,
 				DDAA577C5CD9C4CF90DA1665 /* main.c in Sources */,
@@ -811,9 +793,7 @@
 				DDAA55509B103F05A9CE94E3 /* CNCMachine.js in Sources */,
 				DDAA533472A073F79FA82002 /* connection.js in Sources */,
 				DDAA5D43FB7EF67FAE49C5C4 /* build-app.js in Sources */,
-				DDAA55540BD64EEFE07C6C79 /* build-cam.js in Sources */,
 				DDAA51E5DC9B01FFC2D2154E /* build-sandbox.js in Sources */,
-				DDAA5647D1988D2672299EA5 /* js_sandbox.js in Sources */,
 				DDAA54A183E699E9FC378EA6 /* visucam.js in Sources */,
 				DDAA5D6EE86074E5A8E3E0AF /* svg.marker.js in Sources */,
 				DDAA566CEFB8F071A326DA0A /* cubeManipulator.js in Sources */,
