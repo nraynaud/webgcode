@@ -144,9 +144,21 @@ define(['cnc/util'], function (util) {
         return operation;
     }
 
+    function travelFromTo(fromPoint, toPoint, altitude) {
+        var travel = new GeneralPolylineToolpath();
+        if (fromPoint) {
+            travel.initialPoint = fromPoint;
+            travel.pushPointXYZ(fromPoint.x, fromPoint.y, altitude);
+            if (toPoint)
+                travel.pushPointXYZ(toPoint.x, toPoint.y, altitude);
+        }
+        return travel;
+    }
+
     return {
         decodeToolPath: decodeToolPath,
         GeneralPolylineToolpath: GeneralPolylineToolpath,
-        ConstantZPolygonToolpath: ConstantZPolygonToolpath
+        ConstantZPolygonToolpath: ConstantZPolygonToolpath,
+        travelFromTo: travelFromTo
     };
 });

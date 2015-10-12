@@ -1,5 +1,6 @@
 "use strict";
-define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', 'cnc/cam/toolpath', 'cnc/cam/3D/3Dcomputer', 'require'],
+define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', 'cnc/cam/toolpath', 'cnc/cam/3D/3Dcomputer',
+        'require'],
     function (Ember, DS, cam, util, Operations, tp, Computer, require) {
         var attr = DS.attr;
         var operationDefinition = {
@@ -157,30 +158,17 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 });
                 return params;
             },
-            travelAfter: function (i) {
-                var pathFragments = this.get('toolpath');
-                if (pathFragments) {
-                    var endPoint = pathFragments[i].getStopPoint();
-                    var travel = new tp.GeneralPolylineToolpath();
-                    travel.initialPoint = endPoint;
-                    travel.pushPointXYZ(endPoint.x, endPoint.y, this.get('job.safetyZ'));
-                    if (i + 1 < pathFragments.length) {
-                        var destinationPoint = pathFragments[i + 1].getStartPoint();
-                        travel.pushPointXYZ(destinationPoint.x, destinationPoint.y, this.get('job.safetyZ'));
-                    }
-                    return travel;
-                }
-                return null;
+            travelAfter: function (index, pathFragments, travelAltitude) {
+                var from = pathFragments[index].getStopPoint();
+                var to = index + 1 < pathFragments.length ? pathFragments[index + 1].getStartPoint() : null;
+                return tp.travelFromTo(from, to, travelAltitude);
             },
             travelBits: function () {
                 var travelBits = [];
                 var pathFragments = this.get('toolpath');
                 if (pathFragments)
-                    for (var i = 0; i < pathFragments.length; i++) {
-                        var travel = this.travelAfter(i);
-                        if (travel)
-                            travelBits.push(travel);
-                    }
+                    for (var i = 0; i < pathFragments.length; i++)
+                        travelBits.push(this.travelAfter(i, pathFragments, this.get('job.safetyZ')));
                 return travelBits;
             }.property('toolpath', 'job.safetyZ'),
             startPoint: function () {
