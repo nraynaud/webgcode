@@ -260,6 +260,8 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
                                     collect(pocketResult);
                                     if (op.pocket_ramping_entry)
                                         path = machine.rampToolPathArray(entries, op.top_Z, op.bottom_Z, op.ramping_turns).concat(path);
+                                    else
+                                        path = entries.concat(path);
                                     //make a spiral with each side, now that they are separated.
                                     for (var i = 0; i < separatedContours.length; i++) {
                                         var ct = new tp.ConstantZPolygonToolpath();
