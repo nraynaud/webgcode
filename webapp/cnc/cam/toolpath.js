@@ -57,8 +57,10 @@ define(['cnc/util'], function (util) {
         }
     };
 
-    function GeneralPolylineToolpath() {
-        this.path = [];
+    function GeneralPolylineToolpath(path) {
+        if (path == null)
+            path = [];
+        this.path = path;
     }
 
     GeneralPolylineToolpath.prototype = {
