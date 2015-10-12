@@ -216,6 +216,7 @@
 		DDAA564C2FBE78706409C739 /* simulation.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = simulation.js; path = gcode/simulation.js; sourceTree = "<group>"; };
 		DDAA56579CF2C65E1BC0ADD2 /* images */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
 		DDAA565B87C730ABFFB31DCA /* parser.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = parser.js; path = gcode/parser.js; sourceTree = "<group>"; };
+		DDAA5673CECDD12E44E78B6A /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = file.md; path = readme.md; sourceTree = "<group>"; };
 		DDAA568D3480E5D010BB2D93 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		DDAA5699D633BDE7062A0B3B /* modelProjector.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = modelProjector.js; sourceTree = "<group>"; };
 		DDAA569CAFF09F361D4ED55E /* job */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = folder; path = job; sourceTree = "<group>"; };
@@ -565,6 +566,7 @@
 				DDAA58E6C11B529BB5B59083 /* runner.js */,
 				DDAA5E3A977BABE01A9F3E78 /* CNCMachine.js */,
 				DDAA529E27A076D6E269389A /* connection.js */,
+				DDAA5673CECDD12E44E78B6A /* readme.md */,
 			);
 			path = controller;
 			sourceTree = "<group>";

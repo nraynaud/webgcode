@@ -266,9 +266,9 @@ var tasks = {
         });
     },
     extractContour: function (event) {
-        require(['THREE', 'cnc/maths/contour'], function (THREE, contour) {
+        require(['THREE', 'cnc/maths/slicer'], function (THREE, slicer) {
             self.postMessage({
-                result: contour.polygonCorrectedContourAsSvg(event.data.altitude,
+                result: slicer.polygonCorrectedSliceAsSvg(event.data.altitude,
                     new THREE.BufferGeometryLoader().parse(event.data.model))
             });
         });

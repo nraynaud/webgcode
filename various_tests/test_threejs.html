@@ -79,7 +79,7 @@
         return result;
     }
 
-    require(['jQuery', 'cnc/ui/threeDView', 'cnc/maths/contour'], function ($, threeDView, contour) {
+    require(['jQuery', 'cnc/ui/threeDView', 'cnc/maths/slicer'], function ($, threeDView, slicer) {
         var view = new threeDView.ThreeDView($('#container'));
         var elevator;
         var map;
@@ -104,7 +104,7 @@
                 });
                 contourLines = [];
             }
-            var res = contour.contour(altitude, geom);
+            var res = slicer.slice(altitude, geom);
             var geom2 = new THREE.Geometry();
             geom2.vertices = geom.vertices.concat();
             $.each(res.triangles, function (_, triangle) {

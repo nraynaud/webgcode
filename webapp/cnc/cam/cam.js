@@ -379,7 +379,7 @@ define(['cnc/maths/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc
         },
 
         /**
-         * what sign should the area of a contour polygon be?
+         * what sign should the area of a slice polygon be?
          * it's positive for trigonometric direction (CCW)
          * @param inside
          * @param climbMilling
