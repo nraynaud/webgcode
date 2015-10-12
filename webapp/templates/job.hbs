@@ -1,5 +1,6 @@
 <div class="jobDetail">
     <button class="btn btn-default" {{action save}} {{bind-attr disabled=saveDisabled}}>Save</button>
+    {{!-- <button class="btn btn-default" {{action getGcode}}>GCode</button>--}}
     <div id="deleteBlock">
         <div id="realDelete" style="display: none;">
             {{input id="deleteSlider" type="range" min=0 max=1 step="0.1" value=deleteSlider}}

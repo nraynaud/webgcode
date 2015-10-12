@@ -30,9 +30,14 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 this.set('previousOpertionComputerProperties', properties);
             }.observes('operationComputer').on('didLoad'),
             computeToolpathObeserved: function () {
-                if (this.get('outline.definition') && this.get('type') != '3DlinearOperation' && !this.get('outline.computing'))
-                    Ember.run.debounce(this, this.computeToolpath, 100);
-            }.observes('type', 'outline.polyline', 'job.toolRadius', 'job.safetyZ', 'outline.manualDefinition.x', 'outline.manualDefinition.y', 'outline.computing').on('init'),
+                if (!this.get('outline.computing'))
+                    if (this.get('type') != '3DlinearOperation') {
+                        if (this.get('outline.definition'))
+                            Ember.run.debounce(this, this.computeToolpath, 100);
+                    }
+                    else
+                        Ember.run.debounce(this, this.compute3D, 100);
+            }.observes('type', 'outline.polyline', 'job.toolRadius', 'job.safetyZ', 'outline.manualDefinition.x', 'outline.manualDefinition.y', 'outline.computing').on('didLoad'),
             computeToolpath: function () {
                 var _this = this;
                 if (this.get('type')) {
@@ -69,8 +74,10 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     this.set('toolpathWorker', worker);
                 }
             },
-            compute3D: function (safetyZ, toolDiameter) {
+            compute3D: function () {
                 var _this = this;
+                var safetyZ = this.get('job.safetyZ');
+                var toolDiameter = this.get('job.toolDiameter');
                 var model = this.get('outline.meshGeometry');
                 var leaveStock = this.get('3d_leaveStock');
                 var topZ = this.get('top_Z');
@@ -82,7 +89,10 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 var startRatio = this.get('3d_startPercent') / 100;
                 var stopRatio = this.get('3d_stopPercent') / 100;
                 var computer = new Computer.ToolPathComputer();
-                var task = computer.computeHeightField(model, stepover, tool, leaveStock, orientation,
+                var task = this.get('task');
+                if (task)
+                    task.cancel();
+                task = computer.computeHeightField(model, stepover, tool, leaveStock, orientation,
                     startRatio, stopRatio);
                 this.set('task', task);
                 task.addObserver('isDone', function () {

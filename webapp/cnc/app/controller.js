@@ -134,22 +134,6 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
 
         var OperationController = Ember.ObjectController.extend({
             needs: ['job'],
-            actions: {
-                compute3D: function () {
-                    var safetyZ = this.get('controllers.job.safetyZ');
-                    var toolDiameter = this.get('controllers.job.toolDiameter');
-                    this.get('model').compute3D(safetyZ, toolDiameter);
-                },
-                pause: function () {
-                    this.get('task').pause();
-                },
-                resume: function () {
-                    this.get('task').resume();
-                },
-                cancel: function () {
-                    this.get('task').cancel();
-                }
-            },
             specialTemplate: function () {
                 return Operations[this.get('type')].specialTemplate;
             }.property('type'),

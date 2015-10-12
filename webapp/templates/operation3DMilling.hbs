@@ -57,26 +57,3 @@
     <td class="input-group input-group-sm">{{number-input numericValue=3d_stopPercent}}
         <span class="input-group-addon">%</span></td>
 </tr>
-<tr>
-    {{#if task}}
-        {{#if task.isPaused}}
-            <td style="text-align: right;">
-                <button class="btn btn-default" {{action cancel}}><i class="fa fa-stop"></i> Cancel</button>
-            </td>
-            <td>
-                <button class="btn btn-default" {{action resume}}><i class="fa fa-play"></i> Resume</button>
-            </td>
-        {{else}}
-            <td></td>
-            <td>
-                <button class="btn btn-default" {{action pause}}><i class="fa fa-pause"></i> Pause <i
-                        class="fa fa-cog fa-spin"></i></button>
-            </td>
-        {{/if}}
-    {{else}}
-        <td></td>
-        <td>
-            <button class="btn btn-default" {{action compute3D}}><i class="fa fa-play"></i> Compute</button>
-        </td>
-    {{/if}}
-</tr>
