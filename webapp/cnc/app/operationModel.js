@@ -173,12 +173,12 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             }.property('toolpath', 'job.safetyZ'),
             startPoint: function () {
                 var pathFragments = this.get('toolpath');
-                if (pathFragments)
+                if (pathFragments && pathFragments.length)
                     return pathFragments[0].getStartPoint();
             }.property('toolpath', 'job.safetyZ'),
             stopPoint: function () {
                 var pathFragments = this.get('toolpath');
-                if (pathFragments)
+                if (pathFragments && pathFragments.length)
                     return pathFragments[pathFragments.length - 1].getStopPoint();
             }.property('toolpath', 'job.safetyZ')
         };

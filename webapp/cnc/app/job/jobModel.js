@@ -86,16 +86,8 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                         travelBits.pushObjects(operations[i].get('travelBits'));
                         var stopPoint = operations[i].get('stopPoint');
                         if (stopPoint) {
-                            var travel = new tp.GeneralPolylineToolpath();
-                            travel.initialPoint = stopPoint;
-                            travel.pushPointXYZ(stopPoint.x, stopPoint.y, this.get('safetyZ'));
-                            if (i + 1 < operations.length) {
-                                var destinationPoint = operations[i + 1].get('startPoint');
-                                if (destinationPoint) {
-                                    travel.pushPointXYZ(destinationPoint.x, destinationPoint.y, this.get('safetyZ'));
-                                    travelBits.push(travel);
-                                }
-                            }
+                            var destinationPoint = i + 1 < operations.length ? operations[i + 1].get('startPoint') : null;
+                            travelBits.push(tp.travelFromTo(stopPoint, destinationPoint, this.get('safetyZ')));
                         }
                     }
                     travelBits.push(this.get('suffixTravel'));
