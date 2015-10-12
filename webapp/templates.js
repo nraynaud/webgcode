@@ -483,6 +483,12 @@ helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   var buffer = '', stack1, helper, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression, self=this;
 
 function program1(depth0,data) {
+
+
+    data.buffer.push("<i class=\"fa fa-cog fa-spin\" title=\"computing...\"></i> ");
+}
+
+    function program3(depth0, data) {
   
   var buffer = '', stack1, helper, options;
   data.buffer.push("\n            <tr class=\"speedComputerForm\">\n                <th>Tool Flutes:</th>\n                <td>");
@@ -516,7 +522,7 @@ function program1(depth0,data) {
   return buffer;
   }
 
-function program3(depth0,data) {
+    function program5(depth0, data) {
   
   var buffer = '', helper, options;
   data.buffer.push("\n            <tr>\n                <th title=\"in mm/min\">Feedrate:</th>\n                <td class=\"input-group input-group-sm\">");
@@ -530,18 +536,27 @@ function program3(depth0,data) {
   return buffer;
   }
 
-function program5(depth0,data) {
+    function program7(depth0, data) {
   
   var buffer = '', stack1, helper, options;
   data.buffer.push("\n            ");
   stack1 = (helper = helpers['link-to'] || (depth0 && depth0['link-to']),options={hash:{
     'classNames': ("list-group-item")
-  },hashTypes:{'classNames': "STRING"},hashContexts:{'classNames': depth0},inverse:self.noop,fn:self.program(6, program6, data),contexts:[depth0,depth0],types:["STRING","ID"],data:data},helper ? helper.call(depth0, "shape", "", options) : helperMissing.call(depth0, "link-to", "shape", "", options));
+  },
+      hashTypes: {'classNames': "STRING"},
+      hashContexts: {'classNames': depth0},
+      inverse: self.noop,
+      fn: self.program(8, program8, data),
+      contexts: [depth0, depth0],
+      types: ["STRING", "ID"],
+      data: data
+  }, helper ? helper.call(depth0, "shape", "", options) : helperMissing.call(depth0, "link-to", "shape", "", options));
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n        ");
   return buffer;
   }
-function program6(depth0,data) {
+
+    function program8(depth0, data) {
   
   var buffer = '', stack1;
   data.buffer.push(" <span ");
@@ -553,39 +568,33 @@ function program6(depth0,data) {
   data.buffer.push(">");
   stack1 = helpers._triageMustache.call(depth0, "name", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-    data.buffer.push("</span>\n                ");
-    stack1 = helpers['if'].call(depth0, "computing", {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        inverse: self.noop,
-        fn: self.program(7, program7, data),
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    });
-    if (stack1 || stack1 === 0) {
-        data.buffer.push(stack1);
-    }
-    data.buffer.push("\n                <span class=\"delete\" ");
+        data.buffer.push("</span>\n                ");
+        stack1 = helpers['if'].call(depth0, "computing", {
+            hash: {},
+            hashTypes: {},
+            hashContexts: {},
+            inverse: self.noop,
+            fn: self.program(1, program1, data),
+            contexts: [depth0],
+            types: ["ID"],
+            data: data
+        });
+        if (stack1 || stack1 === 0) {
+            data.buffer.push(stack1);
+        }
+        data.buffer.push("\n                <span class=\"delete\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "delete", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
   data.buffer.push(" title=\"Delete Shape\" style=\"float:right\"><i\n                        class=\"fa fa-times\"></i></span>");
   return buffer;
   }
 
-    function program7(depth0, data) {
-
-
-        data.buffer.push("<i class=\"fa fa-cog fa-spin\" title=\"computing...\"></i> ");
-    }
-
-    function program9(depth0, data) {
+    function program10(depth0, data) {
   
   
   data.buffer.push("\n            No shape yet. Try dropping a SVG or STL file on the window.\n        ");
   }
 
-    function program11(depth0, data) {
+    function program12(depth0, data) {
   
   var buffer = '', stack1, helper, options;
   data.buffer.push("\n            ");
@@ -595,7 +604,7 @@ function program6(depth0,data) {
       hashTypes: {'classNames': "STRING"},
       hashContexts: {'classNames': depth0},
       inverse: self.noop,
-      fn: self.program(12, program12, data),
+      fn: self.program(13, program13, data),
       contexts: [depth0, depth0],
       types: ["STRING", "ID"],
       data: data
@@ -605,7 +614,7 @@ function program6(depth0,data) {
   return buffer;
   }
 
-    function program12(depth0, data) {
+    function program13(depth0, data) {
   
   var buffer = '', stack1;
   data.buffer.push("\n                <div class=\"arrow-panel\">\n                    ");
@@ -613,8 +622,8 @@ function program6(depth0,data) {
             hash: {},
             hashTypes: {},
             hashContexts: {},
-            inverse: self.program(15, program15, data),
-            fn: self.program(13, program13, data),
+            inverse: self.program(16, program16, data),
+            fn: self.program(14, program14, data),
             contexts: [depth0],
             types: ["ID"],
             data: data
@@ -626,7 +635,7 @@ function program6(depth0,data) {
             hashTypes: {},
             hashContexts: {},
             inverse: self.noop,
-            fn: self.program(17, program17, data),
+            fn: self.program(18, program18, data),
             contexts: [depth0],
             types: ["ID"],
             data: data
@@ -647,7 +656,7 @@ function program6(depth0,data) {
             hashTypes: {},
             hashContexts: {},
             inverse: self.noop,
-            fn: self.program(19, program19, data),
+            fn: self.program(20, program20, data),
             contexts: [depth0],
             types: ["ID"],
             data: data
@@ -659,7 +668,7 @@ function program6(depth0,data) {
             hashTypes: {},
             hashContexts: {},
             inverse: self.noop,
-            fn: self.program(21, program21, data),
+            fn: self.program(22, program22, data),
             contexts: [depth0],
             types: ["ID"],
             data: data
@@ -671,7 +680,7 @@ function program6(depth0,data) {
   return buffer;
   }
 
-    function program13(depth0, data) {
+    function program14(depth0, data) {
   
   var buffer = '';
   data.buffer.push("\n                        <div title=\"move operation one position earlier\" ");
@@ -680,13 +689,13 @@ function program6(depth0,data) {
   return buffer;
   }
 
-    function program15(depth0, data) {
+    function program16(depth0, data) {
   
   
   data.buffer.push("\n                        <div class=\"arrow-button\">&nbsp;</div>\n                    ");
   }
 
-    function program17(depth0, data) {
+    function program18(depth0, data) {
   
   var buffer = '';
   data.buffer.push("\n                        <div title=\"move operation one position later\" ");
@@ -695,19 +704,19 @@ function program6(depth0,data) {
   return buffer;
   }
 
-    function program19(depth0, data) {
+    function program20(depth0, data) {
   
   
   data.buffer.push("<i class=\"fa fa-play-circle\" title=\"operation currently running\"></i>");
   }
 
-    function program21(depth0, data) {
+    function program22(depth0, data) {
   
   
   data.buffer.push("<i class=\"fa fa-cog fa-spin\" title=\"computing...\"></i>");
   }
 
-    function program23(depth0, data) {
+    function program24(depth0, data) {
   
   
   data.buffer.push("\n            No operation yet.\n        ");
@@ -728,7 +737,21 @@ function program6(depth0,data) {
     'step': ("0.1"),
     'value': ("deleteSlider")
   },hashTypes:{'id': "STRING",'type': "STRING",'min': "INTEGER",'max': "INTEGER",'step': "STRING",'value': "ID"},hashContexts:{'id': depth0,'type': depth0,'min': depth0,'max': depth0,'step': depth0,'value': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
-  data.buffer.push("\n            <span id=\"slideToDelete\">Slide right deletes the job</span>\n            <span id=\"releaseToDelete\" style=\"display: none;font-weight: bold\">Release mouse to delete</span>\n        </div>\n        <div id=\"fakeDelete\">\n            <button class=\"btn btn-default\">Delete</button>\n        </div>\n    </div>\n    <table class=\"form\">\n        <tbody>\n        <tr>\n            <th>Name:</th>\n            <td>");
+    data.buffer.push("\n            <span id=\"slideToDelete\">Slide right deletes the job</span>\n            <span id=\"releaseToDelete\" style=\"display: none;font-weight: bold\">Release mouse to delete</span>\n        </div>\n        <div id=\"fakeDelete\">\n            <button class=\"btn btn-default\">Delete</button>\n        </div>\n    </div>\n    <table class=\"form\">\n        <tbody>\n        <tr>\n            <th>");
+    stack1 = helpers['if'].call(depth0, "computing", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        inverse: self.noop,
+        fn: self.program(1, program1, data),
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    });
+    if (stack1 || stack1 === 0) {
+        data.buffer.push(stack1);
+    }
+    data.buffer.push("Name:</th>\n            <td>");
   data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
     'value': ("name"),
     'classNames': ("form-control")
@@ -749,7 +772,16 @@ function program6(depth0,data) {
     'checked': ("computeSpeedFeed")
   },hashTypes:{'type': "STRING",'checked': "ID"},hashContexts:{'type': depth0,'checked': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
   data.buffer.push(" Compute Speed and Feed</td>\n        </tr>\n        ");
-  stack1 = helpers['if'].call(depth0, "computeSpeedFeed", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(3, program3, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],data:data});
+    stack1 = helpers['if'].call(depth0, "computeSpeedFeed", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        inverse: self.program(5, program5, data),
+        fn: self.program(3, program3, data),
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    });
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n        <tr>\n            <th title=\"start the spindle before the job, then stop it after completion\">Start Spindle</th>\n            <td>");
   data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
@@ -781,8 +813,8 @@ function program6(depth0,data) {
   },
       hashTypes: {'itemController': "STRING"},
       hashContexts: {'itemController': depth0},
-      inverse: self.program(9, program9, data),
-      fn: self.program(5, program5, data),
+      inverse: self.program(10, program10, data),
+      fn: self.program(7, program7, data),
       contexts: [depth0],
       types: ["ID"],
       data: data
@@ -796,8 +828,8 @@ function program6(depth0,data) {
   },
       hashTypes: {'itemController': "STRING"},
       hashContexts: {'itemController': depth0},
-      inverse: self.program(23, program23, data),
-      fn: self.program(11, program11, data),
+      inverse: self.program(24, program24, data),
+      fn: self.program(12, program12, data),
       contexts: [depth0],
       types: ["ID"],
       data: data

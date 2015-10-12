@@ -25,6 +25,8 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             operationsOrderProperty: ['index'],
             orderedOperations: Ember.computed.sort('operations', 'operationsOrderProperty'),
             enabledOperations: Ember.computed.filterBy('orderedOperations', 'enabled', true),
+            computingOperations: Ember.computed.filterBy('operations', 'computing', true),
+            computing: Ember.computed.notEmpty('computingOperations'),
             toolRadius: function () {
                 return parseFloat(this.get('toolDiameter')) / 2;
             }.property('toolDiameter'),

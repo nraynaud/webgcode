@@ -17,19 +17,18 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             job: DS.belongsTo('job'),
             task: null,
             installObservers: function () {
-                var properties = this.get('operationComputer').properties;
                 var _this = this;
+                var previousProperties = this.get('previousOpertionComputerProperties');
+                if (previousProperties)
+                    Object.keys(previousProperties).forEach(function (key) {
+                        _this.removeObserver(key, _this, _this.computeToolpathObeserved)
+                    });
+                var properties = this.get('operationComputer').properties;
                 Object.keys(properties).forEach(function (key) {
                     _this.addObserver(key, _this, _this.computeToolpathObeserved)
                 });
+                this.set('previousOpertionComputerProperties', properties);
             }.observes('operationComputer').on('didLoad'),
-            uninstallObservers: function () {
-                var properties = this.get('operationComputer').properties;
-                var _this = this;
-                Object.keys(properties).forEach(function (key) {
-                    _this.removeObserver(key, _this, _this.computeToolpathObeserved)
-                });
-            }.observesBefore('operationComputer'),
             computeToolpathObeserved: function () {
                 if (this.get('outline.definition') && this.get('type') != '3DlinearOperation' && !this.get('outline.computing'))
                     Ember.run.debounce(this, this.computeToolpath, 100);
