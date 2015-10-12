@@ -31,6 +31,8 @@ define(['Ember', 'cnc/ui/threeDView', 'THREE', 'cnc/util', 'cnc/cam/3D/toolProfi
 
         function collectVertices(toolpath, defaultZ) {
             var res = [];
+            if (toolpath.initialPoint)
+                res.push(toolpath.initialPoint);
             toolpath.forEachPoint(function (x, y, z, _) {
                 res.push(new util.Point(x, y, z));
             }, defaultZ);
@@ -208,8 +210,10 @@ define(['Ember', 'cnc/ui/threeDView', 'THREE', 'cnc/util', 'cnc/cam/3D/toolProfi
                 travelDisplay.clear();
                 if (this.get('controller.showTravel')) {
                     var travelMoves = this.get('controller.transitionTravels');
-                    travelDisplay.addPolyLines(travelMoves.map(function (move) {
-                        return move.path;
+                    travelDisplay.addPolyLines(travelMoves.map(function (toolpath) {
+                        if (toolpath.initialPoint)
+                            return [toolpath.initialPoint].concat(toolpath.path);
+                        return toolpath.path;
                     }));
                 }
                 threeDView.reRender();

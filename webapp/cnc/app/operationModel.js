@@ -157,20 +157,29 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 });
                 return params;
             },
+            travelAfter: function (i) {
+                var pathFragments = this.get('toolpath');
+                if (pathFragments) {
+                    var endPoint = pathFragments[i].getStopPoint();
+                    var travel = new tp.GeneralPolylineToolpath();
+                    travel.initialPoint = endPoint;
+                    travel.pushPointXYZ(endPoint.x, endPoint.y, this.get('job.safetyZ'));
+                    if (i + 1 < pathFragments.length) {
+                        var destinationPoint = pathFragments[i + 1].getStartPoint();
+                        travel.pushPointXYZ(destinationPoint.x, destinationPoint.y, this.get('job.safetyZ'));
+                    }
+                    return travel;
+                }
+                return null;
+            },
             travelBits: function () {
                 var travelBits = [];
                 var pathFragments = this.get('toolpath');
                 if (pathFragments)
                     for (var i = 0; i < pathFragments.length; i++) {
-                        var endPoint = pathFragments[i].getStopPoint();
-                        var travel = new tp.GeneralPolylineToolpath();
-                        travel.pushPointXYZ(endPoint.x, endPoint.y, endPoint.z);
-                        travel.pushPointXYZ(endPoint.x, endPoint.y, this.get('job.safetyZ'));
-                        if (i + 1 < pathFragments.length) {
-                            var destinationPoint = pathFragments[i + 1].getStartPoint();
-                            travel.pushPointXYZ(destinationPoint.x, destinationPoint.y, this.get('job.safetyZ'));
-                        }
-                        travelBits.push(travel);
+                        var travel = this.travelAfter(i);
+                        if (travel)
+                            travelBits.push(travel);
                     }
                 return travelBits;
             }.property('toolpath', 'job.safetyZ'),

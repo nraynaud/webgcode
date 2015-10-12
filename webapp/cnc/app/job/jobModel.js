@@ -55,21 +55,24 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             }.property('startPoint', 'safetyZ'),
             prefixTravel: function () {
                 var firstPath = this.get('enabledOperations.firstObject.toolpath.firstObject');
+                var result = new tp.GeneralPolylineToolpath([this.get('safeStartPoint')]);
+                result.initialPoint = this.get('startPoint');
                 if (firstPath) {
                     var firstPoint = firstPath.getStartPoint(0);
-                    firstPoint.z = this.get('safetyZ');
-                    return [this.get('startPoint'), this.get('safeStartPoint'), firstPoint];
+                    result.pushPointXYZ(firstPoint.x, firstPoint.y, this.get('safetyZ'));
                 }
-                return [this.get('startPoint'), this.get('safeStartPoint')];
+                return result;
             }.property('startPoint', 'safeStartPoint', 'safetyZ', 'enabledOperations.firstObject.toolpath.firstObject'),
             suffixTravel: function () {
                 var lastPath = this.get('enabledOperations.lastObject.toolpath.lastObject');
+                var result = new tp.GeneralPolylineToolpath();
                 if (lastPath) {
                     var lastPoint = lastPath.getStopPoint(0);
-                    lastPoint.z = this.get('safetyZ');
-                    return [lastPoint, this.get('safeStartPoint')];
+                    result.initialPoint = lastPoint;
+                    result.pushPointXYZ(lastPoint.x, lastPoint.y, this.get('safetyZ'));
+                    result.pushPoint(this.get('safeStartPoint'))
                 }
-                return [this.get('safeStartPoint')];
+                return result;
             }.property('safeStartPoint', 'safetyZ', 'enabledOperations.lastObject', 'enabledOperations.lastObject.toolpath'),
             transitionTravelsObeserved: function () {
                 Ember.run.debounce(this, this.computeTransitionTravels, 100);
@@ -78,13 +81,13 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 var operations = this.get('enabledOperations');
                 var travelBits = [];
                 if (operations.length) {
-                    travelBits.push(new tp.GeneralPolylineToolpath(this.get('prefixTravel')));
+                    travelBits.push(this.get('prefixTravel'));
                     for (var i = 0; i < operations.length; i++) {
                         travelBits.pushObjects(operations[i].get('travelBits'));
                         var stopPoint = operations[i].get('stopPoint');
                         if (stopPoint) {
                             var travel = new tp.GeneralPolylineToolpath();
-                            travel.pushPointXYZ(stopPoint.x, stopPoint.y, stopPoint.z);
+                            travel.initialPoint = stopPoint;
                             travel.pushPointXYZ(stopPoint.x, stopPoint.y, this.get('safetyZ'));
                             if (i + 1 < operations.length) {
                                 var destinationPoint = operations[i + 1].get('startPoint');
@@ -95,7 +98,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                             }
                         }
                     }
-                    travelBits.push(new tp.GeneralPolylineToolpath(this.get('suffixTravel')));
+                    travelBits.push(this.get('suffixTravel'));
                 }
                 var len = 0;
                 for (i = 0; i < travelBits.length; i++)
