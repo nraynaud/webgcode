@@ -15,10 +15,10 @@ highp float DecodeFloatRGB(vec3 rgb) {
     return dot(rgb, vec3(1.0, 1.0 / 255.0, 1.0 / 255.0 / 255.0)) / factor;
 }
 highp float readHeight(vec2 pos) {
-    highp vec4 color = texture2D(modelHeight, terrainRatio * vUv + terrainTranslation + pos * toolToPartRatio);
+    highp float model = texture2D(modelHeight, terrainRatio * vUv + terrainTranslation + pos * toolToPartRatio).r;
     highp float displacement = texture2D(toolProfile, vec2(0.5 / float(radialSamples)
         + length(pos) / float(radialSamples) * float(radialSamples - 1), 0.5)).r;
-    return 1.0 - color.r - displacement;
+    return 1.0 - model - displacement;
 }
 void main() {
     highp int radiusSquared = radialSamples * radialSamples;

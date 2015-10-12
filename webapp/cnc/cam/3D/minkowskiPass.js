@@ -25,6 +25,7 @@ define(['libs/threejs/postprocessing/ShaderPass', 'text!shaders/minkowski.vert',
                 THREE.LuminanceFormat, THREE.FloatType, THREE.Texture.DEFAULT_MAPPING, THREE.ClampToEdgeWrapping,
                 THREE.ClampToEdgeWrapping, THREE.LinearFilter, THREE.LinearFilter);
             uniforms.toolProfile.value.generateMipmaps = false;
+            uniforms.toolProfile.value.needsUpdate = true;
             uniforms.toolToPartRatio.value = toolToPartRatio;
             uniforms.minZ.value = minZ != null ? minZ : -Infinity;
             this.minkowskiPass.material.defines.radialSamples = pixelsOnRadius;
