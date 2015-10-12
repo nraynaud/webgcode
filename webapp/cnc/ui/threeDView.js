@@ -58,8 +58,11 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             },
             remove: function () {
                 var node = this.node;
-                for (var i = 0; i < node.children.length; i++)
-                    node.children[i].geometry.dispose();
+                for (var i = 0; i < node.children.length; i++) {
+                    var geometry = node.children[i].geometry;
+                    if (geometry)
+                        geometry.dispose();
+                }
                 node.parent.remove(node);
             },
             clear: function () {
