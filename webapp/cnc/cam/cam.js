@@ -246,17 +246,6 @@ define(['cnc/maths/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc
             co.Execute(result, radius * this.clipperScale);
             return result;
         },
-        filletWholePolygon: function (shapePath, radius) {
-            var clipperPoints = this.toClipper(shapePath);
-            var eroded = this.offsetPolygon(clipperPoints, -radius);
-            var openedDilated = this.offsetPolygon(eroded, 2 * radius);
-            var rounded = this.offsetPolygon(openedDilated, -radius);
-            shapePath.node.pathSegList.clear();
-            $.each(this.fromClipper(rounded), function (index, poly) {
-                poly.pushOnPath(shapePath);
-            });
-            return shapePath;
-        },
         dumpOnCollector: function (pathCollector) {
             var machine = this;
 
@@ -509,7 +498,6 @@ define(['cnc/maths/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc
     return {
         CLIPPER_SCALE: CLIPPER_SCALE,
         geom: geom,
-        pushOnPath: pushOnPath,
         Machine: Machine,
         decomposePolytreeInTopLevelPolygons: decomposePolytreeInTopLevelPolygons,
         polyOp: polyOp,

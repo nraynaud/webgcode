@@ -29,10 +29,6 @@ define(['cnc/util'], function (util) {
                 pointHandler(point[0], point[1], defaultZ, index);
             });
         },
-        pushOnPath: function (path) {
-            pushOnPath(path, this);
-            path.node.pathSegList.appendItem(path.node.createSVGPathSegClosePath());
-        },
         asPathDef: function () {
             var poly = this.path;
             var d = '';
@@ -90,9 +86,6 @@ define(['cnc/util'], function (util) {
             });
             var lastPoint = this.getStopPoint(defaultZ);
             pointHandler(lastPoint.x, lastPoint.y, lastPoint.z);
-        },
-        pushOnPath: function (path) {
-            pushOnPath(path, this);
         },
         asPathDef: function () {
             var poly = this.path;
