@@ -8,7 +8,6 @@ define(['Ember'], function (Ember) {
                 _this.set('reject', reject);
             }, this.get('label'));
             _this.set('promise', promise.finally(function () {
-                console.log('finally');
                 _this.set('isDone', true);
             }));
         },

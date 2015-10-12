@@ -146,7 +146,6 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                 this.bufferedGeometry.index.needsUpdate = true;
                 this.bufferedGeometry.attributes.position.needsUpdate = true;
                 if (choppedPointAdded < pointsAdded) {
-                    console.log('splitting');
                     this.bufferedGeometry = null;
                     return this.addCollated(vertices.subarray((choppedPointAdded - 1) * 3));
                 }

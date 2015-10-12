@@ -18,7 +18,6 @@ define(['RSVP', 'THREE', 'Piecon', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/mink
             computeHeightField: function (geometry, stepover, tool, leaveStock, angle, startRatio, stopRatio, renderer, displayResult) {
 
                 function work(task, resolve, reject) {
-                    console.log('preparation');
                     if (angle == null)
                         angle = 0;
                     var modelStage = new ModelProjector();
@@ -105,12 +104,10 @@ define(['RSVP', 'THREE', 'Piecon', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/mink
                             THREE.FloatType)
                     });
                     minkowskiBuffer.texture.generateMipmaps = false;
-                    console.log('testing minkowskiBuffer');
                     renderer.setRenderTarget(minkowskiBuffer);
                     var isFloatREadPixelSupported = gl.getParameter(gl['IMPLEMENTATION_COLOR_READ_FORMAT']) == gl.RGB
                         && gl.getParameter(gl['IMPLEMENTATION_COLOR_READ_TYPE']) == gl.FLOAT;
                     renderer.setRenderTarget(null);
-                    console.log('testing minkowskiBuffer done');
                     var tileColorComponents, readPixels, outputFloats = false;
                     //only chrome seems to support readPixel on RGB/Float, we'll encode in RGBA/Uint8 for the others.
                     if (isFloatREadPixelSupported) {
@@ -131,6 +128,7 @@ define(['RSVP', 'THREE', 'Piecon', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/mink
                                 }
                         };
                     } else {
+                        console.log('using byte buffer');
                         minkowskiBuffer.dispose();
                         minkowskiBuffer = new THREE.WebGLRenderTarget(resultTileX, resultTileY, {
                             stencilBuffer: false, generateMipmaps: false,
