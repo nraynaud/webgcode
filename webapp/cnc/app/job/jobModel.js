@@ -27,6 +27,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             enabledOperations: Ember.computed.filterBy('orderedOperations', 'enabled', true),
             computingOperations: Ember.computed.filterBy('operations', 'computing', true),
             computing: Ember.computed.notEmpty('computingOperations'),
+            operationsTravelsBits: Ember.computed.mapBy('enabledOperations', 'travelBits'),
             toolRadius: function () {
                 return parseFloat(this.get('toolDiameter')) / 2;
             }.property('toolDiameter'),
@@ -48,45 +49,59 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 shape.destroyRecord();
                 this.save();
             },
+            safeStartPoint: function () {
+                var startPoint = this.get('startPoint');
+                return new util.Point(startPoint.x, startPoint.y, Math.max(startPoint.z, this.get('safetyZ')));
+            }.property('startPoint', 'safetyZ'),
+            prefixTravel: function () {
+                var firstPath = this.get('enabledOperations.firstObject.toolpath.firstObject');
+                if (firstPath) {
+                    var firstPoint = firstPath.getStartPoint(0);
+                    firstPoint.z = this.get('safetyZ');
+                    return [this.get('startPoint'), this.get('safeStartPoint'), firstPoint];
+                }
+                return [this.get('startPoint'), this.get('safeStartPoint')];
+            }.property('startPoint', 'safeStartPoint', 'safetyZ', 'enabledOperations.firstObject.toolpath.firstObject'),
+            suffixTravel: function () {
+                var lastPath = this.get('enabledOperations.lastObject.toolpath.lastObject');
+                if (lastPath) {
+                    var lastPoint = lastPath.getStopPoint(0);
+                    lastPoint.z = this.get('safetyZ');
+                    return [lastPoint, this.get('safeStartPoint')];
+                }
+                return [this.get('safeStartPoint')];
+            }.property('safeStartPoint', 'safetyZ', 'enabledOperations.lastObject', 'enabledOperations.lastObject.toolpath'),
             transitionTravelsObeserved: function () {
                 Ember.run.debounce(this, this.computeTransitionTravels, 100);
-            }.observes('enabledOperations.@each.toolpath.@each'),
+            }.observes('startPoint', 'operationsTravelsBits', 'prefixTravel', 'suffixTravel', 'enabledOperations.@each.travelBits'),
             computeTransitionTravels: function () {
                 var operations = this.get('enabledOperations');
                 var travelBits = [];
-                var pathFragments = [];
-                var endPoint = null;
-                operations.forEach(function (operation) {
-                    if (operation.get('toolpath'))
-                        pathFragments.pushObjects(operation.get('toolpath'));
-                });
-                if (pathFragments.length) {
-                    var prefix = new tp.GeneralPolylineToolpath();
-                    prefix.pushPoint(this.get('startPoint'));
-                    prefix.pushPoint(pathFragments[0].getStartPoint());
-                    travelBits.push(prefix);
-                    for (var i = 0; i < pathFragments.length; i++) {
-                        endPoint = pathFragments[i].getStopPoint();
-                        var travel = new tp.GeneralPolylineToolpath();
-                        travel.pushPointXYZ(endPoint.x, endPoint.y, endPoint.z);
-                        travel.pushPointXYZ(endPoint.x, endPoint.y, this.get('safetyZ'));
-                        if (i + 1 < pathFragments.length) {
-                            var destinationPoint = pathFragments[i + 1].getStartPoint();
-                            travel.pushPointXYZ(destinationPoint.x, destinationPoint.y, this.get('safetyZ'));
+                if (operations.length) {
+                    travelBits.push(new tp.GeneralPolylineToolpath(this.get('prefixTravel')));
+                    for (var i = 0; i < operations.length; i++) {
+                        travelBits.pushObjects(operations[i].get('travelBits'));
+                        var stopPoint = operations[i].get('stopPoint');
+                        if (stopPoint) {
+                            var travel = new tp.GeneralPolylineToolpath();
+                            travel.pushPointXYZ(stopPoint.x, stopPoint.y, stopPoint.z);
+                            travel.pushPointXYZ(stopPoint.x, stopPoint.y, this.get('safetyZ'));
+                            if (i + 1 < operations.length) {
+                                var destinationPoint = operations[i + 1].get('startPoint');
+                                if (destinationPoint) {
+                                    travel.pushPointXYZ(destinationPoint.x, destinationPoint.y, this.get('safetyZ'));
+                                    travelBits.push(travel);
+                                }
+                            }
                         }
-                        travelBits.push(travel);
                     }
-                    var suffix = new tp.GeneralPolylineToolpath();
-                    suffix.pushPoint(travelBits[travelBits.length - 1].getStopPoint());
-                    suffix.pushPoint(this.get('startPoint'));
-                    travelBits.push(suffix);
+                    travelBits.push(new tp.GeneralPolylineToolpath(this.get('suffixTravel')));
                 }
                 var len = 0;
                 for (i = 0; i < travelBits.length; i++)
                     len += travelBits[i].length();
-                console.log('travel dist', len);
                 this.set('transitionTravels', travelBits);
-            }.on('init'),
+            }.on('didLoad'),
             createOperation: function (params) {
                 var lastOp = this.get('orderedOperations.lastObject');
                 if (lastOp) {
@@ -153,8 +168,6 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             computeCompactToolPath: function () {
                 console.log('computeCompactToolPath');
                 var operations = this.get('enabledOperations');
-                var feedrate = this.get('feedrate');
-                console.log('using feed rate', feedrate);
                 var safetyZ = this.get('safetyZ');
                 var travelBits = [];
                 var pathFragments = [];

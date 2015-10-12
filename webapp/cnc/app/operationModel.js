@@ -156,7 +156,34 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     params[key] = _this.get(key);
                 });
                 return params;
-            }
+            },
+            travelBits: function () {
+                var travelBits = [];
+                var pathFragments = this.get('toolpath');
+                if (pathFragments)
+                    for (var i = 0; i < pathFragments.length; i++) {
+                        var endPoint = pathFragments[i].getStopPoint();
+                        var travel = new tp.GeneralPolylineToolpath();
+                        travel.pushPointXYZ(endPoint.x, endPoint.y, endPoint.z);
+                        travel.pushPointXYZ(endPoint.x, endPoint.y, this.get('job.safetyZ'));
+                        if (i + 1 < pathFragments.length) {
+                            var destinationPoint = pathFragments[i + 1].getStartPoint();
+                            travel.pushPointXYZ(destinationPoint.x, destinationPoint.y, this.get('job.safetyZ'));
+                        }
+                        travelBits.push(travel);
+                    }
+                return travelBits;
+            }.property('toolpath', 'job.safetyZ'),
+            startPoint: function () {
+                var pathFragments = this.get('toolpath');
+                if (pathFragments)
+                    return pathFragments[0].getStartPoint();
+            }.property('toolpath', 'job.safetyZ'),
+            stopPoint: function () {
+                var pathFragments = this.get('toolpath');
+                if (pathFragments)
+                    return pathFragments[pathFragments.length - 1].getStopPoint();
+            }.property('toolpath', 'job.safetyZ')
         };
 
 //add all the attributes from all the operations types
