@@ -79,7 +79,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             }.observes('startPoint', 'operationsTravelsBits', 'prefixTravel', 'suffixTravel', 'enabledOperations.@each.assembledPath'),
             computeTransitionTravels: function () {
                 this.set('transitionTravels', tp.assembleWholeProgram(this.get('prefixTravel'), this.get('suffixTravel'),
-                    this.get('safetyZ'), this.get('enabledOperations').mapBy('assembledPath')).getTravelBits());
+                    this.get('safetyZ'), this.get('enabledOperations').filterBy('assembledPath.isEmpty', false).mapBy('assembledPath')).getTravelBits());
             }.on('didLoad'),
             createOperation: function (params) {
                 var lastOp = this.get('orderedOperations.lastObject');
