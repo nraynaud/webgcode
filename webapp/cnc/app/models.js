@@ -1,8 +1,8 @@
 "use strict";
 
-define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', 'libs/pako.min', 'base64', 'THREE',
+define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'libs/pako.min', 'base64', 'THREE',
         'libs/threejs/STLLoader', 'cnc/cam/text', 'cnc/app/job/jobModel', 'cnc/app/operationModel', 'require'],
-    function (Ember, DS, cam, util, Operations, pako, base64, THREE, STLLoader, Text, Job, Operation, require) {
+    function (Ember, DS, cam, util, pako, base64, THREE, STLLoader, Text, Job, Operation, require) {
         var attr = DS.attr;
 
         var PointTransform = DS.Transform.extend({
