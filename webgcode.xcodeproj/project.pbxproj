@@ -14,6 +14,7 @@
 		DDAA513C5E9C37176C306B4B /* worker.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5622C29CE547B513B64F /* worker.js */; };
 		DDAA513DEAB1F20CBF66578D /* geometry.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA594E8EF545C3CD0D0873 /* geometry.js */; };
 		DDAA514E0F08D607D249A22C /* TrackballControls.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C1795288A876C637870 /* TrackballControls.js */; };
+		DDAA51BFE990DE3161CA2D12 /* toolpathCollection.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C82C5CDF489B1268C67 /* toolpathCollection.js */; };
 		DDAA51C7A0C9EE7238B6378F /* view.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5F0312AAB5E2ACBE6A7A /* view.js */; };
 		DDAA51E5DC9B01FFC2D2154E /* build-sandbox.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA52E5A7394BAD5D0799D3 /* build-sandbox.js */; };
 		DDAA51F326C3B7DBDBA134E1 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5048B1B1F3BE543B936C /* Makefile */; };
@@ -270,6 +271,7 @@
 		DDAA5C4590D198711729289B /* operationDrilling.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = operationDrilling.hbs; sourceTree = "<group>"; };
 		DDAA5C7C2C93424ED58CED62 /* operations.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = operations.js; sourceTree = "<group>"; };
 		DDAA5C7DCC7731222576D7BA /* delaunay.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = delaunay.js; path = webapp/cnc/delaunay.js; sourceTree = "<group>"; };
+		DDAA5C82C5CDF489B1268C67 /* toolpathCollection.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = toolpathCollection.js; sourceTree = "<group>"; };
 		DDAA5C8A7830C1829BD88573 /* graphicView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = graphicView.js; sourceTree = "<group>"; };
 		DDAA5C9FEE3CFFBDD4F6E9D2 /* visucam.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = visucam.js; sourceTree = "<group>"; };
 		DDAA5CA206006D8E2D7FCDB5 /* flatten.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = flatten.js; path = libs/flatten.js; sourceTree = "<group>"; };
@@ -517,6 +519,7 @@
 				DDAA5D5993F80C624276438C /* jobView.js */,
 				DDAA599DAABEA114C2481F30 /* jobModel.js */,
 				DDAA52EA78ED28A69D3F5353 /* operationModel.js */,
+				DDAA5C82C5CDF489B1268C67 /* toolpathCollection.js */,
 			);
 			path = app;
 			sourceTree = "<group>";
@@ -837,6 +840,7 @@
 				DDAA591C40FE60A702BEE272 /* jobView.js in Sources */,
 				DDAA5D160D704CDD765C1897 /* jobModel.js in Sources */,
 				DDAA529A7991CB69C5E34B53 /* operationModel.js in Sources */,
+				DDAA51BFE990DE3161CA2D12 /* toolpathCollection.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

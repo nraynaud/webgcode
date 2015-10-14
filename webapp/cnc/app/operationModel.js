@@ -1,6 +1,6 @@
 "use strict";
-define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', 'cnc/cam/toolpath', 'cnc/cam/3D/3Dcomputer',
-        'require'],
+define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', 'cnc/cam/toolpath',
+        'cnc/cam/3D/3Dcomputer', 'require'],
     function (Ember, DS, cam, util, Operations, tp, Computer, require) {
         var attr = DS.attr;
         var operationDefinition = {
@@ -38,9 +38,11 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     }
                     else
                         Ember.run.debounce(this, this.compute3D, 100);
-            }.observes('type', 'outline.polyline', 'job.toolRadius', 'job.safetyZ', 'outline.manualDefinition.x', 'outline.manualDefinition.y', 'outline.computing').on('didLoad'),
+            }.observes('type', 'outline.polyline', 'job.toolRadius', 'job.safetyZ', 'outline.manualDefinition.x',
+                'outline.manualDefinition.y', 'outline.computing').on('didLoad'),
             computeToolpath: function () {
                 var _this = this;
+                var id = this.get('id');
                 if (this.get('type')) {
                     var params = this.getComputingParameters();
                     var previousWorker = _this.get('toolpathWorker');
@@ -57,7 +59,9 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                         }
                         if (event.data.toolpath)
                             _this.set('toolpath', event.data.toolpath.map(function (p) {
-                                return tp.decodeToolPath(p)
+                                var toolPath = tp.decodeToolPath(p);
+                                toolPath.speedTag = 'normal';
+                                return toolPath
                             }));
                         if (event.data.missedArea)
                             _this.set('missedArea', event.data.missedArea);
@@ -109,7 +113,9 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 task.start();
             },
             computing: function () {
-                return (this.get('task') && !this.get('task.isDone')) || this.get('toolpathWorker') || this.get('outline.computing');
+                return (this.get('task') && !this.get('task.isDone'))
+                    || this.get('toolpathWorker')
+                    || this.get('outline.computing');
             }.property('task', 'task.isDone', 'toolpathWorker', 'outline.computing'),
             paused: function () {
                 console.log('computing', this.get('task') && !this.get('task.isDone'));
@@ -158,29 +164,28 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 });
                 return params;
             },
-            travelAfter: function (index, pathFragments, travelAltitude) {
-                var from = pathFragments[index].getStopPoint();
-                var to = index + 1 < pathFragments.length ? pathFragments[index + 1].getStartPoint() : null;
-                return tp.travelFromTo(from, to, travelAltitude);
-            },
             travelBits: function () {
-                var travelBits = [];
-                var pathFragments = this.get('toolpath');
-                if (pathFragments)
-                    for (var i = 0; i < pathFragments.length; i++)
-                        travelBits.push(this.travelAfter(i, pathFragments, this.get('job.safetyZ')));
-                return travelBits;
-            }.property('toolpath', 'job.safetyZ'),
-            startPoint: function () {
-                var pathFragments = this.get('toolpath');
-                if (pathFragments && pathFragments.length)
-                    return pathFragments[0].getStartPoint();
-            }.property('toolpath', 'job.safetyZ'),
-            stopPoint: function () {
-                var pathFragments = this.get('toolpath');
-                if (pathFragments && pathFragments.length)
-                    return pathFragments[pathFragments.length - 1].getStopPoint();
-            }.property('toolpath', 'job.safetyZ')
+                return this.get('assembledPath').getTravelBits();
+            }.property('assembledPath'),
+            assembledPath: function () {
+                return tp.assembleToolPathFromOperation(this.get('actualFeedrate'), this.get('job.safetyZ'), this.get('toolpath'));
+            }.property('toolpath', 'job.safetyZ', 'actualFeedrate'),
+            pushCompactToolpathOn: function (collector) {
+                var feedrate = this.get('actualFeedrate');
+                var id = this.get('id');
+                var travelBits = this.get('travelBits');
+                for (var i = 0; i < travelBits.length; i++) {
+                    var fragment = travelBits[i];
+                    if (fragment.path.length == 0)
+                        continue;
+                    collector.push({
+                        operation: id,
+                        speedTag: fragment.speedTag,
+                        feedRate: feedrate,
+                        path: fragment.asCompactToolpath()
+                    });
+                }
+            }
         };
 
 //add all the attributes from all the operations types

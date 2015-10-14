@@ -146,6 +146,7 @@ define(['cnc/util'], function (util) {
 
     function travelFromTo(fromPoint, toPoint, altitude) {
         var travel = new GeneralPolylineToolpath();
+        travel.speedTag = 'rapid';
         if (fromPoint) {
             travel.initialPoint = fromPoint;
             travel.pushPointXYZ(fromPoint.x, fromPoint.y, altitude);
@@ -155,10 +156,71 @@ define(['cnc/util'], function (util) {
         return travel;
     }
 
+    function assembleToolPathFromOperation(feedrate, travelAltitude, workToolpath) {
+        function travelAfter(index, pathFragments, travelAltitude) {
+            var from = pathFragments[index].getStopPoint();
+            var to = index + 1 < pathFragments.length ? pathFragments[index + 1].getStartPoint() : null;
+            return travelFromTo(from, to, travelAltitude);
+        }
+
+        var completePath = [];
+        var travelBits = [];
+        if (workToolpath != null)
+            for (var i = 0; i < workToolpath.length; i++) {
+                workToolpath[i].feedrate = feedrate;
+                completePath.push(workToolpath[i]);
+                var travel = travelAfter(i, workToolpath, travelAltitude);
+                travelBits.push(travel);
+                completePath.push(travel);
+            }
+        return {
+            isEmpty: completePath.length == 0,
+            path: completePath,
+            getStartPoint: function () {
+                return workToolpath[0].getStartPoint();
+            },
+            getStopPoint: function () {
+                return workToolpath[workToolpath.length - 1].getStopPoint();
+            },
+            getTravelBits: function () {
+                return travelBits;
+            }
+        }
+    }
+
+    function assembleWholeProgram(prefix, suffix, safetyZ, operationAssemblies) {
+        var travelBits = [];
+        var completePath = [];
+        if (operationAssemblies.length) {
+            travelBits.push(prefix);
+            for (var i = 0; i < operationAssemblies.length; i++) {
+                var assembly = operationAssemblies[i];
+                if (assembly.isEmpty)
+                    continue;
+                travelBits.pushObjects(assembly.getTravelBits());
+                var stopPoint = assembly.getStopPoint();
+                if (stopPoint && i + 1 < operationAssemblies.length && !operationAssemblies[i + 1].isEmpty)
+                    travelBits.push(travelFromTo(stopPoint, operationAssemblies[i + 1].getStartPoint(), safetyZ));
+            }
+            travelBits.push(suffix);
+        }
+        return {
+            path: completePath,
+            getTravelBits: function () {
+                return travelBits;
+            },
+            computeCompactToolPath: function () {
+
+            }
+        };
+    }
+
     return {
         decodeToolPath: decodeToolPath,
         GeneralPolylineToolpath: GeneralPolylineToolpath,
         ConstantZPolygonToolpath: ConstantZPolygonToolpath,
-        travelFromTo: travelFromTo
+        travelFromTo: travelFromTo,
+        assembleToolPathFromOperation: assembleToolPathFromOperation,
+        assembleWholeProgram: assembleWholeProgram
     };
 });

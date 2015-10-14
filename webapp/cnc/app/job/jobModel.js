@@ -76,26 +76,10 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             }.property('safeStartPoint', 'safetyZ', 'enabledOperations.lastObject', 'enabledOperations.lastObject.toolpath'),
             transitionTravelsObeserved: function () {
                 Ember.run.debounce(this, this.computeTransitionTravels, 100);
-            }.observes('startPoint', 'operationsTravelsBits', 'prefixTravel', 'suffixTravel', 'enabledOperations.@each.travelBits'),
+            }.observes('startPoint', 'operationsTravelsBits', 'prefixTravel', 'suffixTravel', 'enabledOperations.@each.assembledPath'),
             computeTransitionTravels: function () {
-                var operations = this.get('enabledOperations');
-                var travelBits = [];
-                if (operations.length) {
-                    travelBits.push(this.get('prefixTravel'));
-                    for (var i = 0; i < operations.length; i++) {
-                        travelBits.pushObjects(operations[i].get('travelBits'));
-                        var stopPoint = operations[i].get('stopPoint');
-                        if (stopPoint) {
-                            var destinationPoint = i + 1 < operations.length ? operations[i + 1].get('startPoint') : null;
-                            travelBits.push(tp.travelFromTo(stopPoint, destinationPoint, this.get('safetyZ')));
-                        }
-                    }
-                    travelBits.push(this.get('suffixTravel'));
-                }
-                var len = 0;
-                for (i = 0; i < travelBits.length; i++)
-                    len += travelBits[i].length();
-                this.set('transitionTravels', travelBits);
+                this.set('transitionTravels', tp.assembleWholeProgram(this.get('prefixTravel'), this.get('suffixTravel'),
+                    this.get('safetyZ'), this.get('enabledOperations').mapBy('assembledPath')).getTravelBits());
             }.on('didLoad'),
             createOperation: function (params) {
                 var lastOp = this.get('orderedOperations.lastObject');
