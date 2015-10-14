@@ -59,11 +59,11 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                                     worker.terminate();
                                 worker = new Worker(require.toUrl('worker.js'));
                                 _this.set('svgWorker', worker);
-                                worker.onmessage = function (event) {
+                                worker.onmessage = Ember.run.bind(this, function (event) {
                                     _this.set('svgWorker', null);
                                     resolve(event.data.result);
                                     worker.terminate();
-                                };
+                                });
                                 worker.postMessage({
                                     operation: 'extractContour',
                                     altitude: _this.get('sliceZ'),
