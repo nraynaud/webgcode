@@ -8,19 +8,14 @@ define(['libs/earcut.min'], function (earcut) {
     }
 
     function preparePolylines(polylines) {
-        var maxVertices = 100000;
         var vertexCount = countvertices(polylines);
-        var indices = new Uint16Array(vertexCount * 2);
+        var indices = new Uint32Array(vertexCount * 2);
         var positions = new Float32Array(vertexCount * 3);
         var transferableArray = [positions.buffer, indices.buffer];
         var currentIndex = 0;
         for (var i = 0; i < polylines.length; i++) {
             var poly = polylines[i];
-            if (currentIndex >= maxVertices)
-                break;
             for (var j = 0; j < poly.length; j++) {
-                if (currentIndex >= maxVertices)
-                    break;
                 positions[currentIndex * 3 + 0] = poly[j].x;
                 positions[currentIndex * 3 + 1] = poly[j].y;
                 positions[currentIndex * 3 + 2] = poly[j].z;
