@@ -42,29 +42,29 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
                         contour_inside: true
                     }, {
                         name: 'Eccentric Hole Finishing', type: 'SimpleContourOperation', outline: eccentric,
-                        contour_inside: true, contour_leaveStock: 0, contour_climbMilling: false
+                        contour_inside: true, leaveStock: 0, contour_climbMilling: false
                     }, {
                         name: 'Output Holes Roughing', type: 'PocketOperation', outline: outputHoles,
                         contour_inside: true
                     }, {
                         name: 'Output Holes Finishing', type: 'SimpleContourOperation', outline: outputHoles,
-                        contour_inside: true, contour_leaveStock: 0, contour_climbMilling: false
+                        contour_inside: true, leaveStock: 0, contour_climbMilling: false
                     }, {
                         name: 'Crown Roughing', type: 'RampingContourOperation', outline: rotor, contour_inside: false
                     }, {
                         name: 'Crown Finishing', type: 'SimpleContourOperation', outline: rotor,
-                        contour_inside: false, contour_leaveStock: 0, contour_climbMilling: false
+                        contour_inside: false, leaveStock: 0, contour_climbMilling: false
                     }, {
                         name: 'Pins Roughing', type: 'RampingContourOperation', outline: pins, contour_inside: false
                     }, {
                         name: 'Pins Finishing', type: 'SimpleContourOperation', outline: pins,
-                        contour_inside: false, contour_leaveStock: 0, contour_climbMilling: false
+                        contour_inside: false, leaveStock: 0, contour_climbMilling: false
                     }, {
                         name: 'Output Pins Roughing', type: 'RampingContourOperation', outline: outputPins,
                         contour_inside: false
                     }, {
                         name: 'Output Pins Finishing', type: 'SimpleContourOperation', outline: outputPins,
-                        contour_inside: false, contour_leaveStock: 0, contour_climbMilling: false
+                        contour_inside: false, leaveStock: 0, contour_climbMilling: false
                     }].forEach(function (op) {
                             job.createOperation(op);
                         });
