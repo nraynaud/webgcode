@@ -56,6 +56,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             prefixTravel: function () {
                 var firstPath = this.get('enabledOperations.firstObject.toolpath.firstObject');
                 var result = new tp.GeneralPolylineToolpath([this.get('safeStartPoint')]);
+                result.speedTag = 'rapid';
                 result.initialPoint = this.get('startPoint');
                 if (firstPath) {
                     var firstPoint = firstPath.getStartPoint(0);
@@ -66,6 +67,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             suffixTravel: function () {
                 var lastPath = this.get('enabledOperations.lastObject.toolpath.lastObject');
                 var result = new tp.GeneralPolylineToolpath();
+                result.speedTag = 'rapid';
                 if (lastPath) {
                     var lastPoint = lastPath.getStopPoint(0);
                     result.initialPoint = lastPoint;
@@ -78,9 +80,12 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 Ember.run.debounce(this, this.computeTransitionTravels, 100);
             }.observes('startPoint', 'operationsTravelsBits', 'prefixTravel', 'suffixTravel', 'enabledOperations.@each.assembledPath'),
             computeTransitionTravels: function () {
-                this.set('transitionTravels', tp.assembleWholeProgram(this.get('prefixTravel'), this.get('suffixTravel'),
-                    this.get('safetyZ'), this.get('enabledOperations').filterBy('assembledPath.isEmpty', false).mapBy('assembledPath')).getTravelBits());
+                this.set('transitionTravels', this.get('wholeProgram').getTravelBits());
             }.on('didLoad'),
+            wholeProgram: function () {
+                return tp.assembleWholeProgram(this.get('prefixTravel'), this.get('suffixTravel'), this.get('safetyZ'),
+                    this.get('enabledOperations').filterBy('assembledPath.isEmpty', false).mapBy('assembledPath'));
+            }.property('prefixTravel', 'suffixTravel', 'enabledOperations.@each.assembledPath', 'safetyZ'),
             createOperation: function (params) {
                 var lastOp = this.get('orderedOperations.lastObject');
                 if (lastOp) {

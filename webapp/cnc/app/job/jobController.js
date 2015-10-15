@@ -1,6 +1,6 @@
 "use strict";
 
-define(['Ember', 'cnc/util'], function (Ember, util) {
+define(['Ember', 'jQuery', 'cnc/util', 'cnc/cam/cam'], function (Ember, $, util, cam) {
 
     var JobController = Ember.ObjectController.extend({
         init: function () {
@@ -80,6 +80,32 @@ define(['Ember', 'cnc/util'], function (Ember, util) {
                 }).then(function () {
                     _this.transitionToRoute('index');
                 });
+            },
+            getGcode: function () {
+                console.log('getGcode');
+                var program = this.get('model.wholeProgram').path;
+                console.log(program);
+                var currentFeed = this.get('model.feedrate');
+                var code = cam.dumpGCode(currentFeed, function (collector) {
+                    for (var i = 0; i < program.length; i++) {
+                        var fragment = program[i];
+                        if (fragment.feedrate)
+                            collector.changeWorkSpeed(fragment.feedrate);
+                        var gotoFunc;
+                        if (fragment.speedTag == 'normal')
+                            gotoFunc = collector.goToWorkSpeed.bind(collector);
+                        if (fragment.speedTag == 'rapid')
+                            gotoFunc = collector.goToTravelSpeed.bind(collector);
+                        for (var j = 0; j < fragment.path.length; j++)
+                            gotoFunc(fragment.path[j]);
+                    }
+                });
+                var url = window.URL.createObjectURL(new Blob([code], {type: 'application/octet-binary'}));
+                try {
+                    $('<a download="test.nc"></a>').attr('href', url)[0].click();
+                } finally {
+                    window.URL.revokeObjectURL(url);
+                }
             }
         },
         saveDisabled: function () {

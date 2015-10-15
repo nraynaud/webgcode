@@ -192,16 +192,22 @@ define(['cnc/util'], function (util) {
         var travelBits = [];
         var completePath = [];
         if (operationAssemblies.length) {
+            completePath.push(prefix);
             travelBits.push(prefix);
             for (var i = 0; i < operationAssemblies.length; i++) {
                 var assembly = operationAssemblies[i];
                 if (assembly.isEmpty)
                     continue;
+                completePath.pushObjects(assembly.path);
                 travelBits.pushObjects(assembly.getTravelBits());
                 var stopPoint = assembly.getStopPoint();
-                if (stopPoint && i + 1 < operationAssemblies.length && !operationAssemblies[i + 1].isEmpty)
-                    travelBits.push(travelFromTo(stopPoint, operationAssemblies[i + 1].getStartPoint(), safetyZ));
+                if (stopPoint && i + 1 < operationAssemblies.length && !operationAssemblies[i + 1].isEmpty) {
+                    var connection = travelFromTo(stopPoint, operationAssemblies[i + 1].getStartPoint(), safetyZ);
+                    travelBits.push(connection);
+                    completePath.push(connection);
+                }
             }
+            completePath.push(suffix);
             travelBits.push(suffix);
         }
         return {

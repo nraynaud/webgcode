@@ -4,26 +4,6 @@ define(['cnc/maths/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc
     function (bezier, clipper, tp, simplify, util, _) {
         var CLIPPER_SCALE = Math.pow(2, 20);
 
-        function positionEquals(p1, p2) {
-            return p1.x == p2.x && p1.y == p2.y && p1.z == p2.z;
-        }
-
-        function getPathLengths(path) {
-            var defs = path.parent.type == "defs" ? path.parent : path.parent.defs();
-            var shadowPath = defs.path();
-            var segmentsLengths = [];
-            var clone = path.clone();
-            shadowPath.node.pathSegList.clear();
-            for (var i = 0; i < path.node.pathSegList.numberOfItems; i++) {
-                //explicitly remove it because append() in chrome removes it while ff leaves it
-                var item = clone.node.pathSegList.removeItem(0);
-                shadowPath.node.pathSegList.appendItem(item);
-                segmentsLengths[i] = shadowPath.node.getTotalLength();
-            }
-            shadowPath.remove();
-            return segmentsLengths;
-        }
-
         function fromClipper(polygons, scale, reorder, areaPositive) {
             var result = [];
             $.each(polygons, function (_, polygon) {
@@ -88,18 +68,11 @@ define(['cnc/maths/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc
             };
         })();
 
-        function Machine(paper) {
-            this.paper = paper;
-            this.operations = [];
+        function Machine() {
             this.clipperScale = CLIPPER_SCALE;
         }
 
         Machine.prototype = {
-            setParams: function (workZ, travelZ, feedRate) {
-                this.workZ = workZ;
-                this.travelZ = travelZ;
-                this.feedRate = feedRate;
-            },
             contourToolpath: function (clipperPolygon, signedDistance) {
 
                 function sortedChildren(polygon) {
@@ -169,110 +142,6 @@ define(['cnc/maths/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc
                 co.Execute(result, radius * this.clipperScale);
                 return result;
             },
-            dumpOnCollector: function (pathCollector) {
-                var machine = this;
-
-                function pos(point, zOverride) {
-                    return new util.Point(point.x, point.y, (zOverride != undefined) ? zOverride : point.z);
-                }
-
-                //avoid traveling to start point at unknown Z (yes, I did hit a screw)
-                pathCollector.goToTravelSpeed({z: machine.travelZ});
-                $.each(this.operations, function (_, op) {
-                    pathCollector.goToTravelSpeed(pos(op.getStartPoint(machine.travelZ), machine.travelZ));
-                    op.forEachPoint(function (x, y, z) {
-                        pathCollector.goToWorkSpeed(pos(new util.Point(x, y, z)));
-                    }, machine.workZ);
-                    pathCollector.goToTravelSpeed(pos(op.getStopPoint(machine.travelZ), machine.travelZ));
-                });
-            },
-            dumpGCode: function () {
-                return dumpGCode(this.feedRate, this.dumpOnCollector.bind(this));
-            },
-            dumpSimulation: function (initialPosition, fragmentHandler) {
-                var _this = this;
-                var toolpath = [];
-                var accumulator = util.createSimulationAccumulator(fragmentHandler);
-                var position = initialPosition;
-
-                function updatedPosition(point) {
-                    var newPos = {x: point.x, y: point.y, z: point.z};
-                    if (newPos.x == undefined)
-                        newPos.x = position.x;
-                    if (newPos.y == undefined)
-                        newPos.y = position.y;
-                    if (newPos.z == undefined)
-                        newPos.z = position.z;
-                    return new util.Point(newPos.x, newPos.y, newPos.z);
-                }
-
-                accumulator.accumulatePoint(position, 'rapid');
-                function createTravelerFunction(speedTag, overrideFeedRate) {
-                    return function (point) {
-                        var np = updatedPosition(point);
-                        if (!positionEquals(np, position))
-                            toolpath.push({
-                                type: 'line',
-                                from: position,
-                                to: np,
-                                speedTag: speedTag,
-                                feedRate: overrideFeedRate ? overrideFeedRate : _this.feedRate
-                            });
-                        accumulator.accumulatePoint(np, speedTag);
-                        accumulator.closeFragment();
-                        position = np;
-                    };
-                }
-
-                this.dumpOnCollector({
-                    goToTravelSpeed: createTravelerFunction('rapid', 3000),
-                    goToWorkSpeed: createTravelerFunction('normal', null)
-                });
-                return toolpath;
-            },
-            getToolPath: function (parameters) {
-                var path = [];
-                var position = parameters.position;
-
-                function createSpeedHandler(speed) {
-                    return function (point) {
-                        var newPos = $.extend({}, position, point);
-                        if (positionEquals(newPos, position))
-                            return;
-                        path.push({type: 'line', from: position, to: newPos, feedRate: speed});
-                        position = newPos;
-                    }
-                }
-
-                this.dumpOnCollector({
-                    goToTravelSpeed: createSpeedHandler(parameters.maxFeedrate),
-                    goToWorkSpeed: createSpeedHandler(this.feedRate)
-                });
-                return path;
-            },
-            dumpPath: function () {
-                var machine = this;
-                var points = [];
-                $.each(this.operations, function (_, op) {
-                    var startPoint = op.getStartPoint(machine.travelZ);
-                    points.push(new util.Point(startPoint.x, startPoint.y, machine.travelZ));
-                    op.forEachPoint(function (x, y, z) {
-                        points.push(new util.Point(x, y, z));
-                    }, machine.workZ);
-                    var stopPoint = op.getStopPoint(machine.travelZ);
-                    points.push(new util.Point(stopPoint.x, stopPoint.y, machine.travelZ));
-                });
-                return points;
-            },
-            /**
-             *
-             * @param shapePath a SVG path
-             * @returns a Clipper polygon array
-             */
-            toClipper: function (shapePath) {
-                return pathDefToClipper(shapePath.node.getAttribute('d'));
-            },
-
             /**
              *
              * @param polygon
@@ -298,15 +167,6 @@ define(['cnc/maths/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc
              */
             contourAreaPositive: function (inside, climbMilling) {
                 return (!!climbMilling) ^ (!inside);
-            },
-
-            peckDrill: function (x, y, z, topZ, steps) {
-                var polyline = new tp.GeneralPolylineToolpath();
-                for (var i = 1; i <= steps; i++) {
-                    polyline.pushPointXYZ(x, y, topZ);
-                    polyline.pushPointXYZ(x, y, topZ - (topZ - z) * i / steps);
-                }
-                return polyline;
             }
         };
 
@@ -398,6 +258,9 @@ define(['cnc/maths/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc
                 },
                 goToWorkSpeed: function (point) {
                     code.push('G1 ' + pos(point));
+                },
+                changeWorkSpeed: function (newSpeed) {
+                    code.push('F' + newSpeed)
                 }
             });
             return code.join('\n');

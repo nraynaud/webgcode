@@ -61,6 +61,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                             _this.set('toolpath', event.data.toolpath.map(function (p) {
                                 var toolPath = tp.decodeToolPath(p);
                                 toolPath.speedTag = 'normal';
+                                toolPath.initialPoint = toolPath.getStartPoint();
                                 return toolPath
                             }));
                         if (event.data.missedArea)
@@ -108,6 +109,10 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                         return Computer.convertHeightFieldToToolPath(heightField, safetyZ, topZ, sliceZ, minZ);
                     })
                     .then(Ember.run.bind(this, function (result) {
+                        for (var i = 0; i < result.length; i++) {
+                            result[i].speedTag = 'normal';
+                            result[i].initialPoint = result[i].getStartPoint();
+                        }
                         _this.set('toolpath', result);
                     }));
                 task.start();

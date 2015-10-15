@@ -572,7 +572,16 @@ function program24(depth0,data) {
   data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
     'disabled': ("saveDisabled")
   },hashTypes:{'disabled': "ID"},hashContexts:{'disabled': depth0},contexts:[],types:[],data:data})));
-  data.buffer.push(">Save</button>\n    \n    <div id=\"deleteBlock\">\n        <div id=\"realDelete\" style=\"display: none;\">\n            ");
+    data.buffer.push(">Save</button>\n    <button class=\"btn btn-default\" ");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "getGcode", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    })));
+    data.buffer.push(">GCode</button>\n    <div id=\"deleteBlock\">\n        <div id=\"realDelete\" style=\"display: none;\">\n            ");
   data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
     'id': ("deleteSlider"),
     'type': ("range"),

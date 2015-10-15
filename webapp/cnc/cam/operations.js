@@ -144,7 +144,6 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
                 computeToolpath: function (params, missedAreaCallback, leaveStockCallback) {
                     return new RSVP.Promise(function (resolve, reject) {
                         var machine = new cam.Machine(null);
-                        machine.setParams(params.bottom_Z, 10, 100);
                         var distances = [(params.leaveStock + params.job.toolRadius)];
                         if (params.contour_multipass) {
                             var increment = params.pocket_engagement / 100 * params.job.toolRadius;
@@ -192,7 +191,6 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
                 computeToolpath: function (op, missedAreaCallback, leaveStockCallback) {
                     return new RSVP.Promise(function (resolve, reject) {
                         var machine = new cam.Machine(null);
-                        machine.setParams(op.top_Z, 10, 100);
                         var result = contour(op, machine);
                         var toolpath = machine.rampToolPathArray(result.contours, op.top_Z, op.bottom_Z, op.ramping_turns);
                         toolpath.forEach(function (path) {

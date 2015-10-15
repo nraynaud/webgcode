@@ -187,6 +187,7 @@
 		DDAA5526562DE2F5D309F976 /* webgcode.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngc; path = webgcode.ngc; sourceTree = "<group>"; };
 		DDAA557E11AAA24C9679FF7B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = file.md; path = README.md; sourceTree = "<group>"; };
 		DDAA5583FA74E90180E93A59 /* jobView.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.handlebars; path = jobView.hbs; sourceTree = "<group>"; };
+		DDAA5589495744A24184D43E /* camApp.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = camApp.hbs; sourceTree = "<group>"; };
 		DDAA558DB0228EB233245972 /* cam.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = cam.js; path = cam/cam.js; sourceTree = "<group>"; };
 		DDAA55AE23998F53B255B243 /* visucamTest.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = visucamTest.html; sourceTree = "<group>"; };
 		DDAA55B32FE868406218682F /* model_proj.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = model_proj.vert; path = shaders/model_proj.vert; sourceTree = "<group>"; };
@@ -402,6 +403,7 @@
 				DDAA5FC5CC98A3276865B59A /* operation3DMilling.hbs */,
 				DDAA5C4590D198711729289B /* operationDrilling.hbs */,
 				DDAA5B453A7758A947C1B962 /* loading.hbs */,
+				DDAA5589495744A24184D43E /* camApp.hbs */,
 			);
 			path = templates;
 			sourceTree = "<group>";
