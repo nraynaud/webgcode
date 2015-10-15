@@ -82,9 +82,7 @@ define(['Ember', 'jQuery', 'cnc/util', 'cnc/cam/cam'], function (Ember, $, util,
                 });
             },
             getGcode: function () {
-                console.log('getGcode');
                 var program = this.get('model.wholeProgram').path;
-                console.log(program);
                 var currentFeed = this.get('model.feedrate');
                 var code = cam.dumpGCode(currentFeed, function (collector) {
                     for (var i = 0; i < program.length; i++) {
