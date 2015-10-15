@@ -169,7 +169,8 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'libs/pako.min', 'base6
                     this.set('computing', true);
                     Ember.RSVP.resolve(this.get('manualDefinition.svgRepresentation'))
                         .then(function (result) {
-                            _this.set('definition', result);
+                            if (!_this.get('isDeleted'))
+                                _this.set('definition', result);
                             _this.set('computing', false);
                         });
                 }
