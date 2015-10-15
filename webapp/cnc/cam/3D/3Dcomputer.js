@@ -192,7 +192,10 @@ define(['RSVP', 'THREE', 'Piecon', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/mink
                             //the WEBGL_depth_texture seems largely supported.
                             gl.colorMask(false, false, false, false);
                             modelStage.render(renderer, modelBuffer);
-                            gl.colorMask(true, true, true, true);
+                            if (isFloatREadPixelSupported)
+                                gl.colorMask(true, false, false, false);
+                            else
+                                gl.colorMask(true, true, true, true);
                             minkowskiPass.render(renderer, minkowskiBuffer, depthTexture, terrainRatio, terrainTranslation);
                             copyPass.quad.position.x = x;
                             copyPass.quad.position.y = y;
