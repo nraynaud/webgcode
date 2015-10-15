@@ -17,6 +17,14 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             outline: DS.belongsTo('shape'),
             job: DS.belongsTo('job'),
             task: null,
+            terminateWorkerWhenDeleted: function () {
+                var worker = this.get('toolpathWorker');
+                if (worker)
+                    worker.terminate();
+                var task = this.get('task');
+                if (task)
+                    task.cancel();
+            }.on('didDelete'),
             installObservers: function () {
                 var _this = this;
                 var previousProperties = this.get('previousOpertionComputerProperties');
