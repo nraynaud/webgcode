@@ -92,7 +92,7 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
 
     function incrementalDistance(previous, parsedMove) {
         var result = cloneObject(previous);
-        $.each(util.AXES, function (_, axis) {
+        $.each(['x', 'y', 'z', 'e'], function (_, axis) {
             if (parsedMove[axis] != null)
                 result[axis] += parsedMove[axis];
         });
@@ -150,7 +150,7 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
 
     function detectAxisMove(line, unitMode) {
         var result = {};
-        $.each(util.AXES, function (_, axis) {
+        $.each(['x', 'y', 'z', 'e'], function (_, axis) {
             var parsed = line[axis];
             if (parsed !== undefined && parsed.length)
                 result[axis] = unitMode(parsed[parsed.length - 1]);
@@ -168,7 +168,7 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
 
     function addPathComponent(point, machineState, speed, speedTag) {
         var hadMovement = false;
-        $.each(util.AXES, function (_, axis) {
+        $.each(['x', 'y', 'z', 'e'], function (_, axis) {
             hadMovement = hadMovement || Math.abs(point[axis] - machineState.position[axis]) > 0.00001;
         });
         if (hadMovement) {
@@ -282,14 +282,14 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
             },
             absolutePoint: function (parsedMove) {
                 var currentOrigin = machineState.origins[machineState.currentOrigin];
-                $.each(util.AXES, function (_, axis) {
+                $.each(['x', 'y', 'z', 'e'], function (_, axis) {
                     if (parsedMove[axis] != null)
                         parsedMove[axis] -= currentOrigin[axis];
                 });
                 return machineState.distanceMode(machineState.position, parsedMove);
             }
         };
-        $.each(util.AXES, function (_, axis) {
+        $.each(['x', 'y', 'z', 'e'], function (_, axis) {
             machineState.position[axis] = initialPosition[axis];
         });
         return machineState;
@@ -423,7 +423,7 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
         var affectation = jp.action(jp.wsequence(parameter, jp.expect('='), readExpression), function (ast) {
             return {variable: ast[0], value: ast[1]};
         });
-        var word = jp.wsequence(jp.choice.apply(null, 'FGIJKLMNPRSTXYZ'.split('')), readExpression);
+        var word = jp.wsequence(jp.choice.apply(null, 'EFGIJKLMNPRSTXYZ'.split('')), readExpression);
         var line = jp.action(jp.wsequence(jp.repeat0(jp.choice(affectation, word)), jp.end), function (ast) {
             var res = {};
             var affectations = [];
