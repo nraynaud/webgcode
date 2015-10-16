@@ -93,7 +93,8 @@ define(['RSVP', 'THREE', 'Piecon', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/mink
                     var translationMatrix = new THREE.Matrix4().makeTranslation(minX / sampleRate, minY / sampleRate, 0);
                     var transformMatrix = new THREE.Matrix4().multiply(rotationMatrix).multiply(translationMatrix).multiply(scaleMatrix);
                     modelStage.pushZInverseProjOn(transformMatrix);
-                    var resultHeightField = new HeightField(resultBuffer, bbox, resultBufferWidth, resultBufferHeight, transformMatrix, startRatio, stopRatio, leaveStock + bbox.min.z);
+                    var resultHeightField = new HeightField(resultBuffer, bbox, resultBufferWidth, resultBufferHeight,
+                        transformMatrix, startRatio, stopRatio, leaveStock + bbox.min.z);
 
                     var worker = new Worker(require.toUrl('worker.js'));
                     var gl = renderer.getContext();
