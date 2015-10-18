@@ -120,12 +120,8 @@
             geom2.computeFaceNormals();
             geom2.computeVertexNormals();
             geom2.computeBoundingSphere();
-            contourMesh = new THREE.Mesh(geom2, new THREE.MeshBasicMaterial({
-                wireframe: true,
-                wireframeLinewidth: 2,
-                color: 0xFF0000
-            }));
-            view.drawing.add(contourMesh);
+            contourMesh = new THREE.Mesh(geom2);
+            view.drawing.add(new THREE.WireframeHelper(contourMesh, 0x00FFFF));
         }
 
         function delaunayToGeom(delaunay, geom) {
@@ -301,12 +297,12 @@
                                             if (results)
                                                 displayResults(startI, batchSize, grid, xspan, yspan, delaunayState, results);
                                             else
-                                                alert('No results found');
+                                                console.log('No results found');
                                         } else if (status == google.maps.ElevationStatus.OVER_QUERY_LIMIT) {
                                             onQueryLimit();
                                         }
                                         else
-                                            alert('Elevation service failed due to: ' + status);
+                                            console.log('Elevation service failed due to: ' + status);
                                     });
                                 };
                             })(startI, locations, currentQueryId));
