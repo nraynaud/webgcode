@@ -61,7 +61,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     _this.set('leftStock', null);
                     var worker = new Worker(require.toUrl('worker.js'));
                     worker.onmessage = Ember.run.bind(this, function (event) {
-                        if (event.data.terminate) {
+                        if (event.data.terminate && _this.get('toolpathWorker')) {
                             _this.get('toolpathWorker').terminate();
                             _this.set('toolpathWorker', null);
                         }
