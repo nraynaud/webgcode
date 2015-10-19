@@ -48,6 +48,7 @@
 		DDAA567F81C6F3DC888C2653 /* bezier.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5B9DC9B92B70673AA0BE /* bezier.js */; };
 		DDAA5697D8F7684366F24018 /* util.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA523D7A9109D74C7BA499 /* util.js */; };
 		DDAA569FBDD72F64A3F26A03 /* parser.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA565B87C730ABFFB31DCA /* parser.js */; };
+		DDAA56E567A5728F29B5F046 /* require_shader.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA58EDB70A0C57BE8C4F42 /* require_shader.js */; };
 		DDAA572BA7617C54EEA6AA7D /* usbdesc.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53AA7C3A8E851F307E47 /* usbdesc.c */; };
 		DDAA572DAF73F1DDEE6E8B16 /* operations.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5C7C2C93424ED58CED62 /* operations.js */; };
 		DDAA5748456A3971A5DA31C8 /* controllerEmber.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA57993DC17F9A33414D80 /* controllerEmber.js */; };
@@ -55,6 +56,7 @@
 		DDAA57D2E5598CB83A286091 /* flatten.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5CA206006D8E2D7FCDB5 /* flatten.js */; };
 		DDAA57F319E245AB1BBEDAF8 /* runner.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA513A9EE7AC2438C9E111 /* runner.js */; };
 		DDAA580B449779665EC9B1BB /* elliptic.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5367902362964A0915C2 /* elliptic.js */; };
+		DDAA582094DD25D171F8F44F /* clothoid.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA508951A17DE466260015 /* clothoid.js */; };
 		DDAA58BE9DBD78082FD48E01 /* yenc.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5AC14AAD3A2C784B1419 /* yenc.js */; };
 		DDAA58D07301B2E75AC0C420 /* firebase-debug.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5785A33DF48AE7C33AE2 /* firebase-debug.js */; };
 		DDAA591C40FE60A702BEE272 /* jobView.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5D5993F80C624276438C /* jobView.js */; };
@@ -100,6 +102,7 @@
 		DDAA5D90EE9DE4EC61C33CDF /* gcodeSimulation.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA564612DF5D10C28D01FB /* gcodeSimulation.js */; };
 		DDAA5DA0D277F5FFA1371DC2 /* CNCMachine.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA56A071D2C1C48771DF86 /* CNCMachine.js */; };
 		DDAA5DCBA91442683AAE42AE /* manual.c in Sources */ = {isa = PBXBuildFile; fileRef = DDAA564BD4990327507E01D0 /* manual.c */; };
+		DDAA5DDCE9960FF1B11FD7FE /* 3Dcomputer2.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA53A965C1F81568707D1F /* 3Dcomputer2.js */; };
 		DDAA5DDD9B52552DF2402A67 /* morphology.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA531F684874FDE40B5CDE /* morphology.js */; };
 		DDAA5DE55277ED7870D14EDE /* bezier.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA54C02B65138BA2BC4D67 /* bezier.js */; };
 		DDAA5DFEF913DE182DD53320 /* toolProfile.js in Sources */ = {isa = PBXBuildFile; fileRef = DDAA5029D05055DF40E03C55 /* toolProfile.js */; };
@@ -133,6 +136,7 @@
 		DDAA5025C78B5E2021BC5F1C /* text.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = text.js; path = cam/text.js; sourceTree = "<group>"; };
 		DDAA5029D05055DF40E03C55 /* toolProfile.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = toolProfile.js; sourceTree = "<group>"; };
 		DDAA5048B1B1F3BE543B936C /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		DDAA508951A17DE466260015 /* clothoid.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = clothoid.js; path = maths/clothoid.js; sourceTree = "<group>"; };
 		DDAA50E05857779781B5F4A2 /* test_3D_conservative_rendering.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_3D_conservative_rendering.html; sourceTree = "<group>"; };
 		DDAA511CE8BD477E113E0D3E /* aztec_calendar.ngc */ = {isa = PBXFileReference; lastKnownFileType = file.ngc; path = aztec_calendar.ngc; sourceTree = "<group>"; };
 		DDAA512A6F80D13802A577A8 /* operationSimpleEngraving.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = operationSimpleEngraving.hbs; sourceTree = "<group>"; };
@@ -160,10 +164,12 @@
 		DDAA531F684874FDE40B5CDE /* morphology.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = morphology.js; sourceTree = "<group>"; };
 		DDAA533BF8B7D627643AC0C2 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		DDAA533DF299518744B4F61A /* icon_fraise.svg */ = {isa = PBXFileReference; lastKnownFileType = file.svg; path = icon_fraise.svg; sourceTree = "<group>"; };
+		DDAA5345C290F90B7D7BD039 /* library.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = library.frag; path = shaders/library.frag; sourceTree = "<group>"; };
 		DDAA5367902362964A0915C2 /* elliptic.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = elliptic.js; sourceTree = "<group>"; };
 		DDAA538867A4B3260D484DA4 /* test.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test.html; sourceTree = "<group>"; };
 		DDAA539FD93D356B58CD2E5F /* shape.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = shape.hbs; sourceTree = "<group>"; };
 		DDAA53A88FF1511A72FDAAE0 /* threeDView.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = threeDView.js; path = webapp/cnc/ui/threeDView.js; sourceTree = "<group>"; };
+		DDAA53A965C1F81568707D1F /* 3Dcomputer2.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = 3Dcomputer2.js; sourceTree = "<group>"; };
 		DDAA53AA7C3A8E851F307E47 /* usbdesc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = usbdesc.c; sourceTree = "<group>"; };
 		DDAA53B8DAE05E27A375FE9B /* config.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = config.js; sourceTree = "<group>"; };
 		DDAA53C9FA100E05C62C575E /* views.js */ = {isa = PBXFileReference; lastKnownFileType = file.j; name = views.js; path = ui/views.js; sourceTree = "<group>"; };
@@ -221,6 +227,7 @@
 		DDAA578CF1A78A375FB0D041 /* twoDView.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = twoDView.css; sourceTree = "<group>"; };
 		DDAA57993DC17F9A33414D80 /* controllerEmber.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = controllerEmber.js; sourceTree = "<group>"; };
 		DDAA57A1B65CDC501D4100D6 /* pocket.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = pocket.js; sourceTree = "<group>"; };
+		DDAA57FA25FB5BDBC507F1E6 /* test_cornu.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_cornu.html; sourceTree = "<group>"; };
 		DDAA5825769A005C1F8AFA15 /* job.hbs */ = {isa = PBXFileReference; lastKnownFileType = file.hbs; path = job.hbs; sourceTree = "<group>"; };
 		DDAA58422CF9EADC8397599D /* background.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = background.js; path = webapp/background.js; sourceTree = "<group>"; };
 		DDAA584BFDA15E844B048D27 /* usb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = usb.c; sourceTree = "<group>"; };
@@ -233,8 +240,10 @@
 		DDAA58BB5F7B2688475369C7 /* soap.stl */ = {isa = PBXFileReference; lastKnownFileType = file.stl; path = soap.stl; sourceTree = "<group>"; };
 		DDAA58D64DDC38836667CB90 /* polyborder.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = polyborder.frag; path = shaders/polyborder.frag; sourceTree = "<group>"; };
 		DDAA58E6C11B529BB5B59083 /* runner.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = runner.js; sourceTree = "<group>"; };
+		DDAA58EDB70A0C57BE8C4F42 /* require_shader.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = require_shader.js; sourceTree = "<group>"; };
 		DDAA58FBD65B40549EC27922 /* elliptic.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = elliptic.js; path = webapp/cnc/elliptic.js; sourceTree = "<group>"; };
 		DDAA59240776C46200C93D09 /* delaunay.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = delaunay.js; sourceTree = "<group>"; };
+		DDAA59241CD7D77225DCC914 /* test_cornu2.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test_cornu2.html; sourceTree = "<group>"; };
 		DDAA59271DF6A4EFEC26F9A7 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = file.gitignore; path = .gitignore; sourceTree = "<group>"; };
 		DDAA593347EC813B12F6ABB6 /* background.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = background.js; sourceTree = "<group>"; };
 		DDAA59388472AD3810D56666 /* asyncUI.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = asyncUI.js; sourceTree = "<group>"; };
@@ -339,6 +348,7 @@
 				DDAA5699D633BDE7062A0B3B /* modelProjector.js */,
 				DDAA56084DF1239F53C2D3A8 /* minkowskiPass.js */,
 				DDAA5B9127FD1D1D71501224 /* 3Dcomputer.js */,
+				DDAA53A965C1F81568707D1F /* 3Dcomputer2.js */,
 			);
 			path = 3D;
 			sourceTree = "<group>";
@@ -452,6 +462,7 @@
 				DDAA531F684874FDE40B5CDE /* morphology.js */,
 				DDAA594F63FF6FAA8D1CC466 /* import */,
 				DDAA52A78AB17139033519FC /* maths */,
+				DDAA508951A17DE466260015 /* clothoid.js */,
 			);
 			path = cnc;
 			sourceTree = "<group>";
@@ -502,6 +513,8 @@
 				DDAA5DA5227AB2B1DD67F20A /* test_threejs.html */,
 				DDAA5F1FE345E1887B17F30E /* test_3D_stream.html */,
 				DDAA50E05857779781B5F4A2 /* test_3D_conservative_rendering.html */,
+				DDAA57FA25FB5BDBC507F1E6 /* test_cornu.html */,
+				DDAA59241CD7D77225DCC914 /* test_cornu2.html */,
 			);
 			path = various_tests;
 			sourceTree = "<group>";
@@ -614,6 +627,8 @@
 				DDAA5EC6D28D2B92CB12F762 /* minkowski.frag */,
 				DDAA5EA82C3012A7BC575952 /* reconstruction_from_ma.frag */,
 				DDAA58D64DDC38836667CB90 /* polyborder.frag */,
+				DDAA5345C290F90B7D7BD039 /* library.frag */,
+				DDAA58EDB70A0C57BE8C4F42 /* require_shader.js */,
 			);
 			path = webapp;
 			sourceTree = "<group>";
@@ -839,6 +854,9 @@
 				DDAA591C40FE60A702BEE272 /* jobView.js in Sources */,
 				DDAA5D160D704CDD765C1897 /* jobModel.js in Sources */,
 				DDAA529A7991CB69C5E34B53 /* operationModel.js in Sources */,
+				DDAA5DDCE9960FF1B11FD7FE /* 3Dcomputer2.js in Sources */,
+				DDAA582094DD25D171F8F44F /* clothoid.js in Sources */,
+				DDAA56E567A5728F29B5F046 /* require_shader.js in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -35,9 +35,9 @@
 <script>
 
     require(['jQuery', 'THREE', 'RSVP', 'libs/threejs/postprocessing/ShaderPass', 'libs/svg', 'cnc/cam/cam',
-                'text!shaders/default_vUv.vert', 'text!shaders/distance.frag', 'text!shaders/medial_axis.frag',
-                'text!shaders/max_value.frag', 'text!shaders/median.frag', 'text!shaders/reconstruction_from_ma.frag',
-                'text!shaders/polyborder.frag'],
+                'shader!default_vUv.vert', 'shader!distance.frag', 'shader!medial_axis.frag',
+                'shader!max_value.frag', 'shader!median.frag', 'shader!reconstruction_from_ma.frag',
+                'shader!/polyborder.frag'],
             function ($, THREE, RSVP, ShaderPass, SVG, cam, defaultVUvShader, distanceShader, medialAxisShader, maxFragmentShader,
                       medianFragmentShader, reconstructionShader, polyBorderShader) {
                 var vWidth = 512;

@@ -1,5 +1,4 @@
 // expected #define: float pointCount
-highp float encodingFactor = (exp2(24.0) - 1.0) / exp2(24.0);
 
 uniform sampler2D points;
 uniform vec2 gridSize;
@@ -14,11 +13,7 @@ varying vec2 vUv;
 
 float readScale;
 
-vec3 EncodeFloatRGB(highp float v) {
-    vec3 enc = fract(vec3(1.0, 255.0, 255.0 * 255.0) * encodingFactor * v);
-    enc -= enc.yzz * vec3(1.0 / 255.0, 1.0 / 255.0, 0.0);
-    return enc;
-}
+/*INCLUDE_FRAGLIB*/
 vec3 FakeEncodeFloatRGB(highp float v) {
     return vec3(v, 0.0, 0.0);
 }

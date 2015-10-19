@@ -1,6 +1,6 @@
 "use strict";
-define(['THREE', 'text!shaders/model_proj.vert', 'text!shaders/model_proj.frag', 'text!shaders/conservative_model_proj.vert',
-        'text!shaders/conservative_model_proj.frag'],
+define(['THREE', 'shader!model_proj.vert', 'shader!model_proj.frag', 'shader!conservative_model_proj.vert',
+        'shader!conservative_model_proj.frag'],
     function (THREE, normalVertexShader, normalFragmentShader, vertexShader, fragmentShader) {
 
         function Projector() {
@@ -85,6 +85,7 @@ define(['THREE', 'text!shaders/model_proj.vert', 'text!shaders/model_proj.frag',
                 this.setCamera(bbox.min.x, bbox.max.x, bbox.min.y, bbox.max.y);
             },
             setCamera: function (left, right, bottom, top) {
+                console.log('setCamera', left, right, bottom, top);
                 this.camera.bottom = bottom;
                 this.camera.top = top;
                 this.camera.left = left;

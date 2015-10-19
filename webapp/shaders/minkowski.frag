@@ -5,15 +5,9 @@ uniform vec2 terrainRatio;
 uniform vec2 terrainTranslation;
 uniform float minZ;
 varying vec2 vUv;
-highp float factor = (exp2(24.0) - 1.0) / exp2(24.0);
-vec3 EncodeFloatRGB(highp float v) {
-    vec3 enc = fract(vec3(1.0, 255.0, 255.0 * 255.0) * factor * v);
-    enc -= enc.yzz * vec3(1.0 / 255.0, 1.0 / 255.0, 0.0);
-    return enc;
-}
-highp float DecodeFloatRGB(vec3 rgb) {
-    return dot(rgb, vec3(1.0, 1.0 / 255.0, 1.0 / 255.0 / 255.0)) / factor;
-}
+
+/*INCLUDE_FRAGLIB*/
+
 highp float readHeight(vec2 pos) {
     highp float model = texture2D(modelHeight, terrainRatio * vUv + terrainTranslation + pos * toolToPartRatio).r;
     highp float displacement = texture2D(toolProfile, vec2(0.5 / float(radialSamples)

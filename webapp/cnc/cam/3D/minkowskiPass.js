@@ -1,5 +1,5 @@
 "use strict";
-define(['libs/threejs/postprocessing/ShaderPass', 'text!shaders/minkowski.vert', 'text!shaders/minkowski.frag'],
+define(['libs/threejs/postprocessing/ShaderPass', 'shader!minkowski.vert', 'shader!minkowski.frag'],
     function (ShaderPass, minkowskiVert, minkowskiFrag) {
         var Pass = function () {
             this.minkowskiPass = new ShaderPass({

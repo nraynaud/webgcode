@@ -2,16 +2,9 @@
 varying vec3 AABB_min;
 varying vec3 AABB_max;
 varying vec3 positionK;
-// depth encoding : http://aras-p.info/blog/2009/07/30/encoding-floats-to-rgba-the-final/
-highp float factor = (exp2(24.0) - 1.0) / exp2(24.0);
-vec3 EncodeFloatRGB(highp float v) {
-   vec3 enc = fract(vec3(1.0, 255.0, 255.0 * 255.0) * factor * v);
-   enc -= enc.yzz * vec3(1.0 / 255.0, 1.0 / 255.0, 0.0);
-   return enc;
-}
-highp float DecodeFloatRGB(vec3 rgb) {
-   return dot(rgb, vec3(1.0, 1.0 / 255.0, 1.0 / 255.0 / 255.0)) / factor;
-}
+
+/*INCLUDE_FRAGLIB*/
+
 void main() {
     vec2 pos = positionK.xy;
 //lets destroy the fragments that are really out there between the input corner and the dilated corner

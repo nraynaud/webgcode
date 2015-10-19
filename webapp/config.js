@@ -1,6 +1,7 @@
 requirejs.config({
     paths: {
         text: 'libs/require_text',
+        shader: 'require_shader',
         Firebase: 'libs/firebase',
         Ember: "libs/ember.min",
         EmberData: "libs/ember-data.min",
