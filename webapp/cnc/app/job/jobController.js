@@ -25,8 +25,11 @@ define(['Ember', 'jQuery', 'cnc/util', 'cnc/cam/cam'], function (Ember, $, util,
                 }
                 if (event.data['type'] == 'toolPosition') {
                     var pos = event.data['position'];
-                    _this.set('toolPosition', new util.Point(pos.x, pos.y, pos.z));
-                    _this.set('model.startPoint', new util.Point(pos.x, pos.y, pos.z));
+                    var newPos = new util.Point(pos.x, pos.y, pos.z);
+                    if (_this.get('toolPosition').sqDistance(newPos))
+                        _this.set('toolPosition', newPos);
+                    if (_this.get('model.startPoint').sqDistance(newPos))
+                        _this.set('model.startPoint', newPos);
                 }
                 if (event.data['type'] == 'current operations') {
                     _this.set('runningOperations', event.data['operations']);
