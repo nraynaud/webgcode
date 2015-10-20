@@ -85,7 +85,6 @@ define(['THREE', 'shader!model_proj.vert', 'shader!model_proj.frag', 'shader!con
                 this.setCamera(bbox.min.x, bbox.max.x, bbox.min.y, bbox.max.y);
             },
             setCamera: function (left, right, bottom, top) {
-                console.log('setCamera', left, right, bottom, top);
                 this.camera.bottom = bottom;
                 this.camera.top = top;
                 this.camera.left = left;
