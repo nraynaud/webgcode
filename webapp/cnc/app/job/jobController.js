@@ -26,9 +26,9 @@ define(['Ember', 'jQuery', 'cnc/util', 'cnc/cam/cam'], function (Ember, $, util,
                 if (event.data['type'] == 'toolPosition') {
                     var pos = event.data['position'];
                     var newPos = new util.Point(pos.x, pos.y, pos.z);
-                    if (_this.get('toolPosition').sqDistance(newPos))
+                    if (!_this.get('toolPosition') || _this.get('toolPosition').sqDistance(newPos))
                         _this.set('toolPosition', newPos);
-                    if (_this.get('model.startPoint').sqDistance(newPos))
+                    if (!_this.get('model.startPoint') || _this.get('model.startPoint').sqDistance(newPos))
                         _this.set('model.startPoint', newPos);
                 }
                 if (event.data['type'] == 'current operations') {
@@ -110,13 +110,7 @@ define(['Ember', 'jQuery', 'cnc/util', 'cnc/cam/cam'], function (Ember, $, util,
             }
         },
         saveDisabled: function () {
-            return !this.get('model.isDirty')
-                && this.get('model.shapes').every(function (shape) {
-                    return !(shape.get('isDirty') || shape.get('manualDefinition.isDirty'));
-                })
-                && this.get('model.operations').every(function (operation) {
-                    return !operation.get('isDirty');
-                });
+            return false;
         }.property('model.isDirty', 'model.shapes.@each.isDirty', 'model.shapes.@each.manualDefinition.isDirty', 'model.operations.@each.isDirty'),
         syncCanSendProgram: function () {
             window.postMessage({canSendProgram: this.get('model.canSendProgram')}, '*');
