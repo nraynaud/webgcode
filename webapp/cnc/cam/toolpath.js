@@ -185,8 +185,8 @@ define(['cnc/util', 'cnc/gcode/simulation'], function (util, simulation) {
         this.travelBits = travelBits;
         this.isEmpty = completePath.length == 0;
         this.path = completePath;
-        this.stopPoint = workToolpath ? workToolpath[workToolpath.length - 1].getStopPoint() : null;
-        this.startPoint = workToolpath ? workToolpath[0].getStartPoint() : null;
+        this.stopPoint = workToolpath && workToolpath.length ? workToolpath[workToolpath.length - 1].getStopPoint() : null;
+        this.startPoint = workToolpath && workToolpath.length ? workToolpath[0].getStartPoint() : null;
     }
 
     OperationToolpathAssembly.prototype = {
