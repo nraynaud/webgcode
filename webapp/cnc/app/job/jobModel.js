@@ -149,6 +149,30 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 });
                 return oneIsEnabled && !oneIsComputing;
             }.property('operations', 'operations.@each.enabled', 'operations.@each.computing'),
+            computeDuration: function () {
+                if (!this.get('wholeProgram').path.length)
+                    return;
+                this.set('duration', 'computing...');
+                if (this.get('durationWorker'))
+                    this.get('durationWorker').terminate();
+                var worker = new Worker(require.toUrl('worker.js'));
+                this.set('durationWorker', worker);
+                var _this = this;
+                worker.onmessage = Ember.run.bind(this, function (event) {
+                    _this.set('duration', event.data.duration);
+                    worker.terminate();
+                    _this.set('durationWorker', null);
+                });
+                worker.postMessage({
+                    operation: 'computeDuration',
+                    path: this.get('wholeProgram').path
+                });
+            },
+            observeOperationDuration: function () {
+                this.set('duration', null);
+                if (this.get('enabledOperations').filterBy('computing', true).length == 0)
+                    Ember.run.debounce(this, 'computeDuration', 100);
+            }.observes('wholeProgram', 'operations.@each.actualFeedrate', 'operations.@each.computing'),
             computeCompactToolPath: function () {
                 console.log('computeCompactToolPath');
                 var operations = this.get('enabledOperations');

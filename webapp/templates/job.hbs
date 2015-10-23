@@ -75,7 +75,7 @@
         </tbody>
     </table>
     <h2>Shapes
-        <button title="create new shape" class="btn btn-default" {{action "createShape"}}>+</button>
+        <button title="create new shape" class="btn btn-default add-button" {{action "createShape"}}>+</button>
     </h2>
     <ul class="list-group shapeList">
         {{#each shapes itemController="shapeListItem"}}
@@ -91,11 +91,12 @@
         {{/each}}
     </ul>
     <h2>Operations
-        <button title="create new operation" class="btn btn-default" {{action "createOperation"}}>+</button>
+        <button title="create new operation" class="btn btn-default add-button" {{action "createOperation"}}>+</button>
+        <span class="job-duration">{{duration}}</span>
     </h2>
     <div id="operationList" class="list-group">
         {{#each orderedOperations itemController="operationListItem"}}
-            {{#link-to "operation" this classNames="list-group-item" }}
+            {{#link-to "operation" this classNames="list-group-item" titleBinding=operationDuration}}
                 <div class="arrow-panel">
                     {{#if isNotFirst}}
                         <div title="move operation one position earlier" {{action "moveEarlier"}}

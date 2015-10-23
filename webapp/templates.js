@@ -489,8 +489,17 @@ function program12(depth0,data) {
   var buffer = '', stack1, helper, options;
   data.buffer.push("\n            ");
   stack1 = (helper = helpers['link-to'] || (depth0 && depth0['link-to']),options={hash:{
-    'classNames': ("list-group-item")
-  },hashTypes:{'classNames': "STRING"},hashContexts:{'classNames': depth0},inverse:self.noop,fn:self.program(13, program13, data),contexts:[depth0,depth0],types:["STRING","ID"],data:data},helper ? helper.call(depth0, "operation", "", options) : helperMissing.call(depth0, "link-to", "operation", "", options));
+      'classNames': ("list-group-item"),
+      'titleBinding': ("operationDuration")
+  },
+      hashTypes: {'classNames': "STRING", 'titleBinding': "ID"},
+      hashContexts: {'classNames': depth0, 'titleBinding': depth0},
+      inverse: self.noop,
+      fn: self.program(13, program13, data),
+      contexts: [depth0, depth0],
+      types: ["STRING", "ID"],
+      data: data
+  }, helper ? helper.call(depth0, "operation", "", options) : helperMissing.call(depth0, "link-to", "operation", "", options));
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("\n        ");
   return buffer;
@@ -631,16 +640,28 @@ function program24(depth0,data) {
     'type': ("checkbox"),
     'checked': ("showTravel")
   },hashTypes:{'type': "STRING",'checked': "ID"},hashContexts:{'type': depth0,'checked': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
-  data.buffer.push("</td>\n        </tr>\n        </tbody>\n    </table>\n    <h2>Shapes\n        <button title=\"create new shape\" class=\"btn btn-default\" ");
+    data.buffer.push("</td>\n        </tr>\n        </tbody>\n    </table>\n    <h2>Shapes\n        <button title=\"create new shape\" class=\"btn btn-default add-button\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "createShape", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
   data.buffer.push(">+</button>\n    </h2>\n    <ul class=\"list-group shapeList\">\n        ");
   stack1 = helpers.each.call(depth0, "shapes", {hash:{
     'itemController': ("shapeListItem")
   },hashTypes:{'itemController': "STRING"},hashContexts:{'itemController': depth0},inverse:self.program(10, program10, data),fn:self.program(7, program7, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n    </ul>\n    <h2>Operations\n        <button title=\"create new operation\" class=\"btn btn-default\" ");
+    data.buffer.push("\n    </ul>\n    <h2>Operations\n        <button title=\"create new operation\" class=\"btn btn-default add-button\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "createOperation", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
-  data.buffer.push(">+</button>\n    </h2>\n    <div id=\"operationList\" class=\"list-group\">\n        ");
+    data.buffer.push(">+</button>\n        <span class=\"job-duration\">");
+    stack1 = helpers._triageMustache.call(depth0, "duration", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    });
+    if (stack1 || stack1 === 0) {
+        data.buffer.push(stack1);
+    }
+    data.buffer.push("</span>\n    </h2>\n    <div id=\"operationList\" class=\"list-group\">\n        ");
   stack1 = helpers.each.call(depth0, "orderedOperations", {hash:{
     'itemController': ("operationListItem")
   },hashTypes:{'itemController': "STRING"},hashContexts:{'itemController': depth0},inverse:self.program(24, program24, data),fn:self.program(12, program12, data),contexts:[depth0],types:["ID"],data:data});

@@ -1,6 +1,6 @@
 "use strict";
 
-define(['cnc/util'], function (util) {
+define(['cnc/util', 'cnc/gcode/simulation'], function (util, simulation) {
 
     function ConstantZPolygonToolpath() {
         this.path = [];
@@ -57,6 +57,7 @@ define(['cnc/util'], function (util) {
         if (path == null)
             path = [];
         this.path = path;
+        this.className = 'general-toolpath';
     }
 
     GeneralPolylineToolpath.prototype = {
@@ -120,6 +121,26 @@ define(['cnc/util'], function (util) {
             }
             return buffer;
         },
+        asSimulablePolyline: function (feedRate, travelFeedrate, speedTag) {
+            if (!this.path || this.path.length == 0)
+                return 0;
+            var newPath = [];
+            var lastPoint = this.initialPoint != null ? this.initialPoint : this.getStartPoint();
+            feedRate = feedRate ? feedRate : this.feedRate;
+            this.path.forEach(function (point) {
+                if (point.sqDistance(lastPoint)) {
+                    newPath.push({
+                        type: 'line',
+                        from: lastPoint,
+                        to: point,
+                        speedTag: speedTag,
+                        feedRate: speedTag == 'rapid' ? travelFeedrate : feedRate
+                    });
+                }
+                lastPoint = point;
+            });
+            return newPath;
+        },
         length: function () {
             var len = 0;
             var lastPoint = null;
@@ -141,6 +162,9 @@ define(['cnc/util'], function (util) {
         var path = operationData.path;
         for (var i = 0; i < path.length; i++)
             operation.pushPointXYZ(path[i].x, path[i].y, path[i].z);
+        for (var key in operationData)
+            if (key != 'path' && operationData.hasOwnProperty(key))
+                operation[key] = key == 'initialPoint' ? new util.Point(operationData[key].x, operationData[key].y, operationData[key].z) : operationData[key];
         return operation;
     }
 
@@ -156,7 +180,36 @@ define(['cnc/util'], function (util) {
         return travel;
     }
 
-    function assembleToolPathFromOperation(feedrate, travelAltitude, workToolpath) {
+    function OperationToolpathAssembly(workToolpath, completePath, travelBits) {
+        this.completePath = completePath;
+        this.travelBits = travelBits;
+        this.isEmpty = completePath.length == 0;
+        this.path = completePath;
+        this.stopPoint = workToolpath ? workToolpath[workToolpath.length - 1].getStopPoint() : null;
+        this.startPoint = workToolpath ? workToolpath[0].getStartPoint() : null;
+    }
+
+    OperationToolpathAssembly.prototype = {
+        getStartPoint: function () {
+            return this.startPoint;
+        },
+        getStopPoint: function () {
+            return this.stopPoint;
+        },
+        getTravelBits: function () {
+            return this.travelBits;
+        },
+        getDuration: function () {
+            var totalTime = 0;
+            this.completePath.forEach(function (path) {
+                var info = simulation.collectToolpathInfo(path.asSimulablePolyline(path.feedrate, 3000, path.speedTag));
+                totalTime += info.totalTime;
+            });
+            return totalTime;
+        }
+    };
+
+    function assembleToolPathFromOperation(feedrateAccessor, travelAltitude, workToolpath) {
         function travelAfter(index, pathFragments, travelAltitude) {
             var from = pathFragments[index].getStopPoint();
             var to = index + 1 < pathFragments.length ? pathFragments[index + 1].getStartPoint() : null;
@@ -167,27 +220,40 @@ define(['cnc/util'], function (util) {
         var travelBits = [];
         if (workToolpath != null)
             for (var i = 0; i < workToolpath.length; i++) {
-                workToolpath[i].feedrate = feedrate;
+                if (workToolpath[i]['feedrate'] === undefined)
+                    Object.defineProperty(workToolpath[i], 'feedrate', {
+                        enumerable: true,
+                        get: feedrateAccessor
+                    });
                 completePath.push(workToolpath[i]);
                 var travel = travelAfter(i, workToolpath, travelAltitude);
                 travelBits.push(travel);
                 completePath.push(travel);
             }
-        return {
-            isEmpty: completePath.length == 0,
-            path: completePath,
-            getStartPoint: function () {
-                return workToolpath[0].getStartPoint();
-            },
-            getStopPoint: function () {
-                return workToolpath[workToolpath.length - 1].getStopPoint();
-            },
-            getTravelBits: function () {
-                return travelBits;
-            }
-        }
+        return new OperationToolpathAssembly(workToolpath, completePath, travelBits);
     }
 
+    function WholeProgram(completePath, travelBits) {
+        this.completePath = completePath;
+        this.travelBits = travelBits;
+        this.path = completePath;
+    }
+
+    WholeProgram.prototype = {
+        getTravelBits: function () {
+            return this.travelBits;
+        },
+        computeCompactToolPath: function () {
+
+        },
+        getDuration: function () {
+            var totalTime = 0;
+            this.completePath.forEach(function (path) {
+                totalTime += simulation.collectToolpathInfo(path.asSimulablePolyline(path.feedrate, 3000, path.speedTag)).totalTime;
+            });
+            return totalTime;
+        }
+    };
     function assembleWholeProgram(prefix, suffix, safetyZ, operationAssemblies) {
         var travelBits = [];
         var completePath = [];
@@ -210,15 +276,7 @@ define(['cnc/util'], function (util) {
             completePath.push(suffix);
             travelBits.push(suffix);
         }
-        return {
-            path: completePath,
-            getTravelBits: function () {
-                return travelBits;
-            },
-            computeCompactToolPath: function () {
-
-            }
-        };
+        return new WholeProgram(completePath, travelBits);
     }
 
     return {
@@ -227,6 +285,7 @@ define(['cnc/util'], function (util) {
         ConstantZPolygonToolpath: ConstantZPolygonToolpath,
         travelFromTo: travelFromTo,
         assembleToolPathFromOperation: assembleToolPathFromOperation,
-        assembleWholeProgram: assembleWholeProgram
+        assembleWholeProgram: assembleWholeProgram,
+        OperationToolpathAssembly: OperationToolpathAssembly
     };
 });

@@ -272,6 +272,19 @@ var tasks = {
                     new THREE.BufferGeometryLoader().parse(event.data.model))
             });
         });
+    },
+    computeDuration: function (event) {
+        require(['cnc/cam/toolpath', 'cnc/util', 'cnc/gcode/simulation'], function (tp, util, simulation) {
+            var totalTime = 0;
+            event.data.path.forEach(function (p) {
+                var path = tp.decodeToolPath(p);
+                var info = simulation.collectToolpathInfo(path.asSimulablePolyline(path.feedrate, 3000, path.speedTag));
+                totalTime += info.totalTime;
+            });
+            self.postMessage({
+                duration: util.humanizeDuration(totalTime)
+            });
+        });
     }
 };
 

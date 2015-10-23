@@ -1,7 +1,7 @@
 "use strict";
 define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', 'cnc/cam/toolpath',
-        'cnc/cam/3D/3Dcomputer', 'require'],
-    function (Ember, DS, cam, util, Operations, tp, Computer, require) {
+        'cnc/cam/3D/3Dcomputer', 'require', 'cnc/gcode/simulation'],
+    function (Ember, DS, cam, util, Operations, tp, Computer, require, simulation) {
         var attr = DS.attr;
         var operationDefinition = {
             init: function () {
@@ -24,6 +24,9 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 var task = this.get('task');
                 if (task)
                     task.cancel();
+                var durationWorker = this.get('durationWorker');
+                if (durationWorker)
+                    durationWorker.terminate();
             }.on('didDelete'),
             installObservers: function () {
                 var _this = this;
@@ -60,6 +63,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     _this.set('missedArea', null);
                     _this.set('leftStock', null);
                     var worker = new Worker(require.toUrl('worker.js'));
+                    this.set('toolpathWorker', worker);
                     worker.onmessage = Ember.run.bind(this, function (event) {
                         if (event.data.terminate && _this.get('toolpathWorker')) {
                             _this.get('toolpathWorker').terminate();
@@ -85,7 +89,6 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                         operation: 'computeToolpath',
                         params: params
                     });
-                    this.set('toolpathWorker', worker);
                 }
             },
             compute3D: function () {
@@ -126,12 +129,11 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 task.start();
             },
             computing: function () {
-                return (this.get('task') && !this.get('task.isDone'))
-                    || this.get('toolpathWorker')
-                    || this.get('outline.computing');
+                return !!((this.get('task') && !this.get('task.isDone'))
+                || this.get('toolpathWorker')
+                || this.get('outline.computing'));
             }.property('task', 'task.isDone', 'toolpathWorker', 'outline.computing'),
             paused: function () {
-                console.log('computing', this.get('task') && !this.get('task.isDone'));
                 return this.get('task.isPaused');
             }.property('task', 'task.isPaused'),
             tool: function () {
@@ -169,7 +171,9 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                         },
                         drillData: this.get('outline.drillData')
                     },
-                    type: this.get('type')
+                    type: this.get('type'),
+                    feedRate: this.get('actualFeedrate')
+
                 };
                 var _this = this;
                 Object.keys(operation.properties).forEach(function (key) {
@@ -181,8 +185,33 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 return this.get('assembledPath').getTravelBits();
             }.property('assembledPath'),
             assembledPath: function () {
-                return tp.assembleToolPathFromOperation(this.get('actualFeedrate'), this.get('job.safetyZ'), this.get('toolpath'));
-            }.property('toolpath', 'job.safetyZ', 'actualFeedrate'),
+                var _this = this;
+                return tp.assembleToolPathFromOperation(function () {
+                    return _this.get('actualFeedrate');
+                }, this.get('job.safetyZ'), this.get('toolpath'));
+            }.property('toolpath', 'job.safetyZ'),
+            computeOperationDuration: function () {
+                this.set('operationDuration', 'computing duration...');
+                if (this.get('durationWorker'))
+                    this.get('durationWorker').terminate();
+                var worker = new Worker(require.toUrl('worker.js'));
+                this.set('durationWorker', worker);
+                var _this = this;
+                worker.onmessage = Ember.run.bind(this, function (event) {
+                    _this.set('operationDuration', event.data.duration);
+                    worker.terminate();
+                    _this.set('durationWorker', null);
+                });
+                worker.postMessage({
+                    operation: 'computeDuration',
+                    path: this.get('assembledPath').path
+                });
+            },
+            observeOperationDuration: function () {
+                this.set('operationDuration', null);
+                if (!this.get('computing'))
+                    Ember.run.debounce(this, 'computeOperationDuration', 100);
+            }.observes('assembledPath', 'actualFeedrate', 'computing'),
             pushCompactToolpathOn: function (collector) {
                 var feedrate = this.get('actualFeedrate');
                 var id = this.get('id');
