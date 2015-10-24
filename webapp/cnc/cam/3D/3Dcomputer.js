@@ -67,17 +67,7 @@ define(['RSVP', 'THREE', 'Piecon', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/mink
                     };
                     var resultBufferWidth = tileXCount * resultTileX;
                     var resultBufferHeight = tileYCount * resultTileY;
-                    var depthTexture = new THREE.DepthTexture(modelTileX, modelTileY, false);
-                    depthTexture.wrapS = THREE.ClampToEdgeWrapping;
-                    depthTexture.wrapT = THREE.ClampToEdgeWrapping;
-                    depthTexture.minFilter = THREE.LinearFilter;
-                    depthTexture.generateMipmaps = false;
-                    var modelBuffer = new THREE.WebGLRenderTarget(modelTileX, modelTileY, {
-                        stencilBuffer: false,
-                        generateMipmaps: false,
-                        depthTexture: depthTexture
-                    });
-                    modelBuffer.texture.minFilter = THREE.LinearFilter;
+                    var modelBuffer = modelStage.createRenderBuffer(modelTileX, modelTileY);
 
                     var minkowskiPass = new MinkowskiPass();
                     renderer.autoClear = false;
@@ -197,7 +187,7 @@ define(['RSVP', 'THREE', 'Piecon', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/mink
                                 gl.colorMask(true, false, false, false);
                             else
                                 gl.colorMask(true, true, true, true);
-                            minkowskiPass.render(renderer, minkowskiBuffer, depthTexture, terrainRatio, terrainTranslation);
+                            minkowskiPass.render(renderer, minkowskiBuffer, modelBuffer.depthTexture, terrainRatio, terrainTranslation);
                             copyPass.quad.position.x = x;
                             copyPass.quad.position.y = y;
                             if (displayResult)

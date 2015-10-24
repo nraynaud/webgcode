@@ -131,6 +131,20 @@ define(['THREE', 'shader!model_proj.vert', 'shader!model_proj.frag', 'shader!con
                     console.error('THREE.BufferGeometry.computeBoundingBox: Computed min/max have NaN values. The "position" attribute is likely to have NaN values.');
                 }
                 return boundingBox;
+            },
+            createRenderBuffer: function (width, height) {
+                var depthTexture = new THREE.DepthTexture(width, height, false);
+                depthTexture.wrapS = THREE.ClampToEdgeWrapping;
+                depthTexture.wrapT = THREE.ClampToEdgeWrapping;
+                depthTexture.minFilter = THREE.NearestFilter;
+                depthTexture.generateMipmaps = false;
+                var modelBuffer = new THREE.WebGLRenderTarget(width, height, {
+                    stencilBuffer: false,
+                    generateMipmaps: false,
+                    depthTexture: depthTexture
+                });
+                modelBuffer.texture.minFilter = THREE.NearestFilter;
+                return modelBuffer;
             }
         };
 
