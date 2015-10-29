@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="X-UA-Compatible" content="chrome=1"/>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
-    <title>Visual CAM</title>
+    <title>Height field computation demo</title>
     <script src="../webapp/libs/require.js"></script>
     <script src="../webapp/config.js"></script>
     <script>
@@ -42,10 +42,11 @@
         }
     </style>
     <script>
-        require(['jQuery', 'THREE', 'Piecon', 'cnc/cam/3D/toolProfile', 'cnc/cam/3D/minkowskiPass',
+        require(['jQuery', 'THREE', 'cnc/cam/3D/3Dcomputer2', 'cnc/cam/3D/toolProfile', 'cnc/cam/3D/minkowskiPass',
                     'libs/threejs/STLLoader', 'cnc/cam/3D/modelProjector', 'libs/threejs/postprocessing/ShaderPass',
-                    'libs/threejs/postprocessing/CopyShader'],
-                function ($, THREE, Piecon, toolProfile, MinkowskiPass, STLLoader, ModelProjector, ShaderPass, CopyShader) {
+                    'libs/threejs/postprocessing/CopyShader', 'text!shaders/minkowski.frag'],
+                function ($, THREE, computer, toolProfile, MinkowskiPass, STLLoader, ModelProjector, ShaderPass, CopyShader,
+                          minkowskiFrag) {
                     if (window['Notification'] && Notification.permission === 'default') {
                         Notification.requestPermission(function (permission) {
                             console.log('Notification.permision', permission);
@@ -83,13 +84,23 @@
                         console.log('hello');
                         var p = new ModelProjector();
                         var buffGeom = new STLLoader().parse(stlData);
+
+                        var theComputer = new computer.ToolPathComputer();
                         p.setGeometry(buffGeom);
-                        var modelBuffer = new THREE.WebGLRenderTarget(1000, 1000);
-                        modelBuffer.texture.minFilter = THREE.LinearFilter;
+                        var tooldef = {type: 'ball', diameter: 2};
                         var copyPass = new ShaderPass(CopyShader);
                         copyPass.renderToScreen = true;
-                        p.render(renderer, modelBuffer);
-                        copyPass.render(renderer, null, modelBuffer);
+                        var hf = theComputer.computeHeightField(buffGeom, 0.1, tooldef, 1, 0, 0, 1, null, false);
+                        hf.start();
+                        hf.get('promise').then(function (heightField) {
+                            console.log('DOOOONE', heightField);
+                            var texture = new THREE.DataTexture(heightField.data, heightField.samplesX, heightField.samplesY,
+                                    THREE.LuminanceFormat, THREE.FloatType, THREE.Texture.DEFAULT_MAPPING, THREE.ClampToEdgeWrapping,
+                                    THREE.ClampToEdgeWrapping, THREE.NearestFilter, THREE.NearestFilter);
+                            texture.generateMipmaps = false;
+                            texture.needsUpdate = true;
+                            copyPass.render(renderer, null, texture);
+                        });
                     });
                 });
     </script>
