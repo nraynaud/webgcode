@@ -181,12 +181,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 var pathFragments = [];
                 var endPoint = null;
                 operations.forEach(function (operation) {
-                    var toolpath = operation.get('toolpath');
-                    toolpath.forEach(function (fragment) {
-                        fragment.operation = operation.get('id');
-                        fragment.feedrate = operation.get('actualFeedrate');
-                    });
-                    pathFragments.pushObjects(toolpath);
+                    pathFragments.pushObjects(operation.get('toolpath'));
                 });
                 var startPoint = this.get('startPoint');
                 console.timeEnd('preparation');
