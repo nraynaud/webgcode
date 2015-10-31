@@ -26,10 +26,10 @@ define(['Ember', 'jQuery', 'cnc/util', 'cnc/cam/cam'], function (Ember, $, util,
                 if (event.data['type'] == 'toolPosition') {
                     var pos = event.data['position'];
                     var newPos = new util.Point(pos.x, pos.y, pos.z);
-                    if (!_this.get('toolPosition') || _this.get('toolPosition').sqDistance(newPos))
+                    if (!_this.get('toolPosition') || _this.get('toolPosition').sqDistance(newPos)) {
                         _this.set('toolPosition', newPos);
-                    if (!_this.get('model.startPoint') || _this.get('model.startPoint').sqDistance(newPos))
-                        _this.set('model.startPoint', newPos);
+                        Ember.run.debounce(_this, _this.syncStartPoint, 5000);
+                    }
                 }
                 if (event.data['type'] == 'current operations') {
                     _this.set('runningOperations', event.data['operations']);
@@ -114,7 +114,13 @@ define(['Ember', 'jQuery', 'cnc/util', 'cnc/cam/cam'], function (Ember, $, util,
         }.property('model.isDirty', 'model.shapes.@each.isDirty', 'model.shapes.@each.manualDefinition.isDirty', 'model.operations.@each.isDirty'),
         syncCanSendProgram: function () {
             window.postMessage({canSendProgram: this.get('model.canSendProgram')}, '*');
-        }.observes('model.canSendProgram', 'model').on('init')
+        }.observes('model.canSendProgram', 'model').on('init'),
+        syncStartPoint: function () {
+            console.log('syncStartPoint');
+            var newPos = this.get('toolPosition');
+            if (!this.get('model.startPoint') || this.get('model.startPoint').sqDistance(newPos))
+                this.set('model.startPoint', newPos);
+        }
     });
 
     return JobController;
