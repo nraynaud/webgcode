@@ -10,7 +10,7 @@ define(['THREE', 'shader!spatial_vUv.vert', 'shader!minkowski.frag'], function (
             depthTest: true,
             linewidth: 10,
             uniforms: {
-                aabb: {type: 'v4', value: new THREE.Vector4(minXMM, minYMM, maxXMM, maxYMM)},
+                aabb: {type: 'v4', value: null},
                 modelHeight: {type: 't'},
                 toolProfile: {type: 't', value: null},
                 toolToPartRatio: {type: 'v2', value: null},
@@ -59,6 +59,9 @@ define(['THREE', 'shader!spatial_vUv.vert', 'shader!minkowski.frag'], function (
             this.camera.right = right;
             this.camera.updateProjectionMatrix();
             this.camera.updateMatrixWorld();
+            var uniforms = this.material.uniforms;
+            uniforms.aabb.value = new THREE.Vector4(this.camera.left, this.camera.bottom, this.camera.right, this.camera.top);
+            uniforms.aabb.value.needsUpdate = true;
         },
         render: function (renderer, outputBuffer) {
             renderer.render(this.scene, this.camera, outputBuffer, true);

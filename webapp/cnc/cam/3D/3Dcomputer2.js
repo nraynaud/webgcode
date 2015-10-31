@@ -53,7 +53,7 @@ define(['RSVP', 'THREE', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/minkowskiCompu
                     var minXP = 0;
                     var minYP = 0;
 
-                    var tileSideP = 512;
+                    var tileSideP = 128;
                     var tileXCount = Math.ceil(globalWidthP / tileSideP);
                     var tileYCount = Math.ceil(globalHeightP / tileSideP);
                     var minkowskiTileXP = tileSideP;
@@ -122,18 +122,23 @@ define(['RSVP', 'THREE', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/minkowskiCompu
 
                     var outputFloats = isFloatReadPixelSupported;
                     //compensate because the model tile has a margin of 1 tool radius around it
-                    var terrainRatio = new THREE.Vector2(minkowskiTileXP / modelBuffer.width, minkowskiTileYP / modelBuffer.height);
-                    var terrainTranslation = new THREE.Vector2(toolSamples / modelBuffer.width, toolSamples / modelBuffer.height);
-                    minkowskiPass.setParams(profile, new THREE.Vector2(toolSamples / modelBuffer.width,
-                        toolSamples / modelBuffer.height), null, outputFloats, terrainRatio, terrainTranslation, modelBuffer.depthTexture);
+                    var terrainRatio = new THREE.Vector2(minkowskiTileXP / modelTileXP, minkowskiTileYP / modelTileYP);
+                    var terrainTranslation = new THREE.Vector2(toolSamples / modelTileXP, toolSamples / modelTileYP);
+                    var toolToPartRatio = new THREE.Vector2(toolSamples / modelTileXP, toolSamples / modelTileYP);
+                    minkowskiPass.setParams(profile, toolToPartRatio, null, outputFloats, terrainRatio,
+                        terrainTranslation, modelBuffer.depthTexture);
 
                     function setCameraPixCenter(x, y) {
                         var xOffset = bbox.center().x;
                         var yOffset = bbox.center().y;
-                        modelStage.setCamera(xOffset + (x - modelTileXP / 2 - centerXP) / sampleRate, xOffset + (x + modelTileXP / 2 - centerXP) / sampleRate,
-                            yOffset + (y - modelTileYP / 2 - centerXP) / sampleRate, yOffset + (y + modelTileYP / 2 - centerYP) / sampleRate);
-                        minkowskiPass.setCamera(xOffset + (x - minkowskiTileXP / 2 - centerXP) / sampleRate, xOffset + (x + minkowskiTileXP / 2 - centerXP) / sampleRate,
-                            yOffset + (y - minkowskiTileYP / 2 - centerXP) / sampleRate, yOffset + (y + minkowskiTileYP / 2 - centerYP) / sampleRate);
+                        modelStage.setCamera(xOffset + (x - modelTileXP / 2 - centerXP) / sampleRate,
+                            xOffset + (x + modelTileXP / 2 - centerXP) / sampleRate,
+                            yOffset + (y - modelTileYP / 2 - centerXP) / sampleRate,
+                            yOffset + (y + modelTileYP / 2 - centerYP) / sampleRate);
+                        minkowskiPass.setCamera(xOffset + (x - minkowskiTileXP / 2 - centerXP) / sampleRate,
+                            xOffset + (x + minkowskiTileXP / 2 - centerXP) / sampleRate,
+                            yOffset + (y - minkowskiTileYP / 2 - centerXP) / sampleRate,
+                            yOffset + (y + minkowskiTileYP / 2 - centerYP) / sampleRate);
                     }
 
                     function setModelTilePos(x, y) {
