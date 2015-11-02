@@ -31,6 +31,17 @@ static const spi_input_t spiInputPolarity = {
         .limitZ = 1
 };
 
+// 1 -> high is true, 0 -> low is true
+static const spi_output_t spiOutputPolarity = {
+        .run = 1,
+        .reverse = 1,
+        .reset = 1,
+        .sph = 1,
+        .spm = 1,
+        .spl = 1,
+        .socket = 0
+};
+
 static uint16_t myLog2(int value) {
     return 31 - __builtin_clz(value);
 }
@@ -82,7 +93,7 @@ static void flashShiftRegisters() {
 void handleSPI() {
     crBegin;
             flashShiftRegisters();
-            SPI_I2S_SendData(spiPinout.spi, ((spi_output_serializer_t) {.s=cncMemory.spiOutput}).n);
+            SPI_I2S_SendData(spiPinout.spi, ((spi_output_serializer_t) {.s=cncMemory.spiOutput}).n ^ ~((spi_output_serializer_t) {.s = spiOutputPolarity}).n);
             while ((spiPinout.spi->SR & SPI_SR_TXE) == 0)
                 crYield();
             while ((spiPinout.spi->SR & SPI_SR_RXNE) == 0)
