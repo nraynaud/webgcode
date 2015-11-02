@@ -1,6 +1,6 @@
 <div class="jobDetail">
-    <button class="btn btn-default" {{action save}} {{bind-attr disabled=saveDisabled}}>Save</button>
-    <button class="btn btn-default" {{action getGcode}}>GCode</button>
+    <button class="btn btn-default" {{action "save"}} {{bind-attr disabled=saveDisabled}}>Save</button>
+    <button class="btn btn-default" {{action "getGcode"}}>GCode</button>
     <div id="deleteBlock">
         <div id="realDelete" style="display: none;">
             {{input id="deleteSlider" type="range" min=0 max=1 step="0.1" value=deleteSlider}}
@@ -96,7 +96,7 @@
     </h2>
     <div id="operationList" class="list-group">
         {{#each orderedOperations itemController="operationListItem"}}
-            {{#link-to "operation" this classNames="list-group-item" titleBinding=operationDuration}}
+            {{#link-to "operation" this classNames="list-group-item" title=operationDuration}}
                 <div class="arrow-panel">
                     {{#if isNotFirst}}
                         <div title="move operation one position earlier" {{action "moveEarlier"}}

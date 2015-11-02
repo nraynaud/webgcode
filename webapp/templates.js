@@ -490,10 +490,10 @@ function program12(depth0,data) {
   data.buffer.push("\n            ");
   stack1 = (helper = helpers['link-to'] || (depth0 && depth0['link-to']),options={hash:{
       'classNames': ("list-group-item"),
-      'titleBinding': ("operationDuration")
+      'title': ("operationDuration")
   },
-      hashTypes: {'classNames': "STRING", 'titleBinding': "ID"},
-      hashContexts: {'classNames': depth0, 'titleBinding': depth0},
+      hashTypes: {'classNames': "STRING", 'title': "ID"},
+      hashContexts: {'classNames': depth0, 'title': depth0},
       inverse: self.noop,
       fn: self.program(13, program13, data),
       contexts: [depth0, depth0],
@@ -576,7 +576,14 @@ function program24(depth0,data) {
   }
 
   data.buffer.push("<div class=\"jobDetail\">\n    <button class=\"btn btn-default\" ");
-  data.buffer.push(escapeExpression(helpers.action.call(depth0, "save", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data})));
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "save", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["STRING"],
+        data: data
+    })));
   data.buffer.push(" ");
   data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
     'disabled': ("saveDisabled")
@@ -587,7 +594,7 @@ function program24(depth0,data) {
         hashTypes: {},
         hashContexts: {},
         contexts: [depth0],
-        types: ["ID"],
+        types: ["STRING"],
         data: data
     })));
     data.buffer.push(">GCode</button>\n    <div id=\"deleteBlock\">\n        <div id=\"realDelete\" style=\"display: none;\">\n            ");
