@@ -85,149 +85,91 @@ function program9(depth0,data) {
 Ember.TEMPLATES["controllerPanel"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
-  var buffer = '', stack1, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing, self=this;
+    var buffer = '', stack1, helper, options, escapeExpression = this.escapeExpression, self = this, helperMissing = helpers.helperMissing;
 
 function program1(depth0,data) {
-  
-  var buffer = '', stack1, helper, options;
-  data.buffer.push("\n        <button class=\"btn btn-default\" ");
+
+    var buffer = '', stack1;
+    data.buffer.push("\n            <button class=\"btn btn-lg\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "sendProgram", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
   data.buffer.push(" ");
   data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
     'disabled': ("isNotProgramRunnable")
   },hashTypes:{'disabled': "STRING"},hashContexts:{'disabled': depth0},contexts:[],types:[],data:data})));
-  data.buffer.push("><i\n                class=\"fa fa-play\"></i> Send Program\n        </button>\n        ");
+    data.buffer.push("><i\n                    class=\"fa fa-play\"></i> Run\n            </button>\n            ");
   stack1 = helpers['if'].call(depth0, "isProgramAbortable", {hash:{},hashTypes:{},hashContexts:{},inverse:self.noop,fn:self.program(2, program2, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n        ");
+    data.buffer.push("\n            ");
   stack1 = helpers['if'].call(depth0, "isResumable", {hash:{},hashTypes:{},hashContexts:{},inverse:self.noop,fn:self.program(4, program4, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n        ");
+    data.buffer.push("\n            ");
   stack1 = helpers['if'].call(depth0, "isManualModeTogglable", {hash:{},hashTypes:{},hashContexts:{},inverse:self.noop,fn:self.program(6, program6, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n        ");
+    data.buffer.push("\n            ");
   stack1 = helpers['if'].call(depth0, "isHomable", {hash:{},hashTypes:{},hashContexts:{},inverse:self.noop,fn:self.program(8, program8, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n\n        <div class=\"control\">\n            <div ");
-  data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
-    'class': (":estopframe toolProbe")
-  },hashTypes:{'class': "STRING"},hashContexts:{'class': depth0},contexts:[],types:[],data:data})));
-  data.buffer.push(">Tool Probe</div>\n            <div ");
-  data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
-    'class': (":estopframe estop")
-  },hashTypes:{'class': "STRING"},hashContexts:{'class': depth0},contexts:[],types:[],data:data})));
-  data.buffer.push(">E-STOP</div>\n            <div class=\"io\">\n                <div ");
-  data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
-    'class': (":spindle spindleRunning spindleUpToSpeed")
-  },hashTypes:{'class': "STRING"},hashContexts:{'class': depth0},contexts:[],types:[],data:data})));
-  data.buffer.push(">Spindle <br>\n                    <button class=\"btn btn-sm\" ");
-  data.buffer.push(escapeExpression(helpers.action.call(depth0, "toggleSpindle", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
-  data.buffer.push(">");
-  stack1 = helpers._triageMustache.call(depth0, "spindleButtonLabel", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
-  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("</button>\n                </div>\n                <div ");
-  data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
-    'class': (":socket socketOn")
-  },hashTypes:{'class': "STRING"},hashContexts:{'class': depth0},contexts:[],types:[],data:data})));
-  data.buffer.push(">Socket <br>\n                    <button class=\"btn btn-sm\" ");
-  data.buffer.push(escapeExpression(helpers.action.call(depth0, "toggleSocket", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
-  data.buffer.push(">");
-  stack1 = helpers._triageMustache.call(depth0, "socketButtonLabel", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
-  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("</button>\n                </div>\n            </div>\n            <div class=\"position\">\n                <table>\n                    <colgroup>\n                        <col>\n                        <col align=\"char\" char=\".\">\n                        <col align=\"char\" char=\".\">\n                    </colgroup>\n                    <tbody>\n                    <tr class=\"positionHeader\">\n                        <th></th>\n                        <th title=\"Position\">Position</th>\n                        <th title=\"Work Offset\">Work Offset</th>\n                    </tr>\n                    ");
-  stack1 = helpers.each.call(depth0, "axes", {hash:{
-    'itemController': ("axis")
-  },hashTypes:{'itemController': "STRING"},hashContexts:{'itemController': depth0},inverse:self.noop,fn:self.program(10, program10, data),contexts:[depth0],types:["ID"],data:data});
-  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n                    </tbody>\n                </table>\n            </div>\n            <div class=\"controlButtons\">\n                <div class=\"xyBlock\">\n                    <button class=\"axisButton btn btn-xs\" ");
-  data.buffer.push(escapeExpression(helpers.action.call(depth0, "move", "Y+", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0,depth0],types:["STRING","STRING"],data:data})));
-  data.buffer.push("><i class=\"fa fa-arrow-up\"></i> Y+\n                    </button>\n                    <div class=\"centerRow\">\n                        <button class=\"axisButton btn btn-xs\" ");
-  data.buffer.push(escapeExpression(helpers.action.call(depth0, "move", "X-", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0,depth0],types:["STRING","STRING"],data:data})));
-  data.buffer.push("><i class=\"fa fa-arrow-left\"></i>\n                            X-\n                        </button>\n                        <button class=\"axisButton btn btn-xs\" ");
-  data.buffer.push(escapeExpression(helpers.action.call(depth0, "move", "X+", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0,depth0],types:["STRING","STRING"],data:data})));
-  data.buffer.push(">X+ <i\n                                class=\"fa fa-arrow-right\"></i></button>\n                    </div>\n                    <button class=\"axisButton btn btn-xs\" ");
-  data.buffer.push(escapeExpression(helpers.action.call(depth0, "move", "Y-", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0,depth0],types:["STRING","STRING"],data:data})));
-  data.buffer.push("><i class=\"fa fa-arrow-down\"></i> Y-\n                    </button>\n                </div>\n                <div class=\"zBlock\">\n                    <button class=\"axisButton btn btn-xs\" ");
-  data.buffer.push(escapeExpression(helpers.action.call(depth0, "move", "Z+", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0,depth0],types:["STRING","STRING"],data:data})));
-  data.buffer.push("><i class=\"fa fa-arrow-circle-up\"></i>\n                        Z+\n                    </button>\n                    <div>&nbsp;</div>\n                    <button class=\"axisButton btn btn-xs\" ");
-  data.buffer.push(escapeExpression(helpers.action.call(depth0, "move", "Z-", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0,depth0],types:["STRING","STRING"],data:data})));
-  data.buffer.push("><i\n                            class=\"fa fa-arrow-circle-down\"></i> Z-\n                    </button>\n                </div>\n            </div>\n            <div class=\"controlParams\">\n                <table>\n                    <tr title=\"mm\">\n                        <th><label for=\"incrementField\">increment:</label></th>\n                        <td>");
-  data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
-    'type': ("number"),
-    'class': ("paramField"),
-    'min': ("0"),
-    'max': ("100"),
-    'step': ("0.01"),
-    'size': ("4"),
-    'value': ("10"),
-    'value': ("increment")
-  },hashTypes:{'type': "ID",'class': "STRING",'min': "STRING",'max': "STRING",'step': "STRING",'size': "STRING",'value': "STRING",'value': "ID"},hashContexts:{'type': depth0,'class': depth0,'min': depth0,'max': depth0,'step': depth0,'size': depth0,'value': depth0,'value': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
-  data.buffer.push("</td>\n                    </tr>\n                    <tr title=\"mm/min\">\n                        <th><label for=\"feedRateField\">feedrate:</label></th>\n                        <td>");
-  data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
-    'type': ("number"),
-    'class': ("paramField"),
-    'min': ("0"),
-    'max': ("3000"),
-    'step': ("10"),
-    'size': ("4"),
-    'value': ("10"),
-    'value': ("jogFeedrate")
-  },hashTypes:{'type': "ID",'class': "STRING",'min': "STRING",'max': "STRING",'step': "STRING",'size': "STRING",'value': "STRING",'value': "ID"},hashContexts:{'type': depth0,'class': depth0,'min': depth0,'max': depth0,'step': depth0,'size': depth0,'value': depth0,'value': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
-  data.buffer.push("</td>\n                    </tr>\n                    <tr title=\"mm/min\">\n                        <th>current speed:</th>\n                        <td><span id=\"currentFeedrate\">");
-  stack1 = helpers._triageMustache.call(depth0, "feedrate", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
-  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("</span></td>\n                    </tr>\n                    <tr title=\"mm/min\">\n                        <th>current state:</th>\n                        <td><span>");
-  stack1 = helpers._triageMustache.call(depth0, "displayableState", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
-  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("</span></td>\n                    </tr>\n                </table>\n                <div class=\"units\">\n                    ");
-  stack1 = helpers['if'].call(depth0, "isBusy", {hash:{},hashTypes:{},hashContexts:{},inverse:self.noop,fn:self.program(19, program19, data),contexts:[depth0],types:["ID"],data:data});
-  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("<span\n                        title=\"ISO units, there is no way to change it.\">mm</span>\n                </div>\n            </div>\n        </div>\n    ");
+    data.buffer.push("\n        ");
   return buffer;
   }
 function program2(depth0,data) {
   
   var buffer = '';
-  data.buffer.push("\n            <button class=\"btn btn-default\" ");
+    data.buffer.push("\n                <button class=\"btn btn-lg\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "abort", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
-  data.buffer.push("><i class=\"fa fa-eject\"></i> Abort</button>\n        ");
+    data.buffer.push("><i class=\"fa fa-eject\"></i> Abort</button>\n            ");
   return buffer;
   }
 
 function program4(depth0,data) {
   
   var buffer = '';
-  data.buffer.push("\n            <button class=\"btn btn-default\" ");
+    data.buffer.push("\n                <button class=\"btn btn-lg\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "resumeProgram", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
-  data.buffer.push("><i class=\"fa fa-play\"></i> Resume</button>\n        ");
+    data.buffer.push("><i class=\"fa fa-play\"></i> Resume</button>\n            ");
   return buffer;
   }
 
 function program6(depth0,data) {
   
   var buffer = '', stack1;
-  data.buffer.push("\n            <button class=\"btn btn-default\" id='manualControl' ");
+    data.buffer.push("\n                <button class=\"btn btn-lg\" id='manualControl' ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "setManualMode", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
-  data.buffer.push("><i\n                    class=\"fa fa-arrows-alt\"></i> ");
+    data.buffer.push("><i\n                        class=\"fa fa-arrows-alt\"></i> ");
   stack1 = helpers._triageMustache.call(depth0, "manualButtonLabel", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n            </button>\n        ");
+    data.buffer.push("\n                </button>\n            ");
   return buffer;
   }
 
 function program8(depth0,data) {
   
   var buffer = '';
-  data.buffer.push("\n            <button class=\"btn btn-default\" ");
+    data.buffer.push("\n                <button class=\"btn btn-lg home\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "home", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
-  data.buffer.push("><i class=\"fa fa-home\"></i> Home</button>\n        ");
+    data.buffer.push("><i class=\"fa fa-home\"></i> Home</button>\n            ");
   return buffer;
   }
 
 function program10(depth0,data) {
+
+    var buffer = '';
+    data.buffer.push("\n            <button id='connect' ");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "connect", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["STRING"],
+        data: data
+    })));
+    data.buffer.push(" class=\"btn btn-lg\"><i class=\"fa fa-plug\"></i> Connect\n            </button>\n        ");
+    return buffer;
+}
+
+    function program12(depth0, data) {
   
   var buffer = '', stack1;
-  data.buffer.push("\n                        <tr ");
+        data.buffer.push("\n                    <tr ");
   data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
     'title': ("helpText")
   },hashTypes:{'title': "STRING"},hashContexts:{'title': depth0},contexts:[],types:[],data:data})));
@@ -235,30 +177,49 @@ function program10(depth0,data) {
   data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
     'class': (":axis limit homed")
   },hashTypes:{'class': "STRING"},hashContexts:{'class': depth0},contexts:[],types:[],data:data})));
-  data.buffer.push(" >\n                            <th>");
+        data.buffer.push(" >\n                        <th>");
   stack1 = helpers._triageMustache.call(depth0, "name", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push(":</th>\n                            <td class=\"posAxis\" ");
+        data.buffer.push(":</th>\n                        <td class=\"posAxis\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "editAxisPosition", {hash:{
     'on': ("doubleClick")
   },hashTypes:{'on': "STRING"},hashContexts:{'on': depth0},contexts:[depth0],types:["STRING"],data:data})));
-  data.buffer.push(" >\n                                ");
-  stack1 = helpers['if'].call(depth0, "isEditingPosition", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(13, program13, data),fn:self.program(11, program11, data),contexts:[depth0],types:["ID"],data:data});
+        data.buffer.push(" >\n                            ");
+        stack1 = helpers['if'].call(depth0, "isEditingPosition", {
+            hash: {},
+            hashTypes: {},
+            hashContexts: {},
+            inverse: self.program(15, program15, data),
+            fn: self.program(13, program13, data),
+            contexts: [depth0],
+            types: ["ID"],
+            data: data
+        });
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n                            </td>\n                            <td class=\"axisOffset\" ");
+        data.buffer.push("\n                        </td>\n                        <td class=\"axisOffset\" ");
   data.buffer.push(escapeExpression(helpers.action.call(depth0, "editAxisOffset", {hash:{
     'on': ("doubleClick")
   },hashTypes:{'on': "STRING"},hashContexts:{'on': depth0},contexts:[depth0],types:["STRING"],data:data})));
-  data.buffer.push(" >\n                                ");
-  stack1 = helpers['if'].call(depth0, "isEditingOffset", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(17, program17, data),fn:self.program(15, program15, data),contexts:[depth0],types:["ID"],data:data});
+        data.buffer.push(" >\n                            ");
+        stack1 = helpers['if'].call(depth0, "isEditingOffset", {
+            hash: {},
+            hashTypes: {},
+            hashContexts: {},
+            inverse: self.program(19, program19, data),
+            fn: self.program(17, program17, data),
+            contexts: [depth0],
+            types: ["ID"],
+            data: data
+        });
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n\n                            </td>\n                        </tr>\n                    ");
+        data.buffer.push("\n\n                        </td>\n                    </tr>\n                ");
   return buffer;
   }
-function program11(depth0,data) {
+
+    function program13(depth0, data) {
   
   var buffer = '', helper, options;
-  data.buffer.push("\n                                    ");
+        data.buffer.push("\n                                ");
   data.buffer.push(escapeExpression((helper = helpers['edit-axis'] || (depth0 && depth0['edit-axis']),options={hash:{
     'class': ("input-sm"),
     'size': ("8"),
@@ -266,24 +227,24 @@ function program11(depth0,data) {
     'insert-newline': ("acceptPositionChanges"),
     'escape-press': ("cancelChanges")
   },hashTypes:{'class': "STRING",'size': "STRING",'numericValue': "ID",'insert-newline': "STRING",'escape-press': "STRING"},hashContexts:{'class': depth0,'size': depth0,'numericValue': depth0,'insert-newline': depth0,'escape-press': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "edit-axis", options))));
-  data.buffer.push("\n                                ");
+        data.buffer.push("\n                            ");
   return buffer;
   }
 
-function program13(depth0,data) {
+    function program15(depth0, data) {
   
   var buffer = '', stack1;
-  data.buffer.push("\n                                    <span class=\"pos\">");
+        data.buffer.push("\n                                <span class=\"pos\">");
   stack1 = helpers._triageMustache.call(depth0, "formattedPosition", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("</span>\n                                ");
+        data.buffer.push("</span>\n                            ");
   return buffer;
   }
 
-function program15(depth0,data) {
+    function program17(depth0, data) {
   
   var buffer = '', helper, options;
-  data.buffer.push("\n                                    ");
+        data.buffer.push("\n                                ");
   data.buffer.push(escapeExpression((helper = helpers['edit-axis'] || (depth0 && depth0['edit-axis']),options={hash:{
     'class': ("input-sm"),
     'size': ("!"),
@@ -291,43 +252,289 @@ function program15(depth0,data) {
     'insert-newline': ("acceptOffsetChanges"),
     'escape-press': ("cancelChanges")
   },hashTypes:{'class': "STRING",'size': "STRING",'numericValue': "ID",'insert-newline': "STRING",'escape-press': "STRING"},hashContexts:{'class': depth0,'size': depth0,'numericValue': depth0,'insert-newline': depth0,'escape-press': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "edit-axis", options))));
-  data.buffer.push("\n                                ");
+        data.buffer.push("\n                            ");
   return buffer;
   }
 
-function program17(depth0,data) {
+    function program19(depth0, data) {
   
   var buffer = '', stack1;
-  data.buffer.push("\n                                    <span class=\"pos\">");
+        data.buffer.push("\n                                <span class=\"pos\">");
   stack1 = helpers._triageMustache.call(depth0, "formattedOffset", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("</span>\n                                ");
+        data.buffer.push("</span>\n                            ");
   return buffer;
   }
 
-function program19(depth0,data) {
-  
-  
-  data.buffer.push("\n                        <div id=\"loader\"><i class=\"fa fa-spinner fa-spin\"></i></div>\n                    ");
-  }
+    function program21(depth0, data) {
 
-function program21(depth0,data) {
-  
-  var buffer = '';
-  data.buffer.push("\n        <button id='connect' ");
-  data.buffer.push(escapeExpression(helpers.action.call(depth0, "connect", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
-  data.buffer.push(" class=\"btn btn-default\"><i class=\"fa fa-plug\"></i> Connect</button>\n    ");
-  return buffer;
+
+        data.buffer.push("\n                    <div id=\"loader\"><i class=\"fa fa-spinner fa-spin\"></i></div>\n                ");
   }
 
   data.buffer.push("<div id=\"header\" ");
   data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
     'class': ("connection.opened:connected")
   },hashTypes:{'class': "STRING"},hashContexts:{'class': depth0},contexts:[],types:[],data:data})));
-  data.buffer.push(">\n    ");
-  stack1 = helpers['if'].call(depth0, "connection.opened", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(21, program21, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],data:data});
+    data.buffer.push(">\n    <div class=\"button-block\">\n        ");
+    stack1 = helpers['if'].call(depth0, "connection.opened", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        inverse: self.program(10, program10, data),
+        fn: self.program(1, program1, data),
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    });
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-  data.buffer.push("\n</div>\n<div class=\"camPanel\">\n    <iframe id=\"webView\" src=\"visucamTest.html\"></iframe>\n</div>");
+    data.buffer.push("\n    </div>\n    <div class=\"control\">\n        <div ");
+    data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {
+        hash: {
+            'class': (":estopframe toolProbe")
+        }, hashTypes: {'class': "STRING"}, hashContexts: {'class': depth0}, contexts: [], types: [], data: data
+    })));
+    data.buffer.push(">Tool Probe</div>\n        <div ");
+    data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {
+        hash: {
+            'class': (":estopframe estop")
+        }, hashTypes: {'class': "STRING"}, hashContexts: {'class': depth0}, contexts: [], types: [], data: data
+    })));
+    data.buffer.push(">E-STOP</div>\n        <div class=\"io\">\n            <div ");
+    data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {
+        hash: {
+            'class': (":spindle spindleRunning spindleUpToSpeed")
+        }, hashTypes: {'class': "STRING"}, hashContexts: {'class': depth0}, contexts: [], types: [], data: data
+    })));
+    data.buffer.push(">\n                <button class=\"btn btn-sm\" ");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "toggleSpindle", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["STRING"],
+        data: data
+    })));
+    data.buffer.push(">Spindle <br> ");
+    stack1 = helpers._triageMustache.call(depth0, "spindleButtonLabel", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    });
+    if (stack1 || stack1 === 0) {
+        data.buffer.push(stack1);
+    }
+    data.buffer.push("</button>\n            </div>\n            <div ");
+    data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {
+        hash: {
+            'class': (":socket socketOn")
+        }, hashTypes: {'class': "STRING"}, hashContexts: {'class': depth0}, contexts: [], types: [], data: data
+    })));
+    data.buffer.push(">\n                <button class=\"btn btn-sm\" ");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "toggleSocket", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["STRING"],
+        data: data
+    })));
+    data.buffer.push(">Socket <br> ");
+    stack1 = helpers._triageMustache.call(depth0, "socketButtonLabel", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    });
+    if (stack1 || stack1 === 0) {
+        data.buffer.push(stack1);
+    }
+    data.buffer.push("</button>\n            </div>\n        </div>\n        <div class=\"position\">\n            <table>\n                <colgroup>\n                    <col>\n                    <col align=\"char\" char=\".\">\n                    <col align=\"char\" char=\".\">\n                </colgroup>\n                <tbody>\n                <tr class=\"positionHeader\">\n                    <th></th>\n                    <th title=\"Position\">Position</th>\n                    <th title=\"Work Offset\">Work Offset</th>\n                </tr>\n                ");
+    stack1 = helpers.each.call(depth0, "axes", {
+        hash: {
+            'itemController': ("axis")
+        },
+        hashTypes: {'itemController': "STRING"},
+        hashContexts: {'itemController': depth0},
+        inverse: self.noop,
+        fn: self.program(12, program12, data),
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    });
+    if (stack1 || stack1 === 0) {
+        data.buffer.push(stack1);
+    }
+    data.buffer.push("\n                </tbody>\n            </table>\n        </div>\n        <div class=\"controlButtons\">\n            <div class=\"xyBlock\">\n                <button class=\"axisButton btn btn-xs\" ");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "move", "Y+", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0, depth0],
+        types: ["STRING", "STRING"],
+        data: data
+    })));
+    data.buffer.push("><i class=\"fa fa-arrow-up\"></i> Y+\n                </button>\n                <div class=\"centerRow\">\n                    <button class=\"axisButton btn btn-xs\" ");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "move", "X-", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0, depth0],
+        types: ["STRING", "STRING"],
+        data: data
+    })));
+    data.buffer.push("><i class=\"fa fa-arrow-left\"></i>\n                        X-\n                    </button>\n                    <button class=\"axisButton btn btn-xs\" ");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "move", "X+", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0, depth0],
+        types: ["STRING", "STRING"],
+        data: data
+    })));
+    data.buffer.push(">X+ <i\n                            class=\"fa fa-arrow-right\"></i></button>\n                </div>\n                <button class=\"axisButton btn btn-xs\" ");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "move", "Y-", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0, depth0],
+        types: ["STRING", "STRING"],
+        data: data
+    })));
+    data.buffer.push("><i class=\"fa fa-arrow-down\"></i> Y-\n                </button>\n            </div>\n            <div class=\"zBlock\">\n                <button class=\"axisButton btn btn-xs\" ");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "move", "Z+", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0, depth0],
+        types: ["STRING", "STRING"],
+        data: data
+    })));
+    data.buffer.push("><i class=\"fa fa-arrow-circle-up\"></i>\n                    Z+\n                </button>\n                <div>&nbsp;</div>\n                <button class=\"axisButton btn btn-xs\" ");
+    data.buffer.push(escapeExpression(helpers.action.call(depth0, "move", "Z-", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0, depth0],
+        types: ["STRING", "STRING"],
+        data: data
+    })));
+    data.buffer.push("><i\n                        class=\"fa fa-arrow-circle-down\"></i> Z-\n                </button>\n            </div>\n        </div>\n        <div class=\"controlParams\">\n            <table>\n                <tr title=\"mm\">\n                    <th><label for=\"incrementField\">increment:</label></th>\n                    <td>");
+    data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input), options = {
+        hash: {
+            'type': ("number"),
+            'class': ("paramField"),
+            'min': ("0"),
+            'max': ("100"),
+            'step': ("0.01"),
+            'size': ("4"),
+            'value': ("10"),
+            'value': ("increment")
+        },
+        hashTypes: {
+            'type': "ID",
+            'class': "STRING",
+            'min': "STRING",
+            'max': "STRING",
+            'step': "STRING",
+            'size': "STRING",
+            'value': "STRING",
+            'value': "ID"
+        },
+        hashContexts: {
+            'type': depth0,
+            'class': depth0,
+            'min': depth0,
+            'max': depth0,
+            'step': depth0,
+            'size': depth0,
+            'value': depth0,
+            'value': depth0
+        },
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+    data.buffer.push("</td>\n                </tr>\n                <tr title=\"mm/min\">\n                    <th><label for=\"feedRateField\">feedrate:</label></th>\n                    <td>");
+    data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input), options = {
+        hash: {
+            'type': ("number"),
+            'class': ("paramField"),
+            'min': ("0"),
+            'max': ("3000"),
+            'step': ("10"),
+            'size': ("4"),
+            'value': ("10"),
+            'value': ("jogFeedrate")
+        },
+        hashTypes: {
+            'type': "ID",
+            'class': "STRING",
+            'min': "STRING",
+            'max': "STRING",
+            'step': "STRING",
+            'size': "STRING",
+            'value': "STRING",
+            'value': "ID"
+        },
+        hashContexts: {
+            'type': depth0,
+            'class': depth0,
+            'min': depth0,
+            'max': depth0,
+            'step': depth0,
+            'size': depth0,
+            'value': depth0,
+            'value': depth0
+        },
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+    data.buffer.push("</td>\n                </tr>\n                <tr title=\"mm/min\">\n                    <th>current speed:</th>\n                    <td><span id=\"currentFeedrate\">");
+    stack1 = helpers._triageMustache.call(depth0, "feedrate", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    });
+    if (stack1 || stack1 === 0) {
+        data.buffer.push(stack1);
+    }
+    data.buffer.push("</span></td>\n                </tr>\n                <tr title=\"mm/min\">\n                    <th>current state:</th>\n                    <td><span>");
+    stack1 = helpers._triageMustache.call(depth0, "displayableState", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    });
+    if (stack1 || stack1 === 0) {
+        data.buffer.push(stack1);
+    }
+    data.buffer.push("</span></td>\n                </tr>\n            </table>\n            <div class=\"units\">\n                ");
+    stack1 = helpers['if'].call(depth0, "isBusy", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        inverse: self.noop,
+        fn: self.program(21, program21, data),
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    });
+    if (stack1 || stack1 === 0) {
+        data.buffer.push(stack1);
+    }
+    data.buffer.push("<span\n                    title=\"ISO units, there is no way to change it.\">mm</span>\n            </div>\n        </div>\n    </div>\n</div>\n<div class=\"camPanel\">\n    <iframe id=\"webView\" src=\"visucamTest.html\"></iframe>\n</div>");
   return buffer;
   
 });

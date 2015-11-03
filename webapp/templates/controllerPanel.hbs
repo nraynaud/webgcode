@@ -1,126 +1,128 @@
 <div id="header" {{bind-attr class="connection.opened:connected"}}>
-    {{#if connection.opened}}
-        <button class="btn btn-default" {{action "sendProgram"}} {{bind-attr disabled="isNotProgramRunnable"}}><i
-                class="fa fa-play"></i> Send Program
-        </button>
-        {{#if isProgramAbortable}}
-            <button class="btn btn-default" {{action "abort"}}><i class="fa fa-eject"></i> Abort</button>
-        {{/if}}
-        {{#if isResumable}}
-            <button class="btn btn-default" {{action "resumeProgram"}}><i class="fa fa-play"></i> Resume</button>
-        {{/if}}
-        {{#if isManualModeTogglable}}
-            <button class="btn btn-default" id='manualControl' {{action "setManualMode"}}><i
-                    class="fa fa-arrows-alt"></i> {{manualButtonLabel}}
+    <div class="button-block">
+        {{#if connection.opened}}
+            <button class="btn btn-lg" {{action "sendProgram"}} {{bind-attr disabled="isNotProgramRunnable"}}><i
+                    class="fa fa-play"></i> Run
+            </button>
+            {{#if isProgramAbortable}}
+                <button class="btn btn-lg" {{action "abort"}}><i class="fa fa-eject"></i> Abort</button>
+            {{/if}}
+            {{#if isResumable}}
+                <button class="btn btn-lg" {{action "resumeProgram"}}><i class="fa fa-play"></i> Resume</button>
+            {{/if}}
+            {{#if isManualModeTogglable}}
+                <button class="btn btn-lg" id='manualControl' {{action "setManualMode"}}><i
+                        class="fa fa-arrows-alt"></i> {{manualButtonLabel}}
+                </button>
+            {{/if}}
+            {{#if isHomable}}
+                <button class="btn btn-lg home" {{action "home"}}><i class="fa fa-home"></i> Home</button>
+            {{/if}}
+        {{else}}
+            <button id='connect' {{action "connect"}} class="btn btn-lg"><i class="fa fa-plug"></i> Connect
             </button>
         {{/if}}
-        {{#if isHomable}}
-            <button class="btn btn-default" {{action "home"}}><i class="fa fa-home"></i> Home</button>
-        {{/if}}
-
-        <div class="control">
-            <div {{bind-attr class=":estopframe toolProbe"}}>Tool Probe</div>
-            <div {{bind-attr class=":estopframe estop"}}>E-STOP</div>
-            <div class="io">
-                <div {{bind-attr class=":spindle spindleRunning spindleUpToSpeed"}}>Spindle <br>
-                    <button class="btn btn-sm" {{action "toggleSpindle"}}>{{spindleButtonLabel}}</button>
-                </div>
-                <div {{bind-attr class=":socket socketOn"}}>Socket <br>
-                    <button class="btn btn-sm" {{action "toggleSocket"}}>{{socketButtonLabel}}</button>
-                </div>
+    </div>
+    <div class="control">
+        <div {{bind-attr class=":estopframe toolProbe"}}>Tool Probe</div>
+        <div {{bind-attr class=":estopframe estop"}}>E-STOP</div>
+        <div class="io">
+            <div {{bind-attr class=":spindle spindleRunning spindleUpToSpeed"}}>
+                <button class="btn btn-sm" {{action "toggleSpindle"}}>Spindle <br> {{spindleButtonLabel}}</button>
             </div>
-            <div class="position">
-                <table>
-                    <colgroup>
-                        <col>
-                        <col align="char" char=".">
-                        <col align="char" char=".">
-                    </colgroup>
-                    <tbody>
-                    <tr class="positionHeader">
-                        <th></th>
-                        <th title="Position">Position</th>
-                        <th title="Work Offset">Work Offset</th>
-                    </tr>
-                    {{#each axes itemController="axis"}}
-                        <tr {{bind-attr title="helpText"}} {{bind-attr class=":axis limit homed"}} >
-                            <th>{{name}}:</th>
-                            <td class="posAxis" {{action "editAxisPosition" on="doubleClick"}} >
-                                {{#if isEditingPosition}}
-                                    {{edit-axis class="input-sm" size="8" numericValue=bufferedPosition
-                                    insert-newline="acceptPositionChanges" escape-press="cancelChanges"}}
-                                {{else}}
-                                    <span class="pos">{{formattedPosition}}</span>
-                                {{/if}}
-                            </td>
-                            <td class="axisOffset" {{action "editAxisOffset" on="doubleClick"}} >
-                                {{#if isEditingOffset}}
-                                    {{edit-axis class="input-sm" size="!" numericValue=bufferedOffset
-                                    insert-newline="acceptOffsetChanges" escape-press="cancelChanges"}}
-                                {{else}}
-                                    <span class="pos">{{formattedOffset}}</span>
-                                {{/if}}
-
-                            </td>
-                        </tr>
-                    {{/each}}
-                    </tbody>
-                </table>
-            </div>
-            <div class="controlButtons">
-                <div class="xyBlock">
-                    <button class="axisButton btn btn-xs" {{action "move" "Y+" }}><i class="fa fa-arrow-up"></i> Y+
-                    </button>
-                    <div class="centerRow">
-                        <button class="axisButton btn btn-xs" {{action "move" "X-" }}><i class="fa fa-arrow-left"></i>
-                            X-
-                        </button>
-                        <button class="axisButton btn btn-xs" {{action "move" "X+" }}>X+ <i
-                                class="fa fa-arrow-right"></i></button>
-                    </div>
-                    <button class="axisButton btn btn-xs" {{action "move" "Y-" }}><i class="fa fa-arrow-down"></i> Y-
-                    </button>
-                </div>
-                <div class="zBlock">
-                    <button class="axisButton btn btn-xs" {{action "move" "Z+" }}><i class="fa fa-arrow-circle-up"></i>
-                        Z+
-                    </button>
-                    <div>&nbsp;</div>
-                    <button class="axisButton btn btn-xs" {{action "move" "Z-" }}><i
-                            class="fa fa-arrow-circle-down"></i> Z-
-                    </button>
-                </div>
-            </div>
-            <div class="controlParams">
-                <table>
-                    <tr title="mm">
-                        <th><label for="incrementField">increment:</label></th>
-                        <td>{{input type=number class='paramField'  min="0" max="100" step="0.01" size="4" value="10" value=increment}}</td>
-                    </tr>
-                    <tr title="mm/min">
-                        <th><label for="feedRateField">feedrate:</label></th>
-                        <td>{{input type=number class='paramField'  min="0" max="3000" step="10" size="4" value="10" value=jogFeedrate}}</td>
-                    </tr>
-                    <tr title="mm/min">
-                        <th>current speed:</th>
-                        <td><span id="currentFeedrate">{{feedrate}}</span></td>
-                    </tr>
-                    <tr title="mm/min">
-                        <th>current state:</th>
-                        <td><span>{{displayableState}}</span></td>
-                    </tr>
-                </table>
-                <div class="units">
-                    {{#if isBusy}}
-                        <div id="loader"><i class="fa fa-spinner fa-spin"></i></div>
-                    {{/if}}<span
-                        title="ISO units, there is no way to change it.">mm</span>
-                </div>
+            <div {{bind-attr class=":socket socketOn"}}>
+                <button class="btn btn-sm" {{action "toggleSocket"}}>Socket <br> {{socketButtonLabel}}</button>
             </div>
         </div>
-    {{else}}
-        <button id='connect' {{action "connect"}} class="btn btn-default"><i class="fa fa-plug"></i> Connect</button>
-    {{/if}}
+        <div class="position">
+            <table>
+                <colgroup>
+                    <col>
+                    <col align="char" char=".">
+                    <col align="char" char=".">
+                </colgroup>
+                <tbody>
+                <tr class="positionHeader">
+                    <th></th>
+                    <th title="Position">Position</th>
+                    <th title="Work Offset">Work Offset</th>
+                </tr>
+                {{#each axes itemController="axis"}}
+                    <tr {{bind-attr title="helpText"}} {{bind-attr class=":axis limit homed"}} >
+                        <th>{{name}}:</th>
+                        <td class="posAxis" {{action "editAxisPosition" on="doubleClick"}} >
+                            {{#if isEditingPosition}}
+                                {{edit-axis class="input-sm" size="8" numericValue=bufferedPosition
+                                insert-newline="acceptPositionChanges" escape-press="cancelChanges"}}
+                            {{else}}
+                                <span class="pos">{{formattedPosition}}</span>
+                            {{/if}}
+                        </td>
+                        <td class="axisOffset" {{action "editAxisOffset" on="doubleClick"}} >
+                            {{#if isEditingOffset}}
+                                {{edit-axis class="input-sm" size="!" numericValue=bufferedOffset
+                                insert-newline="acceptOffsetChanges" escape-press="cancelChanges"}}
+                            {{else}}
+                                <span class="pos">{{formattedOffset}}</span>
+                            {{/if}}
+
+                        </td>
+                    </tr>
+                {{/each}}
+                </tbody>
+            </table>
+        </div>
+        <div class="controlButtons">
+            <div class="xyBlock">
+                <button class="axisButton btn btn-xs" {{action "move" "Y+" }}><i class="fa fa-arrow-up"></i> Y+
+                </button>
+                <div class="centerRow">
+                    <button class="axisButton btn btn-xs" {{action "move" "X-" }}><i class="fa fa-arrow-left"></i>
+                        X-
+                    </button>
+                    <button class="axisButton btn btn-xs" {{action "move" "X+" }}>X+ <i
+                            class="fa fa-arrow-right"></i></button>
+                </div>
+                <button class="axisButton btn btn-xs" {{action "move" "Y-" }}><i class="fa fa-arrow-down"></i> Y-
+                </button>
+            </div>
+            <div class="zBlock">
+                <button class="axisButton btn btn-xs" {{action "move" "Z+" }}><i class="fa fa-arrow-circle-up"></i>
+                    Z+
+                </button>
+                <div>&nbsp;</div>
+                <button class="axisButton btn btn-xs" {{action "move" "Z-" }}><i
+                        class="fa fa-arrow-circle-down"></i> Z-
+                </button>
+            </div>
+        </div>
+        <div class="controlParams">
+            <table>
+                <tr title="mm">
+                    <th><label for="incrementField">increment:</label></th>
+                    <td>{{input type=number class='paramField'  min="0" max="100" step="0.01" size="4" value="10" value=increment}}</td>
+                </tr>
+                <tr title="mm/min">
+                    <th><label for="feedRateField">feedrate:</label></th>
+                    <td>{{input type=number class='paramField'  min="0" max="3000" step="10" size="4" value="10" value=jogFeedrate}}</td>
+                </tr>
+                <tr title="mm/min">
+                    <th>current speed:</th>
+                    <td><span id="currentFeedrate">{{feedrate}}</span></td>
+                </tr>
+                <tr title="mm/min">
+                    <th>current state:</th>
+                    <td><span>{{displayableState}}</span></td>
+                </tr>
+            </table>
+            <div class="units">
+                {{#if isBusy}}
+                    <div id="loader"><i class="fa fa-spinner fa-spin"></i></div>
+                {{/if}}<span
+                    title="ISO units, there is no way to change it.">mm</span>
+            </div>
+        </div>
+    </div>
 </div>
 <div class="camPanel">
     <iframe id="webView" src="visucamTest.html"></iframe>

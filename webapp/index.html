@@ -20,8 +20,10 @@
         }
 
         #header {
+            height: 104px;
             background-color: black;
             display: flex;
+            justify-content: space-between;
             flex-direction: row;
             align-items: flex-start;
             border-bottom: solid gray;
@@ -52,6 +54,7 @@
             text-align: right;
             width: 9ex;
             font-weight: bold;
+            font-size: 23px;
         }
 
         .axisOffset {
@@ -61,7 +64,7 @@
         }
 
         .positionHeader th {
-            font-size: 60%;
+            font-size: 70%;
             font-weight: normal;
             text-align: center;
         }
@@ -234,20 +237,32 @@
             flex-flow: column;
         }
 
-        .spindle.spindle-running {
-            background-color: orange;
+        .spindle {
+            border-radius: 3px;
+            border: white 3px solid;
         }
 
-        .spindle.spindle-up-to-speed {
+        .spindle.spindle-running {
+            background-color: orange;
+            border: orange 3px solid;
+        }
+
+        .spindle.spindle-up-to-speed button {
             color: green;
         }
 
         .socket {
-            margin-top: 10px;
+            border-radius: 3px;
+            border: white 3px solid;
+        }
+
+        .socket button {
+            width: 100%;
         }
 
         .socket.socket-on {
             background-color: orange;
+            border: orange 3px solid;
         }
 
         .fa {
@@ -269,6 +284,16 @@
 
         .axis.limit {
             background-color: orangered;
+        }
+
+        .button-block {
+            flex-grow: 3;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .home {
+            float: right;
         }
 
     </style>

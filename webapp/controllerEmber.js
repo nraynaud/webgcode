@@ -82,7 +82,7 @@ require(['Ember', 'templates', 'cnc/ui/views', 'cnc/controller/CNCMachine'], fun
         }.property('model.currentState'),
         manualButtonLabel: function () {
             return this.get('model.currentState') == CNCMachine.STATES.MANUAL_CONTROL ?
-                "Stop Manual Jogging" : "Manual Jogging";
+                "Stop Jog" : "Jog";
         }.property('model.currentState'),
         isManualModeTogglable: createCurrentStateProperty('READY', 'MANUAL_CONTROL'),
         canInterpolatorReceiveProgram: createCurrentStateProperty('READY', 'MANUAL_CONTROL'),
