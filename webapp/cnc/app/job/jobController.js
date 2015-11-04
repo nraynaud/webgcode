@@ -8,6 +8,7 @@ define(['Ember', 'jQuery', 'cnc/util', 'cnc/cam/cam'], function (Ember, $, util,
             var _this = this;
             window.addEventListener("message", Ember.run.bind(this, function (event) {
                 if (event.data['type'] == 'gimme program') {
+                    _this.syncStartPoint();
                     var parameters = event.data.parameters;
                     var toolPath = _this.get('model').computeCompactToolPath();
                     console.time('postMessage');
@@ -116,7 +117,6 @@ define(['Ember', 'jQuery', 'cnc/util', 'cnc/cam/cam'], function (Ember, $, util,
             window.postMessage({canSendProgram: this.get('model.canSendProgram')}, '*');
         }.observes('model.canSendProgram', 'model').on('init'),
         syncStartPoint: function () {
-            console.log('syncStartPoint');
             var newPos = this.get('toolPosition');
             if (!this.get('model.startPoint') || this.get('model.startPoint').sqDistance(newPos))
                 this.set('model.startPoint', newPos);
