@@ -188,7 +188,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 var _this = this;
                 return tp.assembleToolPathFromOperation(function () {
                     return _this.get('actualFeedrate');
-                }, this.get('job.safetyZ'), this.get('toolpath'));
+                }, this.get('job.safetyZ'), this.get('toolpath'), this.get('id'));
             }.property('toolpath', 'job.safetyZ'),
             computeOperationDuration: function () {
                 this.set('operationDuration', 'computing duration...');

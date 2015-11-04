@@ -209,7 +209,7 @@ define(['cnc/util', 'cnc/gcode/simulation'], function (util, simulation) {
         }
     };
 
-    function assembleToolPathFromOperation(feedrateAccessor, travelAltitude, workToolpath) {
+    function assembleToolPathFromOperation(feedrateAccessor, travelAltitude, workToolpath, operationId) {
         function travelAfter(index, pathFragments, travelAltitude) {
             var from = pathFragments[index].getStopPoint();
             var to = index + 1 < pathFragments.length ? pathFragments[index + 1].getStartPoint() : null;
@@ -225,8 +225,10 @@ define(['cnc/util', 'cnc/gcode/simulation'], function (util, simulation) {
                         enumerable: true,
                         get: feedrateAccessor
                     });
+                workToolpath[i].operation = operationId;
                 completePath.push(workToolpath[i]);
                 var travel = travelAfter(i, workToolpath, travelAltitude);
+                travel.operation = operationId;
                 travelBits.push(travel);
                 completePath.push(travel);
             }
