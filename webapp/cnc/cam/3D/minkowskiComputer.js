@@ -1,10 +1,6 @@
 "use strict";
 define(['THREE', 'shader!spatial_vUv.vert', 'shader!minkowski.frag'], function (THREE, minkowskiVert, minkowskiFrag) {
-    function MinkowskiComputer(minXMM, maxXMM, minYMM, maxYMM) {
-        if (this == null)
-            throw "this is a constructor, you forgot 'new'";
-        var geometry = new THREE.PlaneBufferGeometry(maxXMM - minXMM, maxYMM - minYMM);
-        geometry.translate((minXMM + maxXMM) / 2, (minYMM + maxYMM) / 2, 0);
+    function MinkowskiComputer(minXMM, maxXMM, minYMM, maxYMM, threeObject) {
         this.material = new THREE.ShaderMaterial({
             side: THREE.DoubleSide,
             depthTest: true,
@@ -24,7 +20,12 @@ define(['THREE', 'shader!spatial_vUv.vert', 'shader!minkowski.frag'], function (
             vertexShader: minkowskiVert,
             fragmentShader: minkowskiFrag
         });
-        this.object = new THREE.Mesh(geometry, this.material);
+        if (threeObject == null) {
+            var geometry = new THREE.PlaneBufferGeometry(maxXMM - minXMM, maxYMM - minYMM);
+            geometry.translate((minXMM + maxXMM) / 2, (minYMM + maxYMM) / 2, 0);
+            threeObject = new THREE.Mesh(geometry, this.material);
+        }
+        this.object = threeObject;
         this.camera = new THREE.OrthographicCamera(minXMM, maxXMM, maxYMM, minYMM, 0, 2);
         this.scene = new THREE.Scene();
         this.scene.add(this.object);
