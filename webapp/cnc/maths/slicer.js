@@ -62,7 +62,7 @@ define(['THREE', 'clipper', 'cnc/cam/cam'], function (THREE, clipper, cam) {
             }
 
             //backup as we'll destroy the path as we move along to avoid going backwards.
-            var contourEdges = JSON.parse(JSON.stringify(originalEdges));//ghetto clone
+            var contourEdges = JSON.parse(JSON.stringify(originalEdges));//ghetto deep clone
             var previous = null;
             var current = start;
             var path = [start];
