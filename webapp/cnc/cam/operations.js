@@ -65,7 +65,22 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
             var currentOffset = 0;
             var indices = [];
             var positions = [];
+
+            function flushResult() {
+                var pos = new Float32Array(positions);
+                var ind = new Uint16Array(indices);
+                transferableResults.push(pos.buffer, ind.buffer);
+                result.push({
+                    positions: pos,
+                    indices: ind
+                });
+                currentOffset = 0;
+                indices = [];
+                positions = [];
+            }
             for (var i = 0; i < polygons.length; i++) {
+                if (currentOffset > 32000)
+                    flushResult();
                 var poly = polygons[i];
                 var currentPositions = [];
                 var currentHoleIndices = [];
@@ -83,13 +98,7 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
                 indices = indices.concat(currentIndices);
                 currentOffset = positions.length / 3;
             }
-            positions = new Float32Array(positions);
-            indices = new Uint16Array(indices);
-            transferableResults.push(positions.buffer, indices.buffer);
-            result.push({
-                positions: positions,
-                indices: indices
-            });
+            flushResult();
             return {result: result, transferable: transferableResults};
         }
 
