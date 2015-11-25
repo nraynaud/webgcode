@@ -89,7 +89,7 @@ require(['Ember', 'templates', 'cnc/ui/views', 'cnc/controller/CNCMachine'], fun
         isProgramRunnable: Ember.computed.and('canInterpolatorReceiveProgram', 'camCanSendProgram'),
         isNotProgramRunnable: Ember.computed.not('isProgramRunnable'),
         isProgramAbortable: createCurrentStateProperty('RUNNING_PROGRAM', 'PAUSED_PROGRAM', 'HOMING'),
-        isHomable: createCurrentStateProperty('READY'),
+        isHomable: createCurrentStateProperty('READY', 'MANUAL_CONTROL'),
         isBusy: createCurrentStateProperty('RUNNING_PROGRAM', 'HOMING'),
         isResumable: createCurrentStateProperty('PAUSED_PROGRAM'),
         spindleButtonLabel: function () {

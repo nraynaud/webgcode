@@ -127,6 +127,7 @@ static int startStep(step_t step) {
 int startHoming() {
     switch (cncMemory.state) {
         case READY:
+        case MANUAL_CONTROL:
             STM_EVAL_LEDOn(LED3);
             cncMemory.state = HOMING;
             return 1;
