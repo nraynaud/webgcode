@@ -1,6 +1,6 @@
 "use strict";
-define(['Ember', 'cnc/import/svgImporter', 'cnc/import/gerberImporter', 'cnc/import/excellonImporter'],
-    function (Ember, svgImporter, gerberImporter, excellonImporter) {
+define(['Ember', 'cnc/import/svgImporter', 'cnc/import/gerberImporter', 'cnc/import/excellonImporter', 'cnc/util'],
+    function (Ember, svgImporter, gerberImporter, excellonImporter, util) {
         var JobView = Ember.View.extend({
             classNames: ['job'],
             classNameBindings: ['isBusy'],
