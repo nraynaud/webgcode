@@ -1,4 +1,5 @@
 This directory is the chrome application root.
+The JS files immediately in this directory are entry point files, while those in the sub-directories are exposing classes.
 It is also directly accessed online by the website.
 
 to generate the template.js file there is the compile_ember.sh script.

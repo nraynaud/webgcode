@@ -1,5 +1,10 @@
 <div class="header">
-    <div class="topMenu">{{#if firebase.isAuthenticated}}{{#link-to "index"}}Job List{{/link-to}}{{/if}}</div>
+    <div class="topMenu">
+        {{#if firebase.isConnected}} <i class="fa fa-link" title="server connection ok"></i>
+        {{else}} <i class="fa fa-chain-broken fa-2x" title="server connection is broken"
+                    style="background-color: orangered"></i>
+        {{/if}}
+        {{#if firebase.isAuthenticated}}{{#link-to "index"}}Job List{{/link-to}}{{/if}}</div>
     <div class="identity">
         {{#if firebase.isAuthenticated}}
             <div class="dropdown">

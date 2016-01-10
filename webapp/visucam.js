@@ -34,10 +34,16 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
         Firebase.INTERNAL.forceWebSockets();
         Visucam.Backend = Ember.Object.extend({
             init: function () {
+                var _this = this;
                 var firebase = new Firebase('https://popping-fire-1042.firebaseio.com/');
                 this.set('firebase', firebase);
                 firebase.onAuth(Ember.run.bind(this, this.updateAuth));
                 this.updateAuth();
+                this.set('isConnected', false);
+                // https://www.firebase.com/docs/web/guide/offline-capabilities.html
+                firebase.child('.info/connected').on('value', function (connected) {
+                    _this.set('isConnected', connected.val());
+                });
             },
             updateAuth: function () {
                 var _this = this;
