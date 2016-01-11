@@ -188,12 +188,11 @@ require(['jQuery', 'Ember', 'Firebase', 'EmberFire', 'cnc/app/models', 'cnc/ui/v
 
         Visucam.OperationRoute = Ember.Route.extend({
             model: function (params) {
-                var job = this.modelFor('job');
-                return job.get('operations').findBy('id', params.operation_id);
+                return this.modelFor('job').get('operations').findBy('id', params.operation_id);
             },
             afterModel: function (model) {
                 if (!model)
-                    this.transitionTo('/');
+                    this.transitionTo('job', this.modelFor('job'));
             },
             setupController: function (controller, model) {
                 this._super.apply(this, arguments);
