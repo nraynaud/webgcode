@@ -7,12 +7,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             name: attr('string', {defaultValue: 'Unnamed Job'}),
             safetyZ: attr('number', {defaultValue: 5}),
             toolDiameter: attr('number', {defaultValue: 3}),
-            toolFlutes: attr('number', {defaultValue: 2}),
-            surfaceSpeed: attr('number', {defaultValue: 200}),
-            chipLoad: attr('number', {defaultValue: 0.01}),
-            computeSpeedFeed: attr('boolean', {defaultValue: false}),
             userFeedrate: attr('number', {defaultValue: 100}),
-            speed: attr('number', {defaultValue: 24000}),
             startPoint: attr('point', {defaultValue: new util.Point(0, 0, 10)}),
             jobSummary: DS.belongsTo('jobSummary', {inverse: 'job', async: true}),
             shapes: DS.hasMany('shape', {inverse: 'job', embedded: true}),
@@ -120,20 +115,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     return Ember.RSVP.all([summary.save(), _this.save()]);
                 });
             },
-            updateSpeed: function () {
-                var toolDiameter = this.get('toolDiameter');
-                var surfaceSpeed = this.get('surfaceSpeed');
-                this.set('speed', Math.round(surfaceSpeed * 1000 / Math.PI / toolDiameter));
-            }.observes('surfaceSpeed', 'toolDiameter').on('didCreate'),
-            computedFeedrate: function () {
-                var speed = this.get('speed');
-                var chipLoad = this.get('chipLoad');
-                var toolFlutes = this.get('toolFlutes');
-                return Math.round(speed * chipLoad * toolFlutes);
-            }.property('toolFlutes', 'chipLoad', 'speed'),
-            feedrate: function () {
-                return this.get('computeSpeedFeed') ? this.get('computedFeedrate') : this.get('userFeedrate');
-            }.property('computedFeedrate', 'userFeedrate', 'computeSpeedFeed'),
+            feedrate: Ember.computed.alias('userFeedrate'),
             canSendProgram: function () {
                 var operations = this.get('operations');
                 if (operations.length == 0)
