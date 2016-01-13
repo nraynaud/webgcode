@@ -78,6 +78,7 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
                 indices = [];
                 positions = [];
             }
+
             for (var i = 0; i < polygons.length; i++) {
                 if (currentOffset > 32000)
                     flushResult();
@@ -112,16 +113,25 @@ define(['RSVP', 'cnc/cam/cam', 'cnc/cam/toolpath', 'cnc/cam/pocket', 'cnc/util',
                 label: 'Simple Engraving',
                 specialTemplate: 'operationSimpleEngraving',
                 properties: {
-                    bottom_Z: attr('number', {defaultValue: -5})
+                    bottom_Z: attr('number', {defaultValue: -5}),
+                    dragknife_corner_action: attr('boolean', {defaultValue: false}),
+                    dragknife_swivel_radius: attr('number', {defaultValue: 0.25}),
+                    dragknife_min_angle: attr('number', {defaultValue: 20})
                 },
                 computeToolpath: function (op, missedAreaCallback, leaveStockCallback) {
                     noExtraPolys(missedAreaCallback, leaveStockCallback);
                     return new RSVP.Promise(function (resolve, reject) {
                         var z = op.bottom_Z;
                         var safetyZ = op.job.safetyZ;
-                        var polygons = op.outline.clipperPolyline;
                         var toolpath = [];
                         var machine = new cam.Machine(null);
+                        var polygons = op.outline.clipperPolyline;
+                        if (op.dragknife_corner_action)
+                            polygons = polygons.map(function (poly) {
+                                return machine.addCornerActions(poly,
+                                    machine.clipperScale * op.dragknife_swivel_radius,
+                                    op.dragknife_min_angle / 180 * Math.PI)
+                            });
                         for (var i = 0; i < polygons.length; i++)
                             if (polygons[i].length) {
                                 var path = new tp.GeneralPolylineToolpath();

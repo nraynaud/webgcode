@@ -167,6 +167,40 @@ define(['cnc/maths/bezier', 'clipper', 'cnc/cam/toolpath', 'libs/simplify', 'cnc
              */
             contourAreaPositive: function (inside, climbMilling) {
                 return (!!climbMilling) ^ (!inside);
+            },
+
+            addCornerActions: function (clipperPolyline, clipperRadius, toleranceAngleRadians) {
+                if (clipperRadius == 0 || clipperPolyline.length == 0)
+                    return clipperPolyline;
+                var result = [];
+                result.push(clipperPolyline[0]);
+                //previous point is not always at i-1, because repeated points in the polygon are skipped
+                var previousPoint = clipperPolyline[0];
+                for (var i = 1; i < clipperPolyline.length - 1; i++) {
+                    previousPoint = clipperPolyline[i - 1];
+                    var point = clipperPolyline[i];
+                    if (previousPoint.sqDistance(point) == 0)
+                    // you don't want to play with atan2() if a point is repeated
+                        continue;
+                    var incomingVector = point.sub(previousPoint);
+                    var nextPoint = clipperPolyline[i + 1];
+                    var angle = point.angle(previousPoint, nextPoint);
+                    var overshoot = point.add(incomingVector.normalized().scale(clipperRadius));
+                    result.push(overshoot);
+                    if (Math.abs(angle) > toleranceAngleRadians) {
+                        var arcPoints = 100 / (2 * Math.PI) * Math.abs(angle);
+                        var incomingAngle = incomingVector.atan2();
+                        for (var j = 0; j <= arcPoints; j++) {
+                            var a = incomingAngle + angle / arcPoints * j;
+                            var pt = point.add(util.polarPoint(clipperRadius, a));
+                            result.push(pt);
+                        }
+                    }
+                    previousPoint = point;
+                }
+                if (clipperPolyline.length > 1)
+                    result.push(clipperPolyline[clipperPolyline.length - 1]);
+                return result;
             }
         };
 

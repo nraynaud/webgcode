@@ -1,5 +1,21 @@
 <tr>
-    <th>engraving Z:</th>
+    <th>Engraving Z:</th>
     <td class="input-group input-group-sm">{{number-input numericValue=bottom_Z}} <span
             class="input-group-addon">mm</span></td>
 </tr>
+<tr>
+    <th>Swivel Drag Knife:</th>
+    <td class="input-group input-group-sm">{{input type="checkbox" checked=dragknife_corner_action}}</td>
+</tr>
+{{#if dragknife_corner_action}}
+    <tr>
+        <th title="Distance between swivel axis and blade tip, it's often 0.25mm for Roland blades">Blade Offset:</th>
+        <td class="input-group input-group-sm">{{number-input numericValue=dragknife_swivel_radius}} <span
+                class="input-group-addon">mm</span></td>
+    </tr>
+    <tr>
+        <th title="Angles smaller than that will just drag the blade directly">Tolerance Angle:</th>
+        <td class="input-group input-group-sm">{{number-input numericValue=dragknife_min_angle}} <span
+                class="input-group-addon">°</span></td>
+    </tr>
+{{/if}}

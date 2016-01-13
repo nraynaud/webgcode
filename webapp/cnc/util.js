@@ -23,18 +23,35 @@ define(function () {
             return new Point(Math.round(this.x), Math.round(this.y), Math.round(this.z));
         },
         sqDistance: function (p) {
-            if (p == null)
-                p = new Point(0, 0, 0);
-            var dx = this.x - p.x;
-            var dy = this.y - p.y;
-            var dz = this.z - p.z;
-            return dx * dx + dy * dy + dz * dz;
+            var d = p == null ? this : this.sub(p);
+            return d.x * d.x + d.y * d.y + d.z * d.z;
         },
         distance: function (p) {
             return Math.sqrt(this.sqDistance(p));
         },
         lerp: function (p, alpha) {
             return this.add(p.sub(this).scale(alpha));
+        },
+        normalized: function () {
+            return this.scale(1 / this.distance());
+        },
+        atan2: function () {
+            return Math.atan2(this.y, this.x);
+        },
+        angle: function (fromPoint, toPoint) {
+            //stolen from http://stackoverflow.com/questions/1211212/how-to-calculate-an-angle-from-three-points#comment47211790_1211212
+
+            var v1 = this.sub(fromPoint);
+            var v2 = toPoint.sub(this);
+            var dot = v1.x * v2.x + v1.y * v2.y;
+            var cross = v1.x * v2.y - v1.y * v2.x;
+            var res = Math.atan2(cross, dot);
+            var twoPi = 2 * Math.PI;
+            if (res < -twoPi)
+                return res + twoPi;
+            if (res > twoPi)
+                return res - twoPi;
+            return res;
         }
     };
     [
@@ -194,6 +211,9 @@ define(function () {
 
     return {
         Point: Point,
+        polarPoint: function (r, theta) {
+            return new Point(r * Math.cos(theta), r * Math.sin(theta));
+        },
         toggleClass: toggleClass,
         //variadic, just pass x,y,z ...
         length: function () {

@@ -1011,14 +1011,67 @@ function program1(depth0,data) {
 Ember.TEMPLATES["operationSimpleEngraving"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
-  var buffer = '', helper, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression;
+    var buffer = '', stack1, helper, options, helperMissing = helpers.helperMissing, escapeExpression = this.escapeExpression, self = this;
 
+    function program1(depth0, data) {
 
-  data.buffer.push("<tr>\n    <th>engraving Z:</th>\n    <td class=\"input-group input-group-sm\">");
+        var buffer = '', helper, options;
+        data.buffer.push("\n    <tr>\n        <th title=\"Distance between swivel axis and blade tip, it's often 0.25mm for Roland blades\">Blade Offset:</th>\n        <td class=\"input-group input-group-sm\">");
+        data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+            hash: {
+                'numericValue': ("dragknife_swivel_radius")
+            },
+            hashTypes: {'numericValue': "ID"},
+            hashContexts: {'numericValue': depth0},
+            contexts: [],
+            types: [],
+            data: data
+        }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+        data.buffer.push(" <span\n                class=\"input-group-addon\">mm</span></td>\n    </tr>\n    <tr>\n        <th title=\"Angles smaller than that will just drag the blade directly\">Tolerance Angle:</th>\n        <td class=\"input-group input-group-sm\">");
+        data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
+            hash: {
+                'numericValue': ("dragknife_min_angle")
+            },
+            hashTypes: {'numericValue': "ID"},
+            hashContexts: {'numericValue': depth0},
+            contexts: [],
+            types: [],
+            data: data
+        }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+        data.buffer.push(" <span\n                class=\"input-group-addon\">°</span></td>\n    </tr>\n");
+        return buffer;
+    }
+
+    data.buffer.push("<tr>\n    <th>Engraving Z:</th>\n    <td class=\"input-group input-group-sm\">");
   data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
     'numericValue': ("bottom_Z")
   },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-  data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n");
+    data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Swivel Drag Knife:</th>\n    <td class=\"input-group input-group-sm\">");
+    data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input), options = {
+        hash: {
+            'type': ("checkbox"),
+            'checked': ("dragknife_corner_action")
+        },
+        hashTypes: {'type': "STRING", 'checked': "ID"},
+        hashContexts: {'type': depth0, 'checked': depth0},
+        contexts: [],
+        types: [],
+        data: data
+    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+    data.buffer.push("</td>\n</tr>\n");
+    stack1 = helpers['if'].call(depth0, "dragknife_corner_action", {
+        hash: {},
+        hashTypes: {},
+        hashContexts: {},
+        inverse: self.noop,
+        fn: self.program(1, program1, data),
+        contexts: [depth0],
+        types: ["ID"],
+        data: data
+    });
+    if (stack1 || stack1 === 0) {
+        data.buffer.push(stack1);
+    }
   return buffer;
   
 });
