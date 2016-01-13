@@ -3,6 +3,7 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
     function scaledLine(axis, line, ratio) {
         return line.from[axis] + ratio * (line.to[axis] - line.from[axis]);
     }
+
     var COMPONENT_TYPES = {
         line: {
             length: function (line) {
@@ -17,7 +18,7 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
             },
             entryDirection: function (line) {
                 var dp = line.to.sub(line.from);
-                return dp.scale(1 / dp.distance());
+                return dp.normalized();
             },
             exitDirection: function (line) {
                 return COMPONENT_TYPES.line.entryDirection(line);
@@ -46,13 +47,11 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
                 return getArcSpeedDirection(arc, arc.angularDistance);
             },
             pointAtRatio: function (arc, ratio) {
-                var lastCoord = arc.plane.lastCoord;
-                var radius = arc.radius;
-                var angle = arc.fromAngle + arc.angularDistance * ratio;
+                var pointInPlane = arc.centerInPlane.add(util.polarPoint(arc.radius, arc.fromAngle + arc.angularDistance * ratio));
                 var newPoint = new util.Point();
-                newPoint[arc.plane.firstCoord] = arc.center.first + radius * Math.cos(angle);
-                newPoint[arc.plane.secondCoord] = arc.center.second + radius * Math.sin(angle);
-                newPoint[lastCoord] = (arc.from[lastCoord] * (1 - ratio) + arc.to[lastCoord] * ratio);
+                newPoint[arc.plane.firstCoord] = pointInPlane.x;
+                newPoint[arc.plane.secondCoord] = pointInPlane.y;
+                newPoint[arc.plane.lastCoord] = (arc.from[arc.plane.lastCoord] * (1 - ratio) + arc.to[arc.plane.lastCoord] * ratio);
                 return newPoint;
             },
             simulationSteps: function (arc) {
@@ -79,7 +78,8 @@ define(['cnc/util', 'cnc/gcode/geometry'], function (util, geometry) {
     }
 
     function areMostlyContinuous(v1, v2) {
-        return util.length(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z) >= 1.95;
+        var cutOff = 1.95;
+        return v1.add(v2).sqDistance() >= cutOff * cutOff;
     }
 
     function getArcSpeedDirection(arc, angle) {

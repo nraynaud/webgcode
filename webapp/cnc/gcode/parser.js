@@ -242,6 +242,7 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
             to: createPoint(targetPos),
             plane: plane,
             center: {first: centerX, second: centerY},
+            centerInPlane: new util.Point(centerX, centerY),
             fromAngle: angularStart,
             angularDistance: angularDiff,
             radius: radius,
