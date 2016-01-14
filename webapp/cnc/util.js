@@ -39,8 +39,6 @@ define(function () {
             return Math.atan2(this.y, this.x);
         },
         angle: function (fromPoint, toPoint) {
-            //stolen from http://stackoverflow.com/questions/1211212/how-to-calculate-an-angle-from-three-points#comment47211790_1211212
-
             var v1 = this.sub(fromPoint);
             var v2 = toPoint.sub(this);
             var dot = v1.x * v2.x + v1.y * v2.y;
