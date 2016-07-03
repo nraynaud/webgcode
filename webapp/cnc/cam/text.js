@@ -17,7 +17,7 @@ define(['RSVP', 'cnc/cam/cam', 'clipper', 'libs/opentype'], function (RSVP, cam,
     function getFontList() {
         return new RSVP.Promise(
             function (resolve, reject) {
-                $.get('https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyC9qzOvN5FgIPj-xDohd64xz0kxW1dcTB8', function (result) {
+                $.get('https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyDk4GNlKSACCgME1-MbDo2aSEHq0lgDAuA', function (result) {
                     Ember.run(null, resolve, result.items);
                 }).fail(Ember.run.bind(null, reject));
             });
