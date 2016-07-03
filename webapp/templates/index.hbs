@@ -16,7 +16,7 @@
         <ul class="list-inline"
             style="display:flex; flex-flow: column wrap; display:-webkit-flex; -webkit-flex-flow: column wrap; overflow-y: hidden; ">
             {{#each model}}
-                <li>{{#link-to "job" this._data.job.id classNames="list-group-item"}}{{name}}{{/link-to}}</li>
+                <li style="min-width: max-content;flex-grow: 2;">{{#link-to "job" this._data.job.id classNames="list-group-item"}}{{name}}{{/link-to}}</li>
             {{else}}
                 No job yet.
             {{/each}}
