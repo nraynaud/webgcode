@@ -78,15 +78,7 @@ This is all Chrome technology in the hope to remove OS re-compilation/deployment
 License
 -------
 
-As you can see, there is no license currently, it's a readable source private software. 
-I have currently no job and I keep my options open to make money off of this codebase one day, and also open source licenses are a pain to choose. 
-
-Open Source
------------
-
-If you want to fork it for some open source stuff, contact me, I'll release a branch under a licence of your choosing 
-for you to fork from, that way you can start an open source fork and I can keep the upcoming commits non free. 
-I will do that out of vanity/trying to get some fame that could get me some food on the table one day.
+This code is licensed under MIT and Affero GPL double licensing.
 
 Contact
 -------
