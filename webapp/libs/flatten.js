@@ -115,7 +115,7 @@ define(function () {
 
         // Get the relation matrix that converts path coordinates
         // to SVGroot's coordinate space
-        var matrix = pathDOM.getTransformToElement(svgDOM);
+        var matrix = svgDOM.getScreenCTM().inverse().multiply(pathDOM.getScreenCTM());
 
 
         // The following code can bake transformations
@@ -561,7 +561,7 @@ define(function () {
     };
     var paths = function (ps) {
         var p = paths.ps = paths.ps ||
-        {};
+            {};
         if (p[ps]) p[ps].sleep = 100;
         else p[ps] = {
             sleep: 100
@@ -796,7 +796,7 @@ define(function () {
             var arg = Array.prototype.slice.call(arguments, 0),
                 args = arg.join('\u2400'),
                 cache = newf.cache = newf.cache ||
-                {}, count = newf.count = newf.count || [];
+                    {}, count = newf.count = newf.count || [];
             if (cache.hasOwnProperty(args)) {
                 for (var i = 0, ii = count.length; i < ii; i++)
                     if (count[i] === args) {
