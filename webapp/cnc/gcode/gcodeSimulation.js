@@ -16,7 +16,7 @@ define(['cnc/gcode/simulation', 'cnc/gcode/parser', 'cnc/util', 'require'], func
                 accumulator.accumulatePoint(fragment.to, fragment.speedTag);
             } else {
                 var tolerance = 0.001;
-                var steps = Math.PI / Math.acos(1 - tolerance / fragment.radius) * Math.abs(fragment.angularDistance) / (Math.PI * 2);
+                var steps = Math.ceil(Math.PI / Math.acos(1 - tolerance / fragment.radius) * Math.abs(fragment.angularDistance) / (Math.PI * 2));
                 var points = [];
                 for (var j = 0; j <= steps; j++) {
                     var point = simulation.COMPONENT_TYPES['arc'].pointAtRatio(fragment, j / steps, true);
