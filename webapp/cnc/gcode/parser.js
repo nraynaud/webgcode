@@ -285,7 +285,7 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
                 var currentOrigin = machineState.origins[machineState.currentOrigin];
                 $.each(['x', 'y', 'z', 'e'], function (_, axis) {
                     if (parsedMove[axis] != null)
-                        parsedMove[axis] -= currentOrigin[axis];
+                        parsedMove[axis] += currentOrigin[axis];
                 });
                 return machineState.distanceMode(machineState.position, parsedMove);
             }
