@@ -66,7 +66,9 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
         19: {planeMode: YZ_PLANE},
         20: {unitMode: inchesConverter},
         21: {unitMode: mmConverter},
-        40: {},//skip
+        40: 'unsupported',
+        41: 'unsupported',
+        42: 'unsupported',
         49: {},//skip
         54: {currentOrigin: 1},
         55: {currentOrigin: 2},
@@ -491,7 +493,14 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
             var codeNum = gCode[i];
             var transition = GROUPS_TRANSITIONS[codeNum];
             if (transition != null)
-                $.extend(machineState, transition);
+                if (transition === 'unsupported')
+                    errorCollector.push({
+                        lineNo: lineNo,
+                        message: 'G' + codeNum + ' is not supported, skipping',
+                        line: originalLine
+                    });
+                else
+                    $.extend(machineState, transition);
             else {
                 var nonModal2 = NON_MODAL[codeNum];
                 if (nonModal2) {
