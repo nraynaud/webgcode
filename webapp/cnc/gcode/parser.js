@@ -202,6 +202,12 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
             //center notation
             var xMatch = line[plane.firstCenterCoord];
             var yMatch = line[plane.secondCenterCoord];
+            if (xMatch === undefined && yMatch === undefined) {
+                throw {
+                    name: 'no center',
+                    message: 'circle has neither radius nor in plane center (' + plane.firstCenterCoord.toUpperCase() + ', ' + plane.secondCenterCoord.toUpperCase() + ')'
+                };
+            }
             toCenterX = xMatch ? unitMode(xMatch[xMatch.length - 1]) : 0;
             toCenterY = yMatch ? unitMode(yMatch[yMatch.length - 1]) : 0;
             radius = util.length(toCenterX, toCenterY);
