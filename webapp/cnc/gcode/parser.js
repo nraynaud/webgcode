@@ -44,11 +44,11 @@ define(['libs/jsparse', 'cnc/util'], function (jp, util) {
     };
 
     var XZ_PLANE = {
-        firstCoord: 'x',
-        secondCoord: 'z',
+        firstCoord: 'z',
+        secondCoord: 'x',
         lastCoord: 'y',
-        firstCenterCoord: 'i',
-        secondCenterCoord: 'k'
+        firstCenterCoord: 'k',
+        secondCenterCoord: 'i'
     };
 
     var NON_MODAL = {
