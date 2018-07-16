@@ -50,7 +50,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                     else
                         Ember.run.debounce(this, this.compute3D, 100);
             }.observes('type', 'outline.polyline', 'job.toolRadius', 'job.safetyZ', 'outline.manualDefinition.x',
-                'outline.manualDefinition.y', 'outline.computing').on('didLoad'),
+                'outline.manualDefinition.y', 'outline.computing', 'outline.meshGeometry').on('didLoad'),
             computeToolpath: function () {
                 var _this = this;
                 var id = this.get('id');
@@ -96,6 +96,8 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 var safetyZ = this.get('job.safetyZ');
                 var toolDiameter = this.get('job.toolDiameter');
                 var model = this.get('outline.meshGeometry');
+                if (model == null)
+                    return
                 var leaveStock = this.get('3d_leaveStock');
                 var topZ = this.get('top_Z');
                 var sliceZ = this.get('3d_slice_Z');
