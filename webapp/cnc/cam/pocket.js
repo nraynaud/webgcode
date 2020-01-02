@@ -257,7 +257,7 @@ define(['RSVP', 'clipper', 'cnc/cam/cam', 'require', 'cnc/util'], function (RSVP
         var workArray = polygons.map(function (poly) {
             return createWork(poly, scaledToolRadius, radialEngagementRatio);
         });
-        self.workerPool = createWorkerPool(require.toUrl('worker.js'), workArray, 6);
+        self.workerPool = createWorkerPool(require.toUrl('worker.js') + '#pocket', workArray, 6);
         return {workArray: workArray, abort: self.workerPool.abort};
     }
 

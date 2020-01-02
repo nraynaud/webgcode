@@ -7,7 +7,7 @@ define(['Ember', 'jQuery', 'cnc/util', 'cnc/cam/cam'], function (Ember, $, util,
             this._super();
             var _this = this;
             window.addEventListener("message", Ember.run.bind(this, function (event) {
-                if (event.data['type'] == 'gimme program') {
+                if (event.data['type'] === 'gimme program') {
                     _this.syncStartPoint();
                     var parameters = event.data.parameters;
                     var toolPath = _this.get('model').computeCompactToolPath();
@@ -24,7 +24,7 @@ define(['Ember', 'jQuery', 'cnc/util', 'cnc/cam/cam'], function (Ember, $, util,
                     });
                     console.timeEnd('postMessage');
                 }
-                if (event.data['type'] == 'toolPosition') {
+                if (event.data['type'] === 'toolPosition') {
                     var pos = event.data['position'];
                     var newPos = new util.Point(pos.x, pos.y, pos.z);
                     if (!_this.get('toolPosition') || _this.get('toolPosition').sqDistance(newPos)) {
@@ -32,7 +32,7 @@ define(['Ember', 'jQuery', 'cnc/util', 'cnc/cam/cam'], function (Ember, $, util,
                         Ember.run.debounce(_this, _this.syncStartPoint, 5000);
                     }
                 }
-                if (event.data['type'] == 'current operations') {
+                if (event.data['type'] === 'current operations') {
                     _this.set('runningOperations', event.data['operations']);
                 }
             }), false);
@@ -76,11 +76,12 @@ define(['Ember', 'jQuery', 'cnc/util', 'cnc/cam/cam'], function (Ember, $, util,
             },
             'delete': function () {
                 var _this = this;
-                this.get('model.jobSummary').then(function (jobSummary) {
-                    return Ember.RSVP.hash({
-                        summary: jobSummary.destroyRecord(),
-                        job: _this.get('model').destroyRecord()
-                    });
+                var ops = this.get('operations').toArray();
+                return Ember.RSVP.all(ops.map(function (op) {
+                    _this.get('operations').removeObject(op);
+                    return op.destroyRecord();
+                })).finally(function () {
+                    return _this.get('model').destroyRecord();
                 }).then(function () {
                     _this.transitionToRoute('index');
                 });
@@ -94,9 +95,9 @@ define(['Ember', 'jQuery', 'cnc/util', 'cnc/cam/cam'], function (Ember, $, util,
                         if (fragment.feedrate)
                             collector.changeWorkSpeed(fragment.feedrate);
                         var gotoFunc;
-                        if (fragment.speedTag == 'normal')
+                        if (fragment.speedTag === 'normal')
                             gotoFunc = collector.goToWorkSpeed.bind(collector);
-                        if (fragment.speedTag == 'rapid')
+                        if (fragment.speedTag === 'rapid')
                             gotoFunc = collector.goToTravelSpeed.bind(collector);
                         for (var j = 0; j < fragment.path.length; j++)
                             gotoFunc(fragment.path[j]);

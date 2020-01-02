@@ -1,8 +1,8 @@
 "use strict";
 
 define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'libs/pako.min', 'base64', 'THREE',
-        'libs/threejs/STLLoader', 'cnc/cam/text', 'cnc/app/job/jobModel', 'cnc/app/operationModel', 'require'],
-    function (Ember, DS, cam, util, pako, base64, THREE, STLLoader, Text, Job, Operation, require) {
+        'libs/threejs/STLLoader', 'cnc/cam/text', 'cnc/app/job/jobModel', 'cnc/app/operationModel', 'cnc/app/job/jobAdapter', 'require'],
+    function (Ember, DS, cam, util, pako, base64, THREE, STLLoader, Text, Job, Operation, JobAdapter, require) {
         var attr = DS.attr;
 
         var PointTransform = DS.Transform.extend({
@@ -20,6 +20,27 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'libs/pako.min', 'base6
                 return json;
             }
         });
+
+        var JobSerializer = DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
+            attrs: {
+                shapes: {embedded: 'always'},
+                operations: {embedded: 'always'}
+            }
+        });
+
+        var ShapeSerializer = DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
+            attrs: {
+                manualDefinition: {embedded: 'always'}
+            }
+        });
+
+        var OperationSerializer = DS.JSONSerializer.extend(DS.EmbeddedRecordsMixin, {
+            attrs: {
+                outline: {serialize: 'ids', deserialize: 'ids'},
+                job: {serialize: 'ids', deserialize: 'ids'}
+            }
+        });
+
         var ManualShape = DS.Model.extend({
             type: attr('string', {defaultValue: 'rectangle'}),
             width: attr('number', {defaultValue: 10}),
@@ -57,7 +78,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'libs/pako.min', 'base6
                                 var worker = _this.get('svgWorker');
                                 if (worker)
                                     worker.terminate();
-                                worker = new Worker(require.toUrl('worker.js'));
+                                worker = new Worker(require.toUrl('worker.js') + '#slice');
                                 _this.set('svgWorker', worker);
                                 worker.onmessage = Ember.run.bind(this, function (event) {
                                     _this.set('svgWorker', null);
@@ -165,7 +186,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'libs/pako.min', 'base6
             }.property('encodedStlModel'),
             manualDefinitionChanged: function () {
                 var _this = this;
-                if (this.get('type') == 'manual') {
+                if (this.get('type') === 'manual') {
                     this.set('computing', true);
                     Ember.RSVP.resolve(this.get('manualDefinition.svgRepresentation'))
                         .then(function (result) {
@@ -180,7 +201,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'libs/pako.min', 'base6
                 if (stlModel == null)
                     return null;
                 var geometry = new STLLoader().parse(stlModel);
-                if (geometry.type != 'BufferGeometry')
+                if (geometry.type !== 'BufferGeometry')
                     geometry = new THREE.BufferGeometry().fromGeometry(geometry);
                 return geometry;
             }.property('stlModel'),
@@ -193,8 +214,8 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'libs/pako.min', 'base6
                 return model.toJSON();
             }.property('meshGeometry'),
             shapeType: function () {
-                var isManual = this.get('type') == 'manual';
-                if (isManual && this.get('manualDefinition.type') == 'point'
+                var isManual = this.get('type') === 'manual';
+                if (isManual && this.get('manualDefinition.type') === 'point'
                     || !isManual && this.get('drillData'))
                     return 'points';
                 if (!isManual && this.get('stlModel'))
@@ -215,6 +236,11 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'libs/pako.min', 'base6
             Shape: Shape,
             ManualShape: ManualShape,
             PointTransform: PointTransform,
-            ManualShapeSerializer: ManualShapeSerializer
+            ManualShapeSerializer: ManualShapeSerializer,
+            JobSerializer: JobSerializer,
+            ShapeSerializer: ShapeSerializer,
+            JobAdapter: JobAdapter,
+            JobSummaryAdapter: JobAdapter,
+            OperationSerializer: OperationSerializer
         }
     });

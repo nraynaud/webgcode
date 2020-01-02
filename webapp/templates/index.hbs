@@ -8,20 +8,17 @@
             -webkit-flex-basis: 320px;
             -webkit-flex-grow: 1;
             -webkit-flex-shrink: 0;">
-    {{#if firebase.isAuthenticated}}
-        <h2 style="position: relative; height: 90px;">Your Jobs
-            <button title="create new job" class="btn btn-default" {{action "createJob"}}>+</button>
-            <button class="btn btn-default" {{action "createExample"}}>Create An Example</button>
-        </h2>
-        <ul class="list-inline"
-            style="display:flex; flex-flow: column wrap; display:-webkit-flex; -webkit-flex-flow: column wrap; overflow-y: hidden; ">
-            {{#each model}}
-                <li style="min-width: max-content;flex-grow: 2;">{{#link-to "job" this._data.job.id classNames="list-group-item"}}{{name}}{{/link-to}}</li>
-            {{else}}
-                No job yet.
-            {{/each}}
-        </ul>
-    {{else}}
-        Welcome, you need to log in before anything else.
-    {{/if}}
+    <h2 style="position: relative; height: 90px;">Your Jobs
+        <button title="create new job" class="btn btn-default" {{action "createJob"}}>+</button>
+        <button class="btn btn-default" {{action "createExample"}}>Create An Example</button>
+    </h2>
+    <ul class="list-inline"
+        style="display:flex; flex-flow: column wrap; display:-webkit-flex; -webkit-flex-flow: column wrap; overflow-y: hidden; ">
+        {{#each model}}
+            <li style="min-width: max-content;flex-grow: 2;">{{#link-to "job" id
+                                                                        classNames="list-group-item"}}{{name}}{{/link-to}}</li>
+        {{else}}
+            No job yet.
+        {{/each}}
+    </ul>
 </div>

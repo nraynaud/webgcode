@@ -7,11 +7,11 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
                 var r = (d + Math.random() * 16) % 16 | 0;
                 d = Math.floor(d / 16);
-                return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+                return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
             });
         }
 
-        var worker = new Worker(require.toUrl('worker.js'));
+        var worker = new Worker(require.toUrl('worker.js') + '#3DView');
 
         var resultMap = {};
 
@@ -295,7 +295,7 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
 
         ThreeDView.prototype = {
             addToolpathFragment: function (fragment) {
-                this[fragment.speedTag == 'rapid' ? 'rapidToolpathNode' : 'normalToolpathNode'].addCollated(fragment.vertices);
+                this[fragment.speedTag === 'rapid' ? 'rapidToolpathNode' : 'normalToolpathNode'].addCollated(fragment.vertices);
             },
             clearView: function () {
                 this.clearToolpath();

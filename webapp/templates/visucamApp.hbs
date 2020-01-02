@@ -1,40 +1,4 @@
 <div class="header">
-    <div class="topMenu">
-        {{#if firebase.isConnected}} <i class="fa fa-link" title="server connection ok"></i>
-        {{else}} <i class="fa fa-chain-broken fa-2x" title="server connection is broken"
-                    style="background-color: orangered"></i>
-        {{/if}}
-        {{#if firebase.isAuthenticated}}{{#link-to "index"}}Job List{{/link-to}}{{/if}}</div>
-    <div class="identity">
-        {{#if firebase.isAuthenticated}}
-            <div class="dropdown">
-                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown"
-                    {{bind-attr title="authTitle"}}>
-                    <i {{bind-attr class="authProviderIcon"}}></i> {{firebase.username}} <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu1">
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" {{action "logout"}}>logout</a>
-                    </li>
-                </ul>
-            </div>
-        {{else}}
-            <div class="dropdown">
-                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
-                    login
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="dropdownMenu1">
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" {{action "loginanonymous"}}><i
-                            class="fa fa-eye-slash"></i> Anonymous Login</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" {{action "logintwitter"}}><i
-                            class="fa fa-twitter"></i> Twitter Login</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" {{action "logingithub"}}><i
-                            class="fa fa-github"></i> Github Login</a></li>
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#" {{action "loginfacebook"}}><i
-                            class="fa fa-facebook"></i> Facebook Login</a></li>
-                </ul>
-            </div>
-        {{/if}}
-    </div>
+    <div class="topMenu">{{#link-to "index"}}Job List{{/link-to}}</div>
 </div>
 {{outlet}}

@@ -284,10 +284,16 @@ var tasks = {
             self.postMessage({
                 duration: util.humanizeDuration(totalTime)
             });
+            self.close();
         });
     }
 };
 
 self.onmessage = function (event) {
-    tasks[event.data.operation](event);
+    try {
+        tasks[event.data.operation](event);
+    } catch (e) {
+        console.log('error', e)
+        throw e;
+    }
 };

@@ -11,39 +11,16 @@ define(['Ember', 'cnc/import/svgImporter', 'cnc/import/gerberImporter', 'cnc/imp
                     _this.displayFakeDelete(false);
                 }, function () {
                     $(this).data('hovering', false);
-                    if (_this.get('controller.deleteSlider') == 0)
+                    if (_this.get('controller.deleteSlider') === 0)
                         _this.displayFakeDelete(true);
                 });
                 this.$('#deleteSlider').mouseup(function () {
-                    if (_this.get('controller.deleteSlider') == 1) {
+                    if (_this.get('controller.deleteSlider') === 1) {
                         _this.get('controller').send('delete');
                         _this.displayFakeDelete(true);
                     }
                     _this.set('controller.deleteSlider', 0);
                 });
-                var currentSwap1 = null;
-                var currentSwap2 = null;
-                /*
-                 //sadly removed because drag/drop doesn't work in chrome applications.
-                 Sortable.create(this.$('#operationList')[0], {
-                 draggable: ".list-group-item",
-                 filter: "script",
-                 animation: 150,
-                 scroll: this.$('.jobDetail')[0],
-                 handle: ".arrow-panel",
-                 ghostClass: 'drag-ghost',
-                 onEnd: function (evt) {
-                 var tmp = currentSwap1.get('index');
-                 currentSwap1.set('index', currentSwap2.get('index'));
-                 currentSwap2.set('index', tmp);
-                 },
-                 onMove: function (evt) {
-                 currentSwap1 = Ember.View.views[$(evt.dragged).attr('id')].get('parameters.context.model');
-                 var view = Ember.View.views[$(evt.related).attr('id')];
-                 if (view)
-                 currentSwap2 = view.get('parameters.context.model');
-                 }
-                 });*/
             },
             dragEnter: function (event) {
                 event.preventDefault();
@@ -86,7 +63,7 @@ define(['Ember', 'cnc/import/svgImporter', 'cnc/import/gerberImporter', 'cnc/imp
                             var res = gerberImporter(e.target.result);
                             _this.get('controller').addShapes([res], file.name);
                         } catch (error) {
-                            if (error.message == 'unrecognized file') {
+                            if (error.message === 'unrecognized file') {
                                 console.log('unrecognized gerber, trying excellon');
                                 var res2 = excellonImporter(e.target.result);
                                 var keys = Object.keys(res2.holes);
@@ -129,9 +106,9 @@ define(['Ember', 'cnc/import/svgImporter', 'cnc/import/gerberImporter', 'cnc/imp
                 var files = event.dataTransfer.files;
                 for (var i = 0; i < files.length; i++) {
                     var file = files[i];
-                    if (file.type.indexOf('svg') != -1 || file.name.match(/\.svg/i))
+                    if (file.type.indexOf('svg') !== -1 || file.name.match(/\.svg/i))
                         loadSvg(file);
-                    else if (file.type.indexOf('stl') != -1 || file.name.match(/\.stl/i))
+                    else if (file.type.indexOf('stl') !== -1 || file.name.match(/\.stl/i))
                         loadStl(file);
                     else loadGerber(file);
                 }
@@ -144,14 +121,14 @@ define(['Ember', 'cnc/import/svgImporter', 'cnc/import/gerberImporter', 'cnc/imp
                 var val = this.get('controller.deleteSlider');
                 if (this.$()) {
                     this.$('#deleteBlock').css('background-color', 'rgba(255, 0, 0, ' + val + ')');
-                    if (val == 1) {
+                    if (val === 1) {
                         $('#slideToDelete').hide();
                         $('#releaseToDelete').show();
                     } else {
                         $('#slideToDelete').show();
                         $('#releaseToDelete').hide();
                     }
-                    if (val == 0 && !this.$('#deleteBlock').data('hovering'))
+                    if (val === 0 && !this.$('#deleteBlock').data('hovering'))
                         this.displayFakeDelete(true);
                 }
             }.observes('controller.deleteSlider')

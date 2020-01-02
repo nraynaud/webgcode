@@ -3,30 +3,6 @@
 define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/text', 'cnc/app/job/jobController'],
     function (Ember, Operations, util, Wabble, text, JobController) {
         var wabble = new Wabble(13, 15, 1, 1, 5, 8, 3);
-        var LoginController = Ember.ObjectController.extend({
-            actions: {
-                loginWithToken: function (authData) {
-                    var _this = this;
-                    var service = this.get('model');
-                    var payload;
-                    if (service == 'twitter')
-                        payload = {
-                            user_id: authData.twitter.id,
-                            oauth_token: authData.twitter.accessToken,
-                            oauth_token_secret: authData.twitter.accessTokenSecret
-                        };
-                    else
-                        payload = authData[service].accessToken;
-                    this.get('firebase.firebase').authWithOAuthToken(service, payload, function () {
-                        console.log(arguments);
-                        _this.transitionToRoute('index').then(function () {
-                            Visucam.reset();
-                        });
-                    });
-                }
-            }
-        });
-
         var IndexController = Ember.ObjectController.extend({
             needs: ['application'],
             actions: {
@@ -74,26 +50,12 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
                 },
                 createJob: function () {
                     var job = this.store.createRecord('job');
-                    job.saveAll();
-                    this.transitionToRoute('job', job);
+                    var _this = this;
+                    return job.saveAll().then(function () {
+                        _this.transitionToRoute('job', job);
+                    });
                 }
             }
-        });
-
-        var ApplicationController = Ember.ObjectController.extend({
-            authProviderIcon: function () {
-                var icons = {
-                    facebook: 'fa fa-facebook',
-                    twitter: 'fa fa-twitter',
-                    github: 'fa fa-github',
-                    google: 'fa fa-google-plus',
-                    anonymous: 'fa fa-eye-slash'
-                };
-                return icons[this.get('firebase.auth.provider')];
-            }.property('firebase.auth.provider'),
-            authTitle: function () {
-                return 'Authenticated with ' + this.get('firebase.auth.provider');
-            }.property('firebase.auth.provider')
         });
 
         var ShapeController = Ember.ObjectController.extend({
@@ -105,22 +67,22 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
             },
             shapeTypes: ['rectangle', 'circle', 'text', 'point', 'slice'],
             isManual: function () {
-                return this.get('type') == 'manual';
+                return this.get('type') === 'manual';
             }.property('type'),
             isRectangle: function () {
-                return this.get('isManual') && this.get('manualDefinition.type') == 'rectangle';
+                return this.get('isManual') && this.get('manualDefinition.type') === 'rectangle';
             }.property('isManual', 'manualDefinition.type'),
             isCircle: function () {
-                return this.get('isManual') && this.get('manualDefinition.type') == 'circle';
+                return this.get('isManual') && this.get('manualDefinition.type') === 'circle';
             }.property('isManual', 'manualDefinition.type'),
             isText: function () {
-                return this.get('isManual') && this.get('manualDefinition.type') == 'text';
+                return this.get('isManual') && this.get('manualDefinition.type') === 'text';
             }.property('isManual', 'manualDefinition.type'),
             isPoint: function () {
-                return this.get('isManual') && this.get('manualDefinition.type') == 'point';
+                return this.get('isManual') && this.get('manualDefinition.type') === 'point';
             }.property('isManual', 'manualDefinition.type'),
             isSlice: function () {
-                return this.get('isManual') && this.get('manualDefinition.type') == 'slice';
+                return this.get('isManual') && this.get('manualDefinition.type') === 'slice';
             }.property('isManual', 'manualDefinition.type'),
             fonts: null,
             fontChanged: function () {
@@ -144,7 +106,7 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
                 return shape.get('stlModel') == null;
             }),
             suitableShapes: function () {
-                if (this.get('type') == '3DlinearOperation')
+                if (this.get('type') === '3DlinearOperation')
                     return this.get('stlShapes');
                 return this.get('NonStlShapes');
             }.property('stlShapes', 'NonStlShapes', 'type'),
@@ -154,7 +116,7 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
                 });
             }.property(),
             isVTool: function () {
-                return this.get('3d_toolType').indexOf('v') == 0;
+                return this.get('3d_toolType').indexOf('v') === 0;
             }.property('3d_toolType'),
             toolShapes: function () {
                 return [
@@ -240,9 +202,7 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
             }.property('controllers.job.currentShape')
         });
         return {
-            LoginController: LoginController,
             IndexController: IndexController,
-            ApplicationController: ApplicationController,
             JobController: JobController,
             ShapeController: ShapeController,
             OperationController: OperationController,

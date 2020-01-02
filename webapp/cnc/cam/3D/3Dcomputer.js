@@ -86,7 +86,7 @@ define(['RSVP', 'THREE', 'Piecon', 'cnc/cam/3D/modelProjector', 'cnc/cam/3D/mink
                     var resultHeightField = new HeightField(resultBuffer, bbox, resultBufferWidth, resultBufferHeight,
                         transformMatrix, startRatio, stopRatio, leaveStock + bbox.min.z);
 
-                    var worker = new Worker(require.toUrl('worker.js'));
+                    var worker = new Worker(require.toUrl('worker.js') + '#3Dping');
                     var gl = renderer.getContext();
                     var minkowskiBuffer = new THREE.WebGLRenderTarget(resultTileX, resultTileY, {
                         stencilBuffer: false, generateMipmaps: false,

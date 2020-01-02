@@ -1,130 +1,64 @@
-Ember.TEMPLATES["operationSimpleContour"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data
-                                                                                         /**/) {
+Ember.TEMPLATES["operationSimpleContour"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data
+/*``*/) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
-    var buffer = '', stack1, helper, options, helperMissing = helpers.helperMissing,
-        escapeExpression = this.escapeExpression, self = this;
+  var buffer = '', stack1, helper, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression, self=this;
 
 function program1(depth0,data) {
   
   var buffer = '', helper, options;
-    data.buffer.push("\n    <tr>\n        <th title=\"Engagement in %\">Radial<br>Engagement:</th>\n        <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-        hash: {
-            'numericValue': ("pocket_engagement"),
-            'min': ("0"),
-            'increment': ("1"),
-            'max': ("100")
-        },
-        hashTypes: {'numericValue': "ID", 'min': "STRING", 'increment': "STRING", 'max': "STRING"},
-        hashContexts: {'numericValue': depth0, 'min': depth0, 'increment': depth0, 'max': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-    data.buffer.push("\n            <span class=\"input-group-addon\">%</span></td>\n    </tr>\n    <tr>\n        <th>Up to Distance:</th>\n        <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-        hash: {
-            'numericValue': ("contour_upTo")
-        },
-        hashTypes: {'numericValue': "ID"},
-        hashContexts: {'numericValue': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-    data.buffer.push(" <span\n                class=\"input-group-addon\">mm</span></td>\n    </tr>\n    <tr>\n        <th title=\"Direction of cut: from outside towards the final line or from the final line towards outside\">Towards\n            Contour:\n        </th>\n        <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input), options = {
-        hash: {
-            'type': ("checkbox"),
-            'checked': ("contour_towardsFinal")
-        },
-        hashTypes: {'type': "STRING", 'checked': "ID"},
-        hashContexts: {'type': depth0, 'checked': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
-    data.buffer.push("</td>\n    </tr>\n");
+  data.buffer.push("\n    <tr>\n        <th title=\"Engagement in %\">Radial<br>Engagement:</th>\n        <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("pocket_engagement"),
+    'min': ("0"),
+    'increment': ("1"),
+    'max': ("100")
+  },hashTypes:{'numericValue': "ID",'min': "STRING",'increment': "STRING",'max': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0,'increment': depth0,'max': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push("\n            <span class=\"input-group-addon\">%</span></td>\n    </tr>\n    <tr>\n        <th>Up to Distance:</th>\n        <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("contour_upTo")
+  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push(" <span\n                class=\"input-group-addon\">mm</span></td>\n    </tr>\n    <tr>\n        <th title=\"Direction of cut: from outside towards the final line or from the final line towards outside\">Towards\n            Contour:\n        </th>\n        <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
+    'type': ("checkbox"),
+    'checked': ("contour_towardsFinal")
+  },hashTypes:{'type': "STRING",'checked': "ID"},hashContexts:{'type': depth0,'checked': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+  data.buffer.push("</td>\n    </tr>\n");
   return buffer;
   }
 
-    data.buffer.push("<tr>\n    <th>Inside Shape</th>\n    <td>");
-    data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input), options = {
-        hash: {
-            'type': ("checkbox"),
-            'checked': ("contour_inside")
-        },
-        hashTypes: {'type': "STRING", 'checked': "ID"},
-        hashContexts: {'type': depth0, 'checked': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
-    data.buffer.push("</td>\n</tr>\n<tr>\n    <th>Climb Milling</th>\n    <td>");
-    data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input), options = {
-        hash: {
-            'type': ("checkbox"),
-            'checked': ("contour_climbMilling")
-        },
-        hashTypes: {'type': "STRING", 'checked': "ID"},
-        hashContexts: {'type': depth0, 'checked': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
-    data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"How far the tool should stay away from the line in X-Y plane\">Leave Stock:</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-        hash: {
-            'numericValue': ("leaveStock"),
-            'min': ("0")
-        },
-        hashTypes: {'numericValue': "ID", 'min': "STRING"},
-        hashContexts: {'numericValue': depth0, 'min': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-    data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Contour Z:</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-        hash: {
-            'numericValue': ("bottom_Z")
-        },
-        hashTypes: {'numericValue': "ID"},
-        hashContexts: {'numericValue': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-    data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Multiple Passes:</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input), options = {
-        hash: {
-            'type': ("checkbox"),
-            'checked': ("contour_multipass")
-        },
-        hashTypes: {'type': "STRING", 'checked': "ID"},
-        hashContexts: {'type': depth0, 'checked': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
-    data.buffer.push("</td>\n</tr>\n");
-    stack1 = helpers['if'].call(depth0, "contour_multipass", {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        inverse: self.noop,
-        fn: self.program(1, program1, data),
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    });
+  data.buffer.push("<tr>\n    <th>Inside Shape</th>\n    <td>");
+  data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
+    'type': ("checkbox"),
+    'checked': ("contour_inside")
+  },hashTypes:{'type': "STRING",'checked': "ID"},hashContexts:{'type': depth0,'checked': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+  data.buffer.push("</td>\n</tr>\n<tr>\n    <th>Climb Milling</th>\n    <td>");
+  data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
+    'type': ("checkbox"),
+    'checked': ("contour_climbMilling")
+  },hashTypes:{'type': "STRING",'checked': "ID"},hashContexts:{'type': depth0,'checked': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+  data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"How far the tool should stay away from the line in X-Y plane\">Leave Stock:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("leaveStock"),
+    'min': ("0")
+  },hashTypes:{'numericValue': "ID",'min': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Contour Z:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("bottom_Z")
+  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Multiple Passes:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
+    'type': ("checkbox"),
+    'checked': ("contour_multipass")
+  },hashTypes:{'type': "STRING",'checked': "ID"},hashContexts:{'type': depth0,'checked': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+  data.buffer.push("</td>\n</tr>\n");
+  stack1 = helpers['if'].call(depth0, "contour_multipass", {hash:{},hashTypes:{},hashContexts:{},inverse:self.noop,fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   return buffer;
   
 });
-Ember.TEMPLATES["controllerPanel"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data
-                                                                                  /**/) {
+Ember.TEMPLATES["controllerPanel"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data
+/*``*/) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   var buffer = '', stack1, helper, options, escapeExpression=this.escapeExpression, self=this, helperMissing=helpers.helperMissing;
@@ -370,544 +304,189 @@ function program21(depth0,data) {
   stack1 = helpers['if'].call(depth0, "isBusy", {hash:{},hashTypes:{},hashContexts:{},inverse:self.noop,fn:self.program(21, program21, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
   data.buffer.push("<span\n                    title=\"ISO units, there is no way to change it.\">mm</span>\n            </div>\n        </div>\n    </div>\n</div>\n<div class=\"camPanel\">\n    <iframe id=\"webView\" src=\"visucamTest.html\"></iframe>\n</div>");
-    return buffer;
-
-});
-Ember.TEMPLATES["operationRampingContour"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data
-                                                                                          /**/) {
-    this.compilerInfo = [4, '>= 1.0.0'];
-    helpers = this.merge(helpers, Ember.Handlebars.helpers);
-    data = data || {};
-    var buffer = '', helper, options, helperMissing = helpers.helperMissing, escapeExpression = this.escapeExpression;
-
-
-    data.buffer.push("<tr>\n    <th>Inside Shape</th>\n    <td>");
-    data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input), options = {
-        hash: {
-            'type': ("checkbox"),
-            'checked': ("contour_inside")
-        },
-        hashTypes: {'type': "STRING", 'checked': "ID"},
-        hashContexts: {'type': depth0, 'checked': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
-    data.buffer.push("</td>\n</tr>\n<tr>\n    <th>Climb Milling</th>\n    <td>");
-    data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input), options = {
-        hash: {
-            'type': ("checkbox"),
-            'checked': ("contour_climbMilling")
-        },
-        hashTypes: {'type': "STRING", 'checked': "ID"},
-        hashContexts: {'type': depth0, 'checked': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
-    data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"How far the tool should stay away from the line in X-Y plane\">Leave Stock:</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-        hash: {
-            'numericValue': ("leaveStock"),
-            'min': ("0")
-        },
-        hashTypes: {'numericValue': "ID", 'min': "STRING"},
-        hashContexts: {'numericValue': depth0, 'min': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-    data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Start Z:</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-        hash: {
-            'numericValue': ("top_Z")
-        },
-        hashTypes: {'numericValue': "ID"},
-        hashContexts: {'numericValue': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-    data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Stop Z:</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-        hash: {
-            'numericValue': ("bottom_Z")
-        },
-        hashTypes: {'numericValue': "ID"},
-        hashContexts: {'numericValue': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-    data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th># of turns:</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-        hash: {
-            'numericValue': ("ramping_turns"),
-            'min': ("1"),
-            'step': ("1")
-        },
-        hashTypes: {'numericValue': "ID", 'min': "STRING", 'step': "STRING"},
-        hashContexts: {'numericValue': depth0, 'min': depth0, 'step': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-    data.buffer.push("\n        <span class=\"input-group-addon\">units</span></td>\n</tr>\n");
-    return buffer;
-
-});
-Ember.TEMPLATES["jobView"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data
-                                                                          /**/) {
-    this.compilerInfo = [4, '>= 1.0.0'];
-    helpers = this.merge(helpers, Ember.Handlebars.helpers);
-    data = data || {};
-    var buffer = '', stack1, helper, options, escapeExpression = this.escapeExpression,
-        helperMissing = helpers.helperMissing;
-
-
-    data.buffer.push("<div>\n    <dl>\n        <dt>Total Duration:</dt>\n        <dd ");
-    data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {
-        hash: {
-            'title': ("formattedTotalTime.detailed")
-        }, hashTypes: {'title': "ID"}, hashContexts: {'title': depth0}, contexts: [], types: [], data: data
-    })));
-    data.buffer.push(">");
-    stack1 = helpers._triageMustache.call(depth0, "formattedTotalTime.humanized", {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    });
-    if (stack1 || stack1 === 0) {
-        data.buffer.push(stack1);
-    }
-    data.buffer.push("</dd>\n    </dl>\n    <dl>\n        <dt>Bounds (@tool center):</dt>\n        <dd>\n            <table class=\"boundsTable\" style=\"text-align:right;\">\n                <thead>\n                <tr>\n                    <th>&nbsp;</th>\n                    <th>min</th>\n                    <th>max</th>\n                </tr>\n                </thead>\n                <tbody>\n                <tr>\n                    <th>X</th>\n                    <td>");
-    data.buffer.push(escapeExpression((helper = helpers.num || (depth0 && depth0.num), options = {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    }, helper ? helper.call(depth0, "bbox.min.x", options) : helperMissing.call(depth0, "num", "bbox.min.x", options))));
-    data.buffer.push("</td>\n                    <td>");
-    data.buffer.push(escapeExpression((helper = helpers.num || (depth0 && depth0.num), options = {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    }, helper ? helper.call(depth0, "bbox.max.x", options) : helperMissing.call(depth0, "num", "bbox.max.x", options))));
-    data.buffer.push("</td>\n                </tr>\n                <tr>\n                    <th>Y</th>\n                    <td>");
-    data.buffer.push(escapeExpression((helper = helpers.num || (depth0 && depth0.num), options = {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    }, helper ? helper.call(depth0, "bbox.min.y", options) : helperMissing.call(depth0, "num", "bbox.min.y", options))));
-    data.buffer.push("</td>\n                    <td>");
-    data.buffer.push(escapeExpression((helper = helpers.num || (depth0 && depth0.num), options = {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    }, helper ? helper.call(depth0, "bbox.max.y", options) : helperMissing.call(depth0, "num", "bbox.max.y", options))));
-    data.buffer.push("</td>\n                </tr>\n                <tr>\n                    <th>Z</th>\n                    <td>");
-    data.buffer.push(escapeExpression((helper = helpers.num || (depth0 && depth0.num), options = {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    }, helper ? helper.call(depth0, "bbox.min.z", options) : helperMissing.call(depth0, "num", "bbox.min.z", options))));
-    data.buffer.push("</td>\n                    <td>");
-    data.buffer.push(escapeExpression((helper = helpers.num || (depth0 && depth0.num), options = {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    }, helper ? helper.call(depth0, "bbox.max.z", options) : helperMissing.call(depth0, "num", "bbox.max.z", options))));
-    data.buffer.push("</td>\n                </tr>\n                </tbody>\n            </table>\n        </dd>\n    </dl>\n</div>");
-    return buffer;
-
-});
-Ember.TEMPLATES["loading"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data
-                                                                          /**/) {
-    this.compilerInfo = [4, '>= 1.0.0'];
-    helpers = this.merge(helpers, Ember.Handlebars.helpers);
-    data = data || {};
-
-
-    data.buffer.push("<h1><i class=\"fa fa-spinner fa-spin\"></i> LOADING...</h1>");
-
-});
-Ember.TEMPLATES["visucamApp"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data
-                                                                             /**/) {
-this.compilerInfo = [4,'>= 1.0.0'];
-helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
-  var buffer = '', stack1, self=this, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression;
-
-function program1(depth0,data) {
-
-
-    data.buffer.push(" <i class=\"fa fa-link\" title=\"server connection ok\"></i>\n        ");
-}
-
-    function program3(depth0, data) {
-
-
-        data.buffer.push(" <i class=\"fa fa-chain-broken fa-2x\" title=\"server connection is broken\"\n                    style=\"background-color: orangered\"></i>\n        ");
-    }
-
-    function program5(depth0, data) {
-
-        var stack1, helper, options;
-        stack1 = (helper = helpers['link-to'] || (depth0 && depth0['link-to']), options = {
-            hash: {},
-            hashTypes: {},
-            hashContexts: {},
-            inverse: self.noop,
-            fn: self.program(6, program6, data),
-            contexts: [depth0],
-            types: ["STRING"],
-            data: data
-        }, helper ? helper.call(depth0, "index", options) : helperMissing.call(depth0, "link-to", "index", options));
-        if (stack1 || stack1 === 0) {
-            data.buffer.push(stack1);
-        }
-        else {
-            data.buffer.push('');
-        }
-    }
-
-    function program6(depth0, data) {
-
-
-        data.buffer.push("Job List");
-    }
-
-    function program8(depth0, data) {
-
-        var buffer = '', stack1;
-        data.buffer.push("\n            <div class=\"dropdown\">\n                <button class=\"btn btn-default dropdown-toggle\" type=\"button\" id=\"dropdownMenu1\" data-toggle=\"dropdown\"\n                    ");
-        data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {
-            hash: {
-                'title': ("authTitle")
-            }, hashTypes: {'title': "STRING"}, hashContexts: {'title': depth0}, contexts: [], types: [], data: data
-        })));
-        data.buffer.push(">\n                    <i ");
-        data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {
-            hash: {
-                'class': ("authProviderIcon")
-            }, hashTypes: {'class': "STRING"}, hashContexts: {'class': depth0}, contexts: [], types: [], data: data
-        })));
-        data.buffer.push("></i> ");
-        stack1 = helpers._triageMustache.call(depth0, "firebase.username", {
-            hash: {},
-            hashTypes: {},
-            hashContexts: {},
-            contexts: [depth0],
-            types: ["ID"],
-            data: data
-        });
-        if (stack1 || stack1 === 0) {
-            data.buffer.push(stack1);
-        }
-        data.buffer.push(" <span class=\"caret\"></span>\n                </button>\n                <ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">\n                    <li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" href=\"#\" ");
-        data.buffer.push(escapeExpression(helpers.action.call(depth0, "logout", {
-            hash: {},
-            hashTypes: {},
-            hashContexts: {},
-            contexts: [depth0],
-            types: ["STRING"],
-            data: data
-        })));
-        data.buffer.push(">logout</a>\n                    </li>\n                </ul>\n            </div>\n        ");
-        return buffer;
-    }
-
-    function program10(depth0, data) {
-
-        var buffer = '';
-        data.buffer.push("\n            <div class=\"dropdown\">\n                <button class=\"btn btn-default dropdown-toggle\" type=\"button\" id=\"dropdownMenu1\" data-toggle=\"dropdown\">\n                    login\n                    <span class=\"caret\"></span>\n                </button>\n                <ul class=\"dropdown-menu dropdown-menu-right\" role=\"menu\" aria-labelledby=\"dropdownMenu1\">\n                    <li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" href=\"#\" ");
-        data.buffer.push(escapeExpression(helpers.action.call(depth0, "loginanonymous", {
-            hash: {},
-            hashTypes: {},
-            hashContexts: {},
-            contexts: [depth0],
-            types: ["STRING"],
-            data: data
-        })));
-        data.buffer.push("><i\n                            class=\"fa fa-eye-slash\"></i> Anonymous Login</a></li>\n                    <li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" href=\"#\" ");
-        data.buffer.push(escapeExpression(helpers.action.call(depth0, "logintwitter", {
-            hash: {},
-            hashTypes: {},
-            hashContexts: {},
-            contexts: [depth0],
-            types: ["STRING"],
-            data: data
-        })));
-        data.buffer.push("><i\n                            class=\"fa fa-twitter\"></i> Twitter Login</a></li>\n                    <li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" href=\"#\" ");
-        data.buffer.push(escapeExpression(helpers.action.call(depth0, "logingithub", {
-            hash: {},
-            hashTypes: {},
-            hashContexts: {},
-            contexts: [depth0],
-            types: ["STRING"],
-            data: data
-        })));
-        data.buffer.push("><i\n                            class=\"fa fa-github\"></i> Github Login</a></li>\n                    <li role=\"presentation\"><a role=\"menuitem\" tabindex=\"-1\" href=\"#\" ");
-        data.buffer.push(escapeExpression(helpers.action.call(depth0, "loginfacebook", {
-            hash: {},
-            hashTypes: {},
-            hashContexts: {},
-            contexts: [depth0],
-            types: ["STRING"],
-            data: data
-        })));
-        data.buffer.push("><i\n                            class=\"fa fa-facebook\"></i> Facebook Login</a></li>\n                </ul>\n            </div>\n        ");
-  return buffer;
-  }
-
-    data.buffer.push("<div class=\"header\">\n    <div class=\"topMenu\">\n        ");
-    stack1 = helpers['if'].call(depth0, "firebase.isConnected", {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        inverse: self.program(3, program3, data),
-        fn: self.program(1, program1, data),
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    });
-    if (stack1 || stack1 === 0) {
-        data.buffer.push(stack1);
-    }
-    data.buffer.push("\n        ");
-    stack1 = helpers['if'].call(depth0, "firebase.isAuthenticated", {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        inverse: self.noop,
-        fn: self.program(5, program5, data),
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    });
-    if (stack1 || stack1 === 0) {
-        data.buffer.push(stack1);
-    }
-    data.buffer.push("</div>\n    <div class=\"identity\">\n        ");
-    stack1 = helpers['if'].call(depth0, "firebase.isAuthenticated", {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        inverse: self.program(10, program10, data),
-        fn: self.program(8, program8, data),
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    });
-  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-    data.buffer.push("\n    </div>\n</div>\n");
-    stack1 = helpers._triageMustache.call(depth0, "outlet", {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    });
-    if (stack1 || stack1 === 0) {
-        data.buffer.push(stack1);
-    }
-    return buffer;
-
-});
-Ember.TEMPLATES["operation3DMilling"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data
-                                                                                     /**/) {
-    this.compilerInfo = [4, '>= 1.0.0'];
-    helpers = this.merge(helpers, Ember.Handlebars.helpers);
-    data = data || {};
-    var buffer = '', stack1, helper, options, helperMissing = helpers.helperMissing,
-        escapeExpression = this.escapeExpression, self = this;
-
-    function program1(depth0, data) {
-
-        var buffer = '', helper, options;
-        data.buffer.push("\n    <tr>\n        <th>Tool Angle:</th>\n        <td class=\"input-group input-group-sm\">");
-        data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-            hash: {
-                'numericValue': ("3d_vToolAngle"),
-                'min': (0),
-                'max': (180)
-            },
-            hashTypes: {'numericValue': "ID", 'min': "INTEGER", 'max': "INTEGER"},
-            hashContexts: {'numericValue': depth0, 'min': depth0, 'max': depth0},
-            contexts: [],
-            types: [],
-            data: data
-        }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-        data.buffer.push("\n            <span class=\"input-group-addon\">°</span></td>\n    </tr>\n    <tr>\n        <th>Tip Diameter:</th>\n        <td class=\"input-group input-group-sm\">");
-        data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-            hash: {
-                'numericValue': ("3d_vToolTipDiameter"),
-                'min': (0),
-                'max': ("job.toolDiameter")
-            },
-            hashTypes: {'numericValue': "ID", 'min': "INTEGER", 'max': "ID"},
-            hashContexts: {'numericValue': depth0, 'min': depth0, 'max': depth0},
-            contexts: [],
-            types: [],
-            data: data
-        }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-        data.buffer.push("\n            <span class=\"input-group-addon\">mm</span></td>\n    </tr>\n");
-  return buffer;
-  }
-
-    data.buffer.push("<tr>\n    <th>Tool Profile:</th>\n    <td>");
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Ember.Select", {
-        hash: {
-            'value': ("3d_toolType"),
-            'content': ("toolShapes"),
-            'optionValuePath': ("content.id"),
-            'optionLabelPath': ("content.label")
-        },
-        hashTypes: {'value': "ID", 'content': "ID", 'optionValuePath': "STRING", 'optionLabelPath': "STRING"},
-        hashContexts: {'value': depth0, 'content': depth0, 'optionValuePath': depth0, 'optionLabelPath': depth0},
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    })));
-    data.buffer.push("</td>\n</tr>\n");
-    stack1 = helpers['if'].call(depth0, "isVTool", {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        inverse: self.noop,
-        fn: self.program(1, program1, data),
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    });
-  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-    data.buffer.push("\n<tr>\n    <td colspan=\"2\">");
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.ToolView", {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    })));
-    data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"in all directions\">Leave Stock:</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-        hash: {
-            'numericValue': ("3d_leaveStock"),
-            'min': ("0")
-        },
-        hashTypes: {'numericValue': "ID", 'min': "STRING"},
-        hashContexts: {'numericValue': depth0, 'min': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-    data.buffer.push("\n        <span class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Start Z:</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-        hash: {
-            'numericValue': ("top_Z")
-        },
-        hashTypes: {'numericValue': "ID"},
-        hashContexts: {'numericValue': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-    data.buffer.push("\n        <span class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Z slice thickness:</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-        hash: {
-            'numericValue': ("3d_slice_Z")
-        },
-        hashTypes: {'numericValue': "ID"},
-        hashContexts: {'numericValue': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-    data.buffer.push("\n        <span class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Min Z:</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-        hash: {
-            'numericValue': ("bottom_Z")
-        },
-        hashTypes: {'numericValue': "ID"},
-        hashContexts: {'numericValue': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-    data.buffer.push("\n        <span class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th title=\"Diametral Engagement in %\">Diametral<br>Engagement:</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-        hash: {
-            'numericValue': ("3d_diametralEngagement")
-        },
-        hashTypes: {'numericValue': "ID"},
-        hashContexts: {'numericValue': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-    data.buffer.push("\n        <span class=\"input-group-addon\">%</span></td>\n</tr>\n<tr>\n    <th title=\"in degrees\">Path Orientation:</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-        hash: {
-            'numericValue': ("3d_pathOrientation"),
-            'min': (-90),
-            'max': (90),
-            'increment': (1)
-        },
-        hashTypes: {'numericValue': "ID", 'min': "INTEGER", 'max': "INTEGER", 'increment': "INTEGER"},
-        hashContexts: {'numericValue': depth0, 'min': depth0, 'max': depth0, 'increment': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-    data.buffer.push("\n        <span class=\"input-group-addon\">°</span></td>\n</tr>\n<tr>\n    <th title=\"to skip the beginning of the toolpath\">Start:</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-        hash: {
-            'numericValue': ("3d_startPercent")
-        },
-        hashTypes: {'numericValue': "ID"},
-        hashContexts: {'numericValue': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-    data.buffer.push("\n        <span class=\"input-group-addon\">%</span></td>\n</tr>\n<tr>\n    <th title=\"to skip the end of the toolpath\">Stop:</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-        hash: {
-            'numericValue': ("3d_stopPercent")
-        },
-        hashTypes: {'numericValue': "ID"},
-        hashContexts: {'numericValue': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-    data.buffer.push("\n        <span class=\"input-group-addon\">%</span></td>\n</tr>");
   return buffer;
   
 });
-Ember.TEMPLATES["job"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data
-                                                                      /**/) {
+Ember.TEMPLATES["operationRampingContour"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data
+/*``*/) {
+this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+  var buffer = '', helper, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression;
+
+
+  data.buffer.push("<tr>\n    <th>Inside Shape</th>\n    <td>");
+  data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
+    'type': ("checkbox"),
+    'checked': ("contour_inside")
+  },hashTypes:{'type': "STRING",'checked': "ID"},hashContexts:{'type': depth0,'checked': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+  data.buffer.push("</td>\n</tr>\n<tr>\n    <th>Climb Milling</th>\n    <td>");
+  data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
+    'type': ("checkbox"),
+    'checked': ("contour_climbMilling")
+  },hashTypes:{'type': "STRING",'checked': "ID"},hashContexts:{'type': depth0,'checked': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+  data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"How far the tool should stay away from the line in X-Y plane\">Leave Stock:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("leaveStock"),
+    'min': ("0")
+  },hashTypes:{'numericValue': "ID",'min': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Start Z:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("top_Z")
+  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Stop Z:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("bottom_Z")
+  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th># of turns:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("ramping_turns"),
+    'min': ("1"),
+    'step': ("1")
+  },hashTypes:{'numericValue': "ID",'min': "STRING",'step': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0,'step': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push("\n        <span class=\"input-group-addon\">units</span></td>\n</tr>\n");
+  return buffer;
+  
+});
+Ember.TEMPLATES["jobView"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data
+/*``*/) {
+this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+  var buffer = '', stack1, helper, options, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing;
+
+
+  data.buffer.push("<div>\n    <dl>\n        <dt>Total Duration:</dt>\n        <dd ");
+  data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
+    'title': ("formattedTotalTime.detailed")
+  },hashTypes:{'title': "ID"},hashContexts:{'title': depth0},contexts:[],types:[],data:data})));
+  data.buffer.push(">");
+  stack1 = helpers._triageMustache.call(depth0, "formattedTotalTime.humanized", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
+  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+  data.buffer.push("</dd>\n    </dl>\n    <dl>\n        <dt>Bounds (@tool center):</dt>\n        <dd>\n            <table class=\"boundsTable\" style=\"text-align:right;\">\n                <thead>\n                <tr>\n                    <th>&nbsp;</th>\n                    <th>min</th>\n                    <th>max</th>\n                </tr>\n                </thead>\n                <tbody>\n                <tr>\n                    <th>X</th>\n                    <td>");
+  data.buffer.push(escapeExpression((helper = helpers.num || (depth0 && depth0.num),options={hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data},helper ? helper.call(depth0, "bbox.min.x", options) : helperMissing.call(depth0, "num", "bbox.min.x", options))));
+  data.buffer.push("</td>\n                    <td>");
+  data.buffer.push(escapeExpression((helper = helpers.num || (depth0 && depth0.num),options={hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data},helper ? helper.call(depth0, "bbox.max.x", options) : helperMissing.call(depth0, "num", "bbox.max.x", options))));
+  data.buffer.push("</td>\n                </tr>\n                <tr>\n                    <th>Y</th>\n                    <td>");
+  data.buffer.push(escapeExpression((helper = helpers.num || (depth0 && depth0.num),options={hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data},helper ? helper.call(depth0, "bbox.min.y", options) : helperMissing.call(depth0, "num", "bbox.min.y", options))));
+  data.buffer.push("</td>\n                    <td>");
+  data.buffer.push(escapeExpression((helper = helpers.num || (depth0 && depth0.num),options={hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data},helper ? helper.call(depth0, "bbox.max.y", options) : helperMissing.call(depth0, "num", "bbox.max.y", options))));
+  data.buffer.push("</td>\n                </tr>\n                <tr>\n                    <th>Z</th>\n                    <td>");
+  data.buffer.push(escapeExpression((helper = helpers.num || (depth0 && depth0.num),options={hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data},helper ? helper.call(depth0, "bbox.min.z", options) : helperMissing.call(depth0, "num", "bbox.min.z", options))));
+  data.buffer.push("</td>\n                    <td>");
+  data.buffer.push(escapeExpression((helper = helpers.num || (depth0 && depth0.num),options={hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data},helper ? helper.call(depth0, "bbox.max.z", options) : helperMissing.call(depth0, "num", "bbox.max.z", options))));
+  data.buffer.push("</td>\n                </tr>\n                </tbody>\n            </table>\n        </dd>\n    </dl>\n</div>");
+  return buffer;
+  
+});
+Ember.TEMPLATES["loading"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data
+/*``*/) {
+this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+  
+
+
+  data.buffer.push("<h1><i class=\"fa fa-spinner fa-spin\"></i> LOADING...</h1>");
+  
+});
+Ember.TEMPLATES["visucamApp"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data
+/*``*/) {
+this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+  var buffer = '', stack1, helper, options, self=this, helperMissing=helpers.helperMissing;
+
+function program1(depth0,data) {
+  
+  
+  data.buffer.push("Job List");
+  }
+
+  data.buffer.push("<div class=\"header\">\n    <div class=\"topMenu\">");
+  stack1 = (helper = helpers['link-to'] || (depth0 && depth0['link-to']),options={hash:{},hashTypes:{},hashContexts:{},inverse:self.noop,fn:self.program(1, program1, data),contexts:[depth0],types:["STRING"],data:data},helper ? helper.call(depth0, "index", options) : helperMissing.call(depth0, "link-to", "index", options));
+  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+  data.buffer.push("</div>\n</div>\n");
+  stack1 = helpers._triageMustache.call(depth0, "outlet", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
+  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+  return buffer;
+  
+});
+Ember.TEMPLATES["operation3DMilling"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data
+/*``*/) {
+this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+  var buffer = '', stack1, helper, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression, self=this;
+
+function program1(depth0,data) {
+  
+  var buffer = '', helper, options;
+  data.buffer.push("\n    <tr>\n        <th>Tool Angle:</th>\n        <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("3d_vToolAngle"),
+    'min': (0),
+    'max': (180)
+  },hashTypes:{'numericValue': "ID",'min': "INTEGER",'max': "INTEGER"},hashContexts:{'numericValue': depth0,'min': depth0,'max': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push("\n            <span class=\"input-group-addon\">°</span></td>\n    </tr>\n    <tr>\n        <th>Tip Diameter:</th>\n        <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("3d_vToolTipDiameter"),
+    'min': (0),
+    'max': ("job.toolDiameter")
+  },hashTypes:{'numericValue': "ID",'min': "INTEGER",'max': "ID"},hashContexts:{'numericValue': depth0,'min': depth0,'max': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push("\n            <span class=\"input-group-addon\">mm</span></td>\n    </tr>\n");
+  return buffer;
+  }
+
+  data.buffer.push("<tr>\n    <th>Tool Profile:</th>\n    <td>");
+  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Ember.Select", {hash:{
+    'value': ("3d_toolType"),
+    'content': ("toolShapes"),
+    'optionValuePath': ("content.id"),
+    'optionLabelPath': ("content.label")
+  },hashTypes:{'value': "ID",'content': "ID",'optionValuePath': "STRING",'optionLabelPath': "STRING"},hashContexts:{'value': depth0,'content': depth0,'optionValuePath': depth0,'optionLabelPath': depth0},contexts:[depth0],types:["ID"],data:data})));
+  data.buffer.push("</td>\n</tr>\n");
+  stack1 = helpers['if'].call(depth0, "isVTool", {hash:{},hashTypes:{},hashContexts:{},inverse:self.noop,fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],data:data});
+  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+  data.buffer.push("\n<tr>\n    <td colspan=\"2\">");
+  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Visucam.ToolView", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data})));
+  data.buffer.push("</td>\n</tr>\n<tr>\n    <th title=\"in all directions\">Leave Stock:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("3d_leaveStock"),
+    'min': ("0")
+  },hashTypes:{'numericValue': "ID",'min': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push("\n        <span class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Start Z:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("top_Z")
+  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push("\n        <span class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Z slice thickness:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("3d_slice_Z")
+  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push("\n        <span class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Min Z:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("bottom_Z")
+  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push("\n        <span class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th title=\"Diametral Engagement in %\">Diametral<br>Engagement:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("3d_diametralEngagement")
+  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push("\n        <span class=\"input-group-addon\">%</span></td>\n</tr>\n<tr>\n    <th title=\"in degrees\">Path Orientation:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("3d_pathOrientation"),
+    'min': (-90),
+    'max': (90),
+    'increment': (1)
+  },hashTypes:{'numericValue': "ID",'min': "INTEGER",'max': "INTEGER",'increment': "INTEGER"},hashContexts:{'numericValue': depth0,'min': depth0,'max': depth0,'increment': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push("\n        <span class=\"input-group-addon\">°</span></td>\n</tr>\n<tr>\n    <th title=\"to skip the beginning of the toolpath\">Start:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("3d_startPercent")
+  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push("\n        <span class=\"input-group-addon\">%</span></td>\n</tr>\n<tr>\n    <th title=\"to skip the end of the toolpath\">Stop:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("3d_stopPercent")
+  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push("\n        <span class=\"input-group-addon\">%</span></td>\n</tr>");
+  return buffer;
+  
+});
+Ember.TEMPLATES["job"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data
+/*``*/) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   var buffer = '', stack1, helper, options, escapeExpression=this.escapeExpression, self=this, helperMissing=helpers.helperMissing;
@@ -951,9 +530,9 @@ function program4(depth0,data) {
   }
 
 function program6(depth0,data) {
-
-
-    data.buffer.push("\n            No shape yet. Try dropping a SVG, STL, gerber or excellon drill file on the window.\n        ");
+  
+  
+  data.buffer.push("\n            No shape yet. Try dropping a SVG, STL, gerber or excellon drill file on the window.\n        ");
   }
 
 function program8(depth0,data) {
@@ -1122,8 +701,8 @@ function program20(depth0,data) {
   return buffer;
   
 });
-Ember.TEMPLATES["operation"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data
-                                                                            /**/) {
+Ember.TEMPLATES["operation"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data
+/*``*/) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   var buffer = '', stack1, helper, options, self=this, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression;
@@ -1178,294 +757,135 @@ function program1(depth0,data) {
   return buffer;
   
 });
-Ember.TEMPLATES["index"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data
-                                                                        /**/) {
+Ember.TEMPLATES["index"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data
+/*``*/) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
-    var buffer = '', stack1, self = this, helperMissing = helpers.helperMissing,
-        escapeExpression = this.escapeExpression;
+  var buffer = '', stack1, self=this, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression;
 
 function program1(depth0,data) {
-
-    var buffer = '', stack1;
-    data.buffer.push("\n        <h2 style=\"position: relative; height: 90px;\">Your Jobs\n            <button title=\"create new job\" class=\"btn btn-default\" ");
-    data.buffer.push(escapeExpression(helpers.action.call(depth0, "createJob", {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["STRING"],
-        data: data
-    })));
-    data.buffer.push(">+</button>\n            <button class=\"btn btn-default\" ");
-    data.buffer.push(escapeExpression(helpers.action.call(depth0, "createExample", {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["STRING"],
-        data: data
-    })));
-    data.buffer.push(">Create An Example</button>\n        </h2>\n        <ul class=\"list-inline\"\n            style=\"display:flex; flex-flow: column wrap; display:-webkit-flex; -webkit-flex-flow: column wrap; overflow-y: hidden; \">\n            ");
-    stack1 = helpers.each.call(depth0, "model", {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        inverse: self.program(5, program5, data),
-        fn: self.program(2, program2, data),
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    });
-    if (stack1 || stack1 === 0) {
-        data.buffer.push(stack1);
-    }
-    data.buffer.push("\n        </ul>\n    ");
-    return buffer;
-}
-
-    function program2(depth0, data) {
-
-        var buffer = '', stack1, helper, options;
-        data.buffer.push("\n                <li style=\"min-width: max-content;flex-grow: 2;\">");
-        stack1 = (helper = helpers['link-to'] || (depth0 && depth0['link-to']), options = {
-            hash: {
-                'classNames': ("list-group-item")
-            },
-            hashTypes: {'classNames': "STRING"},
-            hashContexts: {'classNames': depth0},
-            inverse: self.noop,
-            fn: self.program(3, program3, data),
-            contexts: [depth0, depth0],
-            types: ["STRING", "ID"],
-            data: data
-        }, helper ? helper.call(depth0, "job", "_data.job.id", options) : helperMissing.call(depth0, "link-to", "job", "_data.job.id", options));
-        if (stack1 || stack1 === 0) {
-            data.buffer.push(stack1);
-        }
-        data.buffer.push("</li>\n            ");
+  
+  var buffer = '', stack1, helper, options;
+  data.buffer.push("\n            <li style=\"min-width: max-content;flex-grow: 2;\">");
+  stack1 = (helper = helpers['link-to'] || (depth0 && depth0['link-to']),options={hash:{
+    'classNames': ("list-group-item")
+  },hashTypes:{'classNames': "STRING"},hashContexts:{'classNames': depth0},inverse:self.noop,fn:self.program(2, program2, data),contexts:[depth0,depth0],types:["STRING","ID"],data:data},helper ? helper.call(depth0, "job", "id", options) : helperMissing.call(depth0, "link-to", "job", "id", options));
+  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+  data.buffer.push("</li>\n        ");
   return buffer;
   }
-
-    function program3(depth0, data) {
-
-        var stack1;
-        stack1 = helpers._triageMustache.call(depth0, "name", {
-            hash: {},
-            hashTypes: {},
-            hashContexts: {},
-            contexts: [depth0],
-            types: ["ID"],
-            data: data
-        });
-        if (stack1 || stack1 === 0) {
-            data.buffer.push(stack1);
-        }
-        else {
-            data.buffer.push('');
-        }
-    }
-
-    function program5(depth0, data) {
-
-
-        data.buffer.push("\n                No job yet.\n            ");
-    }
-
-    function program7(depth0, data) {
-
-
-        data.buffer.push("\n        Welcome, you need to log in before anything else.\n    ");
-    }
-
-    data.buffer.push("<div style=\"display: flex; display:-webkit-flex;flex-direction: column;-webkit-flex-direction: column;\n        align-items:inherit;\n        overflow-y: hidden;\n            flex-basis: 320px;\n            flex-grow: 1;\n            flex-shrink: 0;\n            height: 100vh;\n            -webkit-flex-basis: 320px;\n            -webkit-flex-grow: 1;\n            -webkit-flex-shrink: 0;\">\n    ");
-    stack1 = helpers['if'].call(depth0, "firebase.isAuthenticated", {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        inverse: self.program(7, program7, data),
-        fn: self.program(1, program1, data),
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    });
+function program2(depth0,data) {
+  
+  var stack1;
+  stack1 = helpers._triageMustache.call(depth0, "name", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-    data.buffer.push("\n</div>");
+  else { data.buffer.push(''); }
+  }
+
+function program4(depth0,data) {
+  
+  
+  data.buffer.push("\n            No job yet.\n        ");
+  }
+
+  data.buffer.push("<div style=\"display: flex; display:-webkit-flex;flex-direction: column;-webkit-flex-direction: column;\n        align-items:inherit;\n        overflow-y: hidden;\n            flex-basis: 320px;\n            flex-grow: 1;\n            flex-shrink: 0;\n            height: 100vh;\n            -webkit-flex-basis: 320px;\n            -webkit-flex-grow: 1;\n            -webkit-flex-shrink: 0;\">\n    <h2 style=\"position: relative; height: 90px;\">Your Jobs\n        <button title=\"create new job\" class=\"btn btn-default\" ");
+  data.buffer.push(escapeExpression(helpers.action.call(depth0, "createJob", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
+  data.buffer.push(">+</button>\n        <button class=\"btn btn-default\" ");
+  data.buffer.push(escapeExpression(helpers.action.call(depth0, "createExample", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
+  data.buffer.push(">Create An Example</button>\n    </h2>\n    <ul class=\"list-inline\"\n        style=\"display:flex; flex-flow: column wrap; display:-webkit-flex; -webkit-flex-flow: column wrap; overflow-y: hidden; \">\n        ");
+  stack1 = helpers.each.call(depth0, "model", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(4, program4, data),fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],data:data});
+  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+  data.buffer.push("\n    </ul>\n</div>");
   return buffer;
   
 });
-Ember.TEMPLATES["camApp"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data
-                                                                         /**/) {
+Ember.TEMPLATES["camApp"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data
+/*``*/) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
-    var buffer = '', stack1, escapeExpression = this.escapeExpression, helperMissing = helpers.helperMissing,
-        self = this;
+  var buffer = '', stack1, escapeExpression=this.escapeExpression, helperMissing=helpers.helperMissing, self=this;
 
-    function program1(depth0, data) {
-
-        var buffer = '';
-        data.buffer.push("\n        ");
-        data.buffer.push(escapeExpression(helpers.view.call(depth0, "Ember.Select", {
-            hash: {
-                'content': ("languages"),
-                'value': ("selectedLanguage")
-            },
-            hashTypes: {'content': "ID", 'value': "ID"},
-            hashContexts: {'content': depth0, 'value': depth0},
-            contexts: [depth0],
-            types: ["ID"],
-            data: data
-        })));
-        data.buffer.push("\n    ");
-        return buffer;
-    }
-
-    function program3(depth0, data) {
-
-        var buffer = '', helper, options;
-        data.buffer.push("\n        ");
-        data.buffer.push(escapeExpression((helper = helpers['gcode-editor'] || (depth0 && depth0['gcode-editor']), options = {
-            hash: {
-                'content': ("code"),
-                'annotations': ("errors"),
-                'currentRow': ("currentRow")
-            },
-            hashTypes: {'content': "ID", 'annotations': "ID", 'currentRow': "ID"},
-            hashContexts: {'content': depth0, 'annotations': depth0, 'currentRow': depth0},
-            contexts: [],
-            types: [],
-            data: data
-        }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "gcode-editor", options))));
-        data.buffer.push("\n    ");
-  return buffer;
-    }
-
-    function program5(depth0, data) {
-
-        var buffer = '', helper, options;
-        data.buffer.push("\n        ");
-        data.buffer.push(escapeExpression((helper = helpers['js-editor'] || (depth0 && depth0['js-editor']), options = {
-            hash: {
-                'content': ("jscode"),
-                'annotations': ("errors"),
-                'currentRow': ("currentRow")
-            },
-            hashTypes: {'content': "ID", 'annotations': "ID", 'currentRow': "ID"},
-            hashContexts: {'content': depth0, 'annotations': depth0, 'currentRow': depth0},
-            contexts: [],
-            types: [],
-            data: data
-        }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "js-editor", options))));
-        data.buffer.push("\n    ");
-  return buffer;
-    }
-
-    function program7(depth0, data) {
-
-
-        data.buffer.push("\n        <div id=\"loader\">&nbsp;</div>\n    ");
-    }
-
-    function program9(depth0, data) {
+function program1(depth0,data) {
   
-  var buffer = '', helper, options;
-        data.buffer.push("\n        ");
-        data.buffer.push(escapeExpression((helper = helpers.partial || (depth0 && depth0.partial), options = {
-            hash: {},
-            hashTypes: {},
-            hashContexts: {},
-            contexts: [depth0],
-            types: ["STRING"],
-            data: data
-        }, helper ? helper.call(depth0, "jobView", options) : helperMissing.call(depth0, "partial", "jobView", options))));
-        data.buffer.push("\n    ");
+  var buffer = '';
+  data.buffer.push("\n        ");
+  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Ember.Select", {hash:{
+    'content': ("languages"),
+    'value': ("selectedLanguage")
+  },hashTypes:{'content': "ID",'value': "ID"},hashContexts:{'content': depth0,'value': depth0},contexts:[depth0],types:["ID"],data:data})));
+  data.buffer.push("\n    ");
   return buffer;
   }
 
-    data.buffer.push(escapeExpression(helpers.view.call(depth0, "Simulator.GraphicView", {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    })));
-    data.buffer.push("\n<div class=\"editBlock\">\n    ");
-    stack1 = helpers['if'].call(depth0, "canSelectLanguage", {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        inverse: self.noop,
-        fn: self.program(1, program1, data),
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    });
-    if (stack1 || stack1 === 0) {
-        data.buffer.push(stack1);
-    }
-    data.buffer.push("\n    ");
-    stack1 = helpers['if'].call(depth0, "usingGcode", {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        inverse: self.program(5, program5, data),
-        fn: self.program(3, program3, data),
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    });
-    if (stack1 || stack1 === 0) {
-        data.buffer.push(stack1);
-    }
-    data.buffer.push("\n    <button ");
-    data.buffer.push(escapeExpression(helpers.action.call(depth0, "simulate", {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["STRING"],
-        data: data
-    })));
-    data.buffer.push(" ");
-    data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {
-        hash: {
-            'disabled': ("computing")
-        }, hashTypes: {'disabled': "STRING"}, hashContexts: {'disabled': depth0}, contexts: [], types: [], data: data
-    })));
-    data.buffer.push(">Simulate</button>\n    <button ");
-    data.buffer.push(escapeExpression(helpers.action.call(depth0, "loadBigSample", {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        contexts: [depth0],
-        types: ["STRING"],
-        data: data
-    })));
-    data.buffer.push(" ");
-    data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {
-        hash: {
-            'disabled': ("computing")
-        }, hashTypes: {'disabled': "STRING"}, hashContexts: {'disabled': depth0}, contexts: [], types: [], data: data
-    })));
-    data.buffer.push(">Load a bigger sample</button>\n\n    ");
-    stack1 = helpers['if'].call(depth0, "computing", {
-        hash: {},
-        hashTypes: {},
-        hashContexts: {},
-        inverse: self.program(9, program9, data),
-        fn: self.program(7, program7, data),
-        contexts: [depth0],
-        types: ["ID"],
-        data: data
-    });
+function program3(depth0,data) {
+  
+  var buffer = '', helper, options;
+  data.buffer.push("\n        ");
+  data.buffer.push(escapeExpression((helper = helpers['gcode-editor'] || (depth0 && depth0['gcode-editor']),options={hash:{
+    'content': ("code"),
+    'annotations': ("errors"),
+    'currentRow': ("currentRow")
+  },hashTypes:{'content': "ID",'annotations': "ID",'currentRow': "ID"},hashContexts:{'content': depth0,'annotations': depth0,'currentRow': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "gcode-editor", options))));
+  data.buffer.push("\n    ");
+  return buffer;
+  }
+
+function program5(depth0,data) {
+  
+  var buffer = '', helper, options;
+  data.buffer.push("\n        ");
+  data.buffer.push(escapeExpression((helper = helpers['js-editor'] || (depth0 && depth0['js-editor']),options={hash:{
+    'content': ("jscode"),
+    'annotations': ("errors"),
+    'currentRow': ("currentRow")
+  },hashTypes:{'content': "ID",'annotations': "ID",'currentRow': "ID"},hashContexts:{'content': depth0,'annotations': depth0,'currentRow': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "js-editor", options))));
+  data.buffer.push("\n    ");
+  return buffer;
+  }
+
+function program7(depth0,data) {
+  
+  
+  data.buffer.push("\n        <div id=\"loader\">&nbsp;</div>\n    ");
+  }
+
+function program9(depth0,data) {
+  
+  var buffer = '', helper, options;
+  data.buffer.push("\n        ");
+  data.buffer.push(escapeExpression((helper = helpers.partial || (depth0 && depth0.partial),options={hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data},helper ? helper.call(depth0, "jobView", options) : helperMissing.call(depth0, "partial", "jobView", options))));
+  data.buffer.push("\n    ");
+  return buffer;
+  }
+
+  data.buffer.push(escapeExpression(helpers.view.call(depth0, "Simulator.GraphicView", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["ID"],data:data})));
+  data.buffer.push("\n<div class=\"editBlock\">\n    ");
+  stack1 = helpers['if'].call(depth0, "canSelectLanguage", {hash:{},hashTypes:{},hashContexts:{},inverse:self.noop,fn:self.program(1, program1, data),contexts:[depth0],types:["ID"],data:data});
   if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
-    data.buffer.push("\n</div>");
+  data.buffer.push("\n    ");
+  stack1 = helpers['if'].call(depth0, "usingGcode", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(5, program5, data),fn:self.program(3, program3, data),contexts:[depth0],types:["ID"],data:data});
+  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+  data.buffer.push("\n    <button ");
+  data.buffer.push(escapeExpression(helpers.action.call(depth0, "simulate", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
+  data.buffer.push(" ");
+  data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
+    'disabled': ("computing")
+  },hashTypes:{'disabled': "STRING"},hashContexts:{'disabled': depth0},contexts:[],types:[],data:data})));
+  data.buffer.push(">Simulate</button>\n    <button ");
+  data.buffer.push(escapeExpression(helpers.action.call(depth0, "loadBigSample", {hash:{},hashTypes:{},hashContexts:{},contexts:[depth0],types:["STRING"],data:data})));
+  data.buffer.push(" ");
+  data.buffer.push(escapeExpression(helpers['bind-attr'].call(depth0, {hash:{
+    'disabled': ("computing")
+  },hashTypes:{'disabled': "STRING"},hashContexts:{'disabled': depth0},contexts:[],types:[],data:data})));
+  data.buffer.push(">Load a bigger sample</button>\n\n    ");
+  stack1 = helpers['if'].call(depth0, "computing", {hash:{},hashTypes:{},hashContexts:{},inverse:self.program(9, program9, data),fn:self.program(7, program7, data),contexts:[depth0],types:["ID"],data:data});
+  if(stack1 || stack1 === 0) { data.buffer.push(stack1); }
+  data.buffer.push("\n</div>");
   return buffer;
   
 });
-Ember.TEMPLATES["operationSimpleEngraving"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data
-                                                                                           /**/) {
+Ember.TEMPLATES["operationSimpleEngraving"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data
+/*``*/) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   var buffer = '', stack1, helper, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression, self=this;
@@ -1500,8 +920,8 @@ function program1(depth0,data) {
   return buffer;
   
 });
-Ember.TEMPLATES["shape"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data
-                                                                        /**/) {
+Ember.TEMPLATES["shape"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data
+/*``*/) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
   var buffer = '', stack1, helper, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression, self=this;
@@ -1759,124 +1179,67 @@ function program24(depth0,data) {
   return buffer;
   
 });
-Ember.TEMPLATES["operationDrilling"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data
-                                                                                    /**/) {
+Ember.TEMPLATES["operationDrilling"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data
+/*``*/) {
 this.compilerInfo = [4,'>= 1.0.0'];
 helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
-    var buffer = '', helper, options, helperMissing = helpers.helperMissing, escapeExpression = this.escapeExpression;
+  var buffer = '', helper, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression;
 
 
-    data.buffer.push("<tr>\n    <th>Surface :</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-        hash: {
-            'numericValue': ("top_Z")
-        },
-        hashTypes: {'numericValue': "ID"},
-        hashContexts: {'numericValue': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-    data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Bottom Z :</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-        hash: {
-            'numericValue': ("bottom_Z")
-        },
-        hashTypes: {'numericValue': "ID"},
-        hashContexts: {'numericValue': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-    data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n");
+  data.buffer.push("<tr>\n    <th>Surface :</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("top_Z")
+  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th>Bottom Z :</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("bottom_Z")
+  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n");
   return buffer;
-
+  
 });
-Ember.TEMPLATES["operationPocket"] = Ember.Handlebars.template(function anonymous(Handlebars, depth0, helpers, partials, data
-                                                                                  /**/) {
-    this.compilerInfo = [4, '>= 1.0.0'];
-    helpers = this.merge(helpers, Ember.Handlebars.helpers);
-    data = data || {};
-    var buffer = '', helper, options, helperMissing = helpers.helperMissing, escapeExpression = this.escapeExpression;
+Ember.TEMPLATES["operationPocket"] = Ember.Handlebars.template(function anonymous(Handlebars,depth0,helpers,partials,data
+/*``*/) {
+this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Ember.Handlebars.helpers); data = data || {};
+  var buffer = '', helper, options, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression;
 
 
-    data.buffer.push("<tr>\n    <th title=\"in mm\">Bottom Z:</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-        hash: {
-            'numericValue': ("bottom_Z")
-        },
-        hashTypes: {'numericValue': "ID"},
-        hashContexts: {'numericValue': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-    data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th title=\"Engagement in %\">Radial Engagement:</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-        hash: {
-            'numericValue': ("pocket_engagement"),
-            'min': ("0"),
-            'increment': ("1"),
-            'max': ("100")
-        },
-        hashTypes: {'numericValue': "ID", 'min': "STRING", 'increment': "STRING", 'max': "STRING"},
-        hashContexts: {'numericValue': depth0, 'min': depth0, 'increment': depth0, 'max': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-    data.buffer.push("\n        <span class=\"input-group-addon\">%</span></td>\n</tr>\n<tr>\n    <th title=\"Lateral in mm\">Leave Stock:</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-        hash: {
-            'numericValue': ("leaveStock"),
-            'min': ("0")
-        },
-        hashTypes: {'numericValue': "ID", 'min': "STRING"},
-        hashContexts: {'numericValue': depth0, 'min': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-    data.buffer.push("\n        <span class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th title=\"Avoid straight plunging\">Ramping Entry:</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input), options = {
-        hash: {
-            'type': ("checkbox"),
-            'checked': ("pocket_ramping_entry")
-        },
-        hashTypes: {'type': "STRING", 'checked': "ID"},
-        hashContexts: {'type': depth0, 'checked': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
-    data.buffer.push("</td>\n</tr>\n<tr>\n    <th>Ramp Starting Z:</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-        hash: {
-            'numericValue': ("top_Z"),
-            'disabled': ("noRamping")
-        },
-        hashTypes: {'numericValue': "ID", 'disabled': "ID"},
-        hashContexts: {'numericValue': depth0, 'disabled': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-    data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th># of Ramping Turns:</th>\n    <td class=\"input-group input-group-sm\">");
-    data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']), options = {
-        hash: {
-            'numericValue': ("ramping_turns"),
-            'min': ("1"),
-            'step': ("1"),
-            'disabled': ("noRamping"),
-            'classNames': ("form-control")
-        },
-        hashTypes: {'numericValue': "ID", 'min': "STRING", 'step': "STRING", 'disabled': "ID", 'classNames': "STRING"},
-        hashContexts: {'numericValue': depth0, 'min': depth0, 'step': depth0, 'disabled': depth0, 'classNames': depth0},
-        contexts: [],
-        types: [],
-        data: data
-    }, helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
-    data.buffer.push("\n        <span class=\"input-group-addon\">units</span></td>\n</tr>");
+  data.buffer.push("<tr>\n    <th title=\"in mm\">Bottom Z:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("bottom_Z")
+  },hashTypes:{'numericValue': "ID"},hashContexts:{'numericValue': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th title=\"Engagement in %\">Radial Engagement:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("pocket_engagement"),
+    'min': ("0"),
+    'increment': ("1"),
+    'max': ("100")
+  },hashTypes:{'numericValue': "ID",'min': "STRING",'increment': "STRING",'max': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0,'increment': depth0,'max': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push("\n        <span class=\"input-group-addon\">%</span></td>\n</tr>\n<tr>\n    <th title=\"Lateral in mm\">Leave Stock:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("leaveStock"),
+    'min': ("0")
+  },hashTypes:{'numericValue': "ID",'min': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push("\n        <span class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th title=\"Avoid straight plunging\">Ramping Entry:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers.input || (depth0 && depth0.input),options={hash:{
+    'type': ("checkbox"),
+    'checked': ("pocket_ramping_entry")
+  },hashTypes:{'type': "STRING",'checked': "ID"},hashContexts:{'type': depth0,'checked': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "input", options))));
+  data.buffer.push("</td>\n</tr>\n<tr>\n    <th>Ramp Starting Z:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("top_Z"),
+    'disabled': ("noRamping")
+  },hashTypes:{'numericValue': "ID",'disabled': "ID"},hashContexts:{'numericValue': depth0,'disabled': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push(" <span\n            class=\"input-group-addon\">mm</span></td>\n</tr>\n<tr>\n    <th># of Ramping Turns:</th>\n    <td class=\"input-group input-group-sm\">");
+  data.buffer.push(escapeExpression((helper = helpers['number-input'] || (depth0 && depth0['number-input']),options={hash:{
+    'numericValue': ("ramping_turns"),
+    'min': ("1"),
+    'step': ("1"),
+    'disabled': ("noRamping"),
+    'classNames': ("form-control")
+  },hashTypes:{'numericValue': "ID",'min': "STRING",'step': "STRING",'disabled': "ID",'classNames': "STRING"},hashContexts:{'numericValue': depth0,'min': depth0,'step': depth0,'disabled': depth0,'classNames': depth0},contexts:[],types:[],data:data},helper ? helper.call(depth0, options) : helperMissing.call(depth0, "number-input", options))));
+  data.buffer.push("\n        <span class=\"input-group-addon\">units</span></td>\n</tr>");
   return buffer;
   
 });

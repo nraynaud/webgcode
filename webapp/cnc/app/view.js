@@ -5,30 +5,6 @@ define(['Ember', 'cnc/ui/threeDView', 'THREE', 'cnc/util', 'cnc/cam/3D/toolProfi
             classNames: ['rootview']
         });
 
-        var LoginView = Ember.View.extend({
-            tagName: 'webview',
-            classNames: ['loginFrame'],
-            attributeBindings: ['src', ''],
-            didInsertElement: function () {
-                this.$().on('loadstop', Ember.run.bind(this, this.loadstop));
-            },
-            src: function () {
-                return 'https://auth.firebase.com/v2/popping-fire-1042/auth/' + this.get('controller.model')
-                    + '?v=js-0.0.0&transport=json&suppress_status_codes=true'
-            }.property('controller.model'),
-            loadstop: function () {
-                var _this = this;
-                var service = _this.get('controller.model');
-                var url = this.$().attr('src').split('?')[0];
-                if (url.indexOf('/auth/' + service + '/callback') != -1) {
-                    this.$()[0].executeScript({code: 'document.getElementsByTagName("pre")[0].innerHTML;'}, function (res) {
-                        var authData = JSON.parse(res[0]);
-                        _this.get('controller').send('loginWithToken', authData);
-                    });
-                }
-            }
-        });
-
         function collectVertices(toolpath, defaultZ) {
             var res = [];
             if (toolpath.initialPoint)
@@ -115,7 +91,7 @@ define(['Ember', 'cnc/ui/threeDView', 'THREE', 'cnc/util', 'cnc/cam/3D/toolProfi
                 Ember.run.debounce(this, 'syncLeaveStock', 1);
             }.observes('operation.leftStock').on('init'),
             visibleChanged: function () {
-                this.get('threeDNode').setVisibility(this.get('controller.currentOperation') == this.get('operation'));
+                this.get('threeDNode').setVisibility(this.get('controller.currentOperation') === this.get('operation'));
             }.observes('controller.currentOperation').on('init')
         });
 
@@ -256,7 +232,7 @@ define(['Ember', 'cnc/ui/threeDView', 'THREE', 'cnc/util', 'cnc/cam/3D/toolProfi
                     var startX = middleX - radius * factor;
                     for (i = 0; i < profile.length; i++) {
                         var x = startX + (i / profile.length * radius) * factor;
-                        if (i == 0)
+                        if (i === 0)
                             ctx.moveTo(x, 0);
                         ctx.lineTo(x, Math.max(ctx.canvas.height - (profile[profile.length - i - 1] - min) * factor, 0));
                     }
@@ -285,7 +261,6 @@ define(['Ember', 'cnc/ui/threeDView', 'THREE', 'cnc/util', 'cnc/cam/3D/toolProfi
 
         return {
             ThreeDView: ThreeDView,
-            LoginView: LoginView,
             ApplicationView: ApplicationView,
             JobView: JobView,
             ToolView: ToolView

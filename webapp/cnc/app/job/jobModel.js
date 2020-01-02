@@ -9,7 +9,7 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             toolDiameter: attr('number', {defaultValue: 3}),
             userFeedrate: attr('number', {defaultValue: 100}),
             startPoint: attr('point', {defaultValue: new util.Point(0, 0, 10)}),
-            jobSummary: DS.belongsTo('jobSummary', {inverse: 'job', async: true}),
+            jobSummary: DS.belongsTo('jobSummary', {inverse: 'job', async: false}),
             shapes: DS.hasMany('shape', {inverse: 'job', embedded: true}),
             operations: DS.hasMany('operation', {inverse: 'job', embedded: true}),
             offsetX: attr('number', {defaultValue: 0}),
@@ -35,9 +35,9 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 });
             },
             deleteOperation: function (operation) {
+                operation.terminateWorkerWhenDeleted();
                 this.get('operations').removeObject(operation);
                 operation.destroyRecord();
-                this.save();
             },
             deleteShape: function (shape) {
                 this.get('shapes').removeObject(shape);
@@ -100,25 +100,17 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             },
             createShape: function (def, name, params) {
                 var shape = this.store.createRecord('shape', $.extend({definition: def, name: name}, params));
+                //shape.set('id', this.get('shapes.length'))
                 this.get('shapes').pushObject(shape);
                 return shape;
             },
             saveAll: function () {
-                var summaryPromise = this.get('jobSummary');
-                var _this = this;
-                summaryPromise.then(function (summary) {
-                    if (summary == null) {
-                        summary = _this.store.createRecord('jobSummary', {job: _this, name: _this.get('name')});
-                        _this.set('jobSummary', summary);
-                    } else
-                        summary.set('name', _this.get('name'));
-                    return Ember.RSVP.all([summary.save(), _this.save()]);
-                });
+                return this.save();
             },
             feedrate: Ember.computed.alias('userFeedrate'),
             canSendProgram: function () {
                 var operations = this.get('operations');
-                if (operations.length == 0)
+                if (operations.length === 0)
                     return false;
                 var oneIsComputing = false;
                 var oneIsEnabled = false;
@@ -137,12 +129,11 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
                 this.set('duration', 'computing...');
                 if (this.get('durationWorker'))
                     this.get('durationWorker').terminate();
-                var worker = new Worker(require.toUrl('worker.js'));
+                var worker = new Worker(require.toUrl('worker.js') + '#jobdurationWorker');
                 this.set('durationWorker', worker);
                 var _this = this;
                 worker.onmessage = Ember.run.bind(this, function (event) {
                     _this.set('duration', event.data.duration);
-                    worker.terminate();
                     _this.set('durationWorker', null);
                 });
                 worker.postMessage({
@@ -152,11 +143,10 @@ define(['Ember', 'EmberData', 'cnc/cam/cam', 'cnc/util', 'cnc/cam/operations', '
             },
             observeOperationDuration: function () {
                 this.set('duration', null);
-                if (this.get('enabledOperations').filterBy('computing', true).length == 0)
+                if (this.get('enabledOperations').filterBy('computing', true).length === 0)
                     Ember.run.debounce(this, 'computeDuration', 100);
             }.observes('wholeProgram', 'operations.@each.actualFeedrate', 'operations.@each.computing'),
             computeCompactToolPath: function () {
-                console.log('computeCompactToolPath');
                 var operations = this.get('enabledOperations');
                 var safetyZ = this.get('safetyZ');
                 var travelBits = [];
