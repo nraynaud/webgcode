@@ -42,10 +42,11 @@ define(['Ember', 'cnc/cam/operations', 'cnc/util', 'cnc/cad/wabble', 'cnc/cam/te
                         name: 'Output Pins Finishing', type: 'SimpleContourOperation', outline: outputPins,
                         contour_inside: false, leaveStock: 0, contour_climbMilling: false
                     }].forEach(function (op) {
-                            job.createOperation(op);
-                        });
-                    this.transitionToRoute('job', job).then(function () {
-                        job.saveAll();
+                        job.createOperation(op);
+                    });
+                    var _this = this;
+                    job.saveAll().then(function () {
+                        _this.transitionToRoute('job', job)
                     });
                 },
                 createJob: function () {
