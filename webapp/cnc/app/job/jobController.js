@@ -75,10 +75,12 @@ define(['Ember', 'jQuery', 'cnc/util', 'cnc/cam/cam'], function (Ember, $, util,
                 this.transitionToRoute('shape', shape);
             },
             'delete': function () {
+                console.log('delete')
                 var _this = this;
                 var ops = this.get('operations').toArray();
                 return Ember.RSVP.all(ops.map(function (op) {
-                    _this.get('operations').removeObject(op);
+                    console.log('destroying ' + op.get('name'))
+                    //_this.get('operations').removeObject(op);
                     return op.destroyRecord();
                 })).finally(function () {
                     return _this.get('model').destroyRecord();

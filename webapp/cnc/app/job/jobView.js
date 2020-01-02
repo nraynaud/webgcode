@@ -11,11 +11,11 @@ define(['Ember', 'cnc/import/svgImporter', 'cnc/import/gerberImporter', 'cnc/imp
                     _this.displayFakeDelete(false);
                 }, function () {
                     $(this).data('hovering', false);
-                    if (_this.get('controller.deleteSlider') === 0)
+                    if (_this.get('controller.deleteSlider') == '0')
                         _this.displayFakeDelete(true);
                 });
                 this.$('#deleteSlider').mouseup(function () {
-                    if (_this.get('controller.deleteSlider') === 1) {
+                    if (_this.get('controller.deleteSlider') == '1') {
                         _this.get('controller').send('delete');
                         _this.displayFakeDelete(true);
                     }
@@ -121,14 +121,14 @@ define(['Ember', 'cnc/import/svgImporter', 'cnc/import/gerberImporter', 'cnc/imp
                 var val = this.get('controller.deleteSlider');
                 if (this.$()) {
                     this.$('#deleteBlock').css('background-color', 'rgba(255, 0, 0, ' + val + ')');
-                    if (val === 1) {
+                    if (val === '1') {
                         $('#slideToDelete').hide();
                         $('#releaseToDelete').show();
                     } else {
                         $('#slideToDelete').show();
                         $('#releaseToDelete').hide();
                     }
-                    if (val === 0 && !this.$('#deleteBlock').data('hovering'))
+                    if (val == 0 && !this.$('#deleteBlock').data('hovering'))
                         this.displayFakeDelete(true);
                 }
             }.observes('controller.deleteSlider')
