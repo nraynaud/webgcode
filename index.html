@@ -193,6 +193,8 @@ window.waitingForContainer = setInterval(() => {
     label.innerHTML = 'Live Reload'
     
     simulateButton.addEventListener('click', () => {
+        window.TwoDForceUpdate = true;
+        window.ThreeDForceUpdate = true;
         origButtons[0].click();
     });
 
