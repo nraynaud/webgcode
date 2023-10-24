@@ -161,6 +161,20 @@ G17 (back to X-Y plane)
 </html>
 
 <script>
+
+lastPressTime = 0;
+window.awaitingRedraw = () => {
+    lastPressTime = Date.now();
+};
+
+// handles the actual drawing for awaitingRedraw
+setInterval(() => {
+    const redrawBTN = document.getElementsByClassName('editBlock')[0].getElementsByTagName('button')[0];
+    if (Date.now() - lastPressTime > 500){
+        console.log('draw!')
+    }
+}, 200);
+
 window.waitingForContainer = setInterval(() => {
     // Wait until the page is loaded
     if (document.getElementsByClassName('ember-view viewContainer').length == 0) return;

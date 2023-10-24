@@ -101,6 +101,7 @@ define(['Ember', 'libs/svg', 'libs/jquery.mousewheel', 'cnc/svg.marker'], functi
             axes.line(0, 0, 10, 0).attr({stroke: '#FF0000', 'stroke-width': 1.5, 'marker-end': redArrowMarker});
             axes.line(0, 0, 0, 10).attr({stroke: '#00FF00', 'stroke-width': 1.5, 'marker-end': greenArrowMarker});
             element.mousewheel(Ember.run.bind(_this, function (event, delta, deltaX, deltaY) {
+                deltaY *= 6; // speedup scrolling a lot
                 var pos = _this.getModelPositionForPageXY(event.pageX, event.pageY);
                 var k = svg.node.createSVGMatrix().translate(pos.x, pos.y).scale(1 + deltaY / 360).translate(-pos.x, -pos.y);
                 var m = _this.getCTM().multiply(k);
