@@ -164,14 +164,19 @@ G17 (back to X-Y plane)
 
 lastPressTime = 0;
 window.awaitingRedraw = () => {
+    if (!localStorage['livereloadenabled'] == 'true') return;
+
     lastPressTime = Date.now();
 };
 
 // handles the actual drawing for awaitingRedraw
 setInterval(() => {
+    if (!localStorage['livereloadenabled'] == 'true') return;
+    
     const redrawBTN = document.getElementsByClassName('editBlock')[0].getElementsByTagName('button')[0];
     if (Date.now() - lastPressTime > 500){
         console.log('draw!')
+        redrawBTN.click();
     }
 }, 200);
 

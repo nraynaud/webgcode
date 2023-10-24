@@ -9,7 +9,7 @@ define(['Ember', 'ace'], function (Em, ace) {
             editor.setTheme("ace/theme/chaos");
             editor.on('change', function () {
                 Em.run.once(_this, _this.notifyPropertyChange, 'content');
-                if (window.awaitingRedraw) this.awaitingRedraw();
+                if (window.awaitingRedraw) window.awaitingRedraw();
             });
             editor.selection.on('changeCursor', function (event) {
                 _this.set('currentRow', editor.selection.getCursor().row);
