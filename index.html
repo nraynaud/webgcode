@@ -5,6 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <title>g-code simulator</title>
     <script src="webapp/libs/require.js"></script>
+    <script src="/webapp/definitions.js"></script>
     <script src="webapp/config.js"></script>
     <script>
         requirejs.config({
@@ -18,216 +19,83 @@
 </head>
 <body>
 <div id="app">
-
+    <div id="container"></div>
 </div>
 <script id="demoCode" type="application/gcode">G0 Y10 Z-5
-G1 Z-10
-G1 Y20
-G02 X10 Y30 R10
-G1 X30
-G2 X40 Y20 R10
-G1 Y10
-G2 X30 Y0 R10
-G1 X10
-G2 X0 Y10 Z-15 R10 (yeah spiral !)
-G3 X-10 Y20 R-10 (yeah, long arc !)
-G3 X0 Y10 I10 (center)
-G91 G1 X10 Z10
-G3 Y10 R5 Z3 (circle in incremental)
-Y10 R5 Z3 (again, testing modal state)
-G20 G0 X1 (one inch to the right)
-G3 X-1 R1 (radius in inches)
-G3 X1 Z0.3 I0.5 J0.5 (I,J in inches)
-G21 (back to mm)
-G80 X10 (do nothing)
-G90
-G0 X30 Y30 Z30
-G18 (X-Z plane)
-G3 Z40 I0 K5
-G19 (Y-Z plane)
-G3 Z50 J0 K5
-G17 (back to X-Y plane)
+
 </script>
-<script>
-    require(['Ember', 'cnc/ui/graphicView', 'cnc/cam/cam', 'cnc/util', 'cnc/ui/gcodeEditor', 'cnc/gcode/gcodeSimulation', 'templates'],
-            function (Ember, GraphicView, cam, util, gcodeEditor, gcodeSimulation) {
-                var demoCode = $('#demoCode').text();
-
-                Ember.Handlebars.helper('num', function (value) {
-                    return new Handlebars.SafeString(Handlebars.Utils.escapeExpression(util.formatCoord(value)));
-                });
-                Ember.TEMPLATES['application'] = Ember.TEMPLATES['camApp'];
-
-                window.Simulator = Ember.Application.create({
-                    rootElement: '#app'
-                });
-
-                Simulator.GcodeEditorComponent = gcodeEditor.GcodeEditorComponent;
-                Simulator.GraphicView = GraphicView;
-
-                Simulator.ApplicationController = Ember.ObjectController.extend({
-                    init: function () {
-                        this._super();
-                        var _this = this;
-                        $(window).on('dragover', function (event) {
-                            event.preventDefault();
-                            event.dataTransfer.dropEffect = 'move';
-                        });
-
-                        $(window).on('drop', function (evt) {
-                            evt.preventDefault();
-                            evt.stopPropagation();
-                            var files = evt.dataTransfer.files;
-                            var file = files[0];
-                            var reader = new FileReader();
-                            reader.onload = function (e) {
-                                _this.set('code', e.target.result);
-                                _this.launchSimulation();
-                            };
-                            reader.readAsText(file);
-                        });
-                        this.launchSimulation();
-                    },
-                    actions: {
-                        simulate: function () {
-                            this.launchSimulation();
-                        },
-                        loadBigSample: function () {
-                            this.set('computing', true);
-                            var _this = this;
-                            require(['text!samples/aztec_calendar.ngc'], function (text) {
-                                _this.set('code', text);
-                                _this.launchSimulation();
-                            });
-                        }
-                    },
-                    launchSimulation: function () {
-                        var _this = this;
-
-                        function handleResult(result) {
-                            _this.flushFragmentFile();
-                            var errors = [];
-                            for (var i = 0; i < result.errors.length; i++) {
-                                var error = result.errors[i];
-                                errors.push({row: error.lineNo, text: error.message, type: "error"});
-                            }
-                            _this.set('errors', errors);
-                            _this.set('bbox', {min: result.min, max: result.max});
-                            _this.set('totalTime', result.totalTime);
-                            _this.set('lineSegmentMap', result.lineSegmentMap);
-                            _this.set('computing', false);
-                            console.timeEnd('simulation');
-                        }
-
-                        console.time('simulation');
-                        this.set('computing', true);
-                        _this.set('lineSegmentMap', []);
-                        this.get('simulatedPath').clear();
-                        gcodeSimulation.parseInWorker(this.get('code'), new util.Point(0, 0, 0),
-                                Ember.run.bind(_this, handleResult),
-                                Ember.run.bind(_this, function (fragment) {
-                                    _this.get('fragmentFile').pushObject(fragment);
-                                    Ember.run.throttle(_this, _this.flushFragmentFile, 500);
-                                }));
-                    },
-                    flushFragmentFile: function () {
-                        this.get('simulatedPath').pushObjects(this.get('fragmentFile'));
-                        this.get('fragmentFile').clear();
-                    },
-                    formattedTotalTime: function () {
-                        var totalTime = this.get('totalTime');
-                        var humanized = util.humanizeDuration(totalTime);
-                        return {humanized: humanized, detailed: Math.round(totalTime) + 's'};
-                    }.property('totalTime'),
-                    currentHighLight: function () {
-                        return this.get('lineSegmentMap')[this.get('currentRow')];
-                    }.property('currentRow', 'lineSegmentMap').readOnly(),
-                    code: demoCode,
-                    errors: [],
-                    bbox: {},
-                    totalTime: 0,
-                    lineSegmentMap: [],
-                    currentRow: null,
-                    simulatedPath: [],
-                    computing: false,
-                    fragmentFile: [],
-                    canSelectLanguage: false,
-                    usingGcode: true,
-                    decorations: []
-                });
-            });
-</script>
+<script src="/webapp/monacoeditor.js"></script>
 </body>
 </html>
 
 <script>
 
-lastPressTime = 0;
-window.awaitingRedraw = () => {
-    if (!(localStorage['livereloadenabled'] == 'true')) return;
+// lastPressTime = 0;
+// window.awaitingRedraw = () => {
+//     if (!(localStorage['livereloadenabled'] == 'true')) return;
 
-    lastPressTime = Date.now();
-};
+//     lastPressTime = Date.now();
+// };
 
-// handles the actual drawing for awaitingRedraw
-setInterval(() => {
-    if (!(localStorage['livereloadenabled'] == 'true')) return;
+// // handles the actual drawing for awaitingRedraw
+// setInterval(() => {
+//     if (!(localStorage['livereloadenabled'] == 'true')) return;
     
-    const redrawBTN = document.getElementsByClassName('editBlock')[0].getElementsByTagName('button')[0];
-    if (Date.now() - lastPressTime > 500 && lastPressTime != 0){
-        lastPressTime = 0;
-        console.log('draw!')
-        redrawBTN.click();
-    }
-}, 200);
+//     const redrawBTN = document.getElementsByClassName('editBlock')[0].getElementsByTagName('button')[0];
+//     if (Date.now() - lastPressTime > 500 && lastPressTime != 0){
+//         lastPressTime = 0;
+//         console.log('draw!')
+//         redrawBTN.click();
+//     }
+// }, 200);
 
-window.waitingForContainer = setInterval(() => {
-    // Wait until the page is loaded
-    if (document.getElementsByClassName('ember-view viewContainer').length == 0) return;
-    clearInterval(window.waitingForContainer);
+// window.waitingForContainer = setInterval(() => {
+//     // Wait until the page is loaded
+//     if (document.getElementsByClassName('ember-view viewContainer').length == 0) return;
+//     clearInterval(window.waitingForContainer);
     
-    const container = document.getElementsByClassName('ember-view viewContainer')[0];
-    const origButtons = document.getElementsByClassName('editBlock')[0].getElementsByTagName('button');
-    origButtons[0].style.display = 'none';
-    origButtons[1].style.display = 'none';
+//     const container = document.getElementsByClassName('ember-view viewContainer')[0];
+//     const origButtons = document.getElementsByClassName('editBlock')[0].getElementsByTagName('button');
+//     origButtons[0].style.display = 'none';
+//     origButtons[1].style.display = 'none';
     
-    const toolbar = document.createElement('div');
-    const simulateButton = document.createElement('button');
-    simulateButton.innerHTML = "Simulate";
+//     const toolbar = document.createElement('div');
+//     const simulateButton = document.createElement('button');
+//     simulateButton.innerHTML = "Simulate";
     
-    const loadBiggerSample = document.createElement('button');
-    loadBiggerSample.innerHTML = "Load Bigger Sample";
+//     const loadBiggerSample = document.createElement('button');
+//     loadBiggerSample.innerHTML = "Load Bigger Sample";
 
-    const livereload = document.createElement('input');
-    livereload.id = "livereload"
-    livereload.type = 'checkbox';
+//     const livereload = document.createElement('input');
+//     livereload.id = "livereload"
+//     livereload.type = 'checkbox';
     
-    if (localStorage['livereloadenabled'] == undefined){
-        localStorage['livereloadenabled'] = 'true';
-    }
+//     if (localStorage['livereloadenabled'] == undefined){
+//         localStorage['livereloadenabled'] = 'true';
+//     }
     
-    livereload.checked = localStorage['livereloadenabled'];
+//     livereload.checked = localStorage['livereloadenabled'];
 
-    const label = document.createElement('label');
-    label.for = 'livereload';
-    label.innerHTML = 'Live Reload'
+//     const label = document.createElement('label');
+//     label.for = 'livereload';
+//     label.innerHTML = 'Live Reload'
     
-    simulateButton.addEventListener('click', () => {
-        window.TwoDForceUpdate = true;
-        window.ThreeDForceUpdate = true;
-        origButtons[0].click();
-    });
+//     simulateButton.addEventListener('click', () => {
+//         window.TwoDForceUpdate = true;
+//         window.ThreeDForceUpdate = true;
+//         origButtons[0].click();
+//     });
 
-    livereload.addEventListener('click', () => {
-        localStorage['livereloadenabled'] = livereload.checked ? 'true' : '';
-    });
+//     livereload.addEventListener('click', () => {
+//         localStorage['livereloadenabled'] = livereload.checked ? 'true' : '';
+//     });
 
-    toolbar.appendChild(simulateButton);
-    toolbar.appendChild(loadBiggerSample);
-    toolbar.appendChild(livereload);
-    toolbar.appendChild(label);
-    container.appendChild(toolbar);
-}, 200);
+//     toolbar.appendChild(simulateButton);
+//     toolbar.appendChild(loadBiggerSample);
+//     toolbar.appendChild(livereload);
+//     toolbar.appendChild(label);
+//     container.appendChild(toolbar);
+// }, 200);
 </script>
 
 <style>
@@ -250,6 +118,13 @@ window.waitingForContainer = setInterval(() => {
 
     h1 {
         margin-top: 0;
+    }
+
+    #container {
+        margin-top: 10px;
+        margin-left: 10px;
+        height: 600px;
+        width: 45%;
     }
 
     .editBlock {
