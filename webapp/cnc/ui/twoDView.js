@@ -182,7 +182,11 @@ define(['Ember', 'libs/svg', 'libs/jquery.mousewheel', 'cnc/svg.marker'], functi
             var m = this.get('svg.node').createSVGMatrix();
             m = m.scaleNonUniform(newScale, -newScale);
             m = m.translate((width / newScale - box.width) / 2 - box.x, -(height / newScale + box.height) / 2 - box.y);
-            this.setMatrix(m);
+            
+            if (window.TwoDForceUpdate == true || window.TwoDForceUpdate == undefined){
+                this.setMatrix(m);
+                window.TwoDForceUpdate=false;
+            }
         },
         setMatrix: function (matrix) {
             this.get('root').node.transform.baseVal.getItem(0).setMatrix(matrix);

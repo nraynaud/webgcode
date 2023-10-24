@@ -326,7 +326,10 @@ define(['THREE', 'TWEEN', 'cnc/util', 'libs/threejs/OrbitControls', 'cnc/ui/cube
                 var distance = radius / Math.tan(this.camera.fov / 2);
                 var relativePosition = newRelativePosition != null ? newRelativePosition : this.camera.position.clone().sub(previousTarget);
                 var newPosition = relativePosition.normalize().multiplyScalar(distance).add(extentMiddle);
-                // new TWEEN.Tween(this.camera.position).to(tweenVector(newPosition), 500).start();
+                if (window.ThreeDForceUpdate == true || window.ThreeDForceUpdate == undefined){
+                    window.ThreeDForceUpdate = false;
+                    new TWEEN.Tween(this.camera.position).to(tweenVector(newPosition), 500).start();
+                }
                 this.controls.update();
                 this.reRender();
             },
