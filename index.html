@@ -15,92 +15,8 @@
     <link rel="shortcut icon" href="webapp/images/icon_fraise_48.png"/>
     <link rel="stylesheet" href="webapp/twoDView.css" type="text/css">
     <link rel="stylesheet" href="webapp/threeDView.css" type="text/css">
-    <style>
-
-        body, html {
-            -webkit-box-sizing: border-box;
-            -moz-box-sizing: border-box;
-            box-sizing: border-box;
-            position: absolute;
-            height: 100%;
-            width: 100%;
-            margin: 0;
-        }
-
-        body {
-            padding-left: 8px;
-            padding-right: 8px;
-        }
-
-        h1 {
-            margin-top: 0;
-        }
-
-        .editBlock {
-            position: relative;
-            float: left;
-            width: 39%;
-            height: 400px;
-            padding: 1px;
-            margin: 0;
-        }
-
-        .editBlock pre {
-            width: 100%;
-            height: 350px;
-            margin: 0;
-        }
-
-        .viewContainer {
-            float: right;
-            width: 60%;
-        }
-
-        #loader {
-            display: inline-block;
-            background-size: 100% 100%;
-            background-image: url(webapp/images/spinner.svg);
-            width: 20px;
-            height: 20px;
-        }
-
-        .boundsTable {
-            border-collapse: collapse;
-        }
-
-        .boundsTable td {
-            border: dashed gray 1px;
-            padding: 3px;
-        }
-
-        .ThreeDView {
-            border: solid gray 1px;
-            background: #000;
-            height: 400px;
-            position: relative;
-        }
-
-        .TwoDView {
-            border: solid gray 1px;
-            background: #000;
-            height: 400px;
-        }
-
-        #app {
-            position: relative;
-        }
-    </style>
 </head>
 <body>
-
-
-<h1>G-Code Q'n'dirty toolpath simulator</h1>
-
-<p>
-    Paste your g-code in the left-hand window or drop a file on the page and see the preview of your tool path on the right.<br>
-    The right-hand pane are interactive, drag them to change the point of view.
-</p>
-
 <div id="app">
 
 </div>
@@ -249,3 +165,79 @@ G17 (back to X-Y plane)
 </body>
 </html>
 
+<style>
+    body, html {
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+        position: absolute;
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        background-color: #171616;
+        color: white;
+    }
+
+    body {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    h1 {
+        margin-top: 0;
+    }
+
+    .editBlock {
+        position: relative;
+        float: left;
+        width: 39%;
+        height: 400px;
+        padding: 1px;
+        margin: 0;
+    }
+
+    .editBlock pre {
+        width: 100%;
+        height: 350px;
+        margin: 0;
+    }
+
+    .viewContainer {
+        float: right;
+        width: 60%;
+    }
+
+    #loader {
+        display: inline-block;
+        background-size: 100% 100%;
+        background-image: url(webapp/images/spinner.svg);
+        width: 20px;
+        height: 20px;
+    }
+
+    .boundsTable {
+        border-collapse: collapse;
+    }
+
+    .boundsTable td {
+        border: dashed gray 1px;
+        padding: 3px;
+    }
+
+    .ThreeDView {
+        border: solid gray 1px;
+        background: #000;
+        height: 400px;
+        position: relative;
+    }
+
+    .TwoDView {
+        border: solid gray 1px;
+        background: #000;
+        height: 400px;
+    }
+
+    #app {
+        position: relative;
+    }
+</style>
