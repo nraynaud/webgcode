@@ -12,6 +12,8 @@ define(['Ember', 'ace'], function (Em, ace) {
                 Em.run.once(_this, _this.notifyPropertyChange, 'content');
                 this.lastUpdate = Date.now();
 
+                localStorage.setItem('text-content', editor.getValue());
+
                 setTimeout(() => {
                     if (Date.now() - this.lastUpdate > 550 && this.lastUpdate != 0){
                         if (localStorage.getItem('liveReload') == 'true'){

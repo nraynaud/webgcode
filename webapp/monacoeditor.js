@@ -127,7 +127,7 @@ require(["vs/editor/editor.main"], () => {
   // document.getElementById("container")
   window.editor = monaco.editor.create(document.getElementById("container"), {
     theme: "gcodeTheme",
-    value: getCode(),
+    // value: getCode(),
     language: "gcode",
     suggest: {
       showInlineDetails: true,

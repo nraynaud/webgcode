@@ -60,7 +60,7 @@ G17 (back to X-Y plane)
     
         require(['Ember', 'cnc/ui/graphicView', 'cnc/cam/cam', 'cnc/util', 'cnc/ui/gcodeEditor', 'cnc/gcode/gcodeSimulation', 'templates'],
             function (Ember, GraphicView, cam, util, gcodeEditor, gcodeSimulation) {
-                var demoCode = $('#demoCode').text();
+                // var demoCode = $('#demoCode').text();
 
                 Ember.Handlebars.helper('num', function (value) {
                     return new Handlebars.SafeString(Handlebars.Utils.escapeExpression(util.formatCoord(value)));
@@ -151,7 +151,7 @@ G17 (back to X-Y plane)
                     currentHighLight: function () {
                         return this.get('lineSegmentMap')[this.get('currentRow')];
                     }.property('currentRow', 'lineSegmentMap').readOnly(),
-                    code: demoCode,
+                    code: localStorage.getItem('text-content') != undefined ? localStorage.getItem('text-content') : DEFAULT_EDITOR_VALUE,
                     errors: [],
                     bbox: {},
                     totalTime: 0,
@@ -191,8 +191,28 @@ window.killMe = setInterval(() => {
 </html>
 
 <script>
+    promptAndLoadFile = () => {
+        var input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.gcode';
+        input.click();
+
+        input.onchange = e => { 
+            var file = e.target.files[0]; 
+            var reader = new FileReader();
+
+            reader.readAsText(file,'UTF-8');
+            reader.onload = readerEvent => {
+                var content = readerEvent.target.result;
+                window.editor.setValue(content);
+                localStorage.setitem('text-content', content);
+            }
+        }
+    };
+
     window.illdielater = setInterval(() => {
-        if (document.getElementsByClassName('editBlock').length == 0) return;
+        if (document.getElementsByClassName('editBlock').length == 0 || window.editor == undefined) return;
+
         const editBlock = document.getElementsByClassName('editBlock')[0];
 
         const simulateButton = document.getElementsByClassName('editBlock')[0].getElementsByTagName('button')[0];
@@ -268,7 +288,6 @@ window.killMe = setInterval(() => {
 
         clearInterval(illdielater);
     })
-
 </script>
 
 <style>
