@@ -22,36 +22,6 @@
     <div id="container"></div>
 </div>
 
-
-<script id="demoCode" type="application/gcode">G0 Y10 Z-5
-G1 Z-10
-G1 Y20
-G02 X10 Y30 R10
-G1 X30
-G2 X40 Y20 R10
-G1 Y10
-G2 X30 Y0 R10
-G1 X10
-G2 X0 Y10 Z-15 R10 (yeah spiral !)
-G3 X-10 Y20 R-10 (yeah, long arc !)
-G3 X0 Y10 I10 (center)
-G91 G1 X10 Z10
-G3 Y10 R5 Z3 (circle in incremental)
-Y10 R5 Z3 (again, testing modal state)
-G20 G0 X1 (one inch to the right)
-G3 X-1 R1 (radius in inches)
-G3 X1 Z0.3 I0.5 J0.5 (I,J in inches)
-G21 (back to mm)
-G80 X10 (do nothing)
-G90
-G0 X30 Y30 Z30
-G18 (X-Z plane)
-G3 Z40 I0 K5
-G19 (Y-Z plane)
-G3 Z50 J0 K5
-G17 (back to X-Y plane)
-</script>
-
 <script src="/webapp/monacoeditor.js"></script>
 <script>
     window.registerUIThings = setInterval(() => {
@@ -222,24 +192,35 @@ window.killMe = setInterval(() => {
         loadBigSampleButton.style.display = 'none';
 
         const newSimulateButton = document.createElement('button');
+        newSimulateButton.classList.add('button');
         newSimulateButton.innerHTML = 'Simulate';
+        newSimulateButton.style.marginRight = '5px';
+        
         const openFile = document.createElement('button');
+        openFile.classList.add('button');
         openFile.innerHTML = 'Open File';
+
+        const toggleButtonContainer = document.createElement('div');
+        toggleButtonContainer.classList.add('toggleButtonContainer');
 
         const liveReloadButton = document.createElement('input');
         liveReloadButton.type = 'checkbox';
+        liveReloadButton.classList.add('checkbox');
         liveReloadButton.id = 'liveReload';
 
         const liveReloadLabel = document.createElement('label');
         liveReloadLabel.innerHTML = 'Live Reload';
+        liveReloadLabel.classList.add('checkbox-label');
         liveReloadButton.for = 'liveReload';
 
         const suggestionsToggleButton = document.createElement('input');
         suggestionsToggleButton.type = 'checkbox';
         suggestionsToggleButton.id = 'suggestionsToggle';
+        suggestionsToggleButton.classList.add('checkbox');
 
         const suggestionsToggleLabel = document.createElement('label');
         suggestionsToggleLabel.innerHTML = 'Suggestions';
+        suggestionsToggleLabel.classList.add('checkbox-label')
         suggestionsToggleLabel.for = 'suggestionsToggle';
 
         // Original simulate button
@@ -276,15 +257,27 @@ window.killMe = setInterval(() => {
         liveReloadButton.checked = localStorage.getItem('liveReload') == 'true';
         suggestionsToggleButton.checked = localStorage.getItem('suggestionsToggle') == 'true';
         
+        const toolbarContainer = document.createElement('div');
+        toolbarContainer.style.display = 'inline-flex';
+        toolbarContainer.style.display = 'flex-direction: row';
+
         // insert the buttons before the old ones
-        editBlock.insertBefore(newSimulateButton, simulateButton);
-        editBlock.insertBefore(openFile, loadBigSampleButton);
-        editBlock.insertBefore(liveReloadButton, loadBigSampleButton);
-        editBlock.insertBefore(liveReloadLabel, loadBigSampleButton);
+        // editBlock.insertBefore(newSimulateButton, simulateButton);
+        // editBlock.insertBefore(openFile, loadBigSampleButton);
+        toolbarContainer.append(newSimulateButton, openFile);
+
+        const liveReloadContainer = document.createElement('div');
+        liveReloadContainer.style.display = 'inline';
+        liveReloadContainer.append(liveReloadButton, liveReloadLabel);
+
+        const suggestionsContainer = document.createElement('div');
+        suggestionsContainer.style.display = 'inline';
+        suggestionsContainer.append(suggestionsToggleButton, suggestionsToggleLabel);
+
+        toggleButtonContainer.append(liveReloadContainer, suggestionsContainer);
         
-        editBlock.insertBefore(suggestionsToggleButton, loadBigSampleButton);
-        editBlock.insertBefore(suggestionsToggleLabel, loadBigSampleButton);
-        
+        toolbarContainer.append(toggleButtonContainer);
+        editBlock.insertBefore(toolbarContainer, loadBigSampleButton);
 
         clearInterval(illdielater);
     })
@@ -326,6 +319,13 @@ window.killMe = setInterval(() => {
         height: 400px;
         padding: 1px;
         margin: 0;
+        margin-left: 10px;
+        margin-top: 10px;
+    }
+
+    .toggleButtonContainer {
+        display: inline-flex;
+        flex-direction: column;
     }
 
     .editBlock pre {
@@ -337,6 +337,22 @@ window.killMe = setInterval(() => {
     .viewContainer {
         float: right;
         width: 60%;
+    }
+
+    .button {
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #007BFF; /* Button background color */
+        color: #FFFFFF; /* Button text color */
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .button:hover {
+        background-color: #0056b3; /* Button background color on hover */
     }
 
     #loader {

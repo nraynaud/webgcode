@@ -41,7 +41,6 @@ define(['Ember', 'ace'], function (Em, ace) {
             if (arguments.length == 1) {
                 return window.editor.getValue();
             } else {
-                console.log(val);
                 window.editor.setValue(val);
                 return val;
             }
