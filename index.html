@@ -205,7 +205,7 @@ window.killMe = setInterval(() => {
             reader.onload = readerEvent => {
                 var content = readerEvent.target.result;
                 window.editor.setValue(content);
-                localStorage.setitem('text-content', content);
+                localStorage.setItem('text-content', content);
             }
         }
     };
@@ -223,8 +223,8 @@ window.killMe = setInterval(() => {
 
         const newSimulateButton = document.createElement('button');
         newSimulateButton.innerHTML = 'Simulate';
-        const newLoadBigSampleButton = document.createElement('button');
-        newLoadBigSampleButton.innerHTML = 'Load Big Sample';
+        const openFile = document.createElement('button');
+        openFile.innerHTML = 'Open File';
 
         const liveReloadButton = document.createElement('input');
         liveReloadButton.type = 'checkbox';
@@ -253,8 +253,8 @@ window.killMe = setInterval(() => {
             simulateButton.click();
         });
 
-        loadBigSampleButton.addEventListener('click', () => {
-            loadBigSampleButton.click();
+        openFile.addEventListener('click', () => {
+            promptAndLoadFile();
         });
 
         liveReloadButton.addEventListener('change', () => {
@@ -278,7 +278,7 @@ window.killMe = setInterval(() => {
         
         // insert the buttons before the old ones
         editBlock.insertBefore(newSimulateButton, simulateButton);
-        editBlock.insertBefore(newLoadBigSampleButton, loadBigSampleButton);
+        editBlock.insertBefore(openFile, loadBigSampleButton);
         editBlock.insertBefore(liveReloadButton, loadBigSampleButton);
         editBlock.insertBefore(liveReloadLabel, loadBigSampleButton);
         
