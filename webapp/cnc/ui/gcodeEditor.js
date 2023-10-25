@@ -56,10 +56,6 @@ define(['Ember', 'ace'], function (Em, ace) {
                 if (val.length){
                     console.log('error on line '+val);
                     window.setMarker(window.editor, val[0].row + 1, 'error')
-                    // window.editor.setPosition({
-                    //     lineNumber: val[0].row+1,
-                    //     column: 0
-                    // }); 
                     window.editor.revealLine(val[0].row+1);
                     window.editor.focus();
                 }

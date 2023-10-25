@@ -105,9 +105,13 @@ require(["vs/editor/editor.main"], () => {
         endColumn: word.endColumn,
       };
 
+      if (!(localStorage.getItem('suggestionsToggle') == 'true')){
+        return { suggestions: [] };
+      }
+
       var suggestions = [];
 
-      if (word.startColumn == 1) {
+      if (word.startColumn == 1) { // if typing at the start of the line, provide gcode command extensions
         // add range to each of GCODE_SUGGESTIONS
         suggestions = GCODE_SUGGESTIONS.map((s) => {
           return {
