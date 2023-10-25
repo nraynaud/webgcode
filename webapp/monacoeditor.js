@@ -18,7 +18,6 @@ let proxy = URL.createObjectURL(
 );
 
 require(["vs/editor/editor.main"], () => {
-  console.log("monaco editor loaded");
   // Register a new language
   monaco.languages.register({ id: "gcode" });
 
@@ -121,8 +120,8 @@ require(["vs/editor/editor.main"], () => {
       return { suggestions: suggestions };
     },
   });
-
-  monaco.editor.create(document.getElementById("container"), {
+  // document.getElementById("container")
+  window.editor = monaco.editor.create(document.getElementById("container"), {
     theme: "gcodeTheme",
     value: getCode(),
     language: "gcode",
@@ -131,6 +130,40 @@ require(["vs/editor/editor.main"], () => {
       showWords: false,
     },
   });
+
+  window.setMarker = function setMarker(editor, line, message) {
+    var model = editor.getModel();
+    if (!model) {
+      return;
+    }
+  
+    var markers = monaco.editor.getModelMarkers({ resource: model.uri });
+    var existingMarker = markers.find(function (marker) {
+      return marker.startLineNumber === line && marker.message === message;
+    });
+  
+    if (existingMarker) {
+      return; // Avoid duplicate markers
+    }
+  
+    var newMarker = {
+      severity: monaco.MarkerSeverity.Error,
+      startLineNumber: line,
+      endLineNumber: line,
+      startColumn: 1,
+      endColumn: model.getLineMaxColumn(line),
+      message: message
+    };
+  
+    monaco.editor.setModelMarkers(model, 'custom-marker', [newMarker]);
+  }
+
+  window.clearMarkers = function clearMarkers(editor) {
+    var model = editor.getModel();
+    if (model) {
+      monaco.editor.setModelMarkers(model, 'custom-marker', []);
+    }
+  }
 
   function getCode() {
     return [
