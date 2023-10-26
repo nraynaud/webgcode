@@ -121,7 +121,7 @@
                     currentHighLight: function () {
                         return this.get('lineSegmentMap')[this.get('currentRow')];
                     }.property('currentRow', 'lineSegmentMap').readOnly(),
-                    code: localStorage.getItem('text-content') != undefined ? localStorage.getItem('text-content') : DEFAULT_EDITOR_VALUE,
+                    code: '',//DEFAULT_EDITOR_VALUE
                     errors: [],
                     bbox: {},
                     totalTime: 0,
@@ -161,42 +161,35 @@ window.killMe = setInterval(() => {
 </html>
 
 <script>
-    promptAndLoadFile = () => {
-        var input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.gcode';
-        input.click();
+    async function openLocalFile() {
+        const [fileHandle] = await window.showOpenFilePicker();
+        await fileHandle.requestPermission({mode: 'readwrite'});
+        window.openFileHandle = fileHandle;
 
-        input.onchange = e => { 
-            var file = e.target.files[0]; 
-            var reader = new FileReader();
+        fileHandle.getFile().then((file) => {
+            file.text().then((text) => {
+                window.editor.setValue(text);
+            });
+        });
+    }
 
-            reader.readAsText(file,'UTF-8');
-            reader.onload = readerEvent => {
-                var content = readerEvent.target.result;
-                window.editor.setValue(content);
-                localStorage.setItem('text-content', content);
-            }
-        }
-    };
-
-    saveAs = (uri, filename) => {
-        var link = document.createElement('a');
-        if (typeof link.download === 'string') {
-            document.body.appendChild(link); // Firefox requires the link to be in the body
-            link.download = filename;
-            link.href = uri;
-            link.click();
-            document.body.removeChild(link); // remove the link when done
-        } else {
-            location.replace(uri);
-        }
+    async function saveLocalFile(handle){
+        const stream = await handle.createWritable();
+        await stream.write(editor.getValue());
+        stream.close();
+        console.log('saved to disk!');
     }
 
     document.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.key === 's') {
             e.preventDefault();
-            saveAs(`data:application/octet-stream,${window.editor.getValue()}`, 'file.gcode');
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key == 'o'){
+            e.preventDefault();
+            openLocalFile();
         }
     });
 
