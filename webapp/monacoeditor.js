@@ -153,13 +153,6 @@ require(["vs/editor/editor.main"], () => {
           }
       }
 
-      // return [
-      //   {
-      //     start: 5,
-      //     end: 7,
-      //     kind: monaco.languages.FoldingRangeKind.Comment,
-      //   }
-      // ];
       return ranges;
     },
   });
