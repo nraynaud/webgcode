@@ -135,6 +135,36 @@ require(["vs/editor/editor.main"], () => {
     },
   });
 
+  monaco.languages.registerFoldingRangeProvider("gcode", {
+    provideFoldingRanges: function (model, context, token) {
+      ranges = [];
+      text = editor.getValue();
+      temp = null;
+      for (ln = 0; ln < text.split('\r\n').length; ln++){
+          const line = text.split('\r\n')[ln];
+
+          if (line.replaceAll(' ','').startsWith(';[') && line.trim().endsWith(']')){
+              if (temp == null){
+                  temp = ln;
+              } else {
+                  ranges.push({start: temp+1, end: ln+1, kind: monaco.languages.FoldingRangeKind.Region});
+                  temp = null;
+              }
+          }
+      }
+
+      // return [
+      //   {
+      //     start: 5,
+      //     end: 7,
+      //     kind: monaco.languages.FoldingRangeKind.Comment,
+      //   }
+      // ];
+      return ranges;
+    },
+  });
+
+
   window.setMarker = function setMarker(editor, line, message) {
     var model = editor.getModel();
     if (!model) {
