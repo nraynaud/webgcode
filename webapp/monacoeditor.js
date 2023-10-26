@@ -58,6 +58,13 @@ require(["vs/editor/editor.main"], () => {
     },
   });
 
+  monaco.editor.addKeybindingRules([
+    {
+        keybinding: monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyP,
+        command: "editor.action.quickCommand"
+    }
+  ]);
+
   monaco.languages.registerHoverProvider("gcode", {
     provideHover: (model, position) => {
       // Get the word at the current position

@@ -30,8 +30,6 @@
     
         require(['Ember', 'cnc/ui/graphicView', 'cnc/cam/cam', 'cnc/util', 'cnc/ui/gcodeEditor', 'cnc/gcode/gcodeSimulation', 'templates'],
             function (Ember, GraphicView, cam, util, gcodeEditor, gcodeSimulation) {
-                // var demoCode = $('#demoCode').text();
-
                 Ember.Handlebars.helper('num', function (value) {
                     return new Handlebars.SafeString(Handlebars.Utils.escapeExpression(util.formatCoord(value)));
                 });
@@ -174,10 +172,13 @@ window.killMe = setInterval(() => {
     }
 
     async function saveLocalFile(handle){
-        const stream = await handle.createWritable();
-        await stream.write(editor.getValue());
-        stream.close();
-        console.log('saved to disk!');
+        try {
+            const stream = await handle.createWritable();
+            await stream.write(editor.getValue());
+            stream.close();
+        } catch (e){
+            (console.error || console.log).call(console, e.stack || e);
+        }
     }
 
     document.addEventListener('keydown', (e) => {
@@ -194,112 +195,106 @@ window.killMe = setInterval(() => {
     });
 
     window.illdielater = setInterval(() => {
-
         if (document.getElementsByClassName('editBlock').length == 0 || window.editor == undefined) return;
 
-        monaco.editor.addKeybindingRules([
-            {
-                keybinding: monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyP,
-                command: "editor.action.quickCommand"
-            }
-        ]);
-
-        // Awful javascript html creation cause im too lazy to learn Ember
+        // Not a big fan of this code, but it used to be worse
         const editBlock = document.getElementsByClassName('editBlock')[0];
 
-        const simulateButton = document.getElementsByClassName('editBlock')[0].getElementsByTagName('button')[0];
-        const loadBigSampleButton = document.getElementsByClassName('editBlock')[0].getElementsByTagName('button')[1];
+        // Hide original button & listen for keypresses (will be sent by our code)
+        const origSimulateButton = document.getElementsByClassName('editBlock')[0].getElementsByTagName('button')[0];
+        origSimulateButton.style.display = 'none';
 
-        simulateButton.style.display = 'none';
-        loadBigSampleButton.style.display = 'none';
+        origSimulateButton.addEventListener('click', () => {
+            window.clearMarkers(window.editor);
+        })
 
+        // Hide load big sample button
+        const origLoadBigSampleButton = document.getElementsByClassName('editBlock')[0].getElementsByTagName('button')[1];
+        origLoadBigSampleButton.style.display = 'none';
+
+        // Create a new simulate button
         const newSimulateButton = document.createElement('button');
         newSimulateButton.classList.add('button');
         newSimulateButton.innerHTML = 'Simulate';
         newSimulateButton.style.marginRight = '5px';
+
+        newSimulateButton.addEventListener('click', () => {
+            window.TwoDForceUpdate = true;
+            window.ThreeDForceUpdate = true;
+            origSimulateButton.click();
+        });
         
+        // Create a open file button to replace load big sample
         const openFile = document.createElement('button');
         openFile.classList.add('button');
         openFile.innerHTML = 'Open File';
 
-        const toggleButtonContainer = document.createElement('div');
-        toggleButtonContainer.classList.add('toggleButtonContainer');
+        openFile.addEventListener('click', openLocalFile);
 
-        const liveReloadButton = document.createElement('input');
-        liveReloadButton.type = 'checkbox';
-        liveReloadButton.classList.add('checkbox');
-        liveReloadButton.id = 'liveReload';
 
+        // Create the live reload checkbox
+        const liveReloadCheckbox = document.createElement('input');
+        liveReloadCheckbox.type = 'checkbox';
+        liveReloadCheckbox.classList.add('checkbox');
+        liveReloadCheckbox.id = 'liveReload';
+        liveReloadCheckbox.checked = localStorage.getItem('liveReload') == 'true';
+
+        liveReloadCheckbox.addEventListener('change', () => {
+            localStorage.setItem('liveReload', liveReloadCheckbox.checked ? 'true' : 'false');
+        });
+
+        // Create a label for the live reload checkbox
         const liveReloadLabel = document.createElement('label');
         liveReloadLabel.innerHTML = 'Live Reload';
         liveReloadLabel.classList.add('checkbox-label');
-        liveReloadButton.for = 'liveReload';
+        liveReloadCheckbox.for = 'liveReload';
 
-        const suggestionsToggleButton = document.createElement('input');
-        suggestionsToggleButton.type = 'checkbox';
-        suggestionsToggleButton.id = 'suggestionsToggle';
-        suggestionsToggleButton.classList.add('checkbox');
+        // Create a container for centering the checkbox?
+        const liveReloadContainer = document.createElement('div');
+        liveReloadContainer.style.display = 'inline';
+        liveReloadContainer.append(liveReloadCheckbox, liveReloadLabel);
 
+
+
+        // Create the suggestions toggle checkbox
+        const suggestionsToggleCheckbox = document.createElement('input');
+        suggestionsToggleCheckbox.type = 'checkbox';
+        suggestionsToggleCheckbox.id = 'suggestionsToggle';
+        suggestionsToggleCheckbox.classList.add('checkbox');
+        suggestionsToggleCheckbox.checked = localStorage.getItem('suggestionsToggle') == 'true';
+
+        // Create a label for the suggestions toggle checkbox
         const suggestionsToggleLabel = document.createElement('label');
         suggestionsToggleLabel.innerHTML = 'Suggestions';
         suggestionsToggleLabel.classList.add('checkbox-label')
         suggestionsToggleLabel.for = 'suggestionsToggle';
 
-        // Original simulate button
-        simulateButton.addEventListener('click', () => {
-            window.clearMarkers(window.editor);
-        })
-
-        newSimulateButton.addEventListener('click', () => {
-            window.TwoDForceUpdate = true;
-            window.ThreeDForceUpdate = true;
-            simulateButton.click();
+        suggestionsToggleCheckbox.addEventListener('change', () => {
+            localStorage.setItem('suggestionsToggle', suggestionsToggleCheckbox.checked ? 'true' : 'false');
         });
 
-        openFile.addEventListener('click', () => {
-            promptAndLoadFile();
-        });
-
-        liveReloadButton.addEventListener('change', () => {
-            if (liveReloadButton.checked) {
-                localStorage.setItem('liveReload', 'true');
-            } else {
-                localStorage.setItem('liveReload', 'false');
-            }
-        });
-
-        suggestionsToggleButton.addEventListener('change', () => {
-            if (suggestionsToggleButton.checked){
-                localStorage.setItem('suggestionsToggle', 'true');
-            } else {
-                localStorage.setItem('suggestionsToggle', 'false');
-            }
-        });
-
-        liveReloadButton.checked = localStorage.getItem('liveReload') == 'true';
-        suggestionsToggleButton.checked = localStorage.getItem('suggestionsToggle') == 'true';
-        
-        const toolbarContainer = document.createElement('div');
-        toolbarContainer.style.display = 'inline-flex';
-        toolbarContainer.style.display = 'flex-direction: row';
-
-        // insert the buttons before the old ones
-        // editBlock.insertBefore(newSimulateButton, simulateButton);
-        // editBlock.insertBefore(openFile, loadBigSampleButton);
-        toolbarContainer.append(newSimulateButton, openFile);
-
-        const liveReloadContainer = document.createElement('div');
-        liveReloadContainer.style.display = 'inline';
-        liveReloadContainer.append(liveReloadButton, liveReloadLabel);
-
+        // Create a container for centering the checkbox?
         const suggestionsContainer = document.createElement('div');
         suggestionsContainer.style.display = 'inline';
-        suggestionsContainer.append(suggestionsToggleButton, suggestionsToggleLabel);
+        suggestionsContainer.append(suggestionsToggleCheckbox, suggestionsToggleLabel);
 
-        toggleButtonContainer.append(liveReloadContainer, suggestionsContainer);
         
-        toolbarContainer.append(toggleButtonContainer);
-        editBlock.insertBefore(toolbarContainer, loadBigSampleButton);
+
+        // Create a container to hold the checkboxes (so they stack)
+        const checkboxContainer = document.createElement('div');
+        checkboxContainer.classList.add('toggleButtonContainer');
+        
+        checkboxContainer.append(liveReloadContainer, suggestionsContainer);
+
+
+        // This toolbar goes under the editor and holds all the elements we just created
+        const toolbarContainer = document.createElement('div');
+        toolbarContainer.style.display = 'inline-flex';
+        
+
+        toolbarContainer.append(newSimulateButton, openFile);
+        toolbarContainer.append(checkboxContainer);
+        editBlock.insertBefore(toolbarContainer, origLoadBigSampleButton);
 
         clearInterval(illdielater);
     })
