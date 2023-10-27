@@ -4,6 +4,7 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1"/>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <title>g-code simulator</title>
+    <script src="webapp/popup.js"></script>
     <script src="webapp/libs/require.js"></script>
     <script src="/webapp/definitions.js"></script>
     <script src="webapp/config.js"></script>
@@ -176,6 +177,7 @@ window.killMe = setInterval(() => {
             const stream = await handle.createWritable();
             await stream.write(editor.getValue());
             stream.close();
+            new Popup('Saved!', 500);
         } catch (e){
             (console.error || console.log).call(console, e.stack || e);
         }
