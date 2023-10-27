@@ -32,7 +32,7 @@ require(["vs/editor/editor.main"], () => {
   monaco.languages.setMonarchTokensProvider("gcode", {
     tokenizer: {
       root: [
-        [/[GM]\d+/, "gcode-command"],
+        [/[GMN]\d+/, "gcode-command"],
         [/\(.+?\)/, "gcode-bracket-comment"],
         [/;\s*.*/, "gcode-line-comment"],
         [/[XYZ]-?\d+\.*\d*/, "gcode-basic-axis"],
